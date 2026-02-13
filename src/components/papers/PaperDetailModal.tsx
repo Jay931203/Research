@@ -175,6 +175,21 @@ export default function PaperDetailModal({
               </div>
             )}
 
+            {!!snapshot.rememberPoints.length && (
+              <div className="mt-3">
+                <p className="mb-2 text-xs font-semibold text-gray-600 dark:text-gray-300">
+                  리마인드 체크포인트
+                </p>
+                <ul className="space-y-1">
+                  {snapshot.rememberPoints.map((point) => (
+                    <li key={point} className="text-sm text-gray-700 dark:text-gray-300">
+                      • {point}
+                    </li>
+                  ))}
+                </ul>
+              </div>
+            )}
+
             {!!snapshot.expectedOutcomes.length && (
               <div className="mt-3">
                 <p className="mb-2 text-xs font-semibold text-gray-600 dark:text-gray-300">
@@ -367,4 +382,3 @@ function Section({
     </section>
   );
 }
-

@@ -200,6 +200,25 @@ export default function DashboardPage() {
                       {selectedSnapshot.oneLiner}
                     </p>
 
+                    {!!selectedSnapshot.rememberPoints.length && (
+                      <div>
+                        <p className="mb-2 text-xs font-semibold text-gray-600 dark:text-gray-300">
+                          리마인드 체크포인트
+                        </p>
+                        <ul className="space-y-1.5">
+                          {selectedSnapshot.rememberPoints.map((item) => (
+                            <li
+                              key={item}
+                              className="flex items-start gap-2 text-sm text-gray-700 dark:text-gray-300"
+                            >
+                              <span className="mt-[6px] h-1.5 w-1.5 rounded-full bg-indigo-500" />
+                              {item}
+                            </li>
+                          ))}
+                        </ul>
+                      </div>
+                    )}
+
                     {!!selectedSnapshot.expectedOutcomes.length && (
                       <div>
                         <p className="mb-2 text-xs font-semibold text-gray-600 dark:text-gray-300">
@@ -353,4 +372,3 @@ export default function DashboardPage() {
     </MainLayout>
   );
 }
-

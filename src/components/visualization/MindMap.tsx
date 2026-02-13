@@ -511,6 +511,21 @@ function MindMapInner({ papers, relationships, onNodeClick }: MindMapProps) {
                     {focusSnapshot.oneLiner}
                   </p>
 
+                  {!!focusSnapshot.rememberPoints.length && (
+                    <div>
+                      <p className="mb-1 text-[11px] font-semibold text-gray-600 dark:text-gray-300">
+                        리마인드 체크포인트
+                      </p>
+                      <ul className="space-y-1">
+                        {focusSnapshot.rememberPoints.map((item) => (
+                          <li key={item} className="text-xs text-gray-700 dark:text-gray-300">
+                            • {item}
+                          </li>
+                        ))}
+                      </ul>
+                    </div>
+                  )}
+
                   {!!focusSnapshot.expectedOutcomes.length && (
                     <div>
                       <p className="mb-1 text-[11px] font-semibold text-gray-600 dark:text-gray-300">
@@ -724,6 +739,21 @@ function MindMapInner({ papers, relationships, onNodeClick }: MindMapProps) {
               <p className="mt-2 rounded-md bg-blue-50 px-2.5 py-2 text-xs text-blue-900 dark:bg-blue-900/20 dark:text-blue-100">
                 {focusSnapshot.oneLiner}
               </p>
+
+              {!!focusSnapshot.rememberPoints.length && (
+                <div className="mt-2">
+                  <p className="mb-1 text-[11px] font-semibold text-gray-600 dark:text-gray-300">
+                    리마인드 체크포인트
+                  </p>
+                  <ul className="space-y-1">
+                    {focusSnapshot.rememberPoints.map((item) => (
+                      <li key={item} className="text-[11px] text-gray-700 dark:text-gray-300">
+                        • {item}
+                      </li>
+                    ))}
+                  </ul>
+                </div>
+              )}
 
               {!!focusSnapshot.expectedOutcomes.length && (
                 <div className="mt-2">
