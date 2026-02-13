@@ -17,8 +17,6 @@ interface NoteEditorProps {
   onSave?: () => void;
 }
 
-type SaveStatus = 'idle' | 'saving' | 'saved' | 'error' | 'modified';
-
 export default function NoteEditor({
   paperId,
   initialContent = '',
@@ -34,7 +32,6 @@ export default function NoteEditor({
   const [importance, setImportance] = useState(initialImportance);
   const [personalTags, setPersonalTags] = useState<string[]>(initialTags);
   const [tagInput, setTagInput] = useState('');
-  const [saveStatus, setSaveStatus] = useState<SaveStatus>('idle');
   const debounceRef = useRef<ReturnType<typeof setTimeout> | null>(null);
   const addToast = useToastStore((s) => s.addToast);
 
@@ -44,7 +41,6 @@ export default function NoteEditor({
     setIsFavorite(initialFavorite);
     setImportance(initialImportance);
     setPersonalTags(initialTags);
-    setSaveStatus('idle');
   }, [
     paperId,
     initialContent,
@@ -56,8 +52,6 @@ export default function NoteEditor({
 
   const doSave = useCallback(
     async (data: Record<string, unknown>) => {
-      setSaveStatus('saving');
-
       try {
         await upsertNote(paperId, {
           note_content: (data.note_content as string) ?? content,
@@ -68,13 +62,10 @@ export default function NoteEditor({
           last_read_at: new Date().toISOString(),
         });
 
-        setSaveStatus('saved');
         addToast('success', '노트 저장 완료');
         onSave?.();
-        setTimeout(() => setSaveStatus('idle'), 1800);
       } catch (error) {
         console.error('Note save error:', error);
-        setSaveStatus('error');
         addToast('error', '저장 실패, 재시도합니다');
       }
     },
@@ -83,7 +74,6 @@ export default function NoteEditor({
 
   const autoSave = useCallback(
     (data: Record<string, unknown>) => {
-      setSaveStatus('modified');
       if (debounceRef.current) clearTimeout(debounceRef.current);
       debounceRef.current = setTimeout(() => doSave(data), 1400);
     },
