@@ -44,15 +44,14 @@ export default function PaperDetailModal({
 }: PaperDetailModalProps) {
   const handleEscape = useCallback(
     (event: KeyboardEvent) => {
-      if (event.key === 'Escape') {
-        onClose();
-      }
+      if (event.key === 'Escape') onClose();
     },
     [onClose]
   );
 
   useEffect(() => {
     if (!isOpen) return;
+
     document.addEventListener('keydown', handleEscape);
     document.body.style.overflow = 'hidden';
 
@@ -123,7 +122,7 @@ export default function PaperDetailModal({
             <button
               onClick={onClose}
               className="rounded-lg p-2 transition hover:bg-gray-200 dark:hover:bg-gray-700"
-              aria-label="Close"
+              aria-label="닫기"
             >
               <X className="h-5 w-5" />
             </button>
@@ -176,18 +175,42 @@ export default function PaperDetailModal({
               </div>
             )}
 
-            {!!snapshot.rememberPoints.length && (
-              <ul className="mt-3 space-y-1.5">
-                {snapshot.rememberPoints.map((point) => (
-                  <li
-                    key={point}
-                    className="flex items-start gap-2 text-sm text-gray-700 dark:text-gray-300"
-                  >
-                    <span className="mt-[6px] h-1.5 w-1.5 rounded-full bg-blue-500" />
-                    <span>{point}</span>
-                  </li>
-                ))}
-              </ul>
+            {!!snapshot.expectedOutcomes.length && (
+              <div className="mt-3">
+                <p className="mb-2 text-xs font-semibold text-gray-600 dark:text-gray-300">
+                  기대 기여/결과
+                </p>
+                <ul className="space-y-1">
+                  {snapshot.expectedOutcomes.map((outcome) => (
+                    <li key={outcome} className="text-sm text-gray-700 dark:text-gray-300">
+                      • {outcome}
+                    </li>
+                  ))}
+                </ul>
+              </div>
+            )}
+
+            {!!snapshot.equationPreviews.length && (
+              <div className="mt-3">
+                <p className="mb-2 text-xs font-semibold text-gray-600 dark:text-gray-300">
+                  핵심 수식 요약
+                </p>
+                <div className="space-y-2">
+                  {snapshot.equationPreviews.slice(0, 2).map((equation) => (
+                    <div
+                      key={equation.name}
+                      className="rounded-md border border-gray-200 bg-gray-50 px-2.5 py-2 dark:border-gray-700 dark:bg-gray-800"
+                    >
+                      <p className="line-clamp-1 text-xs font-semibold text-gray-700 dark:text-gray-200">
+                        {equation.name}
+                      </p>
+                      <code className="line-clamp-2 block text-[11px] text-gray-600 dark:text-gray-300">
+                        {equation.latex}
+                      </code>
+                    </div>
+                  ))}
+                </div>
+              </div>
             )}
           </Section>
 
@@ -303,7 +326,8 @@ function ConnectionGroup({
                   {item.otherPaper.title}
                 </p>
                 <p className="text-[11px] text-gray-500 dark:text-gray-400">
-                  {item.otherPaper.year} · {summarizeRelationship(item.relationship.relationship_type, item.direction)}
+                  {item.otherPaper.year} ·{' '}
+                  {summarizeRelationship(item.relationship.relationship_type, item.direction)}
                 </p>
               </div>
               <span

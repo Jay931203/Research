@@ -1,14 +1,23 @@
 import type {
+  Equation,
   FamiliarityLevel,
   PaperRelationship,
   PaperWithNote,
   RelationshipType,
 } from '@/types';
 
+export interface EquationPreview {
+  name: string;
+  latex: string;
+  description?: string;
+}
+
 export interface PaperCoreSnapshot {
   oneLiner: string;
   methods: string[];
   rememberPoints: string[];
+  equationPreviews: EquationPreview[];
+  expectedOutcomes: string[];
 }
 
 export interface PaperConnection {
@@ -76,18 +85,41 @@ function safeArray(values?: string[]): string[] {
   return values.map((value) => value.trim()).filter(Boolean);
 }
 
+function toEquationPreviews(rawEquations: unknown[]): EquationPreview[] {
+  return rawEquations
+    .map((raw) => raw as Partial<Equation>)
+    .filter((equation) => !!equation?.name && !!equation?.latex)
+    .map((equation) => ({
+      name: equation.name!.trim(),
+      latex: equation.latex!.trim(),
+      description: equation.description?.trim(),
+    }))
+    .slice(0, 3);
+}
+
+function buildExpectedOutcomes(
+  contributions: string[],
+  abstract?: string
+): string[] {
+  const signalPattern =
+    /(improv|reduc|gain|state-of-the-art|significant|efficient|generaliz|deploy|향상|개선|감소|효율|일반화|성능)/i;
+
+  const candidate = contributions.filter((item) => signalPattern.test(item));
+  if (candidate.length >= 2) return candidate.slice(0, 3);
+
+  if (contributions.length) return contributions.slice(0, 3);
+
+  const abstractSentence = getFirstSentence(abstract);
+  return abstractSentence ? [abstractSentence] : [];
+}
+
 export function buildPaperCoreSnapshot(paper: PaperWithNote): PaperCoreSnapshot {
   const contributions = safeArray(paper.key_contributions);
   const algorithms = safeArray(paper.algorithms);
-  const equationNames = (paper.key_equations ?? [])
-    .map((equation: { name?: string }) => equation?.name?.trim())
-    .filter(Boolean) as string[];
+  const equationPreviews = toEquationPreviews((paper.key_equations ?? []) as unknown[]);
+  const equationNames = equationPreviews.map((equation) => equation.name);
 
-  const oneLiner =
-    contributions[0] ??
-    getFirstSentence(paper.abstract) ??
-    DEFAULT_ONE_LINER;
-
+  const oneLiner = contributions[0] ?? getFirstSentence(paper.abstract) ?? DEFAULT_ONE_LINER;
   const methods = [...algorithms, ...equationNames].slice(0, 4);
 
   const rememberPoints = [
@@ -95,10 +127,14 @@ export function buildPaperCoreSnapshot(paper: PaperWithNote): PaperCoreSnapshot 
     ...equationNames.slice(0, Math.max(0, 3 - contributions.length)),
   ].slice(0, 3);
 
+  const expectedOutcomes = buildExpectedOutcomes(contributions, paper.abstract);
+
   return {
     oneLiner,
     methods,
     rememberPoints,
+    equationPreviews,
+    expectedOutcomes,
   };
 }
 
@@ -114,8 +150,7 @@ export function buildPaperConnections(
       return relationship.from_paper_id === paperId || relationship.to_paper_id === paperId;
     })
     .map((relationship) => {
-      const direction =
-        relationship.from_paper_id === paperId ? 'outgoing' : 'incoming';
+      const direction = relationship.from_paper_id === paperId ? 'outgoing' : 'incoming';
       const otherId =
         direction === 'outgoing' ? relationship.to_paper_id : relationship.from_paper_id;
       const otherPaper = paperMap.get(otherId);
@@ -137,9 +172,7 @@ export function buildPaperConnections(
     });
 }
 
-function buildAdjacency(
-  relationships: PaperRelationship[]
-): Map<string, Set<string>> {
+function buildAdjacency(relationships: PaperRelationship[]): Map<string, Set<string>> {
   const adjacency = new Map<string, Set<string>>();
 
   for (const relationship of relationships) {
@@ -193,7 +226,6 @@ export function buildBridgeRecommendations(
   if (!target) return [];
 
   const options = { ...DEFAULT_BRIDGE_SCORING, ...scoreOptions };
-  const paperMap = new Map(papers.map((paper) => [paper.id, paper]));
   const adjacency = buildAdjacency(relationships);
   const strengthMap = buildUndirectedStrengthMap(relationships);
   const directNeighbors = adjacency.get(paperId) ?? new Set<string>();
@@ -284,17 +316,13 @@ export function buildBridgeRecommendations(
     .slice(0, limit);
 }
 
-export function buildReviewQueue(
-  papers: PaperWithNote[],
-  limit = 6
-): PaperWithNote[] {
+export function buildReviewQueue(papers: PaperWithNote[], limit = 6): PaperWithNote[] {
   return [...papers]
     .sort((a, b) => {
       const levelA = a.familiarity_level ?? 'not_started';
       const levelB = b.familiarity_level ?? 'not_started';
       const familiarityGap =
         FAMILIARITY_PRIORITY[levelA] - FAMILIARITY_PRIORITY[levelB];
-
       if (familiarityGap !== 0) return familiarityGap;
 
       const importanceA = a.importance_rating ?? 0;
@@ -306,10 +334,7 @@ export function buildReviewQueue(
     .slice(0, limit);
 }
 
-export function countRecentPapers(
-  papers: PaperWithNote[],
-  years = 2
-): number {
+export function countRecentPapers(papers: PaperWithNote[], years = 2): number {
   const currentYear = new Date().getFullYear();
   return papers.filter((paper) => paper.year >= currentYear - years).length;
 }
@@ -403,15 +428,11 @@ export function getPaperTitleMap(papers: PaperWithNote[]): Map<string, string> {
   return new Map(papers.map((paper) => [paper.id, paper.title]));
 }
 
-export function getPaperMap(
-  papers: PaperWithNote[]
-): Map<string, PaperWithNote> {
+export function getPaperMap(papers: PaperWithNote[]): Map<string, PaperWithNote> {
   return new Map(papers.map((paper) => [paper.id, paper]));
 }
 
-export function getStrongestRelationshipLabel(
-  connections: PaperConnection[]
-): string {
+export function getStrongestRelationshipLabel(connections: PaperConnection[]): string {
   if (!connections.length) return '연결 정보 없음';
   const strongest = connections[0];
   return `${strongest.relationship.relationship_type} (${strongest.relationship.strength}/10)`;
@@ -425,3 +446,4 @@ export function getConnectionPreview(
 ): PaperConnection[] {
   return buildPaperConnections(paperId, papers, relationships).slice(0, limit);
 }
+

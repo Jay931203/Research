@@ -1,11 +1,10 @@
 'use client';
 
+import dynamic from 'next/dynamic';
 import { useCallback, useEffect, useMemo, useState } from 'react';
 import { BookOpen, Link2, Maximize2, Minimize2, Star } from 'lucide-react';
 import MainLayout from '@/components/layout/MainLayout';
 import ErrorBoundary from '@/components/common/ErrorBoundary';
-import MindMap from '@/components/visualization/MindMap';
-import PaperDetailModal from '@/components/papers/PaperDetailModal';
 import { usePapersWithNotes } from '@/hooks/useNotes';
 import { useRelationships } from '@/hooks/useRelationships';
 import {
@@ -17,16 +16,29 @@ import {
   getMostConnectedPaper,
   getRelationshipTypeCount,
 } from '@/lib/papers/insights';
-import { RELATIONSHIP_STYLES } from '@/lib/visualization/graphUtils';
-import { FAMILIARITY_LABELS } from '@/lib/visualization/graphUtils';
+import { FAMILIARITY_LABELS, RELATIONSHIP_STYLES } from '@/lib/visualization/graphUtils';
 import { useAppStore } from '@/store/useAppStore';
+
+const MindMap = dynamic(() => import('@/components/visualization/MindMap'), {
+  ssr: false,
+  loading: () => (
+    <div className="flex h-full min-h-[560px] items-center justify-center text-sm text-gray-500">
+      관계 맵을 불러오는 중...
+    </div>
+  ),
+});
+
+const PaperDetailModal = dynamic(() => import('@/components/papers/PaperDetailModal'), {
+  ssr: false,
+});
 
 export default function DashboardPage() {
   const { papers, isLoading: papersLoading, refresh: refreshPapers } = usePapersWithNotes();
   const { relationships, isLoading: relationshipsLoading } = useRelationships();
   const [isMapFullscreen, setIsMapFullscreen] = useState(false);
 
-  const { selectedPaperId, isDetailModalOpen, openPaperDetail, closePaperDetail } = useAppStore();
+  const { selectedPaperId, isDetailModalOpen, openPaperDetail, closePaperDetail } =
+    useAppStore();
 
   useEffect(() => {
     document.body.style.overflow = isMapFullscreen ? 'hidden' : '';
@@ -60,7 +72,6 @@ export default function DashboardPage() {
   }, [selectedPaper, papers, relationships]);
 
   const reviewQueue = useMemo(() => buildReviewQueue(papers, 7), [papers]);
-
   const relationshipTypeCount = useMemo(
     () => getRelationshipTypeCount(relationships),
     [relationships]
@@ -126,10 +137,7 @@ export default function DashboardPage() {
           <div className="space-y-6">
             <div className="grid grid-cols-2 gap-3 md:grid-cols-5">
               {stats.map((stat) => (
-                <div
-                  key={stat.key}
-                  className="rounded-lg bg-white p-4 shadow dark:bg-gray-800"
-                >
+                <div key={stat.key} className="rounded-lg bg-white p-4 shadow dark:bg-gray-800">
                   <div className="flex items-center gap-3">
                     <div className={`rounded-lg p-2.5 ${stat.iconBg}`}>{stat.icon}</div>
                     <div>
@@ -143,12 +151,10 @@ export default function DashboardPage() {
 
             <div className="overflow-hidden rounded-lg bg-white shadow-lg dark:bg-gray-800">
               <div className="flex items-center justify-between gap-4 border-b border-gray-200 px-4 py-3 dark:border-gray-700">
-                <h2 className="text-sm font-bold text-gray-800 dark:text-gray-100">
-                  연구 관계 맵
-                </h2>
+                <h2 className="text-sm font-bold text-gray-800 dark:text-gray-100">연구 관계 맵</h2>
                 <div className="flex items-center gap-3">
                   <span className="hidden text-xs text-gray-500 dark:text-gray-400 lg:block">
-                    노드 클릭: 상세 | 드래그: 이동 | 스크롤: 줌
+                    그래프/리스트를 전환해 관계를 해석하세요.
                   </span>
                   <button
                     onClick={() => setIsMapFullscreen(true)}
@@ -160,20 +166,14 @@ export default function DashboardPage() {
                 </div>
               </div>
               <div style={{ height: 'calc(100vh - 260px)', minHeight: '560px' }}>
-                <MindMap
-                  papers={papers}
-                  relationships={relationships}
-                  onNodeClick={handleNodeClick}
-                />
+                <MindMap papers={papers} relationships={relationships} onNodeClick={handleNodeClick} />
               </div>
             </div>
 
             <div className="grid grid-cols-1 gap-4 xl:grid-cols-3">
               <div className="rounded-lg bg-white p-4 shadow xl:col-span-2 dark:bg-gray-800">
                 <div className="mb-3 flex items-center justify-between">
-                  <h3 className="text-sm font-bold text-gray-800 dark:text-gray-100">
-                    핵심 리마인드
-                  </h3>
+                  <h3 className="text-sm font-bold text-gray-800 dark:text-gray-100">핵심 리마인드</h3>
                   {selectedPaper && (
                     <button
                       onClick={() => openPaperDetail(selectedPaper.id)}
@@ -186,7 +186,7 @@ export default function DashboardPage() {
 
                 {!selectedPaper || !selectedSnapshot ? (
                   <p className="text-sm text-gray-500 dark:text-gray-400">
-                    맵에서 논문을 선택하면 핵심 요약이 표시됩니다.
+                    맵에서 논문을 선택하면 핵심 리마인드 카드가 표시됩니다.
                   </p>
                 ) : (
                   <div className="space-y-3">
@@ -199,19 +199,49 @@ export default function DashboardPage() {
                     <p className="rounded-lg bg-blue-50 px-3 py-2 text-sm text-blue-900 dark:bg-blue-900/20 dark:text-blue-100">
                       {selectedSnapshot.oneLiner}
                     </p>
-                    {!!selectedSnapshot.rememberPoints.length && (
-                      <ul className="space-y-1.5">
-                        {selectedSnapshot.rememberPoints.map((point) => (
-                          <li
-                            key={point}
-                            className="flex items-start gap-2 text-sm text-gray-700 dark:text-gray-300"
-                          >
-                            <span className="mt-[6px] h-1.5 w-1.5 rounded-full bg-blue-500" />
-                            {point}
-                          </li>
-                        ))}
-                      </ul>
+
+                    {!!selectedSnapshot.expectedOutcomes.length && (
+                      <div>
+                        <p className="mb-2 text-xs font-semibold text-gray-600 dark:text-gray-300">
+                          기대 기여/결과
+                        </p>
+                        <ul className="space-y-1.5">
+                          {selectedSnapshot.expectedOutcomes.map((item) => (
+                            <li
+                              key={item}
+                              className="flex items-start gap-2 text-sm text-gray-700 dark:text-gray-300"
+                            >
+                              <span className="mt-[6px] h-1.5 w-1.5 rounded-full bg-blue-500" />
+                              {item}
+                            </li>
+                          ))}
+                        </ul>
+                      </div>
                     )}
+
+                    {!!selectedSnapshot.equationPreviews.length && (
+                      <div>
+                        <p className="mb-2 text-xs font-semibold text-gray-600 dark:text-gray-300">
+                          핵심 수식
+                        </p>
+                        <div className="grid gap-2 md:grid-cols-2">
+                          {selectedSnapshot.equationPreviews.slice(0, 2).map((equation) => (
+                            <div
+                              key={equation.name}
+                              className="rounded-md border border-gray-200 bg-gray-50 p-2 dark:border-gray-700 dark:bg-gray-900"
+                            >
+                              <p className="line-clamp-1 text-xs font-semibold text-gray-700 dark:text-gray-200">
+                                {equation.name}
+                              </p>
+                              <code className="line-clamp-2 block text-[11px] text-gray-600 dark:text-gray-300">
+                                {equation.latex}
+                              </code>
+                            </div>
+                          ))}
+                        </div>
+                      </div>
+                    )}
+
                     {!!selectedConnections.length && (
                       <div>
                         <p className="mb-2 text-xs font-semibold text-gray-600 dark:text-gray-300">
@@ -219,7 +249,8 @@ export default function DashboardPage() {
                         </p>
                         <div className="space-y-2">
                           {selectedConnections.map((connection) => {
-                            const style = RELATIONSHIP_STYLES[connection.relationship.relationship_type];
+                            const style =
+                              RELATIONSHIP_STYLES[connection.relationship.relationship_type];
                             return (
                               <button
                                 key={connection.relationship.id}
@@ -246,9 +277,7 @@ export default function DashboardPage() {
               </div>
 
               <div className="rounded-lg bg-white p-4 shadow dark:bg-gray-800">
-                <h3 className="mb-3 text-sm font-bold text-gray-800 dark:text-gray-100">
-                  복습 큐
-                </h3>
+                <h3 className="mb-3 text-sm font-bold text-gray-800 dark:text-gray-100">복습 큐</h3>
                 <div className="space-y-2">
                   {reviewQueue.map((paper) => (
                     <button
@@ -306,11 +335,7 @@ export default function DashboardPage() {
               </button>
             </div>
             <div className="h-[calc(100%-48px)]">
-              <MindMap
-                papers={papers}
-                relationships={relationships}
-                onNodeClick={handleNodeClick}
-              />
+              <MindMap papers={papers} relationships={relationships} onNodeClick={handleNodeClick} />
             </div>
           </div>
         )}
@@ -328,3 +353,4 @@ export default function DashboardPage() {
     </MainLayout>
   );
 }
+
