@@ -39,3 +39,6 @@ next-env.d.ts
 # local agent/workspace artifacts
 .claude/
 nul
+
+# supabase cli temp artifacts
+supabase/.temp/

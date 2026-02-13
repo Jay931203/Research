@@ -23,6 +23,18 @@ export interface BridgeRecommendation {
   reasons: string[];
 }
 
+export interface BridgeScoringOptions {
+  sharedNeighborWeight: number;
+  sharedPathStrengthWeight: number;
+  sameCategoryBoost: number;
+  sharedTagWeight: number;
+  recencyCloseBoost: number;
+  recencyMediumBoost: number;
+  lowFamiliarityBoost: number;
+  moderateFamiliarityBoost: number;
+  importanceWeight: number;
+}
+
 const DEFAULT_ONE_LINER = '핵심 요약을 위해 초록 또는 기여 포인트를 추가해보세요.';
 
 const FAMILIARITY_PRIORITY: Record<FamiliarityLevel, number> = {
@@ -31,6 +43,18 @@ const FAMILIARITY_PRIORITY: Record<FamiliarityLevel, number> = {
   moderate: 2,
   familiar: 3,
   expert: 4,
+};
+
+const DEFAULT_BRIDGE_SCORING: BridgeScoringOptions = {
+  sharedNeighborWeight: 4,
+  sharedPathStrengthWeight: 0.55,
+  sameCategoryBoost: 2.5,
+  sharedTagWeight: 1.2,
+  recencyCloseBoost: 1.25,
+  recencyMediumBoost: 0.75,
+  lowFamiliarityBoost: 1.8,
+  moderateFamiliarityBoost: 0.9,
+  importanceWeight: 0.45,
 };
 
 function getFirstSentence(text?: string): string | null {
@@ -133,17 +157,45 @@ function buildAdjacency(
   return adjacency;
 }
 
+function buildUndirectedStrengthMap(
+  relationships: PaperRelationship[]
+): Map<string, number> {
+  const map = new Map<string, number>();
+
+  for (const relationship of relationships) {
+    const a = relationship.from_paper_id;
+    const b = relationship.to_paper_id;
+    const key = a < b ? `${a}:${b}` : `${b}:${a}`;
+    const previous = map.get(key) ?? 0;
+    map.set(key, Math.max(previous, relationship.strength));
+  }
+
+  return map;
+}
+
+function getUndirectedStrength(
+  strengthMap: Map<string, number>,
+  paperA: string,
+  paperB: string
+): number {
+  const key = paperA < paperB ? `${paperA}:${paperB}` : `${paperB}:${paperA}`;
+  return strengthMap.get(key) ?? 0;
+}
+
 export function buildBridgeRecommendations(
   paperId: string,
   papers: PaperWithNote[],
   relationships: PaperRelationship[],
-  limit = 5
+  limit = 5,
+  scoreOptions: Partial<BridgeScoringOptions> = {}
 ): BridgeRecommendation[] {
   const target = papers.find((paper) => paper.id === paperId);
   if (!target) return [];
 
+  const options = { ...DEFAULT_BRIDGE_SCORING, ...scoreOptions };
   const paperMap = new Map(papers.map((paper) => [paper.id, paper]));
   const adjacency = buildAdjacency(relationships);
+  const strengthMap = buildUndirectedStrengthMap(relationships);
   const directNeighbors = adjacency.get(paperId) ?? new Set<string>();
   const targetTags = new Set(safeArray(target.tags));
 
@@ -165,24 +217,50 @@ export function buildBridgeRecommendations(
     const reasons: string[] = [];
 
     if (sharedNeighbors.length > 0) {
-      score += sharedNeighbors.length * 4;
+      score += sharedNeighbors.length * options.sharedNeighborWeight;
       reasons.push(`공통 연결 ${sharedNeighbors.length}개`);
     }
 
+    const sharedPathStrength = sharedNeighbors.reduce((acc, sharedNeighborId) => {
+      const left = getUndirectedStrength(strengthMap, paperId, sharedNeighborId);
+      const right = getUndirectedStrength(strengthMap, candidate.id, sharedNeighborId);
+      return acc + Math.min(left, right);
+    }, 0);
+
+    if (sharedPathStrength > 0) {
+      score += sharedPathStrength * options.sharedPathStrengthWeight;
+      reasons.push(`공통 경로 강도 ${sharedPathStrength.toFixed(1)}`);
+    }
+
     if (candidate.category === target.category) {
-      score += 3;
+      score += options.sameCategoryBoost;
       reasons.push('같은 카테고리');
     }
 
     if (sharedTags.length > 0) {
-      score += Math.min(3, sharedTags.length);
+      score += Math.min(3, sharedTags.length) * options.sharedTagWeight;
       reasons.push(`공통 태그: ${sharedTags.slice(0, 2).join(', ')}`);
     }
 
     const yearGap = Math.abs(candidate.year - target.year);
     if (yearGap <= 2) {
-      score += 1;
+      score += options.recencyCloseBoost;
       reasons.push('연도 근접');
+    } else if (yearGap <= 5) {
+      score += options.recencyMediumBoost;
+    }
+
+    const familiarity = candidate.familiarity_level ?? 'not_started';
+    if (familiarity === 'not_started' || familiarity === 'difficult') {
+      score += options.lowFamiliarityBoost;
+      reasons.push('복습 우선순위 높음');
+    } else if (familiarity === 'moderate') {
+      score += options.moderateFamiliarityBoost;
+    }
+
+    if (candidate.importance_rating && candidate.importance_rating > 0) {
+      score += candidate.importance_rating * options.importanceWeight;
+      reasons.push(`중요도 ${candidate.importance_rating}`);
     }
 
     if (score <= 0) continue;
@@ -199,6 +277,10 @@ export function buildBridgeRecommendations(
       if (b.score !== a.score) return b.score - a.score;
       return b.paper.year - a.paper.year;
     })
+    .map((item) => ({
+      ...item,
+      score: Number(item.score.toFixed(2)),
+    }))
     .slice(0, limit);
 }
 
@@ -343,4 +425,3 @@ export function getConnectionPreview(
 ): PaperConnection[] {
   return buildPaperConnections(paperId, papers, relationships).slice(0, limit);
 }
-
