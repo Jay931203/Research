@@ -1,25 +1,35 @@
-import type { Metadata } from "next";
-import { Inter } from "next/font/google";
-import "./globals.css";
-import ThemeProvider from "@/components/common/ThemeProvider";
+import type { Metadata } from 'next';
+import { JetBrains_Mono, Noto_Sans_KR } from 'next/font/google';
+import './globals.css';
+import ThemeProvider from '@/components/common/ThemeProvider';
 
-const inter = Inter({ subsets: ["latin"] });
+const notoSansKr = Noto_Sans_KR({
+  subsets: ['latin'],
+  variable: '--font-ui',
+  display: 'swap',
+});
+
+const jetbrainsMono = JetBrains_Mono({
+  subsets: ['latin'],
+  variable: '--font-mono',
+  display: 'swap',
+});
 
 export const metadata: Metadata = {
-  title: "CSI AutoEncoder 연구 시각화",
-  description: "CSI AutoEncoder 관련 연구를 인터랙티브하게 탐색하고 학습하는 웹 애플리케이션",
+  title: 'CSI Research Graph',
+  description:
+    'CSI AutoEncoder 관련 논문의 핵심을 빠르게 리마인드하고, 연계 관계를 시각적으로 탐색하는 연구 워크스페이스',
 };
 
 export default function RootLayout({
   children,
-}: Readonly<{
-  children: React.ReactNode;
-}>) {
+}: Readonly<{ children: React.ReactNode }>) {
   return (
     <html lang="ko" suppressHydrationWarning>
-      <body className={inter.className}>
+      <body className={`${notoSansKr.variable} ${jetbrainsMono.variable}`}>
         <ThemeProvider>{children}</ThemeProvider>
       </body>
     </html>
   );
 }
+

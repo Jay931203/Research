@@ -1,7 +1,7 @@
 'use client';
 
-import { Search, Filter, X } from 'lucide-react';
-import { useState } from 'react';
+import { useMemo, useState } from 'react';
+import { Filter, Search, X } from 'lucide-react';
 
 interface PaperSearchProps {
   filters: {
@@ -11,6 +11,7 @@ interface PaperSearchProps {
     familiarityLevels: string[];
   };
   onFilterChange: (filters: PaperSearchProps['filters']) => void;
+  yearBounds: [number, number];
 }
 
 const CATEGORIES = [
@@ -26,92 +27,104 @@ const FAMILIARITY_LEVELS = [
   { value: 'not_started', label: '미시작' },
   { value: 'difficult', label: '어려움' },
   { value: 'moderate', label: '보통' },
-  { value: 'familiar', label: '익숙' },
+  { value: 'familiar', label: '익숙함' },
   { value: 'expert', label: '전문가' },
 ];
 
-export default function PaperSearch({ filters, onFilterChange }: PaperSearchProps) {
+export default function PaperSearch({
+  filters,
+  onFilterChange,
+  yearBounds,
+}: PaperSearchProps) {
   const [showFilters, setShowFilters] = useState(false);
 
-  const handleSearchChange = (text: string) => {
-    onFilterChange({ ...filters, searchText: text });
-  };
+  const activeFilterCount = useMemo(() => {
+    let count = 0;
+    if (filters.searchText.trim()) count += 1;
+    count += filters.categories.length;
+    count += filters.familiarityLevels.length;
+    if (
+      filters.yearRange[0] !== yearBounds[0] ||
+      filters.yearRange[1] !== yearBounds[1]
+    ) {
+      count += 1;
+    }
+    return count;
+  }, [filters, yearBounds]);
 
-  const handleCategoryToggle = (category: string) => {
-    const newCategories = filters.categories.includes(category)
-      ? filters.categories.filter((c) => c !== category)
-      : [...filters.categories, category];
-    onFilterChange({ ...filters, categories: newCategories });
-  };
-
-  const handleFamiliarityToggle = (level: string) => {
-    const newLevels = filters.familiarityLevels.includes(level)
-      ? filters.familiarityLevels.filter((l) => l !== level)
-      : [...filters.familiarityLevels, level];
-    onFilterChange({ ...filters, familiarityLevels: newLevels });
-  };
-
-  const handleYearChange = (index: 0 | 1, value: number) => {
-    const newRange: [number, number] = [...filters.yearRange];
-    newRange[index] = value;
-    onFilterChange({ ...filters, yearRange: newRange });
-  };
+  const hasActiveFilters = activeFilterCount > 0;
 
   const clearFilters = () => {
     onFilterChange({
       searchText: '',
       categories: [],
-      yearRange: [2018, 2026],
+      yearRange: yearBounds,
       familiarityLevels: [],
     });
   };
 
-  const hasActiveFilters =
-    filters.searchText ||
-    filters.categories.length > 0 ||
-    filters.familiarityLevels.length > 0 ||
-    filters.yearRange[0] !== 2018 ||
-    filters.yearRange[1] !== 2026;
+  const handleSearchChange = (searchText: string) => {
+    onFilterChange({ ...filters, searchText });
+  };
+
+  const toggleCategory = (category: string) => {
+    const categories = filters.categories.includes(category)
+      ? filters.categories.filter((item) => item !== category)
+      : [...filters.categories, category];
+    onFilterChange({ ...filters, categories });
+  };
+
+  const toggleFamiliarity = (level: string) => {
+    const familiarityLevels = filters.familiarityLevels.includes(level)
+      ? filters.familiarityLevels.filter((item) => item !== level)
+      : [...filters.familiarityLevels, level];
+    onFilterChange({ ...filters, familiarityLevels });
+  };
+
+  const handleYearRangeChange = (index: 0 | 1, value: number) => {
+    const nextRange: [number, number] = [...filters.yearRange];
+    nextRange[index] = value;
+
+    if (nextRange[0] > nextRange[1]) {
+      if (index === 0) nextRange[1] = value;
+      if (index === 1) nextRange[0] = value;
+    }
+
+    onFilterChange({ ...filters, yearRange: nextRange });
+  };
 
   return (
     <div className="space-y-3">
-      {/* 검색 바 */}
       <div className="relative">
-        <Search className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-gray-400" />
+        <Search className="pointer-events-none absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-gray-400" />
         <input
           type="text"
           value={filters.searchText}
-          onChange={(e) => handleSearchChange(e.target.value)}
-          placeholder="논문 검색..."
-          className="w-full pl-10 pr-10 py-2 border rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-blue-500 dark:bg-gray-800 dark:border-gray-700"
+          onChange={(event) => handleSearchChange(event.target.value)}
+          placeholder="논문 제목, 저자, 태그 검색"
+          className="input-base !pl-10 !pr-10"
         />
-        {filters.searchText && (
+        {!!filters.searchText && (
           <button
             onClick={() => handleSearchChange('')}
-            className="absolute right-3 top-1/2 -translate-y-1/2 text-gray-400 hover:text-gray-600"
+            className="absolute right-3 top-1/2 -translate-y-1/2 text-gray-400 transition hover:text-gray-600 dark:hover:text-gray-200"
+            aria-label="검색어 지우기"
           >
             <X className="h-4 w-4" />
           </button>
         )}
       </div>
 
-      {/* 필터 토글 버튼 */}
       <div className="flex items-center justify-between">
         <button
-          onClick={() => setShowFilters(!showFilters)}
-          className="flex items-center gap-2 text-sm text-gray-600 hover:text-gray-900 dark:text-gray-400 dark:hover:text-gray-200"
+          onClick={() => setShowFilters((prev) => !prev)}
+          className="flex items-center gap-2 text-sm text-gray-600 transition hover:text-gray-900 dark:text-gray-300 dark:hover:text-gray-100"
         >
           <Filter className="h-4 w-4" />
           <span>필터</span>
           {hasActiveFilters && (
-            <span className="px-2 py-0.5 bg-blue-500 text-white text-xs rounded-full">
-              {[
-                filters.categories.length,
-                filters.familiarityLevels.length,
-                filters.searchText ? 1 : 0,
-              ]
-                .filter(Boolean)
-                .reduce((a, b) => a + b, 0)}
+            <span className="rounded-full bg-blue-600 px-2 py-0.5 text-xs font-semibold text-white">
+              {activeFilterCount}
             </span>
           )}
         </button>
@@ -119,52 +132,49 @@ export default function PaperSearch({ filters, onFilterChange }: PaperSearchProp
         {hasActiveFilters && (
           <button
             onClick={clearFilters}
-            className="text-xs text-blue-500 hover:text-blue-700"
+            className="text-xs font-semibold text-blue-600 transition hover:text-blue-700"
           >
             초기화
           </button>
         )}
       </div>
 
-      {/* 필터 패널 */}
       {showFilters && (
-        <div className="space-y-4 p-3 bg-gray-50 dark:bg-gray-800/50 rounded-lg border">
-          {/* 카테고리 */}
+        <div className="space-y-4 rounded-lg border bg-gray-50 p-3 dark:border-gray-700 dark:bg-gray-800/50">
           <div>
-            <label className="text-xs font-medium text-gray-700 dark:text-gray-300 mb-2 block">
+            <label className="mb-2 block text-xs font-semibold text-gray-700 dark:text-gray-300">
               카테고리
             </label>
             <div className="flex flex-wrap gap-2">
-              {CATEGORIES.map((cat) => (
+              {CATEGORIES.map((category) => (
                 <button
-                  key={cat.value}
-                  onClick={() => handleCategoryToggle(cat.value)}
-                  className={`px-3 py-1 text-xs rounded-full border transition ${
-                    filters.categories.includes(cat.value)
-                      ? 'bg-blue-500 text-white border-blue-500'
-                      : 'bg-white text-gray-700 border-gray-300 hover:border-blue-500 dark:bg-gray-700 dark:text-gray-300 dark:border-gray-600'
+                  key={category.value}
+                  onClick={() => toggleCategory(category.value)}
+                  className={`rounded-full border px-3 py-1 text-xs transition ${
+                    filters.categories.includes(category.value)
+                      ? 'border-blue-600 bg-blue-600 text-white'
+                      : 'border-gray-300 bg-white text-gray-700 hover:border-blue-500 dark:border-gray-600 dark:bg-gray-700 dark:text-gray-200'
                   }`}
                 >
-                  {cat.label}
+                  {category.label}
                 </button>
               ))}
             </div>
           </div>
 
-          {/* 익숙함 레벨 */}
           <div>
-            <label className="text-xs font-medium text-gray-700 dark:text-gray-300 mb-2 block">
-              익숙함 레벨
+            <label className="mb-2 block text-xs font-semibold text-gray-700 dark:text-gray-300">
+              익숙도
             </label>
             <div className="flex flex-wrap gap-2">
               {FAMILIARITY_LEVELS.map((level) => (
                 <button
                   key={level.value}
-                  onClick={() => handleFamiliarityToggle(level.value)}
-                  className={`px-3 py-1 text-xs rounded-full border transition ${
+                  onClick={() => toggleFamiliarity(level.value)}
+                  className={`rounded-full border px-3 py-1 text-xs transition ${
                     filters.familiarityLevels.includes(level.value)
-                      ? 'bg-blue-500 text-white border-blue-500'
-                      : 'bg-white text-gray-700 border-gray-300 hover:border-blue-500 dark:bg-gray-700 dark:text-gray-300 dark:border-gray-600'
+                      ? 'border-blue-600 bg-blue-600 text-white'
+                      : 'border-gray-300 bg-white text-gray-700 hover:border-blue-500 dark:border-gray-600 dark:bg-gray-700 dark:text-gray-200'
                   }`}
                 >
                   {level.label}
@@ -173,27 +183,26 @@ export default function PaperSearch({ filters, onFilterChange }: PaperSearchProp
             </div>
           </div>
 
-          {/* 연도 범위 */}
           <div>
-            <label className="text-xs font-medium text-gray-700 dark:text-gray-300 mb-2 block">
-              연도: {filters.yearRange[0]} - {filters.yearRange[1]}
+            <label className="mb-2 block text-xs font-semibold text-gray-700 dark:text-gray-300">
+              연도 범위: {filters.yearRange[0]} - {filters.yearRange[1]}
             </label>
-            <div className="flex items-center gap-3">
+            <div className="space-y-2">
               <input
                 type="range"
-                min={2010}
-                max={2026}
+                min={yearBounds[0]}
+                max={yearBounds[1]}
                 value={filters.yearRange[0]}
-                onChange={(e) => handleYearChange(0, parseInt(e.target.value))}
-                className="flex-1"
+                onChange={(event) => handleYearRangeChange(0, Number(event.target.value))}
+                className="w-full"
               />
               <input
                 type="range"
-                min={2010}
-                max={2026}
+                min={yearBounds[0]}
+                max={yearBounds[1]}
                 value={filters.yearRange[1]}
-                onChange={(e) => handleYearChange(1, parseInt(e.target.value))}
-                className="flex-1"
+                onChange={(event) => handleYearRangeChange(1, Number(event.target.value))}
+                className="w-full"
               />
             </div>
           </div>
@@ -202,3 +211,4 @@ export default function PaperSearch({ filters, onFilterChange }: PaperSearchProp
     </div>
   );
 }
+

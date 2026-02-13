@@ -6,92 +6,96 @@ import { supabase } from '@/lib/supabase/client';
 export default function TestPage() {
   const [status, setStatus] = useState<'loading' | 'success' | 'error'>('loading');
   const [message, setMessage] = useState('');
-  const [tableCount, setTableCount] = useState<number>(0);
+  const [paperCount, setPaperCount] = useState<number>(0);
 
   useEffect(() => {
-    testConnection();
+    void testConnection();
   }, []);
 
   async function testConnection() {
+    setStatus('loading');
+    setMessage('');
+
     try {
-      // 1. Papers 테이블 조회 테스트
-      const { data: papers, error: papersError } = await supabase
+      const { count, error } = await supabase
         .from('papers')
-        .select('*')
-        .limit(1);
+        .select('*', { count: 'exact', head: true });
 
-      if (papersError) throw papersError;
+      if (error) throw error;
 
-      // 2. 테이블 목록 확인
-      const { data: tables, error: tablesError } = await supabase
-        .from('papers')
-        .select('count');
-
+      setPaperCount(count ?? 0);
       setStatus('success');
-      setMessage(`✅ Supabase 연결 성공!\n현재 Papers: ${papers?.length || 0}개`);
-      setTableCount(papers?.length || 0);
-    } catch (error: any) {
+      setMessage(`Supabase 연결 정상\nPapers 테이블 레코드: ${count ?? 0}개`);
+    } catch (error: unknown) {
+      const errorMessage =
+        error instanceof Error ? error.message : '알 수 없는 오류가 발생했습니다.';
       setStatus('error');
-      setMessage(`❌ 연결 실패: ${error.message}`);
+      setMessage(`연결 실패\n${errorMessage}`);
       console.error('Connection error:', error);
     }
   }
 
   return (
-    <div className="min-h-screen flex items-center justify-center p-8">
-      <div className="max-w-2xl w-full bg-white dark:bg-gray-800 rounded-lg shadow-xl p-8">
-        <h1 className="text-3xl font-bold mb-6">🔌 Supabase 연결 테스트</h1>
+    <div className="min-h-[calc(100vh-64px)] p-4 sm:p-8">
+      <div className="mx-auto w-full max-w-2xl rounded-xl bg-white p-6 shadow-xl dark:bg-gray-800">
+        <h1 className="mb-6 text-3xl font-bold">System Check</h1>
 
-        <div className={`p-6 rounded-lg mb-6 ${
-          status === 'loading' ? 'bg-blue-50 dark:bg-blue-900/20' :
-          status === 'success' ? 'bg-green-50 dark:bg-green-900/20' :
-          'bg-red-50 dark:bg-red-900/20'
-        }`}>
+        <div
+          className={`mb-6 rounded-lg p-5 ${
+            status === 'loading'
+              ? 'bg-blue-50 dark:bg-blue-900/20'
+              : status === 'success'
+                ? 'bg-emerald-50 dark:bg-emerald-900/20'
+                : 'bg-red-50 dark:bg-red-900/20'
+          }`}
+        >
           {status === 'loading' && (
             <div className="flex items-center gap-3">
-              <div className="animate-spin h-5 w-5 border-2 border-blue-500 border-t-transparent rounded-full" />
-              <span>연결 테스트 중...</span>
+              <div className="h-5 w-5 animate-spin rounded-full border-2 border-blue-500 border-t-transparent" />
+              <span>Supabase 연결 확인 중...</span>
             </div>
           )}
 
           {status === 'success' && (
             <div>
-              <div className="text-2xl mb-2">✅</div>
+              <p className="mb-2 text-2xl">정상</p>
               <pre className="whitespace-pre-wrap text-sm">{message}</pre>
-              <div className="mt-4 text-sm text-gray-600 dark:text-gray-300">
-                <p>✓ Papers 테이블 접근 가능</p>
-                <p>✓ 데이터베이스 연결 정상</p>
-              </div>
+              <p className="mt-3 text-sm text-gray-600 dark:text-gray-300">
+                현재 로드 가능한 논문 수: {paperCount}개
+              </p>
             </div>
           )}
 
           {status === 'error' && (
             <div>
-              <div className="text-2xl mb-2">❌</div>
-              <pre className="whitespace-pre-wrap text-sm text-red-600 dark:text-red-400">{message}</pre>
-              <div className="mt-4 text-sm text-gray-600 dark:text-gray-300">
-                <p>💡 .env.local 파일을 확인하세요</p>
-                <p>💡 Supabase 프로젝트가 활성화되어 있는지 확인하세요</p>
+              <p className="mb-2 text-2xl">오류</p>
+              <pre className="whitespace-pre-wrap text-sm text-red-600 dark:text-red-400">
+                {message}
+              </pre>
+              <div className="mt-3 text-sm text-gray-600 dark:text-gray-300">
+                <p>1) `.env.local`의 Supabase URL/KEY 확인</p>
+                <p>2) Supabase 프로젝트 활성 상태 확인</p>
               </div>
             </div>
           )}
         </div>
 
-        <div className="flex gap-3">
+        <div className="flex flex-wrap gap-3">
           <a
-            href="/"
-            className="px-4 py-2 bg-gray-200 dark:bg-gray-700 rounded-lg hover:bg-gray-300 dark:hover:bg-gray-600 transition"
+            href="/dashboard"
+            className="rounded-lg bg-gray-200 px-4 py-2 transition hover:bg-gray-300 dark:bg-gray-700 dark:hover:bg-gray-600"
           >
-            ← 메인으로
+            대시보드로
           </a>
           <button
-            onClick={testConnection}
-            className="px-4 py-2 bg-blue-500 text-white rounded-lg hover:bg-blue-600 transition"
+            onClick={() => void testConnection()}
+            className="rounded-lg bg-blue-600 px-4 py-2 text-white transition hover:bg-blue-700"
           >
-            🔄 재테스트
+            다시 점검
           </button>
         </div>
       </div>
     </div>
   );
 }
+

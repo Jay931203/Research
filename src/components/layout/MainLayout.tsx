@@ -13,22 +13,19 @@ export default function MainLayout({ children }: MainLayoutProps) {
 
   return (
     <div className="min-h-screen bg-gray-50 dark:bg-gray-950">
-      {/* 헤더 */}
       <Header />
+      <Sidebar isOpen={sidebarOpen} onToggle={() => setSidebarOpen((prev) => !prev)} />
 
-      {/* 사이드바 */}
-      <Sidebar isOpen={sidebarOpen} onToggle={() => setSidebarOpen(!sidebarOpen)} />
-
-      {/* 메인 콘텐츠 */}
       <main
         className={`pt-16 transition-all duration-300 ${
-          sidebarOpen ? 'ml-80' : 'ml-0'
+          sidebarOpen ? 'lg:ml-80' : 'lg:ml-0'
         }`}
       >
-        <div className="container mx-auto p-6">
+        <div className="mx-auto w-full max-w-[1600px] p-3 sm:p-4 lg:p-6">
           {children}
         </div>
       </main>
     </div>
   );
 }
+

@@ -1,18 +1,19 @@
-import type { PaperWithNote, PaperRelationship } from '@/types';
+import type { PaperRelationship, PaperWithNote } from '@/types';
 
-const FAMILIARITY_KO: Record<string, string> = {
+const FAMILIARITY_LABELS: Record<string, string> = {
   not_started: '미시작',
   difficult: '어려움',
   moderate: '보통',
-  familiar: '익숙',
+  familiar: '익숙함',
   expert: '전문가',
 };
 
-const RELATIONSHIP_KO: Record<string, string> = {
+const RELATIONSHIP_LABELS: Record<string, string> = {
   extends: '확장',
   builds_on: '기반',
   compares_with: '비교',
-  inspired_by: '영감',
+  inspired_by: '영감 받음',
+  inspires: '영감 줌',
   challenges: '도전',
   applies: '적용',
   related: '관련',
@@ -21,22 +22,21 @@ const RELATIONSHIP_KO: Record<string, string> = {
 function downloadFile(content: string, filename: string, mimeType: string) {
   const blob = new Blob([content], { type: mimeType });
   const url = URL.createObjectURL(blob);
-  const a = document.createElement('a');
-  a.href = url;
-  a.download = filename;
-  document.body.appendChild(a);
-  a.click();
-  document.body.removeChild(a);
+  const anchor = document.createElement('a');
+
+  anchor.href = url;
+  anchor.download = filename;
+  document.body.appendChild(anchor);
+  anchor.click();
+  document.body.removeChild(anchor);
+
   URL.revokeObjectURL(url);
 }
 
-function getDateStr(): string {
+function dateStamp(): string {
   return new Date().toISOString().split('T')[0];
 }
 
-/**
- * 단일 논문을 Markdown으로 변환
- */
 export function exportSinglePaperToMarkdown(paper: PaperWithNote): string {
   const lines: string[] = [];
 
@@ -45,9 +45,9 @@ export function exportSinglePaperToMarkdown(paper: PaperWithNote): string {
   lines.push(`**저자**: ${paper.authors.join(', ')}`);
   if (paper.venue) lines.push(`**학회/저널**: ${paper.venue}`);
   lines.push(`**카테고리**: ${paper.category}`);
-  if (paper.familiarity_level) {
-    lines.push(`**이해도**: ${FAMILIARITY_KO[paper.familiarity_level] || paper.familiarity_level}`);
-  }
+  lines.push(
+    `**이해도**: ${FAMILIARITY_LABELS[paper.familiarity_level ?? 'not_started']}`
+  );
   lines.push('');
 
   if (paper.abstract) {
@@ -56,34 +56,34 @@ export function exportSinglePaperToMarkdown(paper: PaperWithNote): string {
     lines.push('');
   }
 
-  if (paper.key_contributions && paper.key_contributions.length > 0) {
+  if (paper.key_contributions?.length) {
     lines.push('### 주요 기여');
-    paper.key_contributions.forEach((c) => lines.push(`- ${c}`));
+    paper.key_contributions.forEach((item) => lines.push(`- ${item}`));
     lines.push('');
   }
 
-  if (paper.algorithms && paper.algorithms.length > 0) {
-    lines.push('### 알고리즘');
-    paper.algorithms.forEach((a) => lines.push(`- ${a}`));
+  if (paper.algorithms?.length) {
+    lines.push('### 핵심 방법');
+    paper.algorithms.forEach((item) => lines.push(`- ${item}`));
     lines.push('');
   }
 
-  if (paper.key_equations && paper.key_equations.length > 0) {
+  if (paper.key_equations?.length) {
     lines.push('### 핵심 수식');
-    paper.key_equations.forEach((eq) => {
-      lines.push(`- **${eq.name}**: \`${eq.latex}\``);
-      if (eq.description) lines.push(`  - ${eq.description}`);
+    paper.key_equations.forEach((equation) => {
+      lines.push(`- **${equation.name}**: \`${equation.latex}\``);
+      if (equation.description) lines.push(`  - ${equation.description}`);
     });
     lines.push('');
   }
 
-  if (paper.tags && paper.tags.length > 0) {
+  if (paper.tags?.length) {
     lines.push(`**태그**: ${paper.tags.join(', ')}`);
     lines.push('');
   }
 
   if (paper.note_content) {
-    lines.push('### 개인 메모');
+    lines.push('### 개인 노트');
     lines.push(paper.note_content);
     lines.push('');
   }
@@ -91,7 +91,7 @@ export function exportSinglePaperToMarkdown(paper: PaperWithNote): string {
   const links: string[] = [];
   if (paper.pdf_url) links.push(`[PDF](${paper.pdf_url})`);
   if (paper.code_url) links.push(`[Code](${paper.code_url})`);
-  if (links.length > 0) {
+  if (links.length) {
     lines.push(`**링크**: ${links.join(' | ')}`);
     lines.push('');
   }
@@ -102,57 +102,58 @@ export function exportSinglePaperToMarkdown(paper: PaperWithNote): string {
   return lines.join('\n');
 }
 
-/**
- * 전체 데이터를 Markdown 파일로 Export
- */
 export function exportToMarkdown(
   papers: PaperWithNote[],
   relationships: PaperRelationship[]
 ) {
   const lines: string[] = [];
-  const sorted = [...papers].sort((a, b) => a.year - b.year);
+  const sortedPapers = [...papers].sort((a, b) => a.year - b.year);
+  const paperMap = new Map(papers.map((paper) => [paper.id, paper.title]));
 
-  lines.push('# CSI AutoEncoder 연구 노트');
+  lines.push('# CSI Research Notes');
   lines.push('');
-  lines.push(`> 내보내기 날짜: ${getDateStr()}`);
-  lines.push(`> 총 ${papers.length}편의 논문, ${relationships.length}개의 관계`);
+  lines.push(`> Export Date: ${dateStamp()}`);
+  lines.push(`> Papers: ${papers.length}, Relationships: ${relationships.length}`);
   lines.push('');
   lines.push('---');
   lines.push('');
 
-  sorted.forEach((paper) => {
+  sortedPapers.forEach((paper) => {
     lines.push(exportSinglePaperToMarkdown(paper));
   });
 
-  if (relationships.length > 0) {
-    lines.push('## 논문 간 관계');
+  if (relationships.length) {
+    lines.push('## 논문 관계 요약');
     lines.push('');
-    const paperMap = new Map(papers.map((p) => [p.id, p.title]));
-    relationships.forEach((rel) => {
-      const from = paperMap.get(rel.from_paper_id) || rel.from_paper_id;
-      const to = paperMap.get(rel.to_paper_id) || rel.to_paper_id;
-      const type = RELATIONSHIP_KO[rel.relationship_type] || rel.relationship_type;
-      lines.push(`- **${from}** → ${to} (${type}${rel.description ? ': ' + rel.description : ''})`);
+    relationships.forEach((relationship) => {
+      const from = paperMap.get(relationship.from_paper_id) ?? relationship.from_paper_id;
+      const to = paperMap.get(relationship.to_paper_id) ?? relationship.to_paper_id;
+      const label =
+        RELATIONSHIP_LABELS[relationship.relationship_type] ?? relationship.relationship_type;
+
+      lines.push(
+        `- **${from}** -> **${to}** (${label}, 강도 ${relationship.strength}/10${
+          relationship.description ? `, ${relationship.description}` : ''
+        })`
+      );
     });
     lines.push('');
   }
 
-  const content = lines.join('\n');
-  downloadFile(content, `csi-research-notes-${getDateStr()}.md`, 'text/markdown;charset=utf-8');
+  const markdown = lines.join('\n');
+  downloadFile(markdown, `csi-research-notes-${dateStamp()}.md`, 'text/markdown;charset=utf-8');
 }
 
-/**
- * 전체 데이터를 JSON 파일로 Export
- */
 export function exportToJSON(
   papers: PaperWithNote[],
   relationships: PaperRelationship[]
 ) {
-  const data = {
-    exportDate: getDateStr(),
+  const payload = {
+    exportDate: dateStamp(),
     papers,
     relationships,
   };
-  const content = JSON.stringify(data, null, 2);
-  downloadFile(content, `csi-research-export-${getDateStr()}.json`, 'application/json;charset=utf-8');
+  const json = JSON.stringify(payload, null, 2);
+  downloadFile(json, `csi-research-export-${dateStamp()}.json`, 'application/json;charset=utf-8');
 }
+

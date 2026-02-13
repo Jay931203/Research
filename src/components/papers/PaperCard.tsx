@@ -1,5 +1,6 @@
-import { Star, ExternalLink, Code } from 'lucide-react';
+import { Code, ExternalLink, Star } from 'lucide-react';
 import type { PaperWithNote } from '@/types';
+import { CATEGORY_LABELS, FAMILIARITY_LABELS } from '@/lib/visualization/graphUtils';
 
 interface PaperCardProps {
   paper: PaperWithNote;
@@ -7,84 +8,75 @@ interface PaperCardProps {
   onClick?: () => void;
 }
 
-// 익숙함 레벨 색상 매핑
-const familiarityColors = {
-  not_started: 'bg-gray-200 text-gray-700',
-  difficult: 'bg-red-100 text-red-700',
-  moderate: 'bg-yellow-100 text-yellow-700',
-  familiar: 'bg-green-100 text-green-700',
-  expert: 'bg-blue-100 text-blue-700',
-};
-
-const familiarityLabels = {
-  not_started: '미시작',
-  difficult: '어려움',
-  moderate: '보통',
-  familiar: '익숙',
-  expert: '전문가',
+const familiarityStyles: Record<string, string> = {
+  not_started: 'bg-gray-100 text-gray-700 dark:bg-gray-700 dark:text-gray-200',
+  difficult: 'bg-red-100 text-red-700 dark:bg-red-900/30 dark:text-red-300',
+  moderate: 'bg-amber-100 text-amber-700 dark:bg-amber-900/30 dark:text-amber-300',
+  familiar: 'bg-emerald-100 text-emerald-700 dark:bg-emerald-900/30 dark:text-emerald-300',
+  expert: 'bg-blue-100 text-blue-700 dark:bg-blue-900/30 dark:text-blue-300',
 };
 
 export default function PaperCard({ paper, isSelected, onClick }: PaperCardProps) {
+  const familiarity = paper.familiarity_level ?? 'not_started';
+
   return (
-    <div
-      className={`p-4 border rounded-lg cursor-pointer transition hover:shadow-md ${
+    <article
+      className={`cursor-pointer rounded-lg border p-4 transition hover:shadow-md ${
         isSelected
           ? 'border-blue-500 bg-blue-50 dark:bg-blue-900/20'
-          : 'border-gray-200 bg-white dark:bg-gray-800 dark:border-gray-700 hover:border-gray-300'
+          : 'border-gray-200 bg-white hover:border-gray-300 dark:border-gray-700 dark:bg-gray-800'
       }`}
       onClick={onClick}
+      role="button"
+      tabIndex={0}
+      onKeyDown={(event) => {
+        if (event.key === 'Enter' || event.key === ' ') {
+          event.preventDefault();
+          onClick?.();
+        }
+      }}
     >
-      {/* 헤더: 제목 + 즐겨찾기 */}
-      <div className="flex items-start justify-between gap-2 mb-2">
-        <h3 className="font-semibold text-sm line-clamp-2 flex-1">
-          {paper.title}
-        </h3>
-        {paper.is_favorite && (
-          <Star className="h-4 w-4 text-yellow-500 fill-yellow-500 flex-shrink-0" />
-        )}
+      <div className="mb-2 flex items-start justify-between gap-2">
+        <h3 className="line-clamp-2 flex-1 text-sm font-semibold">{paper.title}</h3>
+        {paper.is_favorite && <Star className="h-4 w-4 flex-shrink-0 fill-yellow-500 text-yellow-500" />}
       </div>
 
-      {/* 저자 및 연도 */}
-      <div className="text-xs text-gray-600 dark:text-gray-400 mb-2">
+      <div className="mb-2 text-xs text-gray-600 dark:text-gray-400">
         <span className="font-medium">{paper.authors[0]}</span>
         {paper.authors.length > 1 && ` 외 ${paper.authors.length - 1}명`}
         <span className="mx-2">•</span>
         <span>{paper.year}</span>
-        {paper.venue && (
+        {paper.venue ? (
           <>
             <span className="mx-2">•</span>
             <span className="italic">{paper.venue}</span>
           </>
-        )}
+        ) : null}
       </div>
 
-      {/* 카테고리 및 익숙함 레벨 */}
-      <div className="flex items-center gap-2 flex-wrap mb-2">
+      <div className="mb-2 flex flex-wrap items-center gap-2">
         <span
-          className="inline-flex items-center px-2 py-1 rounded text-xs font-medium"
-          style={{ backgroundColor: paper.color_hex + '20', color: paper.color_hex }}
+          className="inline-flex items-center rounded px-2 py-1 text-xs font-medium"
+          style={{ backgroundColor: `${paper.color_hex}20`, color: paper.color_hex }}
         >
-          {paper.category}
+          {CATEGORY_LABELS[paper.category] ?? paper.category}
         </span>
 
-        {paper.familiarity_level && (
-          <span
-            className={`inline-flex items-center px-2 py-1 rounded text-xs font-medium ${
-              familiarityColors[paper.familiarity_level]
-            }`}
-          >
-            {familiarityLabels[paper.familiarity_level]}
-          </span>
-        )}
+        <span
+          className={`inline-flex items-center rounded px-2 py-1 text-xs font-medium ${
+            familiarityStyles[familiarity] ?? familiarityStyles.not_started
+          }`}
+        >
+          {FAMILIARITY_LABELS[familiarity] ?? familiarity}
+        </span>
       </div>
 
-      {/* 태그 */}
-      {paper.tags && paper.tags.length > 0 && (
-        <div className="flex items-center gap-1 flex-wrap mb-2">
-          {paper.tags.slice(0, 3).map((tag, idx) => (
+      {!!paper.tags?.length && (
+        <div className="mb-2 flex flex-wrap items-center gap-1">
+          {paper.tags.slice(0, 3).map((tag) => (
             <span
-              key={idx}
-              className="inline-flex items-center px-2 py-0.5 rounded-full text-xs bg-gray-100 text-gray-700 dark:bg-gray-700 dark:text-gray-300"
+              key={tag}
+              className="inline-flex items-center rounded-full bg-gray-100 px-2 py-0.5 text-xs text-gray-700 dark:bg-gray-700 dark:text-gray-300"
             >
               {tag}
             </span>
@@ -95,15 +87,14 @@ export default function PaperCard({ paper, isSelected, onClick }: PaperCardProps
         </div>
       )}
 
-      {/* 링크 */}
-      <div className="flex items-center gap-2 mt-2 pt-2 border-t">
+      <div className="mt-2 flex items-center gap-3 border-t pt-2 dark:border-gray-700">
         {paper.pdf_url && (
           <a
             href={paper.pdf_url}
             target="_blank"
             rel="noopener noreferrer"
-            className="text-xs text-blue-600 hover:text-blue-800 flex items-center gap-1"
-            onClick={(e) => e.stopPropagation()}
+            className="inline-flex items-center gap-1 text-xs text-blue-600 transition hover:text-blue-800"
+            onClick={(event) => event.stopPropagation()}
           >
             <ExternalLink className="h-3 w-3" />
             PDF
@@ -114,14 +105,15 @@ export default function PaperCard({ paper, isSelected, onClick }: PaperCardProps
             href={paper.code_url}
             target="_blank"
             rel="noopener noreferrer"
-            className="text-xs text-blue-600 hover:text-blue-800 flex items-center gap-1"
-            onClick={(e) => e.stopPropagation()}
+            className="inline-flex items-center gap-1 text-xs text-blue-600 transition hover:text-blue-800"
+            onClick={(event) => event.stopPropagation()}
           >
             <Code className="h-3 w-3" />
             Code
           </a>
         )}
       </div>
-    </div>
+    </article>
   );
 }
+

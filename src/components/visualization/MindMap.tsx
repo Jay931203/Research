@@ -341,7 +341,7 @@ function MindMapInner({ papers, relationships, onNodeClick }: MindMapProps) {
   return (
     <div className="relative h-full w-full">
       {isPanelOpen ? (
-        <div className="absolute left-3 top-3 z-20 max-h-[56vh] w-[760px] max-w-[calc(100%-420px)] overflow-auto rounded-xl border border-gray-200 bg-white/95 p-3 shadow-lg dark:border-gray-700 dark:bg-gray-900/95">
+        <div className="absolute left-3 top-3 z-20 max-h-[56vh] w-[calc(100%-24px)] overflow-auto rounded-xl border border-gray-200 bg-white/95 p-3 shadow-lg md:w-[760px] md:max-w-[calc(100%-420px)] dark:border-gray-700 dark:bg-gray-900/95">
           <div className="mb-3 flex items-center gap-2">
             <button className={tabClass(viewMode === 'overview')} onClick={() => setViewMode('overview')}>
               Overview
@@ -472,7 +472,7 @@ function MindMapInner({ papers, relationships, onNodeClick }: MindMapProps) {
       )}
 
       {focusPaper && focusSnapshot && (
-        <div className="absolute right-3 top-3 z-20 max-h-[74vh] w-[360px] overflow-auto rounded-xl border border-gray-200 bg-white/95 p-3 shadow-lg dark:border-gray-700 dark:bg-gray-900/95">
+        <div className="absolute right-3 top-3 z-20 hidden max-h-[74vh] w-[360px] overflow-auto rounded-xl border border-gray-200 bg-white/95 p-3 shadow-lg xl:block dark:border-gray-700 dark:bg-gray-900/95">
           <div className="mb-2 flex items-start justify-between gap-2">
             <div>
               <p className="text-xs font-semibold text-blue-600">{focusPaper.year}</p>
@@ -557,6 +557,28 @@ function MindMapInner({ papers, relationships, onNodeClick }: MindMapProps) {
               )}
             </div>
           </div>
+        </div>
+      )}
+
+      {focusPaper && focusSnapshot && (
+        <div className="absolute bottom-3 left-3 right-3 z-20 rounded-xl border border-gray-200 bg-white/95 p-3 shadow-lg xl:hidden dark:border-gray-700 dark:bg-gray-900/95">
+          <div className="flex items-center justify-between gap-2">
+            <div className="min-w-0">
+              <p className="line-clamp-1 text-xs font-semibold text-blue-600">{focusPaper.year}</p>
+              <p className="line-clamp-1 text-sm font-semibold text-gray-900 dark:text-gray-100">
+                {focusPaper.title}
+              </p>
+            </div>
+            <button
+              onClick={() => onNodeClick?.(focusPaper.id)}
+              className="rounded-md border border-gray-300 px-2 py-1 text-[11px] font-semibold hover:bg-gray-100 dark:border-gray-600 dark:hover:bg-gray-800"
+            >
+              상세 보기
+            </button>
+          </div>
+          <p className="mt-1 line-clamp-2 text-[11px] text-gray-600 dark:text-gray-300">
+            {focusSnapshot.oneLiner}
+          </p>
         </div>
       )}
 
