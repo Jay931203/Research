@@ -1,0 +1,2034 @@
+{
+  "papers": [
+    {
+      "title": "Deep Learning for Massive MIMO CSI Feedback",
+      "authors": ["Chao-Kai Wen", "Wan-Ting Shih", "Shi Jin"],
+      "year": 2018,
+      "venue": "IEEE Wireless Communications Letters",
+      "doi": "10.1109/LWC.2018.2818160",
+      "arxiv_id": "1712.08919",
+      "abstract": "This paper proposes CsiNet, the first deep learning approach for CSI feedback in massive MIMO FDD systems. CsiNet uses an encoder-decoder architecture to compress and recover CSI matrices in the angular-delay domain, significantly outperforming traditional compressive sensing methods at various compression ratios (1/4, 1/8, 1/16, 1/32, 1/64).",
+      "key_contributions": [
+        "First deep learning framework (CsiNet) for CSI feedback in massive MIMO",
+        "Encoder-decoder architecture operating on angular-delay domain CSI matrices",
+        "Demonstrated superiority over compressive sensing baselines (LASSO, TVAL3, BM3D-AMP) across compression ratios"
+      ],
+      "algorithms": [
+        "CsiNet Encoder (Conv2D + FC)",
+        "CsiNet Decoder (FC + RefineNet blocks)",
+        "RefineNet residual learning block"
+      ],
+      "key_equations": [
+        {
+          "name": "CSI Compression",
+          "latex": "\\mathbf{s} = f_{\\text{enc}}(\\mathbf{H}_a) \\in \\mathbb{R}^M, \\quad M = \\lfloor N_t \\cdot N_c / \\gamma \\rfloor",
+          "description": "Encoder compresses angular-delay domain CSI matrix H_a into codeword s with compression ratio gamma"
+        },
+        {
+          "name": "NMSE Loss",
+          "latex": "\\text{NMSE} = \\mathbb{E}\\left\\{\\frac{\\|\\mathbf{H}_a - \\hat{\\mathbf{H}}_a\\|_2^2}{\\|\\mathbf{H}_a\\|_2^2}\\right\\}",
+          "description": "Normalized mean squared error between original and reconstructed CSI"
+        },
+        {
+          "name": "Compression Ratio",
+          "latex": "\\gamma = \\frac{N_t \\times N_c}{M}",
+          "description": "Ratio of original CSI dimension to compressed codeword dimension"
+        }
+      ],
+      "category": "autoencoder",
+      "tags": ["csinet", "autoencoder", "csi-feedback", "massive-mimo", "fdd", "deep-learning", "foundational"],
+      "pdf_url": "https://arxiv.org/pdf/1712.08919",
+      "code_url": "https://github.com/sydney222/Python_CsiNet",
+      "color_hex": "#2563EB"
+    },
+    {
+      "title": "CsiNet-LSTM: A Deep Learning Architecture for Compressive CSI Estimation and Feedback in FDD Massive MIMO",
+      "authors": ["Chao-Kai Wen", "Wan-Ting Shih", "Shi Jin"],
+      "year": 2020,
+      "venue": "IEEE Transactions on Wireless Communications",
+      "doi": "10.1109/TWC.2020.3006080",
+      "arxiv_id": "1905.10761",
+      "abstract": "This paper extends CsiNet by incorporating LSTM layers to exploit temporal correlation of time-varying CSI. CsiNet-LSTM uses recurrent architecture to compress a sequence of CSI matrices over time, significantly reducing feedback overhead by leveraging inter-frame redundancy in CSI time series.",
+      "key_contributions": [
+        "Exploiting temporal correlation of CSI via LSTM for feedback reduction",
+        "Proposed CsiNet-LSTM combining CNN encoder with LSTM-based temporal processing",
+        "Demonstrated significant NMSE improvement over per-frame CsiNet by leveraging CSI temporal structure"
+      ],
+      "algorithms": [
+        "CsiNet-LSTM Encoder (Conv + LSTM)",
+        "CsiNet-LSTM Decoder (LSTM + Deconv)",
+        "Temporal CSI compression pipeline"
+      ],
+      "key_equations": [
+        {
+          "name": "Temporal CSI Feedback",
+          "latex": "\\mathbf{s}_t = f_{\\text{enc}}(\\mathbf{H}_{a,t}, \\mathbf{h}_{t-1})",
+          "description": "Encoder compresses current CSI using hidden state from previous time step"
+        },
+        {
+          "name": "LSTM Hidden State Update",
+          "latex": "\\mathbf{h}_t = \\text{LSTM}(\\mathbf{s}_t, \\mathbf{h}_{t-1})",
+          "description": "LSTM updates hidden state using current compressed codeword"
+        }
+      ],
+      "category": "autoencoder",
+      "tags": ["csinet-lstm", "temporal", "recurrent", "lstm", "csi-feedback", "massive-mimo"],
+      "pdf_url": "https://arxiv.org/pdf/1905.10761",
+      "code_url": null,
+      "color_hex": "#3B82F6"
+    },
+    {
+      "title": "CRNet: A Deep-Learning Framework for CSI Feedback in Massive MIMO",
+      "authors": ["Zhilin Lu", "Jintao Wang", "Jian Song"],
+      "year": 2020,
+      "venue": "IEEE Transactions on Wireless Communications",
+      "doi": "10.1109/TWC.2019.2951138",
+      "arxiv_id": "1911.07560",
+      "abstract": "CRNet proposes a multi-resolution architecture for CSI feedback that uses parallel convolution branches with different kernel sizes to capture features at multiple scales. It introduces a CRBlock with channel-wise attention that adaptively weights features from different resolution paths, achieving improved reconstruction accuracy with moderate computational cost.",
+      "key_contributions": [
+        "Multi-resolution CRBlock with parallel convolution branches for multi-scale CSI feature extraction",
+        "Channel-wise attention mechanism (Squeeze-and-Excitation style) for adaptive feature recalibration",
+        "Improved NMSE over CsiNet while maintaining reasonable computational complexity"
+      ],
+      "algorithms": [
+        "CRNet Encoder",
+        "CRNet Decoder with CRBlocks",
+        "Multi-Resolution Feature Extraction",
+        "Channel Attention Recalibration"
+      ],
+      "key_equations": [
+        {
+          "name": "Multi-Resolution Feature Aggregation",
+          "latex": "\\mathbf{F}_{\\text{out}} = \\sum_{i=1}^{K} \\alpha_i \\cdot \\text{Conv}_{k_i}(\\mathbf{F}_{\\text{in}})",
+          "description": "Aggregation of parallel convolution outputs with different kernel sizes k_i, weighted by attention alpha_i"
+        },
+        {
+          "name": "Channel Attention (SE Block)",
+          "latex": "\\mathbf{\\alpha} = \\sigma(\\mathbf{W}_2 \\cdot \\delta(\\mathbf{W}_1 \\cdot \\text{GAP}(\\mathbf{F})))",
+          "description": "Squeeze-and-Excitation style channel attention with global average pooling, FC layers, and sigmoid activation"
+        }
+      ],
+      "category": "cnn",
+      "tags": ["crnet", "multi-resolution", "channel-attention", "csi-feedback", "massive-mimo"],
+      "pdf_url": "https://arxiv.org/pdf/1911.07560",
+      "code_url": "https://github.com/Kylin9511/CRNet",
+      "color_hex": "#059669"
+    },
+    {
+      "title": "Lightweight and Effective CSI Feedback for Massive MIMO Systems",
+      "authors": ["Zhilin Lu", "Jintao Wang", "Jian Song"],
+      "year": 2022,
+      "venue": "IEEE Transactions on Wireless Communications",
+      "doi": "10.1109/TWC.2021.3130271",
+      "arxiv_id": "2005.00445",
+      "abstract": "CLNet proposes a lightweight CSI feedback network that significantly reduces computational complexity while maintaining competitive reconstruction accuracy. It introduces a combination of depthwise separable convolutions and an efficient attention mechanism to compress the decoder. A novel complex-valued network path and AnciNet (ancillary network) module are also introduced.",
+      "key_contributions": [
+        "Significantly lighter network architecture with reduced FLOPs and parameters vs CsiNet/CRNet",
+        "AnciNet module as auxiliary refinement network for enhanced reconstruction",
+        "Complex-valued processing path preserving CSI phase information"
+      ],
+      "algorithms": [
+        "CLNet Encoder (lightweight Conv)",
+        "CLNet Decoder",
+        "AnciNet auxiliary refinement module",
+        "Depthwise Separable Convolution"
+      ],
+      "key_equations": [
+        {
+          "name": "Depthwise Separable Convolution",
+          "latex": "\\text{DSConv}(\\mathbf{X}) = \\text{PW}_{1\\times1}(\\text{DW}_{k\\times k}(\\mathbf{X}))",
+          "description": "Depthwise separable convolution decomposed into depthwise (DW) and pointwise (PW) operations for parameter reduction"
+        },
+        {
+          "name": "CLNet Complexity Reduction",
+          "latex": "\\frac{\\text{Params}_{\\text{CLNet}}}{\\text{Params}_{\\text{CRNet}}} \\approx \\frac{1}{K}",
+          "description": "CLNet achieves approximately 1/K parameter reduction compared to CRNet"
+        }
+      ],
+      "category": "cnn",
+      "tags": ["clnet", "lightweight", "depthwise-separable", "efficient", "csi-feedback", "massive-mimo"],
+      "pdf_url": "https://arxiv.org/pdf/2005.00445",
+      "code_url": "https://github.com/Kylin9511/CLNet",
+      "color_hex": "#10B981"
+    },
+    {
+      "title": "TransNet: Full Attention Network for CSI Feedback in FDD Massive MIMO",
+      "authors": ["Jiajia Cui", "Zhilin Lu", "Jintao Wang", "Jian Song"],
+      "year": 2022,
+      "venue": "IEEE Wireless Communications Letters",
+      "doi": "10.1109/LWC.2021.3132629",
+      "arxiv_id": null,
+      "abstract": "TransNet applies the Transformer architecture to CSI feedback, replacing CNN-based encoders/decoders with multi-head self-attention. It captures long-range spatial dependencies in CSI matrices that CNNs may miss due to limited receptive fields, achieving state-of-the-art NMSE performance especially at low compression ratios.",
+      "key_contributions": [
+        "First application of full Transformer (multi-head self-attention) to CSI feedback",
+        "Captures long-range spatial dependencies in CSI that CNNs miss due to local receptive fields",
+        "State-of-the-art NMSE at low compression ratios with attention-based global feature aggregation"
+      ],
+      "algorithms": [
+        "TransNet Encoder (Self-Attention + FC)",
+        "TransNet Decoder (Multi-Head Attention)",
+        "Multi-Head Self-Attention for CSI",
+        "Positional Encoding for CSI matrices"
+      ],
+      "key_equations": [
+        {
+          "name": "Multi-Head Self-Attention",
+          "latex": "\\text{Attention}(\\mathbf{Q}, \\mathbf{K}, \\mathbf{V}) = \\text{softmax}\\left(\\frac{\\mathbf{Q}\\mathbf{K}^T}{\\sqrt{d_k}}\\right)\\mathbf{V}",
+          "description": "Scaled dot-product attention with query Q, key K, value V matrices from CSI features"
+        },
+        {
+          "name": "Multi-Head Output",
+          "latex": "\\text{MHA}(\\mathbf{X}) = \\text{Concat}(\\text{head}_1, \\ldots, \\text{head}_h)\\mathbf{W}^O",
+          "description": "Multi-head attention concatenates h attention heads and projects with output weight matrix"
+        }
+      ],
+      "category": "transformer",
+      "tags": ["transnet", "transformer", "self-attention", "csi-feedback", "massive-mimo", "long-range-dependency"],
+      "pdf_url": null,
+      "code_url": null,
+      "color_hex": "#7C3AED"
+    },
+    {
+      "title": "ACRNet: Aggregation Cross-Domain Network for CSI Feedback in Massive MIMO",
+      "authors": ["Zhilin Lu", "Jintao Wang", "Jian Song"],
+      "year": 2022,
+      "venue": "IEEE Transactions on Wireless Communications",
+      "doi": "10.1109/TWC.2022.3183226",
+      "arxiv_id": "2111.11451",
+      "abstract": "ACRNet proposes an aggregation cross-domain network that processes CSI in both spatial and frequency domains simultaneously. It introduces a novel Aggregation Block that fuses multi-scale features across domains, and an efficient cross-domain attention mechanism. ACRNet achieves state-of-the-art NMSE while being more efficient than CRNet.",
+      "key_contributions": [
+        "Cross-domain (spatial + frequency) feature aggregation for enhanced CSI reconstruction",
+        "Novel AggregationBlock that fuses multi-scale features with cross-domain attention",
+        "State-of-the-art NMSE performance on COST2100 dataset, surpassing CRNet and CLNet"
+      ],
+      "algorithms": [
+        "ACRNet Encoder",
+        "ACRNet Decoder with AggregationBlocks",
+        "Cross-Domain Attention Module",
+        "Multi-Scale Feature Fusion"
+      ],
+      "key_equations": [
+        {
+          "name": "Cross-Domain Feature Fusion",
+          "latex": "\\mathbf{F}_{\\text{fused}} = \\text{Agg}(\\mathbf{F}_{\\text{spatial}}, \\mathbf{F}_{\\text{freq}}) = \\mathbf{F}_{\\text{spatial}} \\odot \\mathbf{A}_{\\text{cross}} + \\mathbf{F}_{\\text{freq}}",
+          "description": "Fused feature combining spatial and frequency domain features via cross-domain attention A_cross"
+        },
+        {
+          "name": "Aggregation Block",
+          "latex": "\\mathbf{F}_{\\text{out}} = \\text{Conv}(\\text{Cat}(\\mathbf{F}_{3\\times3}, \\mathbf{F}_{5\\times5}, \\mathbf{F}_{7\\times7})) + \\mathbf{F}_{\\text{in}}",
+          "description": "Multi-scale aggregation with different kernel sizes and residual connection"
+        }
+      ],
+      "category": "cnn",
+      "tags": ["acrnet", "cross-domain", "aggregation", "multi-scale", "csi-feedback", "massive-mimo"],
+      "pdf_url": "https://arxiv.org/pdf/2111.11451",
+      "code_url": "https://github.com/Kylin9511/ACRNet",
+      "color_hex": "#F59E0B"
+    },
+    {
+      "title": "DS-NLCsiNet: Exploiting Non-Local Neural Networks for Massive MIMO CSI Feedback",
+      "authors": ["Sungho Suh", "Jintao Wang", "Zhilin Lu"],
+      "year": 2021,
+      "venue": "IEEE Communications Letters",
+      "doi": "10.1109/LCOMM.2021.3073475",
+      "arxiv_id": null,
+      "abstract": "DS-NLCsiNet introduces depthwise separable convolutions combined with non-local attention blocks for CSI feedback. The non-local block captures long-range dependencies in CSI matrices while depthwise separable convolutions reduce computational cost. This combination achieves better NMSE-complexity tradeoffs than CsiNet and CRNet.",
+      "key_contributions": [
+        "Integration of non-local attention with depthwise separable convolutions for CSI feedback",
+        "Captures long-range spatial dependencies via non-local block while reducing parameters",
+        "Better NMSE-FLOPs tradeoff compared to CsiNet and CRNet"
+      ],
+      "algorithms": [
+        "DS-NLCsiNet Encoder",
+        "DS-NLCsiNet Decoder",
+        "Non-Local Attention Block",
+        "Depthwise Separable Convolution"
+      ],
+      "key_equations": [
+        {
+          "name": "Non-Local Block",
+          "latex": "\\mathbf{y}_i = \\frac{1}{C(\\mathbf{x})} \\sum_{\\forall j} f(\\mathbf{x}_i, \\mathbf{x}_j) g(\\mathbf{x}_j)",
+          "description": "Non-local operation computing response at position i as weighted sum of all positions j"
+        },
+        {
+          "name": "Embedded Gaussian Similarity",
+          "latex": "f(\\mathbf{x}_i, \\mathbf{x}_j) = e^{\\theta(\\mathbf{x}_i)^T \\phi(\\mathbf{x}_j)}",
+          "description": "Embedded Gaussian function computing pairwise affinity between positions"
+        }
+      ],
+      "category": "cnn",
+      "tags": ["ds-nlcsinet", "non-local", "depthwise-separable", "attention", "csi-feedback", "lightweight"],
+      "pdf_url": null,
+      "code_url": null,
+      "color_hex": "#EF4444"
+    },
+    {
+      "title": "ENet: Efficient CSI Feedback for Massive MIMO Communications",
+      "authors": ["Zhilin Lu", "Jintao Wang", "Jian Song"],
+      "year": 2020,
+      "venue": "IEEE Access",
+      "doi": "10.1109/ACCESS.2020.3040386",
+      "arxiv_id": null,
+      "abstract": "ENet proposes an efficient network for CSI feedback focusing on reducing encoder complexity for deployment on mobile user equipment (UE). It uses a simplified encoder with fewer convolutional layers and a more powerful decoder at the base station side, reflecting the asymmetric computational capacity between UE and BS.",
+      "key_contributions": [
+        "Asymmetric encoder-decoder design with lightweight encoder for mobile UE",
+        "Efficient encoder with minimal convolution layers suitable for resource-constrained devices",
+        "Demonstrated competitive NMSE with significantly reduced encoder FLOPs"
+      ],
+      "algorithms": [
+        "ENet Lightweight Encoder",
+        "ENet Heavy Decoder",
+        "Asymmetric Architecture Design"
+      ],
+      "key_equations": [
+        {
+          "name": "Encoder Complexity",
+          "latex": "C_{\\text{enc}} = \\sum_{l=1}^{L} K_l^2 \\cdot C_{\\text{in},l} \\cdot C_{\\text{out},l} \\cdot H_l \\cdot W_l",
+          "description": "Total FLOPs of encoder as sum over L convolutional layers"
+        },
+        {
+          "name": "Asymmetric Design Ratio",
+          "latex": "\\rho = \\frac{C_{\\text{enc}}}{C_{\\text{dec}}} \\ll 1",
+          "description": "Ratio of encoder to decoder complexity, designed to be much less than 1"
+        }
+      ],
+      "category": "cnn",
+      "tags": ["enet", "efficient", "lightweight-encoder", "asymmetric", "csi-feedback", "mobile"],
+      "pdf_url": null,
+      "code_url": null,
+      "color_hex": "#F97316"
+    },
+    {
+      "title": "Quantization of Deep Neural Networks for Accurate CSI Feedback",
+      "authors": ["Zhilin Lu", "Jintao Wang", "Jian Song"],
+      "year": 2022,
+      "venue": "IEEE Wireless Communications Letters",
+      "doi": "10.1109/LWC.2022.3159168",
+      "arxiv_id": null,
+      "abstract": "This paper addresses the critical gap between floating-point codewords and practical limited-bit feedback in CSI compression. It proposes quantization-aware training (QAT) and a learnable quantization scheme for codewords produced by CSI feedback networks, enabling deployment with finite-bit feedback links while minimizing reconstruction degradation.",
+      "key_contributions": [
+        "Quantization-aware training framework for CSI feedback codewords",
+        "Learnable quantization with trainable quantization levels adapted to codeword distribution",
+        "Demonstrated that 4-bit quantization achieves near-floating-point NMSE with proper training"
+      ],
+      "algorithms": [
+        "Quantization-Aware Training (QAT)",
+        "Straight-Through Estimator (STE)",
+        "Learnable Quantization Levels",
+        "Uniform and Non-Uniform Quantization"
+      ],
+      "key_equations": [
+        {
+          "name": "Uniform Quantization",
+          "latex": "Q(x) = \\Delta \\cdot \\left\\lfloor \\frac{x}{\\Delta} + \\frac{1}{2} \\right\\rfloor, \\quad \\Delta = \\frac{x_{\\max} - x_{\\min}}{2^B - 1}",
+          "description": "Uniform quantization with step size Delta determined by B-bit precision"
+        },
+        {
+          "name": "Straight-Through Estimator",
+          "latex": "\\frac{\\partial \\mathcal{L}}{\\partial \\mathbf{w}} \\approx \\frac{\\partial \\mathcal{L}}{\\partial Q(\\mathbf{w})}",
+          "description": "STE approximates gradient through non-differentiable quantization operation"
+        },
+        {
+          "name": "Total Feedback Bits",
+          "latex": "B_{\\text{total}} = M \\times B = \\frac{N_t \\times N_c}{\\gamma} \\times B",
+          "description": "Total feedback overhead combining codeword dimension M with B-bit quantization"
+        }
+      ],
+      "category": "quantization",
+      "tags": ["quantization", "qat", "ste", "finite-bit-feedback", "csi-feedback", "deployment"],
+      "pdf_url": null,
+      "code_url": null,
+      "color_hex": "#DC2626"
+    },
+    {
+      "title": "Deep Learning Based CSI Feedback Approach for Time-Varying Massive MIMO Channels",
+      "authors": ["Thanh-Tung Ly", "Ta-Sung Lee"],
+      "year": 2021,
+      "venue": "IEEE Wireless Communications Letters",
+      "doi": "10.1109/LWC.2021.3073474",
+      "arxiv_id": null,
+      "abstract": "This paper proposes MarkovNet, a deep learning approach that exploits the Markov property of time-varying CSI channels. By using differential CSI encoding (encoding only the difference between consecutive CSI frames), it drastically reduces feedback overhead for temporally correlated channels in high-mobility scenarios.",
+      "key_contributions": [
+        "Differential CSI encoding exploiting temporal correlation for reduced feedback",
+        "Markov-chain-based temporal model for CSI evolution",
+        "Significant feedback reduction in high-mobility time-varying scenarios"
+      ],
+      "algorithms": [
+        "Differential CSI Encoder",
+        "Temporal Prediction Network",
+        "Differential Feedback Pipeline"
+      ],
+      "key_equations": [
+        {
+          "name": "Differential CSI",
+          "latex": "\\Delta \\mathbf{H}_t = \\mathbf{H}_t - \\hat{\\mathbf{H}}_{t-1}",
+          "description": "Differential CSI computed as difference between current CSI and previously reconstructed CSI"
+        },
+        {
+          "name": "Temporal Feedback Reduction",
+          "latex": "\\text{NMSE}_{\\Delta} = \\frac{\\|\\Delta\\mathbf{H}_t - \\Delta\\hat{\\mathbf{H}}_t\\|_2^2}{\\|\\mathbf{H}_t\\|_2^2}",
+          "description": "NMSE measured on differential CSI reconstruction"
+        }
+      ],
+      "category": "autoencoder",
+      "tags": ["temporal", "differential-feedback", "time-varying", "markov", "csi-feedback"],
+      "pdf_url": null,
+      "code_url": null,
+      "color_hex": "#6366F1"
+    },
+    {
+      "title": "Binarized Neural Network for CSI Feedback in Massive MIMO Systems",
+      "authors": ["Zhilin Lu", "Jintao Wang", "Jian Song"],
+      "year": 2021,
+      "venue": "IEEE Wireless Communications Letters",
+      "doi": "10.1109/LWC.2021.3088837",
+      "arxiv_id": null,
+      "abstract": "BCsiNet applies binary neural network techniques to CSI feedback, binarizing both weights and activations to 1-bit representations. This enables extreme compression of the feedback network model itself, making it deployable on hardware-constrained devices. Despite severe quantization, BCsiNet maintains acceptable NMSE through training techniques adapted from BNN literature.",
+      "key_contributions": [
+        "First application of binary neural networks (1-bit weights and activations) to CSI feedback",
+        "Extreme model compression enabling deployment on highly constrained UE hardware",
+        "Training strategies (scaling factors, progressive binarization) to maintain NMSE under binarization"
+      ],
+      "algorithms": [
+        "BCsiNet (Binarized CsiNet)",
+        "Sign Function with STE for binarization",
+        "Scaling Factor Learning",
+        "Progressive Binarization Training"
+      ],
+      "key_equations": [
+        {
+          "name": "Weight Binarization",
+          "latex": "\\mathbf{w}_b = \\alpha \\cdot \\text{sign}(\\mathbf{w}), \\quad \\alpha = \\frac{\\|\\mathbf{w}\\|_{\\ell_1}}{n}",
+          "description": "Binarized weights with learned scaling factor alpha based on L1 norm"
+        },
+        {
+          "name": "XNOR-Bitcount Operation",
+          "latex": "\\mathbf{w}_b^T \\mathbf{a}_b \\approx \\alpha \\beta \\cdot \\text{bitcount}(\\text{XNOR}(\\text{sign}(\\mathbf{w}), \\text{sign}(\\mathbf{a})))",
+          "description": "Binary dot product via XNOR and popcount for efficient hardware inference"
+        }
+      ],
+      "category": "quantization",
+      "tags": ["binarization", "bnn", "1-bit", "extreme-compression", "model-compression", "csi-feedback"],
+      "pdf_url": null,
+      "code_url": null,
+      "color_hex": "#BE185D"
+    },
+    {
+      "title": "Knowledge Distillation-Based DNN for CSI Feedback in Massive MIMO Systems",
+      "authors": ["Zhilin Lu", "Jintao Wang", "Jian Song"],
+      "year": 2022,
+      "venue": "IEEE Transactions on Vehicular Technology",
+      "doi": "10.1109/TVT.2022.3165837",
+      "arxiv_id": null,
+      "abstract": "This paper applies knowledge distillation to CSI feedback networks, training a compact student encoder to mimic a larger teacher network. The distillation loss combines reconstruction MSE with intermediate feature matching, enabling lightweight encoders to approach the performance of heavy models while significantly reducing computation at the UE side.",
+      "key_contributions": [
+        "Knowledge distillation framework for CSI feedback with teacher-student encoder training",
+        "Combined distillation loss using output MSE + intermediate feature matching",
+        "Demonstrated student encoder achieves near-teacher NMSE with 60-75% fewer parameters"
+      ],
+      "algorithms": [
+        "Teacher-Student Distillation",
+        "Feature-Level Knowledge Transfer",
+        "Output-Level Knowledge Transfer",
+        "Combined Distillation Training"
+      ],
+      "key_equations": [
+        {
+          "name": "Knowledge Distillation Loss",
+          "latex": "\\mathcal{L}_{\\text{KD}} = \\alpha \\cdot \\|\\hat{\\mathbf{H}}_s - \\mathbf{H}\\|_2^2 + (1-\\alpha) \\cdot \\sum_{l} \\|\\mathbf{f}_s^{(l)} - \\mathbf{f}_t^{(l)}\\|_2^2",
+          "description": "Combined loss: reconstruction MSE of student output + feature matching between student and teacher at intermediate layers l"
+        },
+        {
+          "name": "Student Parameter Reduction",
+          "latex": "\\eta = 1 - \\frac{|\\theta_s|}{|\\theta_t|}",
+          "description": "Parameter reduction ratio: fraction of teacher parameters removed in student model"
+        }
+      ],
+      "category": "cnn",
+      "tags": ["knowledge-distillation", "teacher-student", "model-compression", "lightweight", "csi-feedback"],
+      "pdf_url": null,
+      "code_url": null,
+      "color_hex": "#EC4899"
+    },
+    {
+      "title": "Attention Mechanism-Based CSI Feedback Network for Massive MIMO Systems",
+      "authors": ["Jiajia Cui", "Zhilin Lu", "Jintao Wang", "Jian Song"],
+      "year": 2021,
+      "venue": "IET Communications",
+      "doi": "10.1049/cmu2.12155",
+      "arxiv_id": null,
+      "abstract": "This paper introduces spatial and channel dual-attention mechanisms into the CSI feedback network. The spatial attention focuses on important spatial positions in the angular-delay domain, while channel attention re-weights feature channels. The combination of dual attention with a residual architecture achieves improved NMSE over CsiNet at comparable complexity.",
+      "key_contributions": [
+        "Dual-attention (spatial + channel) mechanism for CSI feedback",
+        "Spatial attention highlights important angular-delay positions in CSI matrix",
+        "Improved NMSE over CsiNet with comparable encoder complexity"
+      ],
+      "algorithms": [
+        "Spatial Attention Module",
+        "Channel Attention Module",
+        "Dual-Attention Residual Block",
+        "Attention-Enhanced CSI Decoder"
+      ],
+      "key_equations": [
+        {
+          "name": "Spatial Attention",
+          "latex": "\\mathbf{A}_s = \\sigma(\\text{Conv}_{7\\times7}([\\text{AvgPool}(\\mathbf{F}); \\text{MaxPool}(\\mathbf{F})]))",
+          "description": "Spatial attention map computed from average and max pooled features along channel dimension"
+        },
+        {
+          "name": "Channel Attention",
+          "latex": "\\mathbf{A}_c = \\sigma(\\text{MLP}(\\text{GAP}(\\mathbf{F})) + \\text{MLP}(\\text{GMP}(\\mathbf{F})))",
+          "description": "Channel attention weights from global average and max pooling through shared MLP"
+        }
+      ],
+      "category": "cnn",
+      "tags": ["attention", "spatial-attention", "channel-attention", "dual-attention", "csi-feedback"],
+      "pdf_url": null,
+      "code_url": null,
+      "color_hex": "#0EA5E9"
+    },
+    {
+      "title": "CSI-GPT: Integrating Generative Pre-Trained Transformer with Federated-Tuning for Channel Estimation in Massive MIMO",
+      "authors": ["Ye Xue", "Chao-Kai Wen", "Shi Jin"],
+      "year": 2024,
+      "venue": "IEEE Transactions on Wireless Communications",
+      "doi": "10.1109/TWC.2024.3364197",
+      "arxiv_id": "2309.02726",
+      "abstract": "CSI-GPT applies the generative pre-trained transformer (GPT) paradigm to CSI feedback and channel estimation. A large transformer model is pre-trained on diverse CSI datasets, then fine-tuned via federated learning for specific environments. This approach generalizes across different antenna configurations and channel environments, addressing the key limitation of prior methods trained for fixed scenarios.",
+      "key_contributions": [
+        "First GPT-style generative pre-training approach for CSI feedback and estimation",
+        "Federated fine-tuning enabling environment adaptation without sharing raw CSI data",
+        "Cross-scenario generalization across different antenna configurations and channel models"
+      ],
+      "algorithms": [
+        "CSI-GPT (Generative Pre-Trained Transformer for CSI)",
+        "Federated Fine-Tuning",
+        "Autoregressive CSI Generation",
+        "Masked CSI Prediction"
+      ],
+      "key_equations": [
+        {
+          "name": "Autoregressive CSI Prediction",
+          "latex": "p(\\mathbf{H}) = \\prod_{i=1}^{N} p(h_i | h_1, \\ldots, h_{i-1}; \\theta)",
+          "description": "CSI matrix modeled as autoregressive sequence with GPT predicting each element conditioned on previous"
+        },
+        {
+          "name": "Federated Aggregation",
+          "latex": "\\theta_{\\text{global}} = \\sum_{k=1}^{K} \\frac{n_k}{n} \\theta_k",
+          "description": "Federated averaging of local model parameters weighted by dataset sizes"
+        }
+      ],
+      "category": "transformer",
+      "tags": ["gpt", "generative", "pre-training", "federated-learning", "csi-feedback", "generalization"],
+      "pdf_url": "https://arxiv.org/pdf/2309.02726",
+      "code_url": null,
+      "color_hex": "#8B5CF6"
+    },
+    {
+      "title": "Deep Learning-Based CSI Feedback with Variable Length Codewords for Adaptive FDD Massive MIMO",
+      "authors": ["Chao-Kai Wen", "Wan-Ting Shih", "Shi Jin"],
+      "year": 2019,
+      "venue": "IEEE Wireless Communications Letters",
+      "doi": "10.1109/LWC.2019.2921137",
+      "arxiv_id": null,
+      "abstract": "CsiNet+ extends CsiNet by introducing variable-length codeword feedback, allowing adaptive compression ratio selection based on channel quality. The encoder can produce codewords of different lengths, enabling the UE to trade off between feedback overhead and reconstruction accuracy depending on available uplink bandwidth. This is achieved through a novel progressive encoding scheme.",
+      "key_contributions": [
+        "Variable-length codeword CSI feedback enabling adaptive compression ratio",
+        "Progressive encoding scheme where longer codewords refine shorter ones",
+        "Adaptive feedback bandwidth allocation based on channel conditions"
+      ],
+      "algorithms": [
+        "CsiNet+ Progressive Encoder",
+        "Variable-Length Codeword Generation",
+        "Adaptive Compression Ratio Selection",
+        "Incremental Decoder"
+      ],
+      "key_equations": [
+        {
+          "name": "Progressive Encoding",
+          "latex": "\\mathbf{s}_{1:M} = [\\mathbf{s}_{1:M_1}, \\mathbf{s}_{M_1+1:M_2}, \\ldots, \\mathbf{s}_{M_{K-1}+1:M}]",
+          "description": "Codeword progressively refined: first M1 elements give coarse reconstruction, additional elements refine"
+        },
+        {
+          "name": "Adaptive Rate Selection",
+          "latex": "M^* = \\arg\\min_{M_k} M_k \\quad \\text{s.t.} \\quad \\text{NMSE}(M_k) \\leq \\epsilon",
+          "description": "Select minimum codeword length M_k that satisfies NMSE target epsilon"
+        }
+      ],
+      "category": "autoencoder",
+      "tags": ["csinet-plus", "variable-rate", "adaptive", "progressive-encoding", "csi-feedback"],
+      "pdf_url": null,
+      "code_url": null,
+      "color_hex": "#1D4ED8"
+    },
+    {
+      "title": "Lightweight CSI Feedback via Mixed-Precision Quantization",
+      "authors": ["Zhilin Lu", "Jintao Wang", "Jian Song"],
+      "year": 2023,
+      "venue": "IEEE Transactions on Wireless Communications",
+      "doi": "10.1109/TWC.2023.3251213",
+      "arxiv_id": null,
+      "abstract": "This paper proposes a mixed-precision quantization framework for CSI feedback networks. Unlike uniform quantization that applies the same bit-width to all layers, this method assigns different bit-widths to different layers based on their sensitivity to quantization error, achieving better NMSE-bitrate tradeoffs. A hardware-aware search algorithm finds optimal per-layer bit allocation.",
+      "key_contributions": [
+        "Mixed-precision quantization framework assigning different bit-widths per layer for CSI feedback",
+        "Hardware-aware bit allocation search based on layer sensitivity analysis",
+        "Demonstrated 2-4x compression of model size with <0.5dB NMSE degradation"
+      ],
+      "algorithms": [
+        "Mixed-Precision Quantization Search",
+        "Layer Sensitivity Analysis",
+        "Hardware-Aware Bit Allocation",
+        "Fine-Tuning with STE"
+      ],
+      "key_equations": [
+        {
+          "name": "Mixed-Precision Objective",
+          "latex": "\\min_{\\{b_l\\}} \\text{NMSE}(\\{b_l\\}) \\quad \\text{s.t.} \\quad \\sum_{l=1}^{L} |\\theta_l| \\cdot b_l \\leq B_{\\text{budget}}",
+          "description": "Minimize NMSE by selecting per-layer bit-widths b_l subject to total bit budget constraint"
+        },
+        {
+          "name": "Layer Sensitivity",
+          "latex": "S_l = \\frac{\\partial \\text{NMSE}}{\\partial b_l} \\approx \\text{NMSE}(b_l=8) - \\text{NMSE}(b_l=4)",
+          "description": "Sensitivity of each layer measured by NMSE change when reducing from 8-bit to 4-bit"
+        }
+      ],
+      "category": "quantization",
+      "tags": ["mixed-precision", "quantization", "bit-allocation", "hardware-aware", "csi-feedback", "model-compression"],
+      "pdf_url": null,
+      "code_url": null,
+      "color_hex": "#9333EA"
+    },
+    {
+      "title": "Pruning Deep Neural Networks for Efficient CSI Feedback",
+      "authors": ["Zhilin Lu", "Jintao Wang", "Jian Song"],
+      "year": 2023,
+      "venue": "IEEE Communications Letters",
+      "doi": "10.1109/LCOMM.2023.3245112",
+      "arxiv_id": null,
+      "abstract": "This paper applies structured pruning to CSI feedback networks, removing redundant filters and channels to create compact models for deployment on UE. A two-stage approach first identifies unimportant filters via L1-norm ranking, then fine-tunes the pruned network to recover accuracy. Results show 50-70% parameter reduction with minimal NMSE loss.",
+      "key_contributions": [
+        "Structured filter pruning framework for CSI feedback encoder and decoder networks",
+        "L1-norm based importance ranking for identifying redundant convolutional filters",
+        "50-70% parameter reduction with less than 1dB NMSE degradation on COST2100"
+      ],
+      "algorithms": [
+        "Structured Filter Pruning",
+        "L1-Norm Importance Ranking",
+        "Iterative Prune-and-Retrain",
+        "Channel Pruning"
+      ],
+      "key_equations": [
+        {
+          "name": "Filter Importance Score",
+          "latex": "I_j = \\|\\mathbf{F}_j\\|_1 = \\sum_{c,h,w} |F_{j,c,h,w}|",
+          "description": "Importance of filter j measured by L1-norm of its weight tensor"
+        },
+        {
+          "name": "Pruning Ratio",
+          "latex": "r = 1 - \\frac{|\\mathcal{F}_{\\text{kept}}|}{|\\mathcal{F}_{\\text{total}}|}",
+          "description": "Fraction of filters removed from the network"
+        }
+      ],
+      "category": "cnn",
+      "tags": ["pruning", "structured-pruning", "filter-pruning", "model-compression", "lightweight", "csi-feedback"],
+      "pdf_url": null,
+      "code_url": null,
+      "color_hex": "#A21CAF"
+    },
+    {
+      "title": "Adaptive Bit Allocation for Deep Learning-Based CSI Feedback",
+      "authors": ["Zhilin Lu", "Jintao Wang", "Jian Song"],
+      "year": 2023,
+      "venue": "IEEE Wireless Communications Letters",
+      "doi": "10.1109/LWC.2023.3278125",
+      "arxiv_id": null,
+      "abstract": "This paper proposes an adaptive bit allocation scheme that jointly optimizes codeword quantization bits and compression ratio based on channel conditions. An auxiliary network predicts optimal bit allocation for each CSI sample, enabling instance-level adaptive quantization that reduces total feedback bits while maintaining reconstruction quality.",
+      "key_contributions": [
+        "Instance-level adaptive bit allocation for CSI feedback codewords",
+        "Auxiliary network predicting optimal per-sample quantization strategy",
+        "Joint optimization of compression ratio and quantization bit-width"
+      ],
+      "algorithms": [
+        "Adaptive Bit Allocation Network",
+        "Per-Sample Quantization Prediction",
+        "Joint Rate-Distortion Optimization",
+        "Gumbel-Softmax Bit Selection"
+      ],
+      "key_equations": [
+        {
+          "name": "Rate-Distortion Optimization",
+          "latex": "\\min_{\\theta, \\phi} \\mathbb{E}[\\text{NMSE}(\\mathbf{H}, \\hat{\\mathbf{H}})] + \\lambda \\cdot \\mathbb{E}[R(\\mathbf{s}, B)]",
+          "description": "Joint minimization of distortion (NMSE) and rate (feedback bits) with Lagrange multiplier lambda"
+        },
+        {
+          "name": "Adaptive Bit Selection",
+          "latex": "B^* = g_\\phi(\\mathbf{s}) = \\text{argmax}_b \\text{softmax}(\\mathbf{W}_b \\mathbf{s} + \\mathbf{c}_b)",
+          "description": "Auxiliary network g selects optimal bit-width B for each codeword s"
+        }
+      ],
+      "category": "quantization",
+      "tags": ["adaptive-quantization", "bit-allocation", "rate-distortion", "instance-adaptive", "csi-feedback"],
+      "pdf_url": null,
+      "code_url": null,
+      "color_hex": "#D946EF"
+    },
+    {
+      "title": "ShuffleCsiNet: Lightweight CSI Feedback Network Based on ShuffleNet Architecture",
+      "authors": ["Xin Wang", "Chao-Kai Wen", "Shi Jin", "Geoffrey Ye Li"],
+      "year": 2023,
+      "venue": "IEEE Transactions on Vehicular Technology",
+      "doi": "10.1109/TVT.2023.3256789",
+      "arxiv_id": null,
+      "abstract": "ShuffleCsiNet introduces ShuffleNet-style channel shuffle operations and pointwise group convolutions to CSI feedback, drastically reducing encoder computation. The channel shuffle enables information flow between grouped convolution branches while maintaining low FLOPs. The architecture achieves comparable NMSE to CRNet with only 15% of the encoder parameters.",
+      "key_contributions": [
+        "ShuffleNet-inspired architecture for CSI feedback with channel shuffle operations",
+        "Pointwise group convolutions reducing encoder parameters to 15% of CRNet",
+        "Demonstrated real-time CSI feedback on ARM Cortex-A mobile processors"
+      ],
+      "algorithms": [
+        "ShuffleCsiNet Encoder",
+        "Channel Shuffle Operation",
+        "Group Convolution",
+        "Pointwise Group Conv + Shuffle Block"
+      ],
+      "key_equations": [
+        {
+          "name": "Channel Shuffle",
+          "latex": "\\text{Shuffle}(\\mathbf{X}) = \\text{Reshape}(\\text{Transpose}(\\text{Reshape}(\\mathbf{X}, [g, n/g, H, W])), [n, H, W])",
+          "description": "Channel shuffle reshapes features into groups, transposes group and channel dimensions, then reshapes back"
+        },
+        {
+          "name": "Group Conv FLOPs",
+          "latex": "\\text{FLOPs}_{\\text{group}} = \\frac{K^2 \\cdot C_{in} \\cdot C_{out} \\cdot H \\cdot W}{g}",
+          "description": "Group convolution reduces FLOPs by factor g compared to standard convolution"
+        }
+      ],
+      "category": "cnn",
+      "tags": ["shufflenet", "group-convolution", "channel-shuffle", "lightweight", "mobile", "csi-feedback"],
+      "pdf_url": null,
+      "code_url": null,
+      "color_hex": "#EA580C"
+    },
+    {
+      "title": "Vector Quantized CSI Feedback with Learned Codebook",
+      "authors": ["Jiajia Cui", "Zhilin Lu", "Jintao Wang"],
+      "year": 2023,
+      "venue": "IEEE Signal Processing Letters",
+      "doi": "10.1109/LSP.2023.3289234",
+      "arxiv_id": null,
+      "abstract": "This paper applies vector quantization (VQ) with a learned codebook to CSI feedback codewords. Instead of scalar quantization of each codeword element, the encoder output is quantized jointly using a trainable codebook via nearest-neighbor lookup. The VQ approach exploits statistical structure in the codeword space, achieving lower distortion at the same bit rate compared to scalar quantization.",
+      "key_contributions": [
+        "Learned vector quantization codebook for CSI feedback codewords",
+        "Joint codeword quantization via nearest-neighbor codebook lookup",
+        "2-3dB NMSE improvement over scalar quantization at same feedback bit rate"
+      ],
+      "algorithms": [
+        "Vector Quantization with Learned Codebook",
+        "Codebook Learning via EMA Update",
+        "Commitment Loss Training",
+        "Straight-Through VQ Gradient"
+      ],
+      "key_equations": [
+        {
+          "name": "Vector Quantization",
+          "latex": "\\mathbf{s}_q = \\mathbf{e}_k, \\quad k = \\arg\\min_j \\|\\mathbf{s} - \\mathbf{e}_j\\|_2^2",
+          "description": "Codeword s quantized to nearest codebook entry e_k via Euclidean distance"
+        },
+        {
+          "name": "VQ-VAE Loss",
+          "latex": "\\mathcal{L} = \\|\\mathbf{H} - \\hat{\\mathbf{H}}\\|_2^2 + \\|\\text{sg}[\\mathbf{s}] - \\mathbf{e}_k\\|_2^2 + \\beta\\|\\mathbf{s} - \\text{sg}[\\mathbf{e}_k]\\|_2^2",
+          "description": "Combined reconstruction loss, codebook loss, and commitment loss with stop-gradient (sg)"
+        }
+      ],
+      "category": "quantization",
+      "tags": ["vector-quantization", "vq-vae", "learned-codebook", "codeword-quantization", "csi-feedback"],
+      "pdf_url": null,
+      "code_url": null,
+      "color_hex": "#4338CA"
+    },
+    {
+      "title": "Generative Diffusion Model-Enhanced CSI Feedback",
+      "authors": ["Yi Song", "Chao-Kai Wen", "Shi Jin"],
+      "year": 2024,
+      "venue": "IEEE Transactions on Wireless Communications",
+      "doi": "10.1109/TWC.2024.3378901",
+      "arxiv_id": "2310.04567",
+      "abstract": "This paper leverages denoising diffusion probabilistic models (DDPM) to enhance CSI feedback reconstruction quality at the base station decoder side. After receiving the compressed codeword, a diffusion model iteratively refines the initial decoder output by learning the distribution of CSI matrices. The diffusion-based refinement significantly improves reconstruction at very low compression ratios where traditional decoders struggle.",
+      "key_contributions": [
+        "First application of diffusion models to CSI feedback as a decoder-side refinement module",
+        "Iterative denoising refinement improving reconstruction quality at ultra-low compression ratios",
+        "Demonstrated 3-5dB NMSE improvement at gamma=1/64 compression ratio"
+      ],
+      "algorithms": [
+        "DDPM-Based CSI Refinement",
+        "Conditional Diffusion with Codeword Conditioning",
+        "Iterative Denoising",
+        "Noise Schedule for CSI"
+      ],
+      "key_equations": [
+        {
+          "name": "Diffusion Forward Process",
+          "latex": "q(\\mathbf{H}_t | \\mathbf{H}_{t-1}) = \\mathcal{N}(\\mathbf{H}_t; \\sqrt{1-\\beta_t}\\mathbf{H}_{t-1}, \\beta_t \\mathbf{I})",
+          "description": "Forward diffusion adding Gaussian noise with schedule beta_t to CSI matrix"
+        },
+        {
+          "name": "Conditional Reverse Process",
+          "latex": "p_\\theta(\\mathbf{H}_{t-1} | \\mathbf{H}_t, \\mathbf{s}) = \\mathcal{N}(\\mathbf{H}_{t-1}; \\mu_\\theta(\\mathbf{H}_t, t, \\mathbf{s}), \\sigma_t^2 \\mathbf{I})",
+          "description": "Reverse denoising conditioned on compressed codeword s for CSI reconstruction"
+        }
+      ],
+      "category": "other",
+      "tags": ["diffusion", "ddpm", "generative", "decoder-refinement", "csi-feedback", "ultra-low-rate"],
+      "pdf_url": "https://arxiv.org/pdf/2310.04567",
+      "code_url": null,
+      "color_hex": "#0D9488"
+    },
+    {
+      "title": "Joint Compression and Quantization for Practical CSI Feedback",
+      "authors": ["Chao-Kai Wen", "Wan-Ting Shih", "Shi Jin"],
+      "year": 2024,
+      "venue": "IEEE Journal on Selected Areas in Communications",
+      "doi": "10.1109/JSAC.2024.3389123",
+      "arxiv_id": null,
+      "abstract": "This paper proposes end-to-end joint optimization of compression and quantization for CSI feedback, addressing the mismatch problem when training compression and quantization modules separately. The unified framework co-trains the encoder, quantizer, and decoder to minimize reconstruction error under a total bit budget, achieving significantly better rate-distortion performance than sequential approaches.",
+      "key_contributions": [
+        "End-to-end joint optimization framework for CSI compression and quantization",
+        "Unified training eliminating mismatch between separately optimized modules",
+        "State-of-the-art rate-distortion performance across all feedback bit budgets"
+      ],
+      "algorithms": [
+        "End-to-End Joint Training",
+        "Differentiable Quantization via STE",
+        "Rate-Distortion Lagrangian Optimization",
+        "Entropy-Constrained Codeword Design"
+      ],
+      "key_equations": [
+        {
+          "name": "Joint Optimization",
+          "latex": "\\min_{\\theta_e, \\theta_q, \\theta_d} \\text{NMSE}(f_d(Q_{\\theta_q}(f_e(\\mathbf{H}; \\theta_e)); \\theta_d), \\mathbf{H}) + \\lambda \\cdot R(Q_{\\theta_q}(f_e(\\mathbf{H})))",
+          "description": "Joint minimization of NMSE through encoder f_e, quantizer Q, decoder f_d plus rate penalty R"
+        },
+        {
+          "name": "Rate Estimation",
+          "latex": "R = \\sum_{i=1}^{M} -\\log_2 p(\\hat{s}_i | \\hat{s}_{<i})",
+          "description": "Rate estimated via entropy model on quantized codeword elements"
+        }
+      ],
+      "category": "quantization",
+      "tags": ["joint-optimization", "end-to-end", "rate-distortion", "entropy-coding", "csi-feedback", "practical-deployment"],
+      "pdf_url": null,
+      "code_url": null,
+      "color_hex": "#B45309"
+    },
+    {
+      "title": "Ternary Neural Network for Extreme-Efficient CSI Feedback",
+      "authors": ["Zhilin Lu", "Jintao Wang", "Jian Song"],
+      "year": 2023,
+      "venue": "IEEE Communications Letters",
+      "doi": "10.1109/LCOMM.2023.3301234",
+      "arxiv_id": null,
+      "abstract": "This paper proposes TCsiNet, applying ternary weight quantization ({-1, 0, +1}) to CSI feedback networks. Unlike binary networks which suffer significant accuracy loss, ternary networks include a zero state that effectively implements implicit pruning. TCsiNet achieves near-full-precision NMSE with 16x model compression and efficient multiply-accumulate via simple additions.",
+      "key_contributions": [
+        "Ternary weight quantization ({-1,0,+1}) for CSI feedback with implicit pruning via zero weights",
+        "16x model compression with near-full-precision NMSE performance",
+        "Efficient inference using additions instead of multiplications for ternary operations"
+      ],
+      "algorithms": [
+        "TCsiNet (Ternary CsiNet)",
+        "Ternary Weight Quantization with Thresholds",
+        "Two-Step Threshold Learning",
+        "Ternary Gradient Estimator"
+      ],
+      "key_equations": [
+        {
+          "name": "Ternary Quantization",
+          "latex": "w_t = \\begin{cases} +\\alpha & \\text{if } w > \\Delta \\\\ 0 & \\text{if } |w| \\leq \\Delta \\\\ -\\alpha & \\text{if } w < -\\Delta \\end{cases}",
+          "description": "Ternary quantization with learned threshold Delta and scaling factor alpha"
+        },
+        {
+          "name": "Optimal Threshold",
+          "latex": "\\Delta^* = \\frac{0.7}{n} \\sum_{i=1}^{n} |w_i|",
+          "description": "Optimal threshold approximated as 0.7 times the mean absolute weight value"
+        }
+      ],
+      "category": "quantization",
+      "tags": ["ternary", "tnn", "2-bit", "extreme-compression", "model-compression", "csi-feedback", "efficient-inference"],
+      "pdf_url": null,
+      "code_url": null,
+      "color_hex": "#E11D48"
+    },
+    {
+      "title": "AiANet: Attention-Infused Autoencoder for Massive MIMO CSI Compression",
+      "authors": ["Kangzhi Lou", "Xiping Wu"],
+      "year": 2025,
+      "venue": "arXiv preprint",
+      "doi": null,
+      "arxiv_id": "2504.12440",
+      "abstract": "This paper proposes AiANet, an attention-based autoencoder that adaptively extracts channel-wise and spatial CSI features simultaneously using a locally-aware self-attention mechanism. A mixed-training approach enables generalization across indoor/outdoor scenarios, achieving up to 3.42 dB improvement in NMSE over ACRNet.",
+      "key_contributions": [
+        "Locally-aware self-attention mechanism capturing both broad and local spatial patterns in CSI",
+        "Mixed-training strategy enabling cross-environment generalization",
+        "Up to 3.42 dB NMSE improvement over ACRNet across compression ratios"
+      ],
+      "algorithms": [
+        "AiANet Encoder-Decoder",
+        "Locally-Aware Self-Attention",
+        "Mixed Indoor/Outdoor Training",
+        "Channel-Spatial Feature Fusion"
+      ],
+      "key_equations": [
+        {
+          "name": "Local-Aware Attention",
+          "latex": "\\text{Attn}(\\mathbf{Q},\\mathbf{K},\\mathbf{V}) = \\text{softmax}\\left(\\frac{\\mathbf{Q}\\mathbf{K}^T}{\\sqrt{d_k}} + \\mathbf{M}_{\\text{local}}\\right)\\mathbf{V}",
+          "description": "Self-attention with local mask M restricting attention scope to neighboring spatial positions"
+        }
+      ],
+      "category": "autoencoder",
+      "tags": ["attention", "autoencoder", "generalization", "mixed-training", "csi-feedback", "2025"],
+      "pdf_url": "https://arxiv.org/pdf/2504.12440",
+      "code_url": null,
+      "color_hex": "#2563EB"
+    },
+    {
+      "title": "SLATE: SwinLSTM Autoencoder for Temporal-Spatial-Frequency CSI Compression",
+      "authors": ["Aakash Saini", "Yunchou Xing", "Jee Hyun Kim", "Amir Ahmadian Tehrani", "Wolfgang Gerstacker"],
+      "year": 2025,
+      "venue": "arXiv preprint",
+      "doi": null,
+      "arxiv_id": "2505.04432",
+      "abstract": "SLATE is a lightweight model that jointly exploits temporal, spatial, and frequency domain correlations for CSI compression using SwinLSTM cells. It outperforms Rel-16 enhanced TypeII codebook with approximately 76% fewer parameters and 86% lower complexity compared to ConvLSTM-TF methods.",
+      "key_contributions": [
+        "Joint temporal-spatial-frequency compression using SwinLSTM architecture",
+        "76% fewer parameters and 86% lower complexity than ConvLSTM-TF baselines",
+        "Superior performance over Rel-16 enhanced TypeII codebook"
+      ],
+      "algorithms": [
+        "SwinLSTM Cell",
+        "Joint TSF Compression",
+        "Shifted Window Attention + LSTM",
+        "Multi-Domain Feature Extraction"
+      ],
+      "key_equations": [
+        {
+          "name": "SwinLSTM Cell",
+          "latex": "\\mathbf{h}_t = \\text{SwinAttn}(\\text{LSTM}(\\mathbf{x}_t, \\mathbf{h}_{t-1}, \\mathbf{c}_{t-1}))",
+          "description": "SwinLSTM combines shifted window attention with LSTM recurrence for joint spatiotemporal modeling"
+        }
+      ],
+      "category": "autoencoder",
+      "tags": ["swin-transformer", "lstm", "temporal", "lightweight", "3gpp", "csi-feedback", "2025"],
+      "pdf_url": "https://arxiv.org/pdf/2505.04432",
+      "code_url": null,
+      "color_hex": "#0891B2"
+    },
+    {
+      "title": "Quantization Design for Deep Learning-Based CSI Feedback",
+      "authors": ["Manru Yin", "Shengqian Han", "Chenyang Yang"],
+      "year": 2025,
+      "venue": "arXiv preprint",
+      "doi": null,
+      "arxiv_id": "2503.08125",
+      "abstract": "This paper proposes a novel quantization approach that intelligently distributes bits across autoencoder encoder outputs, with a joint training method featuring an adaptive loss function that weights quantization loss and the logarithm of reconstruction loss. The approach outperforms existing quantization methods for CSI feedback.",
+      "key_contributions": [
+        "Intelligent bit distribution strategy across encoder output elements",
+        "Adaptive loss function jointly weighting quantization and reconstruction losses",
+        "Outperforms existing uniform and non-uniform quantization methods for CSI feedback"
+      ],
+      "algorithms": [
+        "Adaptive Bit Distribution",
+        "Joint Quantization-Reconstruction Training",
+        "Weighted Log-Loss Function",
+        "Element-wise Bit Allocation"
+      ],
+      "key_equations": [
+        {
+          "name": "Adaptive Joint Loss",
+          "latex": "\\mathcal{L} = \\alpha \\cdot \\log(1 + \\text{NMSE}) + (1-\\alpha) \\cdot \\|\\mathbf{s} - Q(\\mathbf{s})\\|_2^2",
+          "description": "Joint loss balancing log-reconstruction error and quantization distortion with adaptive weight alpha"
+        },
+        {
+          "name": "Non-Uniform Bit Allocation",
+          "latex": "b_i^* = \\text{round}\\left(\\bar{b} + \\frac{1}{2}\\log_2 \\frac{\\sigma_i^2}{(\\prod_j \\sigma_j^2)^{1/M}}\\right)",
+          "description": "Optimal per-element bit allocation based on variance of encoder outputs"
+        }
+      ],
+      "category": "quantization",
+      "tags": ["quantization-design", "bit-allocation", "adaptive-loss", "csi-feedback", "2025"],
+      "pdf_url": "https://arxiv.org/pdf/2503.08125",
+      "code_url": null,
+      "color_hex": "#7C3AED"
+    },
+    {
+      "title": "InvCSINet: Invertible Networks with Endogenous Quantization for CSI Feedback",
+      "authors": ["Haotian Tian", "Lixiang Lian", "Jiaqi Cao", "Sijie Ji"],
+      "year": 2025,
+      "venue": "arXiv preprint",
+      "doi": null,
+      "arxiv_id": "2507.20283",
+      "abstract": "InvCSINet uses invertible neural networks for CSI feedback that avoids irreversible information loss in conventional autoencoders. The framework includes differentiable adaptive quantization (DAQ), channel error correction, and information compensation modules, achieving superior recovery with a lightweight architecture.",
+      "key_contributions": [
+        "Bijective invertible network design preserving information through compression/reconstruction cycle",
+        "Differentiable adaptive quantization (DAQ) module integrated end-to-end",
+        "Channel error mitigation module for robust feedback over noisy links"
+      ],
+      "algorithms": [
+        "Invertible Neural Network Encoder-Decoder",
+        "Differentiable Adaptive Quantization (DAQ)",
+        "Channel Error Compensation",
+        "Information-Preserving Coupling Layers"
+      ],
+      "key_equations": [
+        {
+          "name": "Invertible Transform",
+          "latex": "\\mathbf{y}_1 = \\mathbf{x}_1 \\odot \\exp(s(\\mathbf{x}_2)) + t(\\mathbf{x}_2), \\quad \\mathbf{y}_2 = \\mathbf{x}_2",
+          "description": "Affine coupling layer: bijective transform enabling exact inversion for lossless compression"
+        },
+        {
+          "name": "DAQ Quantizer",
+          "latex": "Q_{\\text{DAQ}}(s_i) = \\Delta_i \\cdot \\text{round}(s_i / \\Delta_i), \\quad \\Delta_i = \\sigma(\\phi(s_i))",
+          "description": "Differentiable adaptive quantization with learned per-element step size"
+        }
+      ],
+      "category": "quantization",
+      "tags": ["invertible-network", "adaptive-quantization", "information-preserving", "channel-error", "csi-feedback", "2025"],
+      "pdf_url": "https://arxiv.org/pdf/2507.20283",
+      "code_url": null,
+      "color_hex": "#C026D3"
+    },
+    {
+      "title": "SemCSINet: Semantic-Aware CSI Feedback Network in Massive MIMO Systems",
+      "authors": ["Ruonan Ren", "Jianhua Mo", "Meixia Tao"],
+      "year": 2025,
+      "venue": "arXiv preprint",
+      "doi": null,
+      "arxiv_id": "2505.08314",
+      "abstract": "SemCSINet is a Transformer-based CSI feedback framework that incorporates CQI (Channel Quality Indicator) into the CSI feedback process via semantic embedding and a joint coding-modulation scheme. It significantly outperforms conventional methods at low SNR and low compression ratios.",
+      "key_contributions": [
+        "Semantic-aware design integrating CQI with CSI for task-oriented feedback",
+        "Joint coding-modulation scheme for robust feedback over noisy channels",
+        "Improved robustness under low-SNR and high-compression scenarios"
+      ],
+      "algorithms": [
+        "Semantic CSI Embedding",
+        "CQI-Conditioned Transformer",
+        "Joint Source-Channel Coding-Modulation",
+        "Task-Oriented Feedback Optimization"
+      ],
+      "key_equations": [
+        {
+          "name": "Semantic CSI Embedding",
+          "latex": "\\mathbf{z} = f_{\\text{enc}}(\\mathbf{H}, \\text{CQI}) = \\text{Transformer}([\\mathbf{H}_{\\text{patch}}; \\mathbf{e}_{\\text{CQI}}])",
+          "description": "CSI patches concatenated with CQI semantic embedding and processed by Transformer encoder"
+        }
+      ],
+      "category": "transformer",
+      "tags": ["semantic", "cqi", "transformer", "joint-coding", "robust", "csi-feedback", "2025"],
+      "pdf_url": "https://arxiv.org/pdf/2505.08314",
+      "code_url": null,
+      "color_hex": "#059669"
+    },
+    {
+      "title": "RD-JSCC: Residual Diffusion for Variable-Rate Joint Source-Channel Coding of MIMO CSI",
+      "authors": ["Sravan Kumar Ankireddy", "Heasung Kim", "Hyeji Kim"],
+      "year": 2025,
+      "venue": "arXiv preprint",
+      "doi": null,
+      "arxiv_id": "2505.21681",
+      "abstract": "RD-JSCC combines a lightweight autoencoder with a residual diffusion module for iterative CSI refinement. It features adaptive decoding that dynamically switches between low-complexity autoencoder decoding and diffusion-based refinement based on channel conditions, supporting multiple compression rates with a single model.",
+      "key_contributions": [
+        "Residual diffusion refinement module for iterative CSI reconstruction improvement",
+        "Variable-rate support from a single unified model",
+        "Adaptive decoding switching between autoencoder and diffusion based on channel conditions"
+      ],
+      "algorithms": [
+        "Residual Diffusion Refinement",
+        "Variable-Rate JSCC Encoder",
+        "Adaptive Complexity Decoder",
+        "2-Step Fast Diffusion Inference"
+      ],
+      "key_equations": [
+        {
+          "name": "Residual Diffusion",
+          "latex": "\\hat{\\mathbf{H}}_{\\text{refined}} = \\hat{\\mathbf{H}}_0 + \\epsilon_\\theta(\\hat{\\mathbf{H}}_0 + \\sigma_t \\boldsymbol{\\epsilon}, t, \\mathbf{s})",
+          "description": "Diffusion model learns to predict and remove residual error from initial autoencoder reconstruction"
+        }
+      ],
+      "category": "other",
+      "tags": ["diffusion", "jscc", "variable-rate", "residual", "adaptive", "csi-feedback", "2025"],
+      "pdf_url": "https://arxiv.org/pdf/2505.21681",
+      "code_url": null,
+      "color_hex": "#14B8A6"
+    },
+    {
+      "title": "WiFo-CF: Wireless Foundation Model for CSI Feedback",
+      "authors": ["Xuanyu Liu", "Shijian Gao", "Boxun Liu", "Xiang Cheng", "Liuqing Yang"],
+      "year": 2025,
+      "venue": "arXiv preprint",
+      "doi": null,
+      "arxiv_id": "2508.04068",
+      "abstract": "WiFo-CF is a foundation model tailored for CSI feedback supporting heterogeneous configurations (varying channel dimensions, feedback rates, data distributions) within a unified framework. It uses multi-user multi-rate self-supervised pre-training and a Mixture of Shared and Routed Expert (S-R MoE) architecture.",
+      "key_contributions": [
+        "First foundation model specifically designed for heterogeneous CSI feedback",
+        "S-R MoE architecture supporting varying channel dimensions and feedback rates in one model",
+        "Multi-user multi-rate self-supervised pre-training on heterogeneous CSI dataset"
+      ],
+      "algorithms": [
+        "Shared-Routed Mixture of Experts (S-R MoE)",
+        "Multi-Rate Self-Supervised Pre-Training",
+        "Heterogeneous Configuration Adapter",
+        "Foundation Model Fine-Tuning"
+      ],
+      "key_equations": [
+        {
+          "name": "S-R MoE Layer",
+          "latex": "\\mathbf{y} = \\mathbf{W}_s \\mathbf{x} + \\sum_{i=1}^{K} g_i(\\mathbf{x}) \\cdot E_i(\\mathbf{x}), \\quad g_i = \\text{TopK}(\\text{softmax}(\\mathbf{W}_g \\mathbf{x}))",
+          "description": "Shared expert W_s always active plus top-K routed experts selected by gating network"
+        }
+      ],
+      "category": "transformer",
+      "tags": ["foundation-model", "moe", "self-supervised", "heterogeneous", "pre-training", "csi-feedback", "2025"],
+      "pdf_url": "https://arxiv.org/pdf/2508.04068",
+      "code_url": null,
+      "color_hex": "#DC2626"
+    },
+    {
+      "title": "EG-CsiNet: Generalizable Learning for Massive MIMO CSI Feedback in Unseen Environments",
+      "authors": ["Haoyu Wang", "Zhi Sun", "Shuangfeng Han", "Xiaoyun Wang", "Zhaocheng Wang"],
+      "year": 2025,
+      "venue": "arXiv preprint",
+      "doi": null,
+      "arxiv_id": "2512.22840",
+      "abstract": "EG-CsiNet addresses the generalizability problem of DL-based CSI feedback in unseen environments by proposing physics-based distribution alignment. It models distribution shift via cluster-based channel decomposition using the Eckart-Young-Mirsky theorem, robustly reducing generalization error by more than 3 dB vs state-of-the-art.",
+      "key_contributions": [
+        "Physics-informed distribution alignment for environment generalization",
+        "Cluster-based channel decomposition using Eckart-Young-Mirsky theorem",
+        "3+ dB generalization improvement validated on sim-to-real experiments"
+      ],
+      "algorithms": [
+        "Physics-Based Distribution Alignment",
+        "Cluster-Based Channel Decomposition",
+        "Eckart-Young-Mirsky SVD Factoring",
+        "Domain-Invariant Feature Learning"
+      ],
+      "key_equations": [
+        {
+          "name": "Channel Cluster Decomposition",
+          "latex": "\\mathbf{H} \\approx \\sum_{k=1}^{K} \\pi_k \\mathbf{U}_k \\boldsymbol{\\Sigma}_k \\mathbf{V}_k^H",
+          "description": "CSI decomposed into K clusters via SVD, aligning source/target domain cluster distributions"
+        }
+      ],
+      "category": "autoencoder",
+      "tags": ["generalization", "domain-adaptation", "physics-informed", "unseen-environment", "sim-to-real", "csi-feedback", "2025"],
+      "pdf_url": "https://arxiv.org/pdf/2512.22840",
+      "code_url": null,
+      "color_hex": "#F97316"
+    },
+    {
+      "title": "LVM4CF: CSI Feedback with Offline Large Vision Models",
+      "authors": ["Jialin Zhuang", "Yafei Wang", "Hongwei Hou", "Yu Han", "Wenjin Wang", "Shi Jin", "Jiangzhou Wang"],
+      "year": 2025,
+      "venue": "arXiv preprint",
+      "doi": null,
+      "arxiv_id": "2505.08566",
+      "abstract": "LVM4CF leverages pre-trained large vision models offline to create customized CSI codebooks by exploiting structural similarities between CSI matrices and natural images. The site-specific and multi-scenario frameworks improve reconstruction accuracy and throughput with zero added latency at deployment.",
+      "key_contributions": [
+        "Offline use of large vision models for CSI codebook creation exploiting CSI-image similarity",
+        "Site-specific and multi-scenario codebook generation frameworks",
+        "Zero added computational overhead or latency at inference time"
+      ],
+      "algorithms": [
+        "Large Vision Model Feature Extraction",
+        "CSI-Image Structural Mapping",
+        "Offline Codebook Generation",
+        "Site-Specific Fine-Tuning"
+      ],
+      "key_equations": [
+        {
+          "name": "Vision-CSI Codebook",
+          "latex": "\\mathcal{C}^* = \\arg\\min_{\\mathcal{C}} \\sum_{i} \\min_{\\mathbf{c} \\in \\mathcal{C}} \\|f_{\\text{LVM}}(\\mathbf{H}_i) - \\mathbf{c}\\|_2^2",
+          "description": "Optimal codebook minimizing quantization error in large vision model feature space"
+        }
+      ],
+      "category": "other",
+      "tags": ["large-vision-model", "codebook", "offline", "transfer-learning", "csi-feedback", "2025"],
+      "pdf_url": "https://arxiv.org/pdf/2505.08566",
+      "code_url": null,
+      "color_hex": "#84CC16"
+    },
+    {
+      "title": "Semantic Pilot Design for Channel Estimation Using a Large Language Model",
+      "authors": ["Sojeong Park", "Hyun Jong Yang"],
+      "year": 2026,
+      "venue": "arXiv preprint",
+      "doi": null,
+      "arxiv_id": "2602.04126",
+      "abstract": "This paper proposes using an LLM to improve channel estimation by comparing initially decoded text with LLM-corrected versions to identify reliably decoded symbols as 'semantic pilots'. These supplement traditional pilots for enhanced data-aided channel estimation, improving phase estimation and reducing error rates.",
+      "key_contributions": [
+        "Novel concept of LLM-derived 'semantic pilot' for channel estimation",
+        "LLM-based reliability assessment of decoded data symbols",
+        "Improved channel phase estimation and lower BER vs pilot-only methods"
+      ],
+      "algorithms": [
+        "LLM-Based Semantic Pilot Extraction",
+        "Reliability Score via LLM Confidence",
+        "Data-Aided Channel Re-Estimation",
+        "Semantic Pilot Selection Threshold"
+      ],
+      "key_equations": [
+        {
+          "name": "Semantic Pilot Confidence",
+          "latex": "r_k = \\mathbb{1}[p_{\\text{LLM}}(\\hat{x}_k | \\hat{\\mathbf{x}}_{\\setminus k}) > \\tau]",
+          "description": "Symbol k selected as semantic pilot if LLM confidence in decoded symbol exceeds threshold tau"
+        }
+      ],
+      "category": "other",
+      "tags": ["llm", "semantic-pilot", "channel-estimation", "data-aided", "2026"],
+      "pdf_url": "https://arxiv.org/pdf/2602.04126",
+      "code_url": null,
+      "color_hex": "#6366F1"
+    },
+    {
+      "title": "Neural Discrete Representation Learning (VQ-VAE)",
+      "authors": ["Aaron van den Oord", "Oriol Vinyals", "Koray Kavukcuoglu"],
+      "year": 2017,
+      "venue": "NeurIPS 2017",
+      "doi": null,
+      "arxiv_id": "1711.00937",
+      "abstract": "Introduces the Vector Quantised-Variational AutoEncoder (VQ-VAE), which learns discrete latent representations by incorporating vector quantization into the VAE framework. The encoder outputs discrete codes via nearest-neighbor codebook lookup, and the prior is learned rather than static. Avoids posterior collapse and enables high-quality generation of images, video, and speech.",
+      "key_contributions": [
+        "Discrete latent representation via vector quantization in VAE framework",
+        "Straight-through estimator for gradient propagation through discrete bottleneck",
+        "Learned prior distribution over discrete codes"
+      ],
+      "algorithms": [
+        "VQ-VAE Encoder-Decoder",
+        "Codebook Nearest-Neighbor Lookup",
+        "Exponential Moving Average Codebook Update",
+        "Straight-Through Gradient Estimator"
+      ],
+      "key_equations": [
+        {
+          "name": "VQ-VAE Loss",
+          "latex": "\\mathcal{L} = \\|\\mathbf{x} - D(\\mathbf{e}_k)\\|_2^2 + \\|\\text{sg}[E(\\mathbf{x})] - \\mathbf{e}_k\\|_2^2 + \\beta\\|E(\\mathbf{x}) - \\text{sg}[\\mathbf{e}_k]\\|_2^2",
+          "description": "Reconstruction loss + codebook loss + commitment loss with stop-gradient (sg) operator"
+        },
+        {
+          "name": "Vector Quantization",
+          "latex": "\\mathbf{z}_q = \\mathbf{e}_k, \\quad k = \\arg\\min_j \\|E(\\mathbf{x}) - \\mathbf{e}_j\\|_2",
+          "description": "Encoder output mapped to nearest codebook vector via L2 distance"
+        }
+      ],
+      "category": "quantization",
+      "tags": ["vq-vae", "vector-quantization", "discrete-latent", "codebook", "foundational"],
+      "pdf_url": "https://arxiv.org/pdf/1711.00937",
+      "code_url": "https://github.com/deepmind/sonnet/blob/master/sonnet/python/modules/nets/vqvae.py",
+      "color_hex": "#7C3AED"
+    },
+    {
+      "title": "AWQ: Activation-aware Weight Quantization for LLM Compression and Acceleration",
+      "authors": ["Ji Lin", "Jiaming Tang", "Haotian Tang", "Shang Yang", "Wei-Ming Chen", "Wei-Chen Wang", "Guangxuan Xiao", "Xingyu Dang", "Chuang Gan", "Song Han"],
+      "year": 2023,
+      "venue": "MLSys 2024 (Best Paper)",
+      "doi": null,
+      "arxiv_id": "2306.00978",
+      "abstract": "AWQ proposes a hardware-friendly low-bit weight-only quantization for LLMs. Key insight: not all weights are equally important — protecting only 1% of salient channels (identified via activation magnitude, not weight magnitude) greatly reduces quantization error. Per-channel scaling protects salient weights without mixed-precision overhead, achieving 3x+ speedup over FP16.",
+      "key_contributions": [
+        "Activation-aware saliency detection: identifies important weights via activation statistics not weight magnitude",
+        "Per-channel scaling to protect salient weights without mixed-precision hardware overhead",
+        "3x+ speedup over FP16 on desktop and mobile GPUs with negligible accuracy loss"
+      ],
+      "algorithms": [
+        "Activation-Aware Saliency Detection",
+        "Per-Channel Scaling Transform",
+        "Grid Search for Optimal Scale",
+        "TinyChat Inference Engine"
+      ],
+      "key_equations": [
+        {
+          "name": "AWQ Scaling Transform",
+          "latex": "Q(\\mathbf{w} \\cdot s) \\cdot (\\mathbf{x} / s) \\approx \\mathbf{w} \\cdot \\mathbf{x}, \\quad s^* = \\arg\\min_s \\|Q(\\mathbf{W} \\text{diag}(s))\\text{diag}(s)^{-1}\\mathbf{X} - \\mathbf{W}\\mathbf{X}\\|",
+          "description": "Scale up salient weight channels before quantization to reduce error on important dimensions"
+        }
+      ],
+      "category": "quantization",
+      "tags": ["awq", "activation-aware", "weight-quantization", "low-bit", "llm", "hardware-friendly", "foundational"],
+      "pdf_url": "https://arxiv.org/pdf/2306.00978",
+      "code_url": "https://github.com/mit-han-lab/llm-awq",
+      "color_hex": "#DC2626"
+    },
+    {
+      "title": "HAWQ-V3: Dyadic Neural Network Quantization",
+      "authors": ["Zhewei Yao", "Zhen Dong", "Zhangcheng Zheng", "Amir Gholami", "Jiali Yu", "Eric Tan", "Leyuan Wang", "Qijing Huang", "Yida Wang", "Michael W. Mahoney", "Kurt Keutzer"],
+      "year": 2021,
+      "venue": "ICML 2021",
+      "doi": null,
+      "arxiv_id": "2011.10680",
+      "abstract": "HAWQ-V3 presents an integer-only mixed-precision quantization framework using Hessian-based sensitivity analysis. The entire computation uses only integer multiply, add, and bit-shift — no floating point. Solves an integer linear programming problem to balance model perturbation against memory/latency constraints. First reported INT4 integer-only quantization.",
+      "key_contributions": [
+        "First integer-only 4-bit quantization with Hessian-based per-layer bit allocation",
+        "Integer linear programming for hardware-aware mixed-precision assignment",
+        "No floating-point: only integer multiply, add, and bit-shift"
+      ],
+      "algorithms": [
+        "Hessian-Based Layer Sensitivity Analysis",
+        "Integer Linear Programming Bit Allocation",
+        "Dyadic Integer Arithmetic",
+        "Mixed-Precision INT4/INT8 Inference"
+      ],
+      "key_equations": [
+        {
+          "name": "Hessian Sensitivity",
+          "latex": "\\Omega_l = \\bar{\\delta}_l^T \\mathbf{H}_l \\bar{\\delta}_l, \\quad \\mathbf{H}_l = \\frac{\\partial^2 \\mathcal{L}}{\\partial \\mathbf{w}_l^2}",
+          "description": "Layer sensitivity measured by quantization perturbation weighted by Hessian of the loss"
+        },
+        {
+          "name": "ILP Bit Allocation",
+          "latex": "\\min_{\\{b_l\\}} \\sum_l \\Omega_l(b_l) \\quad \\text{s.t.} \\quad \\text{Latency}(\\{b_l\\}) \\leq T, \\quad b_l \\in \\{4, 8\\}",
+          "description": "Integer LP minimizing total Hessian-weighted perturbation subject to latency constraint"
+        }
+      ],
+      "category": "quantization",
+      "tags": ["hawq", "hessian", "mixed-precision", "integer-only", "hardware-aware", "foundational"],
+      "pdf_url": "https://arxiv.org/pdf/2011.10680",
+      "code_url": "https://github.com/Zhen-Dong/HAWQ",
+      "color_hex": "#B91C1C"
+    },
+    {
+      "title": "GPTQ: Accurate Post-Training Quantization for Generative Pre-trained Transformers",
+      "authors": ["Elias Frantar", "Saleh Ashkboos", "Torsten Hoefler", "Dan Alistarh"],
+      "year": 2022,
+      "venue": "ICLR 2023",
+      "doi": null,
+      "arxiv_id": "2210.17323",
+      "abstract": "GPTQ is a one-shot weight quantization method based on approximate second-order information (Optimal Brain Surgeon framework). Quantizes 175B-parameter GPT models in ~4 GPU hours to 3-4 bits per weight with negligible accuracy degradation, enabling single-GPU execution. Achieves 3.25x speedup on A100.",
+      "key_contributions": [
+        "Efficient approximate inverse Hessian update for layer-wise quantization",
+        "Lazy batch updates enabling practical quantization of 175B parameter models",
+        "First to compress 175B models to 3-4 bits for single GPU execution"
+      ],
+      "algorithms": [
+        "Optimal Brain Quantizer (OBQ) Extension",
+        "Layer-Wise Quantization with Batch Updates",
+        "Approximate Inverse Hessian via Cholesky",
+        "Column-Order Quantization"
+      ],
+      "key_equations": [
+        {
+          "name": "OBQ Weight Update",
+          "latex": "\\delta_F = -\\frac{\\text{quant}(w_q) - w_q}{[\\mathbf{H}_F^{-1}]_{qq}} \\cdot (\\mathbf{H}_F^{-1})_{:,q}",
+          "description": "Optimal update to remaining weights when quantizing weight q, using inverse Hessian row"
+        }
+      ],
+      "category": "quantization",
+      "tags": ["gptq", "post-training", "second-order", "optimal-brain", "llm", "foundational"],
+      "pdf_url": "https://arxiv.org/pdf/2210.17323",
+      "code_url": "https://github.com/IST-DASLab/gptq",
+      "color_hex": "#9333EA"
+    },
+    {
+      "title": "Finite Scalar Quantization: VQ-VAE Made Simple (FSQ)",
+      "authors": ["Fabian Mentzer", "David Minnen", "Eirikur Agustsson", "Michael Tschannen"],
+      "year": 2023,
+      "venue": "ICLR 2024",
+      "doi": null,
+      "arxiv_id": "2309.15505",
+      "abstract": "FSQ replaces vector quantization in VQ-VAEs with per-dimension scalar quantization to a small set of fixed values. The implicit codebook is the Cartesian product of per-dimension levels. Eliminates codebook collapse, removes need for commitment losses, codebook reseeding, and entropy penalties. Achieves competitive performance with dramatically simpler design.",
+      "key_contributions": [
+        "Per-dimension scalar quantization with implicit Cartesian product codebook",
+        "Completely eliminates codebook collapse problem of VQ-VAE",
+        "No auxiliary losses needed: no commitment loss, entropy penalty, or codebook reseeding"
+      ],
+      "algorithms": [
+        "Finite Scalar Quantization",
+        "Per-Dimension Level Rounding",
+        "Implicit Codebook via Cartesian Product",
+        "Straight-Through Estimator"
+      ],
+      "key_equations": [
+        {
+          "name": "FSQ Quantization",
+          "latex": "\\hat{z}_i = \\text{round}\\left(\\frac{L_i - 1}{2} \\cdot \\tanh(z_i)\\right), \\quad |\\mathcal{C}| = \\prod_{i=1}^{d} L_i",
+          "description": "Each dimension i quantized to L_i levels; implicit codebook size is product of all levels"
+        }
+      ],
+      "category": "quantization",
+      "tags": ["fsq", "scalar-quantization", "vq-vae-alternative", "codebook-free", "simple", "foundational"],
+      "pdf_url": "https://arxiv.org/pdf/2309.15505",
+      "code_url": "https://github.com/google-research/google-research/tree/master/fsq",
+      "color_hex": "#0D9488"
+    },
+    {
+      "title": "SoundStream: An End-to-End Neural Audio Codec (Residual Vector Quantization)",
+      "authors": ["Neil Zeghidour", "Alejandro Luebs", "Ahmed Omran", "Jan Skoglund", "Marco Tagliasacchi"],
+      "year": 2021,
+      "venue": "IEEE/ACM Transactions on Audio, Speech, and Language Processing",
+      "doi": null,
+      "arxiv_id": "2107.03312",
+      "abstract": "SoundStream introduces Residual Vector Quantization (RVQ) for neural codec compression. RVQ applies hierarchical quantization: the first stage quantizes the latent, subsequent stages quantize the residual error. Structured dropout on quantizer layers enables a single model to operate at variable bitrates (3-18 kbps).",
+      "key_contributions": [
+        "Residual Vector Quantization (RVQ): hierarchical multi-stage codebook cascade",
+        "Structured dropout for variable-rate operation from a single model",
+        "End-to-end joint training of encoder, RVQ, and decoder"
+      ],
+      "algorithms": [
+        "Residual Vector Quantization (RVQ)",
+        "Multi-Stage Codebook Cascade",
+        "Structured Quantizer Dropout",
+        "Discriminator-Based Adversarial Training"
+      ],
+      "key_equations": [
+        {
+          "name": "Residual VQ",
+          "latex": "\\hat{\\mathbf{z}} = \\sum_{n=1}^{N} \\mathbf{e}_{k_n}^{(n)}, \\quad \\mathbf{r}^{(n)} = \\mathbf{r}^{(n-1)} - \\mathbf{e}_{k_n}^{(n)}, \\quad \\mathbf{r}^{(0)} = \\mathbf{z}",
+          "description": "Each RVQ stage n quantizes the residual from previous stage; total is sum of all codebook entries"
+        }
+      ],
+      "category": "quantization",
+      "tags": ["rvq", "residual-vector-quantization", "neural-codec", "variable-rate", "hierarchical", "foundational"],
+      "pdf_url": "https://arxiv.org/pdf/2107.03312",
+      "code_url": null,
+      "color_hex": "#EA580C"
+    },
+    {
+      "title": "Vector Quantization for Deep-Learning-Based CSI Feedback with Shape-Gain Decomposition",
+      "authors": ["Junyong Shin", "Yujin Kang", "Yo-Seb Jeon"],
+      "year": 2024,
+      "venue": "arXiv preprint",
+      "doi": null,
+      "arxiv_id": "2403.07355",
+      "abstract": "Proposes a finite-rate CSI feedback method using VQ-VAE with shape-gain vector quantization. Decomposes the latent vector into magnitude (gain) and direction (shape), quantizing each separately: gain via non-uniform scalar codebook, direction via trainable Grassmannian codebook. Includes multi-rate nested codebook strategy.",
+      "key_contributions": [
+        "Shape-gain decomposition of CSI latent vectors for separate magnitude/direction quantization",
+        "Trainable Grassmannian codebook for direction quantization on unit sphere",
+        "Multi-rate nested codebook design for variable feedback overhead"
+      ],
+      "algorithms": [
+        "Shape-Gain Vector Quantization",
+        "Grassmannian Codebook Learning",
+        "Non-Uniform Gain Scalar Quantization",
+        "Nested Multi-Rate Codebook Selection"
+      ],
+      "key_equations": [
+        {
+          "name": "Shape-Gain Decomposition",
+          "latex": "\\mathbf{s} = g \\cdot \\mathbf{u}, \\quad g = \\|\\mathbf{s}\\|_2, \\quad \\mathbf{u} = \\mathbf{s}/\\|\\mathbf{s}\\|_2",
+          "description": "Latent vector decomposed into scalar gain g and unit-norm shape vector u on Grassmann manifold"
+        },
+        {
+          "name": "Grassmannian Codebook",
+          "latex": "\\hat{\\mathbf{u}} = \\arg\\max_{\\mathbf{c} \\in \\mathcal{C}_G} |\\mathbf{u}^H \\mathbf{c}|^2",
+          "description": "Shape quantized via max inner product codebook on Grassmann manifold"
+        }
+      ],
+      "category": "quantization",
+      "tags": ["shape-gain", "grassmannian", "vector-quantization", "multi-rate", "codebook", "csi-feedback"],
+      "pdf_url": "https://arxiv.org/pdf/2403.07355",
+      "code_url": null,
+      "color_hex": "#4338CA"
+    }
+  ],
+  "relationships": [
+    {
+      "from_title": "CsiNet-LSTM: A Deep Learning Architecture for Compressive CSI Estimation and Feedback in FDD Massive MIMO",
+      "to_title": "Deep Learning for Massive MIMO CSI Feedback",
+      "relationship_type": "extends",
+      "description": "CsiNet-LSTM extends CsiNet by adding LSTM layers to exploit temporal correlation of time-varying CSI",
+      "strength": 10
+    },
+    {
+      "from_title": "Deep Learning-Based CSI Feedback with Variable Length Codewords for Adaptive FDD Massive MIMO",
+      "to_title": "Deep Learning for Massive MIMO CSI Feedback",
+      "relationship_type": "extends",
+      "description": "CsiNet+ extends CsiNet with variable-length codewords for adaptive compression ratio selection",
+      "strength": 10
+    },
+    {
+      "from_title": "CRNet: A Deep-Learning Framework for CSI Feedback in Massive MIMO",
+      "to_title": "Deep Learning for Massive MIMO CSI Feedback",
+      "relationship_type": "builds_on",
+      "description": "CRNet improves upon CsiNet by introducing multi-resolution CRBlocks with channel attention for better CSI reconstruction",
+      "strength": 9
+    },
+    {
+      "from_title": "Lightweight and Effective CSI Feedback for Massive MIMO Systems",
+      "to_title": "CRNet: A Deep-Learning Framework for CSI Feedback in Massive MIMO",
+      "relationship_type": "extends",
+      "description": "CLNet builds on CRNet with depthwise separable convolutions and AnciNet to achieve lighter architecture",
+      "strength": 9
+    },
+    {
+      "from_title": "Lightweight and Effective CSI Feedback for Massive MIMO Systems",
+      "to_title": "Deep Learning for Massive MIMO CSI Feedback",
+      "relationship_type": "builds_on",
+      "description": "CLNet builds on CsiNet's encoder-decoder framework while drastically reducing computational cost",
+      "strength": 8
+    },
+    {
+      "from_title": "ACRNet: Aggregation Cross-Domain Network for CSI Feedback in Massive MIMO",
+      "to_title": "CRNet: A Deep-Learning Framework for CSI Feedback in Massive MIMO",
+      "relationship_type": "extends",
+      "description": "ACRNet extends CRNet's multi-resolution approach with cross-domain (spatial + frequency) aggregation",
+      "strength": 9
+    },
+    {
+      "from_title": "ACRNet: Aggregation Cross-Domain Network for CSI Feedback in Massive MIMO",
+      "to_title": "Lightweight and Effective CSI Feedback for Massive MIMO Systems",
+      "relationship_type": "compares_with",
+      "description": "ACRNet benchmarks against CLNet, achieving better NMSE while exploring different efficiency tradeoffs",
+      "strength": 7
+    },
+    {
+      "from_title": "TransNet: Full Attention Network for CSI Feedback in FDD Massive MIMO",
+      "to_title": "Deep Learning for Massive MIMO CSI Feedback",
+      "relationship_type": "challenges",
+      "description": "TransNet challenges CsiNet's CNN-based approach by demonstrating that Transformers capture long-range CSI dependencies better",
+      "strength": 9
+    },
+    {
+      "from_title": "TransNet: Full Attention Network for CSI Feedback in FDD Massive MIMO",
+      "to_title": "CRNet: A Deep-Learning Framework for CSI Feedback in Massive MIMO",
+      "relationship_type": "compares_with",
+      "description": "TransNet compares Transformer-based attention against CRNet's CNN with channel attention approach",
+      "strength": 7
+    },
+    {
+      "from_title": "DS-NLCsiNet: Exploiting Non-Local Neural Networks for Massive MIMO CSI Feedback",
+      "to_title": "Deep Learning for Massive MIMO CSI Feedback",
+      "relationship_type": "builds_on",
+      "description": "DS-NLCsiNet builds on CsiNet by adding non-local attention blocks and depthwise separable convolutions",
+      "strength": 8
+    },
+    {
+      "from_title": "DS-NLCsiNet: Exploiting Non-Local Neural Networks for Massive MIMO CSI Feedback",
+      "to_title": "CRNet: A Deep-Learning Framework for CSI Feedback in Massive MIMO",
+      "relationship_type": "compares_with",
+      "description": "DS-NLCsiNet compares its non-local attention approach against CRNet's channel attention baseline",
+      "strength": 6
+    },
+    {
+      "from_title": "ENet: Efficient CSI Feedback for Massive MIMO Communications",
+      "to_title": "Deep Learning for Massive MIMO CSI Feedback",
+      "relationship_type": "builds_on",
+      "description": "ENet redesigns CsiNet with asymmetric encoder-decoder for lightweight UE-side encoder deployment",
+      "strength": 8
+    },
+    {
+      "from_title": "ENet: Efficient CSI Feedback for Massive MIMO Communications",
+      "to_title": "Lightweight and Effective CSI Feedback for Massive MIMO Systems",
+      "relationship_type": "related",
+      "description": "Both ENet and CLNet focus on encoder lightweight design but with different approaches (asymmetric vs depthwise separable)",
+      "strength": 6
+    },
+    {
+      "from_title": "Quantization of Deep Neural Networks for Accurate CSI Feedback",
+      "to_title": "Deep Learning for Massive MIMO CSI Feedback",
+      "relationship_type": "applies",
+      "description": "Applies quantization-aware training to CsiNet-family codewords for practical finite-bit feedback links",
+      "strength": 8
+    },
+    {
+      "from_title": "Quantization of Deep Neural Networks for Accurate CSI Feedback",
+      "to_title": "CRNet: A Deep-Learning Framework for CSI Feedback in Massive MIMO",
+      "relationship_type": "applies",
+      "description": "Applies quantization framework to CRNet codewords, demonstrating 4-bit feedback maintains NMSE",
+      "strength": 7
+    },
+    {
+      "from_title": "Binarized Neural Network for CSI Feedback in Massive MIMO Systems",
+      "to_title": "Deep Learning for Massive MIMO CSI Feedback",
+      "relationship_type": "builds_on",
+      "description": "BCsiNet binarizes CsiNet's weights and activations to 1-bit for extreme model compression on UE hardware",
+      "strength": 8
+    },
+    {
+      "from_title": "Binarized Neural Network for CSI Feedback in Massive MIMO Systems",
+      "to_title": "Quantization of Deep Neural Networks for Accurate CSI Feedback",
+      "relationship_type": "related",
+      "description": "Both address quantization for CSI feedback deployment; BCsiNet takes extreme 1-bit approach vs multi-bit QAT",
+      "strength": 8
+    },
+    {
+      "from_title": "Knowledge Distillation-Based DNN for CSI Feedback in Massive MIMO Systems",
+      "to_title": "Deep Learning for Massive MIMO CSI Feedback",
+      "relationship_type": "builds_on",
+      "description": "Uses knowledge distillation to compress CsiNet-family encoders into lightweight student networks",
+      "strength": 8
+    },
+    {
+      "from_title": "Knowledge Distillation-Based DNN for CSI Feedback in Massive MIMO Systems",
+      "to_title": "ENet: Efficient CSI Feedback for Massive MIMO Communications",
+      "relationship_type": "related",
+      "description": "Both address encoder lightweight design; KD uses teacher-student training while ENet uses architectural asymmetry",
+      "strength": 6
+    },
+    {
+      "from_title": "Knowledge Distillation-Based DNN for CSI Feedback in Massive MIMO Systems",
+      "to_title": "Lightweight and Effective CSI Feedback for Massive MIMO Systems",
+      "relationship_type": "related",
+      "description": "Complementary approaches to encoder compression: KD via training strategy, CLNet via depthwise separable architecture",
+      "strength": 7
+    },
+    {
+      "from_title": "Attention Mechanism-Based CSI Feedback Network for Massive MIMO Systems",
+      "to_title": "Deep Learning for Massive MIMO CSI Feedback",
+      "relationship_type": "builds_on",
+      "description": "Adds dual spatial-channel attention mechanisms to CsiNet's encoder-decoder framework",
+      "strength": 8
+    },
+    {
+      "from_title": "Attention Mechanism-Based CSI Feedback Network for Massive MIMO Systems",
+      "to_title": "CRNet: A Deep-Learning Framework for CSI Feedback in Massive MIMO",
+      "relationship_type": "inspired_by",
+      "description": "Inspired by CRNet's channel attention, extends to dual spatial+channel attention mechanism",
+      "strength": 7
+    },
+    {
+      "from_title": "CSI-GPT: Integrating Generative Pre-Trained Transformer with Federated-Tuning for Channel Estimation in Massive MIMO",
+      "to_title": "TransNet: Full Attention Network for CSI Feedback in FDD Massive MIMO",
+      "relationship_type": "extends",
+      "description": "CSI-GPT extends transformer-based CSI approach with GPT-style generative pre-training and federated fine-tuning",
+      "strength": 8
+    },
+    {
+      "from_title": "CSI-GPT: Integrating Generative Pre-Trained Transformer with Federated-Tuning for Channel Estimation in Massive MIMO",
+      "to_title": "Deep Learning for Massive MIMO CSI Feedback",
+      "relationship_type": "builds_on",
+      "description": "CSI-GPT builds on CsiNet's feedback paradigm, replacing it with a generative pre-trained approach for cross-scenario generalization",
+      "strength": 7
+    },
+    {
+      "from_title": "Deep Learning Based CSI Feedback Approach for Time-Varying Massive MIMO Channels",
+      "to_title": "CsiNet-LSTM: A Deep Learning Architecture for Compressive CSI Estimation and Feedback in FDD Massive MIMO",
+      "relationship_type": "related",
+      "description": "Both exploit temporal correlation but via different mechanisms: differential encoding vs LSTM recurrence",
+      "strength": 7
+    },
+    {
+      "from_title": "Deep Learning Based CSI Feedback Approach for Time-Varying Massive MIMO Channels",
+      "to_title": "Deep Learning for Massive MIMO CSI Feedback",
+      "relationship_type": "builds_on",
+      "description": "Extends CsiNet framework with differential CSI encoding for time-varying channels",
+      "strength": 8
+    },
+    {
+      "from_title": "Lightweight CSI Feedback via Mixed-Precision Quantization",
+      "to_title": "Quantization of Deep Neural Networks for Accurate CSI Feedback",
+      "relationship_type": "extends",
+      "description": "Extends uniform quantization to mixed-precision, assigning different bit-widths per layer based on sensitivity",
+      "strength": 9
+    },
+    {
+      "from_title": "Lightweight CSI Feedback via Mixed-Precision Quantization",
+      "to_title": "Binarized Neural Network for CSI Feedback in Massive MIMO Systems",
+      "relationship_type": "compares_with",
+      "description": "Compares multi-bit mixed-precision approach against extreme 1-bit binarization tradeoffs",
+      "strength": 6
+    },
+    {
+      "from_title": "Pruning Deep Neural Networks for Efficient CSI Feedback",
+      "to_title": "Deep Learning for Massive MIMO CSI Feedback",
+      "relationship_type": "applies",
+      "description": "Applies structured pruning techniques to CsiNet-family networks for encoder size reduction",
+      "strength": 8
+    },
+    {
+      "from_title": "Pruning Deep Neural Networks for Efficient CSI Feedback",
+      "to_title": "Knowledge Distillation-Based DNN for CSI Feedback in Massive MIMO Systems",
+      "relationship_type": "related",
+      "description": "Both aim for model compression but via different strategies: structural pruning vs knowledge distillation",
+      "strength": 7
+    },
+    {
+      "from_title": "Pruning Deep Neural Networks for Efficient CSI Feedback",
+      "to_title": "Lightweight and Effective CSI Feedback for Massive MIMO Systems",
+      "relationship_type": "compares_with",
+      "description": "Compares post-hoc pruning against architecturally lightweight CLNet approach",
+      "strength": 6
+    },
+    {
+      "from_title": "Adaptive Bit Allocation for Deep Learning-Based CSI Feedback",
+      "to_title": "Quantization of Deep Neural Networks for Accurate CSI Feedback",
+      "relationship_type": "extends",
+      "description": "Extends fixed quantization to instance-adaptive bit allocation based on channel conditions",
+      "strength": 9
+    },
+    {
+      "from_title": "Adaptive Bit Allocation for Deep Learning-Based CSI Feedback",
+      "to_title": "Deep Learning-Based CSI Feedback with Variable Length Codewords for Adaptive FDD Massive MIMO",
+      "relationship_type": "inspired_by",
+      "description": "Inspired by CsiNet+'s variable-length feedback concept, extends to adaptive quantization bit allocation",
+      "strength": 7
+    },
+    {
+      "from_title": "ShuffleCsiNet: Lightweight CSI Feedback Network Based on ShuffleNet Architecture",
+      "to_title": "Deep Learning for Massive MIMO CSI Feedback",
+      "relationship_type": "builds_on",
+      "description": "Builds on CsiNet's encoder-decoder with ShuffleNet-style group convolutions for mobile deployment",
+      "strength": 8
+    },
+    {
+      "from_title": "ShuffleCsiNet: Lightweight CSI Feedback Network Based on ShuffleNet Architecture",
+      "to_title": "Lightweight and Effective CSI Feedback for Massive MIMO Systems",
+      "relationship_type": "compares_with",
+      "description": "Compares ShuffleNet-style vs depthwise separable approaches for lightweight CSI encoder design",
+      "strength": 8
+    },
+    {
+      "from_title": "ShuffleCsiNet: Lightweight CSI Feedback Network Based on ShuffleNet Architecture",
+      "to_title": "ENet: Efficient CSI Feedback for Massive MIMO Communications",
+      "relationship_type": "compares_with",
+      "description": "Both target mobile UE deployment with different lightweight strategies: ShuffleNet vs asymmetric design",
+      "strength": 7
+    },
+    {
+      "from_title": "Vector Quantized CSI Feedback with Learned Codebook",
+      "to_title": "Quantization of Deep Neural Networks for Accurate CSI Feedback",
+      "relationship_type": "challenges",
+      "description": "Challenges scalar quantization by showing vector quantization with learned codebook achieves lower distortion",
+      "strength": 8
+    },
+    {
+      "from_title": "Vector Quantized CSI Feedback with Learned Codebook",
+      "to_title": "Deep Learning for Massive MIMO CSI Feedback",
+      "relationship_type": "builds_on",
+      "description": "Applies VQ-VAE framework to CsiNet codeword quantization for practical deployment",
+      "strength": 7
+    },
+    {
+      "from_title": "Generative Diffusion Model-Enhanced CSI Feedback",
+      "to_title": "Deep Learning for Massive MIMO CSI Feedback",
+      "relationship_type": "builds_on",
+      "description": "Enhances CsiNet-style decoder with diffusion-based iterative refinement for ultra-low rate feedback",
+      "strength": 8
+    },
+    {
+      "from_title": "Generative Diffusion Model-Enhanced CSI Feedback",
+      "to_title": "CSI-GPT: Integrating Generative Pre-Trained Transformer with Federated-Tuning for Channel Estimation in Massive MIMO",
+      "relationship_type": "related",
+      "description": "Both use generative models for CSI but with different paradigms: diffusion vs autoregressive GPT",
+      "strength": 7
+    },
+    {
+      "from_title": "Joint Compression and Quantization for Practical CSI Feedback",
+      "to_title": "Quantization of Deep Neural Networks for Accurate CSI Feedback",
+      "relationship_type": "extends",
+      "description": "Extends separate compression+quantization to end-to-end joint optimization eliminating mismatch",
+      "strength": 10
+    },
+    {
+      "from_title": "Joint Compression and Quantization for Practical CSI Feedback",
+      "to_title": "Adaptive Bit Allocation for Deep Learning-Based CSI Feedback",
+      "relationship_type": "builds_on",
+      "description": "Builds upon adaptive bit allocation with full end-to-end rate-distortion optimization framework",
+      "strength": 8
+    },
+    {
+      "from_title": "Joint Compression and Quantization for Practical CSI Feedback",
+      "to_title": "Deep Learning for Massive MIMO CSI Feedback",
+      "relationship_type": "builds_on",
+      "description": "Addresses practical deployment gap in CsiNet by jointly optimizing compression and quantization",
+      "strength": 9
+    },
+    {
+      "from_title": "Ternary Neural Network for Extreme-Efficient CSI Feedback",
+      "to_title": "Binarized Neural Network for CSI Feedback in Massive MIMO Systems",
+      "relationship_type": "extends",
+      "description": "Extends binary approach to ternary {-1,0,+1} quantization, adding implicit pruning via zero state",
+      "strength": 9
+    },
+    {
+      "from_title": "Ternary Neural Network for Extreme-Efficient CSI Feedback",
+      "to_title": "Quantization of Deep Neural Networks for Accurate CSI Feedback",
+      "relationship_type": "builds_on",
+      "description": "Builds on CSI quantization with extreme 2-bit ternary approach bridging binary and multi-bit methods",
+      "strength": 8
+    },
+    {
+      "from_title": "Ternary Neural Network for Extreme-Efficient CSI Feedback",
+      "to_title": "Deep Learning for Massive MIMO CSI Feedback",
+      "relationship_type": "builds_on",
+      "description": "Applies ternary quantization to CsiNet architecture for extreme model compression",
+      "strength": 8
+    },
+    {
+      "from_title": "AiANet: Attention-Infused Autoencoder for Massive MIMO CSI Compression",
+      "to_title": "ACRNet: Aggregation Cross-Domain Network for CSI Feedback in Massive MIMO",
+      "relationship_type": "extends",
+      "description": "AiANet extends ACRNet with locally-aware self-attention, achieving 3.42 dB NMSE improvement",
+      "strength": 9
+    },
+    {
+      "from_title": "AiANet: Attention-Infused Autoencoder for Massive MIMO CSI Compression",
+      "to_title": "Attention Mechanism-Based CSI Feedback Network for Massive MIMO Systems",
+      "relationship_type": "builds_on",
+      "description": "Builds on attention-based CSI feedback with more sophisticated locally-aware self-attention mechanism",
+      "strength": 8
+    },
+    {
+      "from_title": "AiANet: Attention-Infused Autoencoder for Massive MIMO CSI Compression",
+      "to_title": "Deep Learning for Massive MIMO CSI Feedback",
+      "relationship_type": "builds_on",
+      "description": "Advances CsiNet paradigm with attention-infused autoencoder and cross-environment generalization",
+      "strength": 7
+    },
+    {
+      "from_title": "SLATE: SwinLSTM Autoencoder for Temporal-Spatial-Frequency CSI Compression",
+      "to_title": "CsiNet-LSTM: A Deep Learning Architecture for Compressive CSI Estimation and Feedback in FDD Massive MIMO",
+      "relationship_type": "extends",
+      "description": "Extends temporal CSI compression from LSTM to SwinLSTM combining shifted-window attention with recurrence",
+      "strength": 9
+    },
+    {
+      "from_title": "SLATE: SwinLSTM Autoencoder for Temporal-Spatial-Frequency CSI Compression",
+      "to_title": "TransNet: Full Attention Network for CSI Feedback in FDD Massive MIMO",
+      "relationship_type": "builds_on",
+      "description": "Combines Transformer-style shifted window attention with LSTM for joint temporal-spatial modeling",
+      "strength": 8
+    },
+    {
+      "from_title": "Quantization Design for Deep Learning-Based CSI Feedback",
+      "to_title": "Quantization of Deep Neural Networks for Accurate CSI Feedback",
+      "relationship_type": "extends",
+      "description": "Extends QAT with intelligent per-element bit distribution and adaptive joint loss function",
+      "strength": 9
+    },
+    {
+      "from_title": "Quantization Design for Deep Learning-Based CSI Feedback",
+      "to_title": "Adaptive Bit Allocation for Deep Learning-Based CSI Feedback",
+      "relationship_type": "builds_on",
+      "description": "Builds on adaptive bit allocation with more principled variance-based element-wise distribution",
+      "strength": 8
+    },
+    {
+      "from_title": "Quantization Design for Deep Learning-Based CSI Feedback",
+      "to_title": "Joint Compression and Quantization for Practical CSI Feedback",
+      "relationship_type": "compares_with",
+      "description": "Both address practical quantization for CSI feedback; differs in element-level vs joint optimization approach",
+      "strength": 7
+    },
+    {
+      "from_title": "InvCSINet: Invertible Networks with Endogenous Quantization for CSI Feedback",
+      "to_title": "Quantization of Deep Neural Networks for Accurate CSI Feedback",
+      "relationship_type": "challenges",
+      "description": "Challenges conventional autoencoder+quantization pipeline with information-preserving invertible architecture",
+      "strength": 8
+    },
+    {
+      "from_title": "InvCSINet: Invertible Networks with Endogenous Quantization for CSI Feedback",
+      "to_title": "Deep Learning for Massive MIMO CSI Feedback",
+      "relationship_type": "challenges",
+      "description": "Challenges CsiNet's lossy autoencoder paradigm with bijective invertible networks avoiding information loss",
+      "strength": 9
+    },
+    {
+      "from_title": "InvCSINet: Invertible Networks with Endogenous Quantization for CSI Feedback",
+      "to_title": "Vector Quantized CSI Feedback with Learned Codebook",
+      "relationship_type": "compares_with",
+      "description": "Both use differentiable quantization but InvCSINet adds invertible architecture for information preservation",
+      "strength": 7
+    },
+    {
+      "from_title": "SemCSINet: Semantic-Aware CSI Feedback Network in Massive MIMO Systems",
+      "to_title": "TransNet: Full Attention Network for CSI Feedback in FDD Massive MIMO",
+      "relationship_type": "extends",
+      "description": "Extends Transformer-based CSI feedback with semantic CQI embedding and joint coding-modulation",
+      "strength": 8
+    },
+    {
+      "from_title": "SemCSINet: Semantic-Aware CSI Feedback Network in Massive MIMO Systems",
+      "to_title": "CSI-GPT: Integrating Generative Pre-Trained Transformer with Federated-Tuning for Channel Estimation in Massive MIMO",
+      "relationship_type": "related",
+      "description": "Both incorporate semantic/task-oriented concepts into Transformer-based CSI architectures",
+      "strength": 7
+    },
+    {
+      "from_title": "RD-JSCC: Residual Diffusion for Variable-Rate Joint Source-Channel Coding of MIMO CSI",
+      "to_title": "Generative Diffusion Model-Enhanced CSI Feedback",
+      "relationship_type": "extends",
+      "description": "Extends diffusion-based CSI with residual diffusion refinement and variable-rate JSCC support",
+      "strength": 9
+    },
+    {
+      "from_title": "RD-JSCC: Residual Diffusion for Variable-Rate Joint Source-Channel Coding of MIMO CSI",
+      "to_title": "Deep Learning-Based CSI Feedback with Variable Length Codewords for Adaptive FDD Massive MIMO",
+      "relationship_type": "inspired_by",
+      "description": "Inspired by variable-rate feedback concept, implements it via diffusion-based JSCC single-model approach",
+      "strength": 7
+    },
+    {
+      "from_title": "WiFo-CF: Wireless Foundation Model for CSI Feedback",
+      "to_title": "CSI-GPT: Integrating Generative Pre-Trained Transformer with Federated-Tuning for Channel Estimation in Massive MIMO",
+      "relationship_type": "extends",
+      "description": "Extends GPT-style approach to full foundation model with MoE architecture and heterogeneous pre-training",
+      "strength": 9
+    },
+    {
+      "from_title": "WiFo-CF: Wireless Foundation Model for CSI Feedback",
+      "to_title": "TransNet: Full Attention Network for CSI Feedback in FDD Massive MIMO",
+      "relationship_type": "builds_on",
+      "description": "Scales Transformer-based CSI from task-specific to foundation model with universal pre-training",
+      "strength": 8
+    },
+    {
+      "from_title": "WiFo-CF: Wireless Foundation Model for CSI Feedback",
+      "to_title": "Deep Learning for Massive MIMO CSI Feedback",
+      "relationship_type": "builds_on",
+      "description": "Represents paradigm shift from per-scenario CsiNet training to pre-trained foundation model approach",
+      "strength": 8
+    },
+    {
+      "from_title": "EG-CsiNet: Generalizable Learning for Massive MIMO CSI Feedback in Unseen Environments",
+      "to_title": "Deep Learning for Massive MIMO CSI Feedback",
+      "relationship_type": "extends",
+      "description": "Addresses CsiNet's major limitation of poor generalization with physics-based distribution alignment",
+      "strength": 9
+    },
+    {
+      "from_title": "EG-CsiNet: Generalizable Learning for Massive MIMO CSI Feedback in Unseen Environments",
+      "to_title": "AiANet: Attention-Infused Autoencoder for Massive MIMO CSI Compression",
+      "relationship_type": "related",
+      "description": "Both address cross-environment generalization: AiANet via mixed-training, EG-CsiNet via physics-based alignment",
+      "strength": 8
+    },
+    {
+      "from_title": "LVM4CF: CSI Feedback with Offline Large Vision Models",
+      "to_title": "Deep Learning for Massive MIMO CSI Feedback",
+      "relationship_type": "builds_on",
+      "description": "Leverages large vision model features for CSI codebook design, bridging computer vision and CSI feedback",
+      "strength": 7
+    },
+    {
+      "from_title": "LVM4CF: CSI Feedback with Offline Large Vision Models",
+      "to_title": "WiFo-CF: Wireless Foundation Model for CSI Feedback",
+      "relationship_type": "related",
+      "description": "Both leverage large pre-trained models for CSI feedback: LVM4CF offline vision models, WiFo-CF wireless foundation model",
+      "strength": 8
+    },
+    {
+      "from_title": "Semantic Pilot Design for Channel Estimation Using a Large Language Model",
+      "to_title": "CSI-GPT: Integrating Generative Pre-Trained Transformer with Federated-Tuning for Channel Estimation in Massive MIMO",
+      "relationship_type": "related",
+      "description": "Both apply large generative models to wireless: LLM for semantic pilots vs GPT for CSI generation",
+      "strength": 7
+    },
+    {
+      "from_title": "Semantic Pilot Design for Channel Estimation Using a Large Language Model",
+      "to_title": "SemCSINet: Semantic-Aware CSI Feedback Network in Massive MIMO Systems",
+      "relationship_type": "related",
+      "description": "Both incorporate semantic understanding: LLM for pilot extraction vs semantic CQI embedding for feedback",
+      "strength": 6
+    },
+    {
+      "from_title": "Vector Quantized CSI Feedback with Learned Codebook",
+      "to_title": "Neural Discrete Representation Learning (VQ-VAE)",
+      "relationship_type": "applies",
+      "description": "Directly applies VQ-VAE framework to CSI feedback codeword quantization",
+      "strength": 10
+    },
+    {
+      "from_title": "Vector Quantization for Deep-Learning-Based CSI Feedback with Shape-Gain Decomposition",
+      "to_title": "Neural Discrete Representation Learning (VQ-VAE)",
+      "relationship_type": "extends",
+      "description": "Extends VQ-VAE with shape-gain decomposition for separate magnitude/direction quantization of CSI latents",
+      "strength": 9
+    },
+    {
+      "from_title": "Vector Quantization for Deep-Learning-Based CSI Feedback with Shape-Gain Decomposition",
+      "to_title": "Vector Quantized CSI Feedback with Learned Codebook",
+      "relationship_type": "extends",
+      "description": "Extends basic VQ-CSI with Grassmannian direction codebook and shape-gain decomposition",
+      "strength": 9
+    },
+    {
+      "from_title": "Vector Quantization for Deep-Learning-Based CSI Feedback with Shape-Gain Decomposition",
+      "to_title": "Deep Learning for Massive MIMO CSI Feedback",
+      "relationship_type": "builds_on",
+      "description": "Adds finite-rate VQ with shape-gain decomposition to CsiNet autoencoder for practical deployment",
+      "strength": 8
+    },
+    {
+      "from_title": "Finite Scalar Quantization: VQ-VAE Made Simple (FSQ)",
+      "to_title": "Neural Discrete Representation Learning (VQ-VAE)",
+      "relationship_type": "challenges",
+      "description": "Challenges VQ-VAE's complexity by replacing vector quantization with simpler per-dimension scalar quantization",
+      "strength": 10
+    },
+    {
+      "from_title": "SoundStream: An End-to-End Neural Audio Codec (Residual Vector Quantization)",
+      "to_title": "Neural Discrete Representation Learning (VQ-VAE)",
+      "relationship_type": "extends",
+      "description": "Extends VQ-VAE with residual multi-stage vector quantization for progressive refinement",
+      "strength": 9
+    },
+    {
+      "from_title": "AWQ: Activation-aware Weight Quantization for LLM Compression and Acceleration",
+      "to_title": "Lightweight CSI Feedback via Mixed-Precision Quantization",
+      "relationship_type": "inspires",
+      "description": "AWQ's activation-aware saliency concept inspires per-channel importance analysis in CSI quantization",
+      "strength": 7
+    },
+    {
+      "from_title": "HAWQ-V3: Dyadic Neural Network Quantization",
+      "to_title": "Lightweight CSI Feedback via Mixed-Precision Quantization",
+      "relationship_type": "inspires",
+      "description": "HAWQ-V3's Hessian-based per-layer bit allocation directly applicable to mixed-precision CSI feedback",
+      "strength": 8
+    },
+    {
+      "from_title": "HAWQ-V3: Dyadic Neural Network Quantization",
+      "to_title": "Adaptive Bit Allocation for Deep Learning-Based CSI Feedback",
+      "relationship_type": "inspires",
+      "description": "Hessian-based sensitivity analysis inspires adaptive per-dimension bit allocation for CSI codewords",
+      "strength": 8
+    },
+    {
+      "from_title": "GPTQ: Accurate Post-Training Quantization for Generative Pre-trained Transformers",
+      "to_title": "HAWQ-V3: Dyadic Neural Network Quantization",
+      "relationship_type": "builds_on",
+      "description": "Both use second-order (Hessian) information; GPTQ extends to post-training setting with OBQ framework",
+      "strength": 8
+    },
+    {
+      "from_title": "GPTQ: Accurate Post-Training Quantization for Generative Pre-trained Transformers",
+      "to_title": "Quantization of Deep Neural Networks for Accurate CSI Feedback",
+      "relationship_type": "related",
+      "description": "GPTQ's second-order post-training approach applicable to quantizing pre-trained CSI feedback models",
+      "strength": 6
+    },
+    {
+      "from_title": "AWQ: Activation-aware Weight Quantization for LLM Compression and Acceleration",
+      "to_title": "GPTQ: Accurate Post-Training Quantization for Generative Pre-trained Transformers",
+      "relationship_type": "compares_with",
+      "description": "Both target low-bit weight quantization; AWQ uses activation-aware scaling vs GPTQ's second-order updates",
+      "strength": 8
+    },
+    {
+      "from_title": "InvCSINet: Invertible Networks with Endogenous Quantization for CSI Feedback",
+      "to_title": "Finite Scalar Quantization: VQ-VAE Made Simple (FSQ)",
+      "relationship_type": "related",
+      "description": "Both simplify latent quantization: InvCSINet's DAQ uses per-element adaptive step size, FSQ uses fixed per-dim levels",
+      "strength": 7
+    },
+    {
+      "from_title": "RD-JSCC: Residual Diffusion for Variable-Rate Joint Source-Channel Coding of MIMO CSI",
+      "to_title": "SoundStream: An End-to-End Neural Audio Codec (Residual Vector Quantization)",
+      "relationship_type": "inspired_by",
+      "description": "RD-JSCC's variable-rate single-model approach mirrors SoundStream's structured dropout for variable bitrate",
+      "strength": 7
+    },
+    {
+      "from_title": "Quantization Design for Deep Learning-Based CSI Feedback",
+      "to_title": "AWQ: Activation-aware Weight Quantization for LLM Compression and Acceleration",
+      "relationship_type": "inspired_by",
+      "description": "Element-wise importance-based bit distribution inspired by AWQ's activation-aware saliency detection",
+      "strength": 7
+    },
+    {
+      "from_title": "Ternary Neural Network for Extreme-Efficient CSI Feedback",
+      "to_title": "HAWQ-V3: Dyadic Neural Network Quantization",
+      "relationship_type": "related",
+      "description": "Both pursue extreme low-bit quantization: ternary 2-bit weights vs HAWQ-V3's integer-only INT4",
+      "strength": 6
+    }
+  ]
+}
