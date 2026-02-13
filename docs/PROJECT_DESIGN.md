@@ -1,8 +1,9 @@
 # CSI AutoEncoder 연구 시각화 인터랙티브 웹 애플리케이션 설계
 
-**프로젝트 버전**: v1.0
-**작성일**: 2026-02-13
-**설계자**: Claude Code Plan Agent
+**프로젝트 버전**: v2.0
+**최초 작성일**: 2026-02-13
+**최종 업데이트**: 2026-02-14
+**설계자**: Claude Code Plan Agent + Codex
 
 ---
 
@@ -13,9 +14,11 @@
 3. [프로젝트 디렉토리 구조](#프로젝트-디렉토리-구조)
 4. [데이터베이스 스키마](#데이터베이스-스키마)
 5. [주요 컴포넌트](#주요-컴포넌트)
-6. [개발 로드맵](#개발-로드맵)
-7. [기술적 결정사항](#기술적-결정사항)
-8. [핵심 파일](#핵심-파일)
+6. [핵심 기능 상세](#핵심-기능-상세)
+7. [개발 로드맵](#개발-로드맵)
+8. [기술적 결정사항](#기술적-결정사항)
+9. [핵심 파일](#핵심-파일)
+10. [UI/UX 개선 이력](#uiux-개선-이력)
 
 ---
 
@@ -28,19 +31,37 @@ CSI AutoEncoder compression 연구(encoder 경량화 + quantization)와 관련�
 1. **연구 시각화**
    - 각 논문의 기술, 원리, 핵심 수식, 알고리즘, 기여도를 카드/상세 뷰로 표시
    - LaTeX 수식을 KaTeX로 렌더링
+   - 논문 핵심 리마인드 카드 (one-liner, 체크포인트, 기대 기여/결과)
 
-2. **관계 시각화**
+2. **관계 시각화 (MindMap)**
    - 연구들 간의 연속성과 영향 관계를 마인드맵/그래프로 표현
+   - 듀얼 뷰 시스템: 리스트 모드 + 그래프 모드
    - 인터랙티브한 노드 탐색 (줌, 드래그, 클릭 상세보기)
+   - Focus/Overview/Timeline 뷰 모드
+   - 1-hop / 2-hop 관계 깊이 탐색
+   - 2-hop 브리지 추천 알고리즘 (가중치 기반 스코어링)
 
 3. **개인 학습 관리**
-   - 각 논문/개념에 대한 익숙함 체크 (5단계)
-   - 개인 메모 작성 및 저장
-   - DB에 영구 저장되어 세션 간 유지
+   - 각 논문에 대한 익숙함 체크 (5단계)
+   - 개인 메모 작성 (Markdown, 자동 저장)
+   - 중요도 평가 (1-5), 즐겨찾기, 개인 태그
+   - 복습 큐 (우선순위 기반 정렬)
 
-4. **로그인 불필요**
-   - 개인용이므로 로컬/단일 사용자 환경
-   - Supabase에 데이터는 저장하되 간단한 로컬 세션
+4. **대시보드**
+   - 통계 카드 (논문 수, 관계 수, 즐겨찾기, 복습 필요, 최근 논문)
+   - 핵심 리마인드 패널 (선택된 논문의 스냅샷)
+   - 관계 타입 분포 시각화
+   - 전체화면 몰입 모드
+
+5. **데이터 관리**
+   - JSON Import (중복 체크, 관계 매핑, 로그)
+   - Markdown / JSON Export
+   - Supabase PostgreSQL 영구 저장
+
+6. **UI/UX**
+   - 다크 모드 (Light / Dark / System 3-way)
+   - 모바일 반응형 (햄버거 메뉴, 드로어 사이드바)
+   - 논문 추가/편집 폼 모달 (PaperFormModal)
 
 ---
 
@@ -49,22 +70,24 @@ CSI AutoEncoder compression 연구(encoder 경량화 + quantization)와 관련�
 ### Frontend
 - **Framework**: Next.js 14 (App Router)
 - **Language**: TypeScript
-- **Styling**: Tailwind CSS
+- **Styling**: Tailwind CSS (dark mode 지원)
 - **State Management**: Zustand (UI 상태) + SWR (서버 상태)
+- **Fonts**: Noto Sans KR + JetBrains Mono
 
 ### Backend
 - **BaaS**: Supabase (PostgreSQL + Realtime)
 - **Database**: PostgreSQL (Supabase 제공)
 
 ### Visualization
-- **Graph Library**: React Flow
-- **Layout**: Dagre + Force-Directed (선택 가능)
-- **Math Rendering**: KaTeX
+- **Graph Library**: React Flow v11
+- **Layout**: Dagre (계층적) + Force-Directed (클러스터링)
+- **Math Rendering**: KaTeX v0.16
+- **Icons**: Lucide React
 
 ### Development
 - **Package Manager**: npm
-- **Code Quality**: ESLint + Prettier
-- **Testing**: Jest + React Testing Library (선택적)
+- **Code Quality**: ESLint (eslint-config-next)
+- **Build**: Next.js built-in (SWC)
 
 ---
 
@@ -73,6 +96,7 @@ CSI AutoEncoder compression 연구(encoder 경량화 + quantization)와 관련�
 ```
 c:\Users\hyunj\CSIAutoEncoder\
 ├── .env.local                          # Supabase 환경 변수
+├── .env.example                        # 환경 변수 예시
 ├── .gitignore
 ├── next.config.js
 ├── package.json
@@ -82,95 +106,101 @@ c:\Users\hyunj\CSIAutoEncoder\
 ├── README.md
 │
 ├── public/
-│   ├── data/                          # 초기 논문 데이터 (JSON/CSV)
-│   │   └── initial-papers.json
-│   └── images/                        # 논문 관련 이미지/다이어그램
+│   └── data/
+│       └── initial-papers.json         # 초기 논문 데이터 (2034줄)
 │
-├── supabase/                          # Supabase 관련 설정
-│   ├── migrations/
-│   │   ├── 001_create_papers_table.sql
-│   │   ├── 002_create_relationships_table.sql
-│   │   ├── 003_create_user_notes_table.sql
-│   │   └── 004_create_views.sql
-│   └── seed.sql                       # 초기 데이터 삽입
+├── supabase/
+│   └── migrations/
+│       ├── 001_create_papers_table.sql
+│       ├── 002_create_relationships_table.sql
+│       ├── 003_create_user_notes_table.sql
+│       ├── 004_create_views.sql
+│       └── 005_graph_optimization_and_recommendations.sql
 │
-├── docs/                              # 프로젝트 문서
+├── docs/
 │   ├── PROJECT_DESIGN.md              # 이 문서
-│   ├── ARCHITECTURE.md                # 아키텍처 문서
-│   ├── DEVELOPMENT.md                 # 개발 가이드
-│   └── DATA_MODEL.md                  # 데이터 모델 설명
+│   └── OPERATIONS.md                  # 운영 가이드
 │
 ├── src/
 │   ├── app/                           # Next.js App Router
-│   │   ├── layout.tsx                 # Root layout
-│   │   ├── page.tsx                   # 메인 페이지 (대시보드)
-│   │   ├── globals.css                # Global styles + Tailwind
-│   │   └── api/                       # API routes (필요시)
+│   │   ├── layout.tsx                 # Root layout (ThemeProvider, Fonts)
+│   │   ├── page.tsx                   # 랜딩 페이지 (히어로 + 퀵 링크)
+│   │   ├── globals.css                # Tailwind + KaTeX + 커스텀 애니메이션
+│   │   ├── dashboard/
+│   │   │   └── page.tsx               # 메인 대시보드 ⭐
+│   │   ├── import/
+│   │   │   └── page.tsx               # 데이터 임포트
+│   │   └── test/
+│   │       └── page.tsx               # Supabase 연결 진단
 │   │
 │   ├── components/
 │   │   ├── layout/
-│   │   │   ├── Header.tsx             # 앱 헤더
-│   │   │   ├── Sidebar.tsx            # 논문 리스트 사이드바
-│   │   │   └── MainLayout.tsx         # 전체 레이아웃
+│   │   │   ├── Header.tsx             # 앱 헤더 (네비, 테마, Export)
+│   │   │   ├── Sidebar.tsx            # 논문 리스트 사이드바 (검색/필터)
+│   │   │   └── MainLayout.tsx         # 전체 레이아웃 래퍼
 │   │   │
 │   │   ├── visualization/
-│   │   │   ├── MindMap.tsx            # React Flow 마인드맵 ⭐
-│   │   │   ├── CustomNode.tsx         # 커스텀 노드
-│   │   │   ├── CustomEdge.tsx         # 커스텀 엣지
-│   │   │   ├── MindMapControls.tsx    # 줌/필터 컨트롤
-│   │   │   └── GraphLegend.tsx        # 그래프 범례
+│   │   │   ├── MindMap.tsx            # 듀얼뷰 마인드맵 ⭐
+│   │   │   ├── CustomNode.tsx         # 논문 노드 (연도, 제목, 익숙함)
+│   │   │   ├── CustomEdge.tsx         # 관계 엣지 (타입별 색상, 툴팁)
+│   │   │   ├── MindMapControls.tsx    # 줌/팬 컨트롤
+│   │   │   └── GraphLegend.tsx        # 관계 타입 + 익숙함 범례
 │   │   │
 │   │   ├── papers/
-│   │   │   ├── PaperCard.tsx          # 논문 카드
-│   │   │   ├── PaperDetailModal.tsx   # 논문 상세 모달 ⭐
-│   │   │   ├── PaperList.tsx          # 논문 리스트
-│   │   │   ├── PaperSearch.tsx        # 검색/필터
-│   │   │   └── PaperEquation.tsx      # 수식 렌더링
+│   │   │   ├── PaperCard.tsx          # 논문 카드 (사이드바용)
+│   │   │   ├── PaperDetailModal.tsx   # 논문 상세 슬라이드 모달 ⭐
+│   │   │   ├── PaperList.tsx          # 필터된 논문 리스트
+│   │   │   ├── PaperSearch.tsx        # 검색/필터 UI
+│   │   │   ├── PaperEquation.tsx      # KaTeX 수식 렌더링
+│   │   │   ├── PaperFormModal.tsx     # 논문 추가/편집 폼
+│   │   │   └── EquationPreviewCard.tsx # 수식 미리보기 카드
 │   │   │
 │   │   ├── notes/
-│   │   │   ├── NoteEditor.tsx         # 메모 작성
-│   │   │   ├── FamiliaritySelector.tsx # 익숙함 레벨
-│   │   │   └── NotesList.tsx          # 메모 히스토리
+│   │   │   ├── NoteEditor.tsx         # 메모 작성 (자동 저장, 태그)
+│   │   │   └── FamiliaritySelector.tsx # 5단계 익숙함 선택
 │   │   │
 │   │   └── common/
-│   │       ├── LoadingSpinner.tsx
-│   │       └── ErrorBoundary.tsx
+│   │       ├── LoadingSpinner.tsx      # 로딩 스피너
+│   │       ├── ErrorBoundary.tsx       # 에러 바운더리
+│   │       ├── ConfirmDialog.tsx       # 확인 다이얼로그
+│   │       └── ThemeProvider.tsx       # 테마 프로바이더
 │   │
 │   ├── lib/
 │   │   ├── supabase/
-│   │   │   ├── client.ts              # Supabase 클라이언트
-│   │   │   ├── papers.ts              # Papers 쿼리 ⭐
-│   │   │   ├── relationships.ts       # Relationships 쿼리
-│   │   │   └── notes.ts               # Notes 쿼리
+│   │   │   ├── client.ts              # Supabase 클라이언트 초기화
+│   │   │   ├── papers.ts              # Papers CRUD ⭐
+│   │   │   ├── relationships.ts       # Relationships CRUD
+│   │   │   └── notes.ts               # Notes CRUD (upsert, 자동 저장)
+│   │   │
+│   │   ├── papers/
+│   │   │   └── insights.ts            # 추천/스코어링 엔진 ⭐
 │   │   │
 │   │   ├── visualization/
-│   │   │   ├── graphLayout.ts         # 레이아웃 알고리즘
-│   │   │   └── graphUtils.ts          # 유틸리티
+│   │   │   ├── graphLayout.ts         # Dagre 레이아웃 알고리즘
+│   │   │   └── graphUtils.ts          # 관계 스타일, 익숙함 라벨
 │   │   │
 │   │   └── utils/
-│   │       ├── latex.ts               # KaTeX 헬퍼
-│   │       ├── dataParser.ts          # CSV/JSON 파싱
-│   │       └── export.ts              # Export 기능
+│   │       └── export.ts              # Markdown/JSON 내보내기
 │   │
 │   ├── hooks/
-│   │   ├── usePapers.ts               # Papers 훅
-│   │   ├── useRelationships.ts        # Relationships 훅
-│   │   ├── useNotes.ts                # Notes 훅
-│   │   ├── useGraphData.ts            # 그래프 데이터 변환 ⭐
-│   │   └── useSession.ts              # 로컬 세션
+│   │   ├── usePapers.ts               # Papers SWR 훅
+│   │   ├── useRelationships.ts        # Relationships SWR 훅
+│   │   ├── useNotes.ts                # Notes 훅 (PapersWithNotes)
+│   │   ├── useGraphData.ts            # 논문→노드/엣지 변환 ⭐
+│   │   ├── useSession.ts              # 로컬 세션 UUID
+│   │   └── useDarkMode.ts             # 다크 모드 Zustand 스토어
 │   │
 │   ├── types/
-│   │   ├── paper.ts                   # Paper 타입
+│   │   ├── paper.ts                   # Paper, PaperWithNote 타입
 │   │   ├── relationship.ts            # Relationship 타입
-│   │   ├── note.ts                    # Note 타입
-│   │   └── graph.ts                   # Graph/Node/Edge 타입
+│   │   ├── note.ts                    # Note 타입 + Upsert
+│   │   ├── graph.ts                   # GraphNode, GraphEdge 타입
+│   │   └── index.ts                   # 통합 export
 │   │
 │   └── store/
-│       └── useAppStore.ts             # Zustand 스토어
+│       └── useAppStore.ts             # Zustand 전역 상태
 │
-└── scripts/
-    ├── seed-data.ts                   # 초기 데이터 삽입
-    └── export-markdown.ts             # Export 스크립트
+└── supabase/migrations/               # DB 마이그레이션 SQL
 ```
 
 **⭐ = 핵심 파일**
@@ -180,8 +210,6 @@ c:\Users\hyunj\CSIAutoEncoder\
 ## 데이터베이스 스키마
 
 ### 1. Papers 테이블
-
-**목적**: 논문 정보 저장
 
 | 컬럼명 | 타입 | 설명 |
 |--------|------|------|
@@ -196,7 +224,7 @@ c:\Users\hyunj\CSIAutoEncoder\
 | key_contributions | TEXT[] | 주요 기여도 |
 | algorithms | TEXT[] | 알고리즘명 |
 | key_equations | JSONB | 수식 배열 (name, latex, description) |
-| category | ENUM | 카테고리 (csi_compression, autoencoder 등) |
+| category | ENUM | 카테고리 |
 | tags | TEXT[] | 태그 |
 | pdf_url | TEXT | PDF 링크 |
 | code_url | TEXT | 코드 링크 |
@@ -204,72 +232,42 @@ c:\Users\hyunj\CSIAutoEncoder\
 | created_at | TIMESTAMPTZ | 생성 시각 |
 | updated_at | TIMESTAMPTZ | 수정 시각 |
 
-**인덱스**:
-- year, category, tags (검색 최적화)
-- title (전문 검색)
-
 ### 2. Paper Relationships 테이블
-
-**목적**: 논문 간 관계 저장
 
 | 컬럼명 | 타입 | 설명 |
 |--------|------|------|
 | id | UUID | Primary Key |
 | from_paper_id | UUID | 출발 논문 (FK) |
 | to_paper_id | UUID | 도착 논문 (FK) |
-| relationship_type | ENUM | 관계 타입 (extends, builds_on 등) |
+| relationship_type | ENUM | 관계 타입 |
 | description | TEXT | 관계 설명 |
 | strength | INTEGER | 관계 강도 (1-10) |
 | created_at | TIMESTAMPTZ | 생성 시각 |
 
-**관계 타입**:
-- `extends`: 확장/개선
-- `builds_on`: 기반으로 함
-- `compares_with`: 비교 대상
-- `inspired_by`: 영감을 받음
-- `challenges`: 도전/반박
-- `applies`: 적용
-- `related`: 관련
-
-**제약조건**:
-- UNIQUE(from_paper_id, to_paper_id, relationship_type)
-- 자기 참조 방지
+**관계 타입**: extends, builds_on, compares_with, inspired_by, challenges, applies, related, variant_of
 
 ### 3. User Notes 테이블
-
-**목적**: 사용자 학습 데이터 저장
 
 | 컬럼명 | 타입 | 설명 |
 |--------|------|------|
 | id | UUID | Primary Key |
 | paper_id | UUID | 논문 ID (FK) |
-| session_id | TEXT | 세션 ID (기본값: 'default_user') |
-| familiarity_level | ENUM | 익숙함 레벨 |
-| is_favorite | BOOLEAN | 즐겨찾기 여부 |
+| session_id | TEXT | 세션 ID (default_user) |
+| familiarity_level | ENUM | 익숙함 레벨 (5단계) |
+| is_favorite | BOOLEAN | 즐겨찾기 |
 | last_read_at | TIMESTAMPTZ | 마지막 읽은 시각 |
-| note_content | TEXT | 메모 내용 (Markdown) |
+| note_content | TEXT | 메모 (Markdown) |
 | importance_rating | INTEGER | 중요도 (1-5) |
 | personal_tags | TEXT[] | 개인 태그 |
-| created_at | TIMESTAMPTZ | 생성 시각 |
-| updated_at | TIMESTAMPTZ | 수정 시각 |
-
-**익숙함 레벨**:
-- `not_started`: 아직 읽지 않음
-- `difficult`: 어려움
-- `moderate`: 보통
-- `familiar`: 익숙함
-- `expert`: 전문가 수준
-
-**제약조건**:
-- UNIQUE(paper_id, session_id)
+| created_at / updated_at | TIMESTAMPTZ | 시각 |
 
 ### 4. Views
+- **papers_with_notes**: 논문 + 노트 통합 뷰
+- **relationship_graph**: 관계 + 논문 정보 통합 뷰
 
-#### papers_with_notes
-논문 + 노트 통합 뷰 (JOIN)
-
-#### relationship_graph
-관계 + 논문 정보 통합 뷰
+### 5. 추가 마이그레이션 (005)
+- 그래프 최적화 인덱스
+- 추천 시스템 지원 함수
 
 ---
 
@@ -278,261 +276,195 @@ c:\Users\hyunj\CSIAutoEncoder\
 ### Layout Components
 
 #### MainLayout.tsx
-- **역할**: 전체 앱 레이아웃
-- **구조**: Header + Sidebar + Main Content
-- **상태**: 사이드바 열림/닫힘
+- Header (sticky) + Sidebar (drawer/fixed) + Main Content
+- 최대 너비 1600px, 다크 모드 배경
 
 #### Header.tsx
-- **기능**: 로고, 제목, Import/Export 버튼, 검색
+- 로고/브랜딩, 네비게이션 (Dashboard, Import, System Check)
+- Export 드롭다운 (Markdown, JSON)
+- 테마 토글 (Light → Dark → System 순환)
+- 모바일 햄버거 메뉴
 
 #### Sidebar.tsx
-- **기능**: 논문 리스트, 검색/필터, 정렬
+- PaperSearch (텍스트, 카테고리, 연도 범위, 익숙함 필터)
+- PaperList (필터 적용, 스크롤)
+- 논문 추가 버튼 → PaperFormModal
+- 데스크톱: 고정 320px, 모바일: 88vw 드로어
 
 ### Visualization Components
 
 #### MindMap.tsx ⭐
-- **역할**: React Flow 기반 마인드맵 핵심
-- **기능**:
-  - useGraphData로 데이터 변환
-  - 노드 클릭 → 상세 모달
-  - 줌/팬 컨트롤
-  - 레이아웃 알고리즘 적용
+- **듀얼 뷰**: 리스트 모드 (테이블) + 그래프 모드 (React Flow)
+- **컨트롤 패널** (접기 가능):
+  - 논문 검색, 관계 강도 필터, 관계 타입 토글
+  - 포커스 논문 선택, 뷰 모드 (Focus/Overview/Timeline)
+  - 포커스 깊이 (1-hop/2-hop), 레이어 모드 (연도/카테고리)
+  - 방향 토글 (TB/LR)
+- **스마트 레이아웃**: Dagre 기반, BFS 노드 필터링
+- **2-hop 추천**: 공유 이웃 기반 경로 강도 계산
+- **하단 패널**: 상위 20 강한 관계 테이블
 
 #### CustomNode.tsx
-- **표시**: 논문 제목, 연도, 익숙함 배지
-- **스타일**: 카테고리별 색상
+- 연도 배지, 제목, 저자, 익숙함 인디케이터
+- 카테고리별 색상 (color_hex)
 
 #### CustomEdge.tsx
-- **표시**: 관계 타입별 스타일
-- **기능**: 호버 시 툴팁
+- 관계 타입별 색상/스타일
+- 호버 시 설명 툴팁
+- 줌 레벨 기반 라벨 표시 (0.78+ 또는 ≤45 논문)
 
 ### Paper Components
 
 #### PaperDetailModal.tsx ⭐
-- **섹션**:
-  - 기본 정보 (제목, 저자, 연도, venue)
-  - 초록 및 기여도
-  - 수식 (KaTeX)
-  - 관련 논문
-  - 메모 에디터
-  - 익숙함 선택기
+- 우측 슬라이드-인 모달 (max-w-3xl)
+- **헤더**: 연도 배지, 카테고리, 즐겨찾기, PDF/Code 링크
+- **핵심 리마인드**: one-liner, 메서드 태그, 체크포인트, 기대 결과, 수식 미리보기
+- **초록**: 전문 표시
+- **주요 기여**: 불릿 리스트
+- **핵심 수식**: KaTeX 렌더링 (폴백: LaTeX 코드)
+- **연계 논문**: Outgoing/Incoming/2-hop 추천 (스코어 + 이유)
+- **학습 노트**: NoteEditor 임베드 (자동 저장 1.4초 디바운스)
+- ESC 키 닫기, 백드롭 클릭 닫기
 
-#### PaperEquation.tsx
-- **기능**: KaTeX로 LaTeX 수식 렌더링
+### Insights Engine (lib/papers/insights.ts) ⭐
 
-### Notes Components
+#### 핵심 함수
+- `buildPaperCoreSnapshot()`: 논문 리마인드 카드 생성
+- `buildPaperConnections()`: 직접 연결 정렬 (강도 → 연도)
+- `buildBridgeRecommendations()`: 2-hop 추천 (가중치 스코어링)
+- `buildReviewQueue()`: 복습 큐 정렬
 
-#### NoteEditor.tsx
-- **기능**: Markdown 입력, 자동 저장, 태그 입력
+#### 브리지 추천 스코어링 가중치
+```
+sharedNeighborWeight: 4.0
+sharedPathStrengthWeight: 0.55
+sameCategoryBoost: 2.5
+sharedTagWeight: 1.2
+recencyCloseBoost: 1.25 (≤2년)
+recencyMediumBoost: 0.75 (≤5년)
+lowFamiliarityBoost: 1.8
+moderateFamiliarityBoost: 0.9
+importanceWeight: 0.45
+```
 
-#### FamiliaritySelector.tsx
-- **UI**: 5단계 아이콘 선택
+---
+
+## 핵심 기능 상세
+
+### 1. 다크 모드
+- Zustand 스토어 (`useDarkMode.ts`) + localStorage 영속
+- `prefers-color-scheme` 미디어 쿼리 연동
+- HTML `<html>` 태그에 `dark` 클래스 토글
+- Tailwind `dark:` 변형 전역 적용
+
+### 2. 데이터 Import
+- `public/data/initial-papers.json` 소스
+- 제목+연도 기준 중복 건너뛰기
+- 관계 타입 정규화 (inspires → inspired_by)
+- 타임스탬프 포함 실시간 로그
+
+### 3. 데이터 Export
+- Markdown: 논문별 섹션 (기여도, 수식, 관계)
+- JSON: 전체 데이터 구조화 내보내기
+- Blob 다운로드
+
+### 4. 모바일 반응형
+- **Header**: 햄버거 메뉴 (md 이하)
+- **Sidebar**: 88vw 드로어 + 백드롭 오버레이
+- **Dashboard**: 2열 → 5열 그리드
+- **MindMap**: xl 이상에서 그래프 뷰 표시
+- **Modal**: 전체 너비, 스크롤 가능
 
 ---
 
 ## 개발 로드맵
 
-### Phase 1: 프로젝트 기반 설정 (1-2일)
+### Phase 1-7: 기본 기능 구현 ✅ 완료
+- Next.js 14 + Supabase 초기화
+- 데이터 레이어 (타입, CRUD, SWR 훅)
+- UI 레이아웃 (Header, Sidebar, MainLayout)
+- React Flow 마인드맵 (듀얼뷰, 레이아웃, 인터랙션)
+- 논문 상세 모달 (KaTeX, 관계, 노트)
+- 학습 관리 (익숙함, 메모, 즐겨찾기)
+- Import/Export (JSON/Markdown)
 
-**Tasks**:
-1. Next.js 14 프로젝트 초기화
-   ```bash
-   npx create-next-app@latest csi-autoencoder-viz --typescript --tailwind --app
-   ```
+### Phase 8: UX 개선 (v2.0) ✅ 완료 (Codex)
+- **모바일 레이아웃 개선** (8305661)
+  - 반응형 Header, Sidebar 드로어, 터치 지원
+- **마인드맵 업그레이드** (8750380)
+  - 듀얼뷰, 스마트 컨트롤 패널, 미니맵
+- **브리지 추천 스코어링 튜닝** (42586be)
+  - 가중치 최적화, 다양한 요소 반영
+- **관계 UX 단순화 + 한국어 리마인드 강화** (2f25b21)
+  - 연결 그룹핑, 한국어 UI, 리마인드 체크포인트
+- **리마인드 체크포인트 + 맵 스코어링 설명** (89b57c1)
+  - 기대 기여/결과, 2-hop 스코어 설명
+- **수식 미리보기 카드** (5cef636)
+  - EquationPreviewCard 컴포넌트, KaTeX 인라인 렌더링
 
-2. 필수 패키지 설치
-   ```bash
-   npm install @supabase/supabase-js reactflow katex zustand dagre
-   npm install @types/katex @types/dagre date-fns lucide-react
-   npm install swr react-markdown
-   ```
+### Phase 9: UI/UX 사용자 친화성 개선 (v2.1) 🔄 진행 중
+- Toast 알림 시스템 (글로벌 피드백)
+- 스켈레톤 로딩 (인지 성능 향상)
+- 키보드 단축키 (Ctrl+K 검색, ? 도움말)
+- 접근성 강화 (포커스 관리, 터치 타겟)
+- 빈 상태 UX 개선 (가이던스 메시지)
+- 애니메이션 폴리시 (부드러운 전환)
 
-3. Supabase 프로젝트 생성 및 환경 변수 설정
-
-4. 데이터베이스 스키마 생성 (SQL 마이그레이션 실행)
-
-5. 디렉토리 구조 생성
-
-**Deliverables**: 실행 가능한 Next.js 앱, Supabase 연결
-
----
-
-### Phase 2: 데이터 레이어 구축 (2-3일)
-
-**Tasks**:
-1. Supabase 클라이언트 초기화
-2. TypeScript 타입 정의
-3. 데이터베이스 쿼리 함수 (CRUD)
-4. React 훅 구현 (usePapers, useRelationships, useNotes)
-5. 초기 시드 데이터 준비
-
-**Deliverables**: 완전한 데이터 레이어, 타입 안전성
-
----
-
-### Phase 3: 기본 UI 레이아웃 (3-4일)
-
-**Tasks**:
-1. MainLayout, Header, Sidebar 구현
-2. PaperCard, PaperList 구현
-3. 검색/필터 UI
-4. 상태 관리 통합 (Zustand)
-
-**Deliverables**: 기능하는 사이드바 + 논문 리스트
-
----
-
-### Phase 4: 마인드맵 시각화 (4-5일)
-
-**Tasks**:
-1. React Flow 기본 설정
-2. CustomNode, CustomEdge 구현
-3. 그래프 레이아웃 알고리즘 (Dagre)
-4. 인터랙션 (클릭, 호버, 줌/팬)
-5. 컨트롤 및 범례
-
-**Deliverables**: 완전한 인터랙티브 마인드맵
-
----
-
-### Phase 5: 논문 상세 모달 (2-3일)
-
-**Tasks**:
-1. PaperDetailModal 구현
-2. PaperEquation (KaTeX) 구현
-3. 관련 논문 섹션
-4. 외부 링크
-
-**Deliverables**: 완전한 논문 상세 뷰
-
----
-
-### Phase 6: 개인 학습 관리 (2-3일)
-
-**Tasks**:
-1. FamiliaritySelector 구현
-2. NoteEditor (Markdown, 자동 저장)
-3. 즐겨찾기 기능
-4. 로컬 세션 관리
-
-**Deliverables**: 완전한 학습 관리 시스템
-
----
-
-### Phase 7: Import/Export (2-3일)
-
-**Tasks**:
-1. CSV/JSON Import
-2. JSON/Markdown/PDF Export
-3. 데이터 검증
-
-**Deliverables**: Import/Export 기능
-
----
-
-### Phase 8: 최적화 및 UX (2-3일)
-
-**Tasks**:
-1. 성능 최적화 (React.memo, useMemo)
-2. 로딩/에러 상태
-3. 애니메이션
-4. 접근성
-
-**Deliverables**: 부드러운 UX
-
----
-
-### Phase 9: 테스트 및 문서화 (2일)
-
-**Tasks**:
-1. 단위/E2E 테스트 (선택적)
-2. 문서 작성 (README, ARCHITECTURE 등)
-
-**Deliverables**: 프로젝트 문서
-
----
-
-### Phase 10: 배포 (1-2일)
-
-**Tasks**:
-1. Vercel 배포
-2. Supabase 프로덕션 설정
-3. 성능 모니터링
-
-**Deliverables**: 배포된 앱
+### Phase 10: 배포 (예정)
+- Vercel 배포
+- Supabase 프로덕션 설정
 
 ---
 
 ## 기술적 결정사항
 
-### 1. 상태 관리: Zustand (선택)
+### 1. Zustand (전역 상태)
+- 보일러플레이트 적음, SWR 조합 용이
 
-**이유**:
-- 전역 상태 복잡도 낮음
-- 보일러플레이트 적음
-- SWR과 조합 용이
+### 2. SWR (데이터 페칭)
+- Next.js 자연 통합, 캐싱/재검증 기본 제공
 
-**트레이드오프**:
-- Context API는 의존성 없지만 리렌더링 이슈
+### 3. Dagre + React Flow (그래프)
+- Dagre: 계층 구조, React Flow: 인터랙션
+- 사용자 전환 가능 (TB/LR 방향)
 
-### 2. 데이터 페칭: SWR (선택)
+### 4. 로그인 없음 (로컬 세션)
+- 개인용 앱, localStorage UUID
 
-**이유**:
-- Next.js와 자연스러운 통합
-- 캐싱, 재검증 기본 제공
-- Supabase Realtime 조합 가능
-
-### 3. 그래프 레이아웃: Dagre + Force-Directed
-
-**이유**:
-- Dagre: 계층적 구조에 적합
-- Force-Directed: 자연스러운 클러스터링
-- 사용자 전환 가능
-
-### 4. 인증: 로그인 없음 (로컬 세션)
-
-**이유**:
-- 개인용 앱
-- 로컬 스토리지 UUID 세션 ID
-- 향후 Supabase Auth 마이그레이션 용이
-
-### 5. 수식 렌더링: KaTeX
-
-**이유**:
-- 빠르고 가벼움
-- Next.js SSR 지원
-- 대부분 LaTeX 수식 지원
+### 5. KaTeX (수식)
+- 빠르고 가벼움, SSR 지원
 
 ---
 
 ## 핵심 파일
 
-개발 시 가장 중요한 5개 파일:
-
-1. **src/components/visualization/MindMap.tsx**
-   - React Flow 통합 중심점
-
-2. **src/hooks/useGraphData.ts**
-   - 데이터 → 노드/엣지 변환 핵심 로직
-
-3. **src/lib/supabase/papers.ts**
-   - 모든 논문 CRUD 기반
-
-4. **src/components/papers/PaperDetailModal.tsx**
-   - 주요 사용자 인터페이스
-
-5. **supabase/migrations/001_create_papers_table.sql**
-   - 데이터베이스 스키마 기초
+1. **src/components/visualization/MindMap.tsx** — 듀얼뷰 마인드맵 핵심
+2. **src/lib/papers/insights.ts** — 추천/스코어링 엔진
+3. **src/components/papers/PaperDetailModal.tsx** — 논문 상세 UX 중심
+4. **src/hooks/useGraphData.ts** — 데이터→그래프 변환
+5. **src/lib/supabase/papers.ts** — 모든 논문 CRUD
 
 ---
 
-## 다음 단계
+## UI/UX 개선 이력
 
-1. Phase 1부터 순차적 진행
-2. 각 Phase 완료 후 테스트
-3. 필요시 우선순위 조정
+### v2.0 (Codex, 2026-02-13~14)
+| 커밋 | 개선 내용 |
+|------|----------|
+| 8750380 | 마인드맵 듀얼뷰, 인사이트 엔진, DB 추천 시스템 |
+| 42586be | 브리지 추천 스코어링 가중치 튜닝 |
+| 8305661 | 모바일 레이아웃, 네비게이션, 콘텐츠 UX |
+| 2f25b21 | 관계 UX 단순화, 한국어 리마인드 강화 |
+| 89b57c1 | 리마인드 체크포인트, 맵 스코어링 설명 |
+| 5cef636 | 수식 미리보기 렌더링 (EquationPreviewCard) |
 
-**예상 총 개발 기간**: 3-4주
+### v2.1 (진행 중)
+- Toast 알림 시스템
+- 스켈레톤 로더
+- 키보드 단축키 시스템
+- 접근성/모바일 터치 개선
+- 빈 상태 가이던스
+- 애니메이션 폴리시
 
 ---
 

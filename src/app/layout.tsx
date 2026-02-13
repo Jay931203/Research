@@ -2,6 +2,7 @@ import type { Metadata } from 'next';
 import { JetBrains_Mono, Noto_Sans_KR } from 'next/font/google';
 import './globals.css';
 import ThemeProvider from '@/components/common/ThemeProvider';
+import ToastContainer from '@/components/common/Toast';
 
 const notoSansKr = Noto_Sans_KR({
   subsets: ['latin'],
@@ -27,7 +28,10 @@ export default function RootLayout({
   return (
     <html lang="ko" suppressHydrationWarning>
       <body className={`${notoSansKr.variable} ${jetbrainsMono.variable}`}>
-        <ThemeProvider>{children}</ThemeProvider>
+        <ThemeProvider>
+          {children}
+          <ToastContainer />
+        </ThemeProvider>
       </body>
     </html>
   );

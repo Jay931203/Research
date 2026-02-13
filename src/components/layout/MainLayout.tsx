@@ -3,6 +3,10 @@
 import { useState } from 'react';
 import Header from './Header';
 import Sidebar from './Sidebar';
+import ScrollToTop from '@/components/common/ScrollToTop';
+import CommandPalette from '@/components/common/CommandPalette';
+import KeyboardShortcutsHelp from '@/components/common/KeyboardShortcutsHelp';
+import { useKeyboardShortcuts } from '@/hooks/useKeyboardShortcuts';
 
 interface MainLayoutProps {
   children: React.ReactNode;
@@ -10,10 +14,17 @@ interface MainLayoutProps {
 
 export default function MainLayout({ children }: MainLayoutProps) {
   const [sidebarOpen, setSidebarOpen] = useState(true);
+  const {
+    isHelpOpen,
+    isCommandPaletteOpen,
+    closeHelp,
+    openCommandPalette,
+    closeCommandPalette,
+  } = useKeyboardShortcuts();
 
   return (
     <div className="min-h-screen bg-gray-50 dark:bg-gray-950">
-      <Header />
+      <Header onSearchClick={openCommandPalette} />
       <Sidebar isOpen={sidebarOpen} onToggle={() => setSidebarOpen((prev) => !prev)} />
 
       <main
@@ -25,6 +36,9 @@ export default function MainLayout({ children }: MainLayoutProps) {
           {children}
         </div>
       </main>
+      <ScrollToTop />
+      <CommandPalette isOpen={isCommandPaletteOpen} onClose={closeCommandPalette} />
+      <KeyboardShortcutsHelp isOpen={isHelpOpen} onClose={closeHelp} />
     </div>
   );
 }

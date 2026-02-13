@@ -10,7 +10,7 @@ const cards = [
   },
   {
     href: '/import',
-    title: '데이터 Import',
+    title: '데이터 가져오기',
     description: '논문/관계 데이터를 안전하게 병합하고 상태를 확인합니다.',
     icon: <Database className="h-6 w-6 text-emerald-600" />,
   },

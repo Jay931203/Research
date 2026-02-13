@@ -95,13 +95,13 @@ export default function Sidebar({ isOpen, onToggle }: SidebarProps) {
 
       <button
         onClick={onToggle}
-        className={`fixed top-[74px] z-50 rounded-r-md border bg-white p-2 shadow-md transition-all hover:bg-gray-50 dark:border-gray-700 dark:bg-gray-900 dark:hover:bg-gray-800 ${
+        className={`fixed top-[74px] z-50 rounded-r-md border bg-white p-3 shadow-md transition-all hover:bg-gray-50 dark:border-gray-700 dark:bg-gray-900 dark:hover:bg-gray-800 ${
           isOpen ? 'left-80 hidden lg:block' : 'left-0'
         }`}
         title={isOpen ? '사이드바 닫기' : '사이드바 열기'}
         aria-label={isOpen ? '사이드바 닫기' : '사이드바 열기'}
       >
-        {isOpen ? <ChevronLeft className="h-4 w-4" /> : <ChevronRight className="h-4 w-4" />}
+        {isOpen ? <ChevronLeft className="h-5 w-5" /> : <ChevronRight className="h-5 w-5" />}
       </button>
 
       <PaperFormModal

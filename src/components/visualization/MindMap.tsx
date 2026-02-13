@@ -111,8 +111,8 @@ function matchesSearch(paper: PaperWithNote, rawQuery: string): boolean {
 }
 
 function MindMapInner({ papers, relationships, onNodeClick }: MindMapProps) {
-  const [surfaceMode, setSurfaceMode] = useState<SurfaceMode>('list');
-  const [viewMode, setViewMode] = useState<GraphViewMode>('focus');
+  const [surfaceMode, setSurfaceMode] = useState<SurfaceMode>('graph');
+  const [viewMode, setViewMode] = useState<GraphViewMode>('overview');
   const [direction, setDirection] = useState<'TB' | 'LR'>('TB');
   const [layerMode, setLayerMode] = useState<LayerMode>('year');
   const [focusDepth, setFocusDepth] = useState<1 | 2>(1);
@@ -121,7 +121,7 @@ function MindMapInner({ papers, relationships, onNodeClick }: MindMapProps) {
     useState<RelationshipType[]>(CORE_REL_TYPES);
   const [minStrength, setMinStrength] = useState(4);
   const [zoomLevel, setZoomLevel] = useState(1);
-  const [isPanelOpen, setIsPanelOpen] = useState(true);
+  const [isPanelOpen, setIsPanelOpen] = useState(false);
   const [searchText, setSearchText] = useState('');
 
   const sortedPapers = useMemo(() => {
@@ -444,8 +444,8 @@ function MindMapInner({ papers, relationships, onNodeClick }: MindMapProps) {
                 onChange={(event) => setViewMode(event.target.value as GraphViewMode)}
                 className="input-base !py-2 !text-xs"
               >
-                <option value="focus">포커스</option>
-                <option value="overview">전체</option>
+                <option value="focus">초점 모드</option>
+                <option value="overview">전체 보기</option>
                 <option value="timeline">타임라인</option>
               </select>
               <select

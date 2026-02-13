@@ -2,9 +2,12 @@
 
 import dynamic from 'next/dynamic';
 import { useCallback, useEffect, useMemo, useState } from 'react';
-import { BookOpen, Link2, Maximize2, Minimize2, Star } from 'lucide-react';
+import { BookOpen, CheckCircle, Link2, Maximize2, Minimize2, Plus, Star } from 'lucide-react';
+import Link from 'next/link';
 import MainLayout from '@/components/layout/MainLayout';
 import ErrorBoundary from '@/components/common/ErrorBoundary';
+import { SkeletonCard, SkeletonBlock, SkeletonText } from '@/components/common/Skeleton';
+import EquationPreviewCard from '@/components/papers/EquationPreviewCard';
 import { usePapersWithNotes } from '@/hooks/useNotes';
 import { useRelationships } from '@/hooks/useRelationships';
 import {
@@ -120,10 +123,26 @@ export default function DashboardPage() {
   if (papersLoading || relationshipsLoading) {
     return (
       <MainLayout>
-        <div className="flex min-h-[60vh] items-center justify-center">
-          <div className="text-center">
-            <div className="mx-auto mb-4 h-12 w-12 animate-spin rounded-full border-4 border-blue-500 border-t-transparent" />
-            <p className="text-gray-600 dark:text-gray-400">데이터 로드 중...</p>
+        <div className="space-y-6">
+          <div className="grid grid-cols-2 gap-3 md:grid-cols-5">
+            {Array.from({ length: 5 }).map((_, i) => (
+              <SkeletonCard key={i} />
+            ))}
+          </div>
+          <SkeletonBlock className="h-[560px]" />
+          <div className="grid grid-cols-1 gap-4 xl:grid-cols-3">
+            <div className="space-y-3 rounded-lg bg-white p-4 shadow xl:col-span-2 dark:bg-gray-800">
+              <SkeletonText width="w-24" />
+              <SkeletonText />
+              <SkeletonText width="w-3/4" />
+              <SkeletonBlock className="h-20" />
+            </div>
+            <div className="space-y-3 rounded-lg bg-white p-4 shadow dark:bg-gray-800">
+              <SkeletonText width="w-20" />
+              {Array.from({ length: 4 }).map((_, i) => (
+                <SkeletonBlock key={i} className="h-12" />
+              ))}
+            </div>
           </div>
         </div>
       </MainLayout>
@@ -136,8 +155,12 @@ export default function DashboardPage() {
         {!isMapFullscreen && (
           <div className="space-y-6">
             <div className="grid grid-cols-2 gap-3 md:grid-cols-5">
-              {stats.map((stat) => (
-                <div key={stat.key} className="rounded-lg bg-white p-4 shadow dark:bg-gray-800">
+              {stats.map((stat, index) => (
+                <div
+                  key={stat.key}
+                  className="animate-slide-up rounded-lg bg-white p-4 shadow dark:bg-gray-800"
+                  style={{ animationDelay: `${index * 50}ms` }}
+                >
                   <div className="flex items-center gap-3">
                     <div className={`rounded-lg p-2.5 ${stat.iconBg}`}>{stat.icon}</div>
                     <div>
@@ -148,6 +171,28 @@ export default function DashboardPage() {
                 </div>
               ))}
             </div>
+
+            {papers.length === 0 && (
+              <div className="animate-fade-in rounded-lg bg-white p-8 text-center shadow dark:bg-gray-800">
+                <BookOpen className="mx-auto mb-4 h-12 w-12 text-gray-300 dark:text-gray-600" />
+                <h3 className="text-base font-bold text-gray-800 dark:text-gray-100">
+                  아직 등록된 논문이 없습니다
+                </h3>
+                <p className="mt-2 text-sm text-gray-500 dark:text-gray-400">
+                  논문을 추가하면 관계 맵과 복습 큐가 자동으로 구성됩니다.
+                </p>
+                <Link
+                  href="/import"
+                  className="mt-4 inline-flex items-center gap-2 rounded-lg bg-blue-600 px-4 py-2 text-sm font-semibold text-white transition hover:bg-blue-700"
+                >
+                  <Plus className="h-4 w-4" />
+                  논문 가져오기
+                </Link>
+                <p className="mt-3 text-xs text-gray-400 dark:text-gray-500">
+                  또는 사이드바에서 직접 추가할 수 있습니다
+                </p>
+              </div>
+            )}
 
             <div className="overflow-hidden rounded-lg bg-white shadow-lg dark:bg-gray-800">
               <div className="flex items-center justify-between gap-4 border-b border-gray-200 px-4 py-3 dark:border-gray-700">
@@ -185,9 +230,15 @@ export default function DashboardPage() {
                 </div>
 
                 {!selectedPaper || !selectedSnapshot ? (
-                  <p className="text-sm text-gray-500 dark:text-gray-400">
-                    맵에서 논문을 선택하면 핵심 리마인드 카드가 표시됩니다.
-                  </p>
+                  <div className="flex flex-col items-center justify-center py-8 text-center">
+                    <BookOpen className="mb-3 h-8 w-8 text-gray-300 dark:text-gray-600" />
+                    <p className="text-sm font-medium text-gray-500 dark:text-gray-400">
+                      맵에서 논문을 선택하면 핵심 리마인드 카드가 표시됩니다.
+                    </p>
+                    <p className="mt-1 text-xs text-gray-400 dark:text-gray-500">
+                      노드를 클릭해 논문 정보를 확인하세요
+                    </p>
+                  </div>
                 ) : (
                   <div className="space-y-3">
                     <div>
@@ -245,17 +296,7 @@ export default function DashboardPage() {
                         </p>
                         <div className="grid gap-2 md:grid-cols-2">
                           {selectedSnapshot.equationPreviews.slice(0, 2).map((equation) => (
-                            <div
-                              key={equation.name}
-                              className="rounded-md border border-gray-200 bg-gray-50 p-2 dark:border-gray-700 dark:bg-gray-900"
-                            >
-                              <p className="line-clamp-1 text-xs font-semibold text-gray-700 dark:text-gray-200">
-                                {equation.name}
-                              </p>
-                              <code className="line-clamp-2 block text-[11px] text-gray-600 dark:text-gray-300">
-                                {equation.latex}
-                              </code>
-                            </div>
+                            <EquationPreviewCard key={equation.name} equation={equation} />
                           ))}
                         </div>
                       </div>
@@ -297,23 +338,36 @@ export default function DashboardPage() {
 
               <div className="rounded-lg bg-white p-4 shadow dark:bg-gray-800">
                 <h3 className="mb-3 text-sm font-bold text-gray-800 dark:text-gray-100">복습 큐</h3>
-                <div className="space-y-2">
-                  {reviewQueue.map((paper) => (
-                    <button
-                      key={paper.id}
-                      onClick={() => openPaperDetail(paper.id)}
-                      className="w-full rounded-md border border-gray-200 px-2.5 py-2 text-left hover:bg-gray-50 dark:border-gray-700 dark:hover:bg-gray-700"
-                    >
-                      <p className="line-clamp-1 text-sm font-medium text-gray-800 dark:text-gray-200">
-                        {paper.title}
-                      </p>
-                      <p className="text-[11px] text-gray-500 dark:text-gray-400">
-                        {paper.year} · {FAMILIARITY_LABELS[paper.familiarity_level ?? 'not_started']}
-                        {paper.importance_rating ? ` · 중요도 ${paper.importance_rating}` : ''}
-                      </p>
-                    </button>
-                  ))}
-                </div>
+                {reviewQueue.length === 0 ? (
+                  <div className="flex flex-col items-center justify-center py-8 text-center">
+                    <CheckCircle className="mb-3 h-8 w-8 text-emerald-400 dark:text-emerald-500" />
+                    <p className="text-sm font-medium text-gray-600 dark:text-gray-300">
+                      모든 논문을 복습했습니다!
+                    </p>
+                    <p className="mt-1 text-xs text-gray-400 dark:text-gray-500">
+                      잘 하고 있어요. 새 논문을 추가해 보세요.
+                    </p>
+                  </div>
+                ) : (
+                  <div className="space-y-2">
+                    {reviewQueue.map((paper, index) => (
+                      <button
+                        key={paper.id}
+                        onClick={() => openPaperDetail(paper.id)}
+                        className="animate-slide-up w-full rounded-md border border-gray-200 px-2.5 py-2 text-left hover:bg-gray-50 dark:border-gray-700 dark:hover:bg-gray-700"
+                        style={{ animationDelay: `${index * 50}ms` }}
+                      >
+                        <p className="line-clamp-1 text-sm font-medium text-gray-800 dark:text-gray-200">
+                          {paper.title}
+                        </p>
+                        <p className="text-[11px] text-gray-500 dark:text-gray-400">
+                          {paper.year} · {FAMILIARITY_LABELS[paper.familiarity_level ?? 'not_started']}
+                          {paper.importance_rating ? ` · 중요도 ${paper.importance_rating}` : ''}
+                        </p>
+                      </button>
+                    ))}
+                  </div>
+                )}
               </div>
             </div>
 

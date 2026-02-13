@@ -1,6 +1,6 @@
 'use client';
 
-import { useCallback, useEffect, useMemo } from 'react';
+import { useCallback, useEffect, useMemo, useRef, useState } from 'react';
 import {
   BookOpen,
   ChevronRight,
@@ -43,11 +43,22 @@ export default function PaperDetailModal({
   onPaperSelect,
   onDataChange,
 }: PaperDetailModalProps) {
+  const [isClosing, setIsClosing] = useState(false);
+  const closingTimer = useRef<ReturnType<typeof setTimeout>>();
+
+  const handleClose = useCallback(() => {
+    setIsClosing(true);
+    closingTimer.current = setTimeout(() => {
+      setIsClosing(false);
+      onClose();
+    }, 200);
+  }, [onClose]);
+
   const handleEscape = useCallback(
     (event: KeyboardEvent) => {
-      if (event.key === 'Escape') onClose();
+      if (event.key === 'Escape') handleClose();
     },
-    [onClose]
+    [handleClose]
   );
 
   useEffect(() => {
@@ -59,6 +70,7 @@ export default function PaperDetailModal({
     return () => {
       document.removeEventListener('keydown', handleEscape);
       document.body.style.overflow = '';
+      if (closingTimer.current) clearTimeout(closingTimer.current);
     };
   }, [isOpen, handleEscape]);
 
@@ -91,9 +103,9 @@ export default function PaperDetailModal({
 
   return (
     <>
-      <div className="fixed inset-0 z-50 bg-black/45 backdrop-blur-sm" onClick={onClose} />
+      <div className="fixed inset-0 z-50 bg-black/45 backdrop-blur-sm" onClick={handleClose} />
 
-      <div className="fixed right-0 top-0 z-50 h-full w-full max-w-3xl animate-slide-in-right overflow-hidden bg-white shadow-2xl dark:bg-gray-900">
+      <div className={`fixed right-0 top-0 z-50 h-full w-full max-w-3xl overflow-hidden bg-white shadow-2xl dark:bg-gray-900 ${isClosing ? 'animate-slide-out-right' : 'animate-slide-in-right'}`}>
         <div
           className="sticky top-0 z-10 border-b border-gray-200 px-6 py-4 dark:border-gray-700"
           style={{ backgroundColor: `${paper.color_hex}10` }}
@@ -121,7 +133,7 @@ export default function PaperDetailModal({
               </p>
             </div>
             <button
-              onClick={onClose}
+              onClick={handleClose}
               className="rounded-lg p-2 transition hover:bg-gray-200 dark:hover:bg-gray-700"
               aria-label="닫기"
             >

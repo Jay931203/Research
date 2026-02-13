@@ -1,9 +1,10 @@
 'use client';
 
 import { useCallback, useEffect, useRef, useState } from 'react';
-import { Save, Star, Tag, X } from 'lucide-react';
+import { Star, Tag, X } from 'lucide-react';
 import type { FamiliarityLevel } from '@/types';
 import { upsertNote } from '@/lib/supabase/notes';
+import { useToastStore } from '@/store/useToastStore';
 import FamiliaritySelector from './FamiliaritySelector';
 
 interface NoteEditorProps {
@@ -16,7 +17,7 @@ interface NoteEditorProps {
   onSave?: () => void;
 }
 
-type SaveStatus = 'idle' | 'saving' | 'saved' | 'modified';
+type SaveStatus = 'idle' | 'saving' | 'saved' | 'error' | 'modified';
 
 export default function NoteEditor({
   paperId,
@@ -35,6 +36,7 @@ export default function NoteEditor({
   const [tagInput, setTagInput] = useState('');
   const [saveStatus, setSaveStatus] = useState<SaveStatus>('idle');
   const debounceRef = useRef<ReturnType<typeof setTimeout> | null>(null);
+  const addToast = useToastStore((s) => s.addToast);
 
   useEffect(() => {
     setContent(initialContent);
@@ -67,14 +69,16 @@ export default function NoteEditor({
         });
 
         setSaveStatus('saved');
+        addToast('success', '노트 저장 완료');
         onSave?.();
         setTimeout(() => setSaveStatus('idle'), 1800);
       } catch (error) {
         console.error('Note save error:', error);
-        setSaveStatus('modified');
+        setSaveStatus('error');
+        addToast('error', '저장 실패, 재시도합니다');
       }
     },
-    [paperId, content, familiarity, isFavorite, importance, personalTags, onSave]
+    [paperId, content, familiarity, isFavorite, importance, personalTags, onSave, addToast]
   );
 
   const autoSave = useCallback(
@@ -123,20 +127,6 @@ export default function NoteEditor({
     void doSave({ personal_tags: next });
   };
 
-  const statusText: Record<SaveStatus, string> = {
-    idle: '',
-    saving: '저장 중...',
-    saved: '저장 완료',
-    modified: '수정됨',
-  };
-
-  const statusClass: Record<SaveStatus, string> = {
-    idle: '',
-    saving: 'text-amber-500',
-    saved: 'text-emerald-500',
-    modified: 'text-orange-500',
-  };
-
   return (
     <div className="space-y-4">
       <div>
@@ -180,17 +170,9 @@ export default function NoteEditor({
       </div>
 
       <div>
-        <div className="mb-2 flex items-center justify-between">
-          <label className="text-xs font-semibold text-gray-600 dark:text-gray-400">
-            개인 노트
-          </label>
-          {saveStatus !== 'idle' && (
-            <span className={`text-xs ${statusClass[saveStatus]}`}>
-              {saveStatus === 'saving' && <Save className="mr-1 inline h-3 w-3 animate-spin" />}
-              {statusText[saveStatus]}
-            </span>
-          )}
-        </div>
+        <label className="mb-2 block text-xs font-semibold text-gray-600 dark:text-gray-400">
+          개인 노트
+        </label>
         <textarea
           value={content}
           onChange={(event) => handleContentChange(event.target.value)}

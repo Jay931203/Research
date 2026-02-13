@@ -2,6 +2,7 @@
 
 import { useEffect, useRef, useState } from 'react';
 import Link from 'next/link';
+import { usePathname } from 'next/navigation';
 import {
   BookOpen,
   Download,
@@ -11,6 +12,7 @@ import {
   Menu,
   Monitor,
   Moon,
+  Search,
   Sun,
   X,
 } from 'lucide-react';
@@ -21,10 +23,15 @@ import { useThemeStore } from '@/hooks/useDarkMode';
 
 const REPO_URL = 'https://github.com/Jay931203/Research';
 
-export default function Header() {
+interface HeaderProps {
+  onSearchClick?: () => void;
+}
+
+export default function Header({ onSearchClick }: HeaderProps = {}) {
   const [showExportMenu, setShowExportMenu] = useState(false);
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
   const exportRef = useRef<HTMLDivElement>(null);
+  const pathname = usePathname();
 
   const { papers } = usePapersWithNotes();
   const { relationships } = useRelationships();
@@ -62,9 +69,23 @@ export default function Header() {
         </button>
 
         <nav className="hidden items-center gap-2 md:flex">
-          <HeaderLink href="/dashboard">Dashboard</HeaderLink>
-          <HeaderLink href="/import">Import</HeaderLink>
-          <HeaderLink href="/test">System Check</HeaderLink>
+          <HeaderLink href="/dashboard" active={pathname === '/dashboard'}>대시보드</HeaderLink>
+          <HeaderLink href="/import" active={pathname === '/import'}>데이터 가져오기</HeaderLink>
+          <HeaderLink href="/test" active={pathname === '/test'}>시스템 점검</HeaderLink>
+
+          {onSearchClick && (
+            <button
+              onClick={onSearchClick}
+              className="inline-flex items-center gap-2 rounded-md border border-gray-200 px-3 py-1.5 text-sm text-gray-500 transition hover:border-gray-300 hover:bg-gray-50 dark:border-gray-700 dark:text-gray-400 dark:hover:border-gray-600 dark:hover:bg-gray-800"
+              aria-label="논문 검색"
+            >
+              <Search className="h-3.5 w-3.5" />
+              <span className="hidden text-xs lg:inline">검색</span>
+              <kbd className="rounded border border-gray-300 bg-gray-100 px-1.5 py-0.5 text-[10px] font-semibold dark:border-gray-600 dark:bg-gray-700">
+                Ctrl+K
+              </kbd>
+            </button>
+          )}
 
           <div className="relative" ref={exportRef}>
             <button
@@ -72,7 +93,7 @@ export default function Header() {
               className="inline-flex items-center gap-1 rounded-md px-3 py-2 text-sm font-medium text-gray-700 transition hover:bg-gray-100 dark:text-gray-200 dark:hover:bg-gray-800"
             >
               <Download className="h-4 w-4" />
-              Export
+              내보내기
             </button>
             {showExportMenu && (
               <div className="absolute right-0 z-50 mt-1 w-48 rounded-lg border border-gray-200 bg-white py-1 shadow-lg dark:border-gray-700 dark:bg-gray-800">
@@ -118,14 +139,14 @@ export default function Header() {
       {mobileMenuOpen && (
         <div className="border-t border-gray-200 bg-white px-3 py-2 dark:border-gray-700 dark:bg-gray-900 md:hidden">
           <div className="flex flex-col gap-1">
-            <MobileHeaderLink href="/dashboard" onClick={() => setMobileMenuOpen(false)}>
-              Dashboard
+            <MobileHeaderLink href="/dashboard" onClick={() => setMobileMenuOpen(false)} active={pathname === '/dashboard'}>
+              대시보드
             </MobileHeaderLink>
-            <MobileHeaderLink href="/import" onClick={() => setMobileMenuOpen(false)}>
-              Import
+            <MobileHeaderLink href="/import" onClick={() => setMobileMenuOpen(false)} active={pathname === '/import'}>
+              데이터 가져오기
             </MobileHeaderLink>
-            <MobileHeaderLink href="/test" onClick={() => setMobileMenuOpen(false)}>
-              System Check
+            <MobileHeaderLink href="/test" onClick={() => setMobileMenuOpen(false)} active={pathname === '/test'}>
+              시스템 점검
             </MobileHeaderLink>
             <a
               href={REPO_URL}
@@ -133,7 +154,7 @@ export default function Header() {
               rel="noopener noreferrer"
               className="rounded-md px-3 py-2 text-sm font-medium text-gray-700 transition hover:bg-gray-100 dark:text-gray-200 dark:hover:bg-gray-800"
             >
-              GitHub Repository
+              GitHub 저장소
             </a>
           </div>
         </div>
@@ -142,11 +163,16 @@ export default function Header() {
   );
 }
 
-function HeaderLink({ href, children }: { href: string; children: React.ReactNode }) {
+function HeaderLink({ href, children, active }: { href: string; children: React.ReactNode; active?: boolean }) {
   return (
     <Link
       href={href}
-      className="rounded-md px-3 py-2 text-sm font-medium text-gray-700 transition hover:bg-gray-100 dark:text-gray-200 dark:hover:bg-gray-800"
+      aria-current={active ? 'page' : undefined}
+      className={`rounded-md px-3 py-2 text-sm font-medium transition ${
+        active
+          ? 'bg-blue-50 font-bold text-blue-700 dark:bg-blue-900/20 dark:text-blue-300'
+          : 'text-gray-700 hover:bg-gray-100 dark:text-gray-200 dark:hover:bg-gray-800'
+      }`}
     >
       {children}
     </Link>
@@ -157,16 +183,23 @@ function MobileHeaderLink({
   href,
   children,
   onClick,
+  active,
 }: {
   href: string;
   children: React.ReactNode;
   onClick: () => void;
+  active?: boolean;
 }) {
   return (
     <Link
       href={href}
       onClick={onClick}
-      className="rounded-md px-3 py-2 text-sm font-medium text-gray-700 transition hover:bg-gray-100 dark:text-gray-200 dark:hover:bg-gray-800"
+      aria-current={active ? 'page' : undefined}
+      className={`rounded-md px-3 py-2 text-sm font-medium transition ${
+        active
+          ? 'bg-blue-50 font-bold text-blue-700 dark:bg-blue-900/20 dark:text-blue-300'
+          : 'text-gray-700 hover:bg-gray-100 dark:text-gray-200 dark:hover:bg-gray-800'
+      }`}
     >
       {children}
     </Link>
