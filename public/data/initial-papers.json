@@ -2,245 +2,316 @@
   "papers": [
     {
       "title": "Deep Learning for Massive MIMO CSI Feedback",
-      "authors": ["Chao-Kai Wen", "Wan-Ting Shih", "Shi Jin"],
+      "authors": [
+        "Chao-Kai Wen",
+        "Wan-Ting Shih",
+        "Shi Jin"
+      ],
       "year": 2018,
       "venue": "IEEE Wireless Communications Letters",
       "doi": "10.1109/LWC.2018.2818160",
       "arxiv_id": "1712.08919",
-      "abstract": "This paper proposes CsiNet, the first deep learning approach for CSI feedback in massive MIMO FDD systems. CsiNet uses an encoder-decoder architecture to compress and recover CSI matrices in the angular-delay domain, significantly outperforming traditional compressive sensing methods at various compression ratios (1/4, 1/8, 1/16, 1/32, 1/64).",
+      "abstract": "본 논문은 Massive MIMO FDD 시스템에서 CSI 피드백을 위한 최초의 딥러닝 접근법인 CsiNet을 제안한다. CsiNet은 인코더-디코더 구조를 사용하여 각도-지연 도메인에서 CSI 행렬을 압축 및 복원하며, 다양한 압축비(1/4, 1/8, 1/16, 1/32, 1/64)에서 기존 압축 센싱 기법을 크게 상회하는 성능을 보인다.",
       "key_contributions": [
-        "First deep learning framework (CsiNet) for CSI feedback in massive MIMO",
-        "Encoder-decoder architecture operating on angular-delay domain CSI matrices",
-        "Demonstrated superiority over compressive sensing baselines (LASSO, TVAL3, BM3D-AMP) across compression ratios"
+        "Massive MIMO CSI 피드백을 위한 최초의 딥러닝 프레임워크(CsiNet) 제안",
+        "각도-지연 도메인 CSI 행렬에 대해 동작하는 인코더-디코더 구조 설계",
+        "다양한 압축비에서 압축 센싱 기반 기법(LASSO, TVAL3, BM3D-AMP) 대비 우수한 성능 입증"
       ],
       "algorithms": [
-        "CsiNet Encoder (Conv2D + FC)",
-        "CsiNet Decoder (FC + RefineNet blocks)",
-        "RefineNet residual learning block"
+        "CsiNet 인코더 (Conv2D + FC)",
+        "CsiNet 디코더 (FC + RefineNet 블록)",
+        "RefineNet 잔차 학습 블록"
       ],
       "key_equations": [
         {
           "name": "CSI Compression",
           "latex": "\\mathbf{s} = f_{\\text{enc}}(\\mathbf{H}_a) \\in \\mathbb{R}^M, \\quad M = \\lfloor N_t \\cdot N_c / \\gamma \\rfloor",
-          "description": "Encoder compresses angular-delay domain CSI matrix H_a into codeword s with compression ratio gamma"
+          "description": "인코더가 각도-지연 도메인 CSI 행렬 H_a를 압축비 gamma에 따라 코드워드 s로 압축"
         },
         {
           "name": "NMSE Loss",
           "latex": "\\text{NMSE} = \\mathbb{E}\\left\\{\\frac{\\|\\mathbf{H}_a - \\hat{\\mathbf{H}}_a\\|_2^2}{\\|\\mathbf{H}_a\\|_2^2}\\right\\}",
-          "description": "Normalized mean squared error between original and reconstructed CSI"
+          "description": "원본 CSI와 복원된 CSI 간의 정규화 평균 제곱 오차"
         },
         {
           "name": "Compression Ratio",
           "latex": "\\gamma = \\frac{N_t \\times N_c}{M}",
-          "description": "Ratio of original CSI dimension to compressed codeword dimension"
+          "description": "원본 CSI 차원 대비 압축된 코드워드 차원의 비율"
         }
       ],
       "category": "autoencoder",
-      "tags": ["csinet", "autoencoder", "csi-feedback", "massive-mimo", "fdd", "deep-learning", "foundational"],
+      "tags": [
+        "csinet",
+        "autoencoder",
+        "csi-feedback",
+        "massive-mimo",
+        "fdd",
+        "deep-learning",
+        "foundational"
+      ],
       "pdf_url": "https://arxiv.org/pdf/1712.08919",
       "code_url": "https://github.com/sydney222/Python_CsiNet",
       "color_hex": "#2563EB"
     },
     {
       "title": "CsiNet-LSTM: A Deep Learning Architecture for Compressive CSI Estimation and Feedback in FDD Massive MIMO",
-      "authors": ["Chao-Kai Wen", "Wan-Ting Shih", "Shi Jin"],
+      "authors": [
+        "Chao-Kai Wen",
+        "Wan-Ting Shih",
+        "Shi Jin"
+      ],
       "year": 2020,
       "venue": "IEEE Transactions on Wireless Communications",
       "doi": "10.1109/TWC.2020.3006080",
       "arxiv_id": "1905.10761",
-      "abstract": "This paper extends CsiNet by incorporating LSTM layers to exploit temporal correlation of time-varying CSI. CsiNet-LSTM uses recurrent architecture to compress a sequence of CSI matrices over time, significantly reducing feedback overhead by leveraging inter-frame redundancy in CSI time series.",
+      "abstract": "본 논문은 시변 CSI의 시간적 상관관계를 활용하기 위해 LSTM 레이어를 통합하여 CsiNet을 확장한다. CsiNet-LSTM은 순환 구조를 사용하여 시간에 따른 CSI 행렬 시퀀스를 압축하며, CSI 시계열의 프레임 간 중복성을 활용하여 피드백 오버헤드를 크게 줄인다.",
       "key_contributions": [
-        "Exploiting temporal correlation of CSI via LSTM for feedback reduction",
-        "Proposed CsiNet-LSTM combining CNN encoder with LSTM-based temporal processing",
-        "Demonstrated significant NMSE improvement over per-frame CsiNet by leveraging CSI temporal structure"
+        "LSTM을 통한 CSI 시간적 상관관계 활용으로 피드백 감소",
+        "CNN 인코더와 LSTM 기반 시간 처리를 결합한 CsiNet-LSTM 제안",
+        "CSI 시간 구조를 활용하여 프레임 단위 CsiNet 대비 상당한 NMSE 개선 달성"
       ],
       "algorithms": [
-        "CsiNet-LSTM Encoder (Conv + LSTM)",
-        "CsiNet-LSTM Decoder (LSTM + Deconv)",
-        "Temporal CSI compression pipeline"
+        "CsiNet-LSTM 인코더 (Conv + LSTM)",
+        "CsiNet-LSTM 디코더 (LSTM + Deconv)",
+        "시간적 CSI 압축 파이프라인"
       ],
       "key_equations": [
         {
           "name": "Temporal CSI Feedback",
           "latex": "\\mathbf{s}_t = f_{\\text{enc}}(\\mathbf{H}_{a,t}, \\mathbf{h}_{t-1})",
-          "description": "Encoder compresses current CSI using hidden state from previous time step"
+          "description": "인코더가 이전 시간 단계의 은닉 상태를 사용하여 현재 CSI를 압축"
         },
         {
           "name": "LSTM Hidden State Update",
           "latex": "\\mathbf{h}_t = \\text{LSTM}(\\mathbf{s}_t, \\mathbf{h}_{t-1})",
-          "description": "LSTM updates hidden state using current compressed codeword"
+          "description": "LSTM이 현재 압축된 코드워드를 사용하여 은닉 상태를 갱신"
         }
       ],
       "category": "autoencoder",
-      "tags": ["csinet-lstm", "temporal", "recurrent", "lstm", "csi-feedback", "massive-mimo"],
+      "tags": [
+        "csinet-lstm",
+        "temporal",
+        "recurrent",
+        "lstm",
+        "csi-feedback",
+        "massive-mimo"
+      ],
       "pdf_url": "https://arxiv.org/pdf/1905.10761",
       "code_url": null,
       "color_hex": "#3B82F6"
     },
     {
       "title": "CRNet: A Deep-Learning Framework for CSI Feedback in Massive MIMO",
-      "authors": ["Zhilin Lu", "Jintao Wang", "Jian Song"],
+      "authors": [
+        "Zhilin Lu",
+        "Jintao Wang",
+        "Jian Song"
+      ],
       "year": 2020,
       "venue": "IEEE Transactions on Wireless Communications",
       "doi": "10.1109/TWC.2019.2951138",
       "arxiv_id": "1911.07560",
-      "abstract": "CRNet proposes a multi-resolution architecture for CSI feedback that uses parallel convolution branches with different kernel sizes to capture features at multiple scales. It introduces a CRBlock with channel-wise attention that adaptively weights features from different resolution paths, achieving improved reconstruction accuracy with moderate computational cost.",
+      "abstract": "CRNet은 서로 다른 커널 크기의 병렬 합성곱 분기를 사용하여 다중 스케일에서 특징을 추출하는 다중 해상도 구조를 CSI 피드백에 제안한다. 서로 다른 해상도 경로의 특징을 적응적으로 가중하는 채널 주의(attention) 메커니즘을 갖춘 CRBlock을 도입하여, 적절한 계산 비용으로 향상된 복원 정확도를 달성한다.",
       "key_contributions": [
-        "Multi-resolution CRBlock with parallel convolution branches for multi-scale CSI feature extraction",
-        "Channel-wise attention mechanism (Squeeze-and-Excitation style) for adaptive feature recalibration",
-        "Improved NMSE over CsiNet while maintaining reasonable computational complexity"
+        "다중 스케일 CSI 특징 추출을 위한 병렬 합성곱 분기 기반 다중 해상도 CRBlock 설계",
+        "적응적 특징 재보정을 위한 채널 주의 메커니즘 (Squeeze-and-Excitation 방식) 도입",
+        "합리적인 계산 복잡도를 유지하면서 CsiNet 대비 향상된 NMSE 달성"
       ],
       "algorithms": [
-        "CRNet Encoder",
-        "CRNet Decoder with CRBlocks",
-        "Multi-Resolution Feature Extraction",
-        "Channel Attention Recalibration"
+        "CRNet 인코더",
+        "CRBlock 기반 CRNet 디코더",
+        "다중 해상도 특징 추출",
+        "채널 주의 재보정"
       ],
       "key_equations": [
         {
           "name": "Multi-Resolution Feature Aggregation",
           "latex": "\\mathbf{F}_{\\text{out}} = \\sum_{i=1}^{K} \\alpha_i \\cdot \\text{Conv}_{k_i}(\\mathbf{F}_{\\text{in}})",
-          "description": "Aggregation of parallel convolution outputs with different kernel sizes k_i, weighted by attention alpha_i"
+          "description": "서로 다른 커널 크기 k_i의 병렬 합성곱 출력을 주의 가중치 alpha_i로 결합"
         },
         {
           "name": "Channel Attention (SE Block)",
           "latex": "\\mathbf{\\alpha} = \\sigma(\\mathbf{W}_2 \\cdot \\delta(\\mathbf{W}_1 \\cdot \\text{GAP}(\\mathbf{F})))",
-          "description": "Squeeze-and-Excitation style channel attention with global average pooling, FC layers, and sigmoid activation"
+          "description": "전역 평균 풀링, FC 레이어, 시그모이드 활성화를 사용한 Squeeze-and-Excitation 방식 채널 주의"
         }
       ],
       "category": "cnn",
-      "tags": ["crnet", "multi-resolution", "channel-attention", "csi-feedback", "massive-mimo"],
+      "tags": [
+        "crnet",
+        "multi-resolution",
+        "channel-attention",
+        "csi-feedback",
+        "massive-mimo"
+      ],
       "pdf_url": "https://arxiv.org/pdf/1911.07560",
       "code_url": "https://github.com/Kylin9511/CRNet",
       "color_hex": "#059669"
     },
     {
       "title": "Lightweight and Effective CSI Feedback for Massive MIMO Systems",
-      "authors": ["Zhilin Lu", "Jintao Wang", "Jian Song"],
+      "authors": [
+        "Zhilin Lu",
+        "Jintao Wang",
+        "Jian Song"
+      ],
       "year": 2022,
       "venue": "IEEE Transactions on Wireless Communications",
       "doi": "10.1109/TWC.2021.3130271",
       "arxiv_id": "2005.00445",
-      "abstract": "CLNet proposes a lightweight CSI feedback network that significantly reduces computational complexity while maintaining competitive reconstruction accuracy. It introduces a combination of depthwise separable convolutions and an efficient attention mechanism to compress the decoder. A novel complex-valued network path and AnciNet (ancillary network) module are also introduced.",
+      "abstract": "CLNet은 경량 CSI 피드백 네트워크를 제안하여 경쟁력 있는 복원 정확도를 유지하면서 계산 복잡도를 크게 줄인다. 깊이별 분리 합성곱과 효율적인 주의 메커니즘의 조합을 도입하여 디코더를 경량화하며, 새로운 복소수 네트워크 경로와 AnciNet(보조 네트워크) 모듈도 제안한다.",
       "key_contributions": [
-        "Significantly lighter network architecture with reduced FLOPs and parameters vs CsiNet/CRNet",
-        "AnciNet module as auxiliary refinement network for enhanced reconstruction",
-        "Complex-valued processing path preserving CSI phase information"
+        "CsiNet/CRNet 대비 FLOPs 및 파라미터 수를 크게 줄인 경량 네트워크 구조",
+        "복원 성능 향상을 위한 보조 정제 네트워크인 AnciNet 모듈 도입",
+        "CSI 위상 정보를 보존하는 복소수 처리 경로 설계"
       ],
       "algorithms": [
-        "CLNet Encoder (lightweight Conv)",
-        "CLNet Decoder",
-        "AnciNet auxiliary refinement module",
+        "CLNet 인코더 (경량 Conv)",
+        "CLNet 디코더",
+        "AnciNet 보조 정제 모듈",
         "Depthwise Separable Convolution"
       ],
       "key_equations": [
         {
           "name": "Depthwise Separable Convolution",
           "latex": "\\text{DSConv}(\\mathbf{X}) = \\text{PW}_{1\\times1}(\\text{DW}_{k\\times k}(\\mathbf{X}))",
-          "description": "Depthwise separable convolution decomposed into depthwise (DW) and pointwise (PW) operations for parameter reduction"
+          "description": "파라미터 감소를 위해 깊이별(DW) 및 포인트별(PW) 연산으로 분해된 깊이별 분리 합성곱"
         },
         {
           "name": "CLNet Complexity Reduction",
           "latex": "\\frac{\\text{Params}_{\\text{CLNet}}}{\\text{Params}_{\\text{CRNet}}} \\approx \\frac{1}{K}",
-          "description": "CLNet achieves approximately 1/K parameter reduction compared to CRNet"
+          "description": "CLNet이 CRNet 대비 약 1/K의 파라미터 감소를 달성"
         }
       ],
       "category": "cnn",
-      "tags": ["clnet", "lightweight", "depthwise-separable", "efficient", "csi-feedback", "massive-mimo"],
+      "tags": [
+        "clnet",
+        "lightweight",
+        "depthwise-separable",
+        "efficient",
+        "csi-feedback",
+        "massive-mimo"
+      ],
       "pdf_url": "https://arxiv.org/pdf/2005.00445",
       "code_url": "https://github.com/Kylin9511/CLNet",
       "color_hex": "#10B981"
     },
     {
       "title": "TransNet: Full Attention Network for CSI Feedback in FDD Massive MIMO",
-      "authors": ["Jiajia Cui", "Zhilin Lu", "Jintao Wang", "Jian Song"],
+      "authors": [
+        "Jiajia Cui",
+        "Zhilin Lu",
+        "Jintao Wang",
+        "Jian Song"
+      ],
       "year": 2022,
       "venue": "IEEE Wireless Communications Letters",
       "doi": "10.1109/LWC.2021.3132629",
       "arxiv_id": null,
-      "abstract": "TransNet applies the Transformer architecture to CSI feedback, replacing CNN-based encoders/decoders with multi-head self-attention. It captures long-range spatial dependencies in CSI matrices that CNNs may miss due to limited receptive fields, achieving state-of-the-art NMSE performance especially at low compression ratios.",
+      "abstract": "TransNet은 CNN 기반 인코더/디코더를 다중 헤드 셀프 어텐션으로 대체하여 Transformer 구조를 CSI 피드백에 적용한다. 제한된 수용 영역으로 인해 CNN이 놓칠 수 있는 CSI 행렬 내 장거리 공간 의존성을 포착하며, 특히 낮은 압축비에서 최첨단 NMSE 성능을 달성한다.",
       "key_contributions": [
-        "First application of full Transformer (multi-head self-attention) to CSI feedback",
-        "Captures long-range spatial dependencies in CSI that CNNs miss due to local receptive fields",
-        "State-of-the-art NMSE at low compression ratios with attention-based global feature aggregation"
+        "CSI 피드백에 완전 Transformer (다중 헤드 셀프 어텐션)를 최초로 적용",
+        "지역적 수용 영역의 한계로 CNN이 놓치는 CSI 내 장거리 공간 의존성 포착",
+        "어텐션 기반 전역 특징 집계를 통해 낮은 압축비에서 최첨단 NMSE 달성"
       ],
       "algorithms": [
-        "TransNet Encoder (Self-Attention + FC)",
-        "TransNet Decoder (Multi-Head Attention)",
-        "Multi-Head Self-Attention for CSI",
-        "Positional Encoding for CSI matrices"
+        "TransNet 인코더 (Self-Attention + FC)",
+        "TransNet 디코더 (Multi-Head Attention)",
+        "CSI용 Multi-Head Self-Attention",
+        "CSI 행렬용 Positional Encoding"
       ],
       "key_equations": [
         {
           "name": "Multi-Head Self-Attention",
           "latex": "\\text{Attention}(\\mathbf{Q}, \\mathbf{K}, \\mathbf{V}) = \\text{softmax}\\left(\\frac{\\mathbf{Q}\\mathbf{K}^T}{\\sqrt{d_k}}\\right)\\mathbf{V}",
-          "description": "Scaled dot-product attention with query Q, key K, value V matrices from CSI features"
+          "description": "CSI 특징에서 추출한 쿼리 Q, 키 K, 값 V 행렬을 사용한 스케일드 내적 어텐션"
         },
         {
           "name": "Multi-Head Output",
           "latex": "\\text{MHA}(\\mathbf{X}) = \\text{Concat}(\\text{head}_1, \\ldots, \\text{head}_h)\\mathbf{W}^O",
-          "description": "Multi-head attention concatenates h attention heads and projects with output weight matrix"
+          "description": "다중 헤드 어텐션이 h개의 어텐션 헤드를 연결하고 출력 가중치 행렬로 사영"
         }
       ],
       "category": "transformer",
-      "tags": ["transnet", "transformer", "self-attention", "csi-feedback", "massive-mimo", "long-range-dependency"],
+      "tags": [
+        "transnet",
+        "transformer",
+        "self-attention",
+        "csi-feedback",
+        "massive-mimo",
+        "long-range-dependency"
+      ],
       "pdf_url": null,
       "code_url": null,
       "color_hex": "#7C3AED"
     },
     {
       "title": "ACRNet: Aggregation Cross-Domain Network for CSI Feedback in Massive MIMO",
-      "authors": ["Zhilin Lu", "Jintao Wang", "Jian Song"],
+      "authors": [
+        "Zhilin Lu",
+        "Jintao Wang",
+        "Jian Song"
+      ],
       "year": 2022,
       "venue": "IEEE Transactions on Wireless Communications",
       "doi": "10.1109/TWC.2022.3183226",
       "arxiv_id": "2111.11451",
-      "abstract": "ACRNet proposes an aggregation cross-domain network that processes CSI in both spatial and frequency domains simultaneously. It introduces a novel Aggregation Block that fuses multi-scale features across domains, and an efficient cross-domain attention mechanism. ACRNet achieves state-of-the-art NMSE while being more efficient than CRNet.",
+      "abstract": "ACRNet은 공간 도메인과 주파수 도메인에서 CSI를 동시에 처리하는 집계 교차 도메인 네트워크를 제안한다. 도메인 간 다중 스케일 특징을 융합하는 새로운 Aggregation Block과 효율적인 교차 도메인 주의 메커니즘을 도입한다. ACRNet은 CRNet보다 효율적이면서 최첨단 NMSE를 달성한다.",
       "key_contributions": [
-        "Cross-domain (spatial + frequency) feature aggregation for enhanced CSI reconstruction",
-        "Novel AggregationBlock that fuses multi-scale features with cross-domain attention",
-        "State-of-the-art NMSE performance on COST2100 dataset, surpassing CRNet and CLNet"
+        "향상된 CSI 복원을 위한 교차 도메인(공간 + 주파수) 특징 집계",
+        "교차 도메인 주의를 활용한 다중 스케일 특징 융합 AggregationBlock 제안",
+        "COST2100 데이터셋에서 CRNet 및 CLNet을 능가하는 최첨단 NMSE 성능 달성"
       ],
       "algorithms": [
-        "ACRNet Encoder",
-        "ACRNet Decoder with AggregationBlocks",
-        "Cross-Domain Attention Module",
-        "Multi-Scale Feature Fusion"
+        "ACRNet 인코더",
+        "AggregationBlock 기반 ACRNet 디코더",
+        "교차 도메인 주의 모듈",
+        "다중 스케일 특징 융합"
       ],
       "key_equations": [
         {
           "name": "Cross-Domain Feature Fusion",
           "latex": "\\mathbf{F}_{\\text{fused}} = \\text{Agg}(\\mathbf{F}_{\\text{spatial}}, \\mathbf{F}_{\\text{freq}}) = \\mathbf{F}_{\\text{spatial}} \\odot \\mathbf{A}_{\\text{cross}} + \\mathbf{F}_{\\text{freq}}",
-          "description": "Fused feature combining spatial and frequency domain features via cross-domain attention A_cross"
+          "description": "교차 도메인 주의 A_cross를 통해 공간 및 주파수 도메인 특징을 결합한 융합 특징"
         },
         {
           "name": "Aggregation Block",
           "latex": "\\mathbf{F}_{\\text{out}} = \\text{Conv}(\\text{Cat}(\\mathbf{F}_{3\\times3}, \\mathbf{F}_{5\\times5}, \\mathbf{F}_{7\\times7})) + \\mathbf{F}_{\\text{in}}",
-          "description": "Multi-scale aggregation with different kernel sizes and residual connection"
+          "description": "서로 다른 커널 크기를 사용한 다중 스케일 집계와 잔차 연결"
         }
       ],
       "category": "cnn",
-      "tags": ["acrnet", "cross-domain", "aggregation", "multi-scale", "csi-feedback", "massive-mimo"],
+      "tags": [
+        "acrnet",
+        "cross-domain",
+        "aggregation",
+        "multi-scale",
+        "csi-feedback",
+        "massive-mimo"
+      ],
       "pdf_url": "https://arxiv.org/pdf/2111.11451",
       "code_url": "https://github.com/Kylin9511/ACRNet",
       "color_hex": "#F59E0B"
     },
     {
       "title": "DS-NLCsiNet: Exploiting Non-Local Neural Networks for Massive MIMO CSI Feedback",
-      "authors": ["Sungho Suh", "Jintao Wang", "Zhilin Lu"],
+      "authors": [
+        "Sungho Suh",
+        "Jintao Wang",
+        "Zhilin Lu"
+      ],
       "year": 2021,
       "venue": "IEEE Communications Letters",
       "doi": "10.1109/LCOMM.2021.3073475",
       "arxiv_id": null,
-      "abstract": "DS-NLCsiNet introduces depthwise separable convolutions combined with non-local attention blocks for CSI feedback. The non-local block captures long-range dependencies in CSI matrices while depthwise separable convolutions reduce computational cost. This combination achieves better NMSE-complexity tradeoffs than CsiNet and CRNet.",
+      "abstract": "DS-NLCsiNet은 CSI 피드백을 위해 깊이별 분리 합성곱과 비국소(non-local) 주의 블록을 결합하여 도입한다. 비국소 블록이 CSI 행렬 내 장거리 의존성을 포착하는 동시에 깊이별 분리 합성곱이 계산 비용을 줄인다. 이 조합은 CsiNet 및 CRNet 대비 더 나은 NMSE-복잡도 트레이드오프를 달성한다.",
       "key_contributions": [
-        "Integration of non-local attention with depthwise separable convolutions for CSI feedback",
-        "Captures long-range spatial dependencies via non-local block while reducing parameters",
-        "Better NMSE-FLOPs tradeoff compared to CsiNet and CRNet"
+        "CSI 피드백을 위한 비국소 주의와 깊이별 분리 합성곱의 통합",
+        "비국소 블록을 통한 장거리 공간 의존성 포착 및 파라미터 감소 동시 달성",
+        "CsiNet 및 CRNet 대비 향상된 NMSE-FLOPs 트레이드오프"
       ],
       "algorithms": [
-        "DS-NLCsiNet Encoder",
-        "DS-NLCsiNet Decoder",
+        "DS-NLCsiNet 인코더",
+        "DS-NLCsiNet 디코더",
         "Non-Local Attention Block",
         "Depthwise Separable Convolution"
       ],
@@ -248,1180 +319,1577 @@
         {
           "name": "Non-Local Block",
           "latex": "\\mathbf{y}_i = \\frac{1}{C(\\mathbf{x})} \\sum_{\\forall j} f(\\mathbf{x}_i, \\mathbf{x}_j) g(\\mathbf{x}_j)",
-          "description": "Non-local operation computing response at position i as weighted sum of all positions j"
+          "description": "위치 i에서의 응답을 모든 위치 j의 가중합으로 계산하는 비국소 연산"
         },
         {
           "name": "Embedded Gaussian Similarity",
           "latex": "f(\\mathbf{x}_i, \\mathbf{x}_j) = e^{\\theta(\\mathbf{x}_i)^T \\phi(\\mathbf{x}_j)}",
-          "description": "Embedded Gaussian function computing pairwise affinity between positions"
+          "description": "위치 간 쌍별 친화도를 계산하는 임베디드 가우시안 함수"
         }
       ],
       "category": "cnn",
-      "tags": ["ds-nlcsinet", "non-local", "depthwise-separable", "attention", "csi-feedback", "lightweight"],
+      "tags": [
+        "ds-nlcsinet",
+        "non-local",
+        "depthwise-separable",
+        "attention",
+        "csi-feedback",
+        "lightweight"
+      ],
       "pdf_url": null,
       "code_url": null,
       "color_hex": "#EF4444"
     },
     {
       "title": "ENet: Efficient CSI Feedback for Massive MIMO Communications",
-      "authors": ["Zhilin Lu", "Jintao Wang", "Jian Song"],
+      "authors": [
+        "Zhilin Lu",
+        "Jintao Wang",
+        "Jian Song"
+      ],
       "year": 2020,
       "venue": "IEEE Access",
       "doi": "10.1109/ACCESS.2020.3040386",
       "arxiv_id": null,
-      "abstract": "ENet proposes an efficient network for CSI feedback focusing on reducing encoder complexity for deployment on mobile user equipment (UE). It uses a simplified encoder with fewer convolutional layers and a more powerful decoder at the base station side, reflecting the asymmetric computational capacity between UE and BS.",
+      "abstract": "ENet은 모바일 사용자 단말(UE)에서의 배포를 위해 인코더 복잡도 감소에 초점을 맞춘 효율적인 CSI 피드백 네트워크를 제안한다. 간소화된 인코더와 기지국 측의 더 강력한 디코더를 사용하여, UE와 BS 간의 비대칭적 계산 능력을 반영한 설계를 채택한다.",
       "key_contributions": [
-        "Asymmetric encoder-decoder design with lightweight encoder for mobile UE",
-        "Efficient encoder with minimal convolution layers suitable for resource-constrained devices",
-        "Demonstrated competitive NMSE with significantly reduced encoder FLOPs"
+        "모바일 UE를 위한 경량 인코더와 강력한 디코더의 비대칭 인코더-디코더 설계",
+        "자원이 제한된 장치에 적합한 최소한의 합성곱 레이어를 갖춘 효율적인 인코더",
+        "인코더 FLOPs를 크게 줄이면서도 경쟁력 있는 NMSE 달성 입증"
       ],
       "algorithms": [
-        "ENet Lightweight Encoder",
-        "ENet Heavy Decoder",
-        "Asymmetric Architecture Design"
+        "ENet 경량 인코더",
+        "ENet 고성능 디코더",
+        "비대칭 구조 설계"
       ],
       "key_equations": [
         {
           "name": "Encoder Complexity",
           "latex": "C_{\\text{enc}} = \\sum_{l=1}^{L} K_l^2 \\cdot C_{\\text{in},l} \\cdot C_{\\text{out},l} \\cdot H_l \\cdot W_l",
-          "description": "Total FLOPs of encoder as sum over L convolutional layers"
+          "description": "L개의 합성곱 레이어에 대한 합으로 표현되는 인코더의 총 FLOPs"
         },
         {
           "name": "Asymmetric Design Ratio",
           "latex": "\\rho = \\frac{C_{\\text{enc}}}{C_{\\text{dec}}} \\ll 1",
-          "description": "Ratio of encoder to decoder complexity, designed to be much less than 1"
+          "description": "인코더 대 디코더 복잡도 비율로, 1보다 훨씬 작게 설계"
         }
       ],
       "category": "cnn",
-      "tags": ["enet", "efficient", "lightweight-encoder", "asymmetric", "csi-feedback", "mobile"],
+      "tags": [
+        "enet",
+        "efficient",
+        "lightweight-encoder",
+        "asymmetric",
+        "csi-feedback",
+        "mobile"
+      ],
       "pdf_url": null,
       "code_url": null,
       "color_hex": "#F97316"
     },
     {
       "title": "Quantization of Deep Neural Networks for Accurate CSI Feedback",
-      "authors": ["Zhilin Lu", "Jintao Wang", "Jian Song"],
+      "authors": [
+        "Zhilin Lu",
+        "Jintao Wang",
+        "Jian Song"
+      ],
       "year": 2022,
       "venue": "IEEE Wireless Communications Letters",
       "doi": "10.1109/LWC.2022.3159168",
       "arxiv_id": null,
-      "abstract": "This paper addresses the critical gap between floating-point codewords and practical limited-bit feedback in CSI compression. It proposes quantization-aware training (QAT) and a learnable quantization scheme for codewords produced by CSI feedback networks, enabling deployment with finite-bit feedback links while minimizing reconstruction degradation.",
+      "abstract": "본 논문은 CSI 압축에서 부동소수점 코드워드와 실용적인 제한 비트 피드백 간의 중요한 격차를 다룬다. CSI 피드백 네트워크가 생성하는 코드워드에 대한 양자화 인식 학습(QAT)과 학습 가능한 양자화 기법을 제안하여, 복원 성능 저하를 최소화하면서 유한 비트 피드백 링크에서의 배포를 가능하게 한다.",
       "key_contributions": [
-        "Quantization-aware training framework for CSI feedback codewords",
-        "Learnable quantization with trainable quantization levels adapted to codeword distribution",
-        "Demonstrated that 4-bit quantization achieves near-floating-point NMSE with proper training"
+        "CSI 피드백 코드워드를 위한 양자화 인식 학습 프레임워크",
+        "코드워드 분포에 적응하는 학습 가능한 양자화 레벨을 갖춘 학습 가능 양자화",
+        "적절한 학습을 통해 4비트 양자화로 부동소수점 수준에 근접하는 NMSE 달성 입증"
       ],
       "algorithms": [
         "Quantization-Aware Training (QAT)",
         "Straight-Through Estimator (STE)",
-        "Learnable Quantization Levels",
-        "Uniform and Non-Uniform Quantization"
+        "학습 가능 양자화 레벨",
+        "균일 및 비균일 양자화"
       ],
       "key_equations": [
         {
           "name": "Uniform Quantization",
           "latex": "Q(x) = \\Delta \\cdot \\left\\lfloor \\frac{x}{\\Delta} + \\frac{1}{2} \\right\\rfloor, \\quad \\Delta = \\frac{x_{\\max} - x_{\\min}}{2^B - 1}",
-          "description": "Uniform quantization with step size Delta determined by B-bit precision"
+          "description": "B비트 정밀도에 의해 결정되는 스텝 크기 Delta를 사용한 균일 양자화"
         },
         {
           "name": "Straight-Through Estimator",
           "latex": "\\frac{\\partial \\mathcal{L}}{\\partial \\mathbf{w}} \\approx \\frac{\\partial \\mathcal{L}}{\\partial Q(\\mathbf{w})}",
-          "description": "STE approximates gradient through non-differentiable quantization operation"
+          "description": "STE가 미분 불가능한 양자화 연산을 통과하는 그래디언트를 근사"
         },
         {
           "name": "Total Feedback Bits",
           "latex": "B_{\\text{total}} = M \\times B = \\frac{N_t \\times N_c}{\\gamma} \\times B",
-          "description": "Total feedback overhead combining codeword dimension M with B-bit quantization"
+          "description": "코드워드 차원 M과 B비트 양자화를 결합한 총 피드백 오버헤드"
         }
       ],
       "category": "quantization",
-      "tags": ["quantization", "qat", "ste", "finite-bit-feedback", "csi-feedback", "deployment"],
+      "tags": [
+        "quantization",
+        "qat",
+        "ste",
+        "finite-bit-feedback",
+        "csi-feedback",
+        "deployment"
+      ],
       "pdf_url": null,
       "code_url": null,
       "color_hex": "#DC2626"
     },
     {
       "title": "Deep Learning Based CSI Feedback Approach for Time-Varying Massive MIMO Channels",
-      "authors": ["Thanh-Tung Ly", "Ta-Sung Lee"],
+      "authors": [
+        "Thanh-Tung Ly",
+        "Ta-Sung Lee"
+      ],
       "year": 2021,
       "venue": "IEEE Wireless Communications Letters",
       "doi": "10.1109/LWC.2021.3073474",
       "arxiv_id": null,
-      "abstract": "This paper proposes MarkovNet, a deep learning approach that exploits the Markov property of time-varying CSI channels. By using differential CSI encoding (encoding only the difference between consecutive CSI frames), it drastically reduces feedback overhead for temporally correlated channels in high-mobility scenarios.",
+      "abstract": "본 논문은 시변 CSI 채널의 마르코프 특성을 활용하는 딥러닝 접근법인 MarkovNet을 제안한다. 차분 CSI 인코딩(연속된 CSI 프레임 간의 차이만 인코딩)을 사용하여, 고이동성 시나리오에서 시간적으로 상관된 채널의 피드백 오버헤드를 대폭 줄인다.",
       "key_contributions": [
-        "Differential CSI encoding exploiting temporal correlation for reduced feedback",
-        "Markov-chain-based temporal model for CSI evolution",
-        "Significant feedback reduction in high-mobility time-varying scenarios"
+        "피드백 감소를 위한 시간적 상관관계 활용 차분 CSI 인코딩",
+        "CSI 변화를 위한 마르코프 체인 기반 시간 모델링",
+        "고이동성 시변 시나리오에서의 상당한 피드백 감소 달성"
       ],
       "algorithms": [
-        "Differential CSI Encoder",
-        "Temporal Prediction Network",
-        "Differential Feedback Pipeline"
+        "차분 CSI 인코더",
+        "시간 예측 네트워크",
+        "차분 피드백 파이프라인"
       ],
       "key_equations": [
         {
           "name": "Differential CSI",
           "latex": "\\Delta \\mathbf{H}_t = \\mathbf{H}_t - \\hat{\\mathbf{H}}_{t-1}",
-          "description": "Differential CSI computed as difference between current CSI and previously reconstructed CSI"
+          "description": "현재 CSI와 이전에 복원된 CSI 간의 차이로 계산되는 차분 CSI"
         },
         {
           "name": "Temporal Feedback Reduction",
           "latex": "\\text{NMSE}_{\\Delta} = \\frac{\\|\\Delta\\mathbf{H}_t - \\Delta\\hat{\\mathbf{H}}_t\\|_2^2}{\\|\\mathbf{H}_t\\|_2^2}",
-          "description": "NMSE measured on differential CSI reconstruction"
+          "description": "차분 CSI 복원에 대해 측정된 NMSE"
         }
       ],
       "category": "autoencoder",
-      "tags": ["temporal", "differential-feedback", "time-varying", "markov", "csi-feedback"],
+      "tags": [
+        "temporal",
+        "differential-feedback",
+        "time-varying",
+        "markov",
+        "csi-feedback"
+      ],
       "pdf_url": null,
       "code_url": null,
       "color_hex": "#6366F1"
     },
     {
       "title": "Binarized Neural Network for CSI Feedback in Massive MIMO Systems",
-      "authors": ["Zhilin Lu", "Jintao Wang", "Jian Song"],
+      "authors": [
+        "Zhilin Lu",
+        "Jintao Wang",
+        "Jian Song"
+      ],
       "year": 2021,
       "venue": "IEEE Wireless Communications Letters",
       "doi": "10.1109/LWC.2021.3088837",
       "arxiv_id": null,
-      "abstract": "BCsiNet applies binary neural network techniques to CSI feedback, binarizing both weights and activations to 1-bit representations. This enables extreme compression of the feedback network model itself, making it deployable on hardware-constrained devices. Despite severe quantization, BCsiNet maintains acceptable NMSE through training techniques adapted from BNN literature.",
+      "abstract": "BCsiNet은 이진 신경망 기법을 CSI 피드백에 적용하여 가중치와 활성화를 모두 1비트 표현으로 이진화한다. 이를 통해 피드백 네트워크 모델 자체의 극단적인 압축이 가능하며, 하드웨어 제약이 있는 디바이스에서의 배포가 가능해진다. 심각한 양자화에도 불구하고 BCsiNet은 BNN 문헌에서 적용된 학습 기법을 통해 허용 가능한 NMSE를 유지한다.",
       "key_contributions": [
-        "First application of binary neural networks (1-bit weights and activations) to CSI feedback",
-        "Extreme model compression enabling deployment on highly constrained UE hardware",
-        "Training strategies (scaling factors, progressive binarization) to maintain NMSE under binarization"
+        "CSI 피드백에 이진 신경망(1비트 가중치 및 활성화)을 최초로 적용",
+        "고도로 제약된 UE 하드웨어에서의 배포를 가능하게 하는 극단적 모델 압축",
+        "이진화 조건에서 NMSE를 유지하기 위한 학습 전략(스케일링 팩터, 점진적 이진화)"
       ],
       "algorithms": [
         "BCsiNet (Binarized CsiNet)",
-        "Sign Function with STE for binarization",
-        "Scaling Factor Learning",
-        "Progressive Binarization Training"
+        "Sign Function with STE (이진화를 위한 부호 함수 및 STE)",
+        "Scaling Factor Learning (스케일링 팩터 학습)",
+        "Progressive Binarization Training (점진적 이진화 학습)"
       ],
       "key_equations": [
         {
           "name": "Weight Binarization",
           "latex": "\\mathbf{w}_b = \\alpha \\cdot \\text{sign}(\\mathbf{w}), \\quad \\alpha = \\frac{\\|\\mathbf{w}\\|_{\\ell_1}}{n}",
-          "description": "Binarized weights with learned scaling factor alpha based on L1 norm"
+          "description": "L1 노름 기반의 학습된 스케일링 팩터 알파를 적용한 이진화 가중치"
         },
         {
           "name": "XNOR-Bitcount Operation",
           "latex": "\\mathbf{w}_b^T \\mathbf{a}_b \\approx \\alpha \\beta \\cdot \\text{bitcount}(\\text{XNOR}(\\text{sign}(\\mathbf{w}), \\text{sign}(\\mathbf{a})))",
-          "description": "Binary dot product via XNOR and popcount for efficient hardware inference"
+          "description": "효율적인 하드웨어 추론을 위한 XNOR 및 popcount 기반 이진 내적 연산"
         }
       ],
       "category": "quantization",
-      "tags": ["binarization", "bnn", "1-bit", "extreme-compression", "model-compression", "csi-feedback"],
+      "tags": [
+        "binarization",
+        "bnn",
+        "1-bit",
+        "extreme-compression",
+        "model-compression",
+        "csi-feedback"
+      ],
       "pdf_url": null,
       "code_url": null,
       "color_hex": "#BE185D"
     },
     {
       "title": "Knowledge Distillation-Based DNN for CSI Feedback in Massive MIMO Systems",
-      "authors": ["Zhilin Lu", "Jintao Wang", "Jian Song"],
+      "authors": [
+        "Zhilin Lu",
+        "Jintao Wang",
+        "Jian Song"
+      ],
       "year": 2022,
       "venue": "IEEE Transactions on Vehicular Technology",
       "doi": "10.1109/TVT.2022.3165837",
       "arxiv_id": null,
-      "abstract": "This paper applies knowledge distillation to CSI feedback networks, training a compact student encoder to mimic a larger teacher network. The distillation loss combines reconstruction MSE with intermediate feature matching, enabling lightweight encoders to approach the performance of heavy models while significantly reducing computation at the UE side.",
+      "abstract": "본 논문은 지식 증류(Knowledge Distillation)를 CSI 피드백 네트워크에 적용하여, 소형 학생 인코더가 대형 교사 네트워크를 모방하도록 학습시킨다. 증류 손실은 복원 MSE와 중간 특징 매칭을 결합하며, 이를 통해 경량 인코더가 UE 측의 연산량을 크게 줄이면서도 대형 모델에 근접한 성능을 달성할 수 있다.",
       "key_contributions": [
-        "Knowledge distillation framework for CSI feedback with teacher-student encoder training",
-        "Combined distillation loss using output MSE + intermediate feature matching",
-        "Demonstrated student encoder achieves near-teacher NMSE with 60-75% fewer parameters"
+        "교사-학생 인코더 학습을 활용한 CSI 피드백용 지식 증류 프레임워크",
+        "출력 MSE와 중간 특징 매칭을 결합한 증류 손실 함수",
+        "학생 인코더가 파라미터를 60-75% 줄이면서도 교사에 근접한 NMSE를 달성함을 입증"
       ],
       "algorithms": [
-        "Teacher-Student Distillation",
-        "Feature-Level Knowledge Transfer",
-        "Output-Level Knowledge Transfer",
-        "Combined Distillation Training"
+        "Teacher-Student Distillation (교사-학생 증류)",
+        "Feature-Level Knowledge Transfer (특징 수준 지식 전이)",
+        "Output-Level Knowledge Transfer (출력 수준 지식 전이)",
+        "Combined Distillation Training (결합 증류 학습)"
       ],
       "key_equations": [
         {
           "name": "Knowledge Distillation Loss",
           "latex": "\\mathcal{L}_{\\text{KD}} = \\alpha \\cdot \\|\\hat{\\mathbf{H}}_s - \\mathbf{H}\\|_2^2 + (1-\\alpha) \\cdot \\sum_{l} \\|\\mathbf{f}_s^{(l)} - \\mathbf{f}_t^{(l)}\\|_2^2",
-          "description": "Combined loss: reconstruction MSE of student output + feature matching between student and teacher at intermediate layers l"
+          "description": "결합 손실: 학생 출력의 복원 MSE + 중간 레이어 l에서의 학생-교사 간 특징 매칭"
         },
         {
           "name": "Student Parameter Reduction",
           "latex": "\\eta = 1 - \\frac{|\\theta_s|}{|\\theta_t|}",
-          "description": "Parameter reduction ratio: fraction of teacher parameters removed in student model"
+          "description": "파라미터 감소 비율: 학생 모델에서 제거된 교사 파라미터의 비율"
         }
       ],
       "category": "cnn",
-      "tags": ["knowledge-distillation", "teacher-student", "model-compression", "lightweight", "csi-feedback"],
+      "tags": [
+        "knowledge-distillation",
+        "teacher-student",
+        "model-compression",
+        "lightweight",
+        "csi-feedback"
+      ],
       "pdf_url": null,
       "code_url": null,
       "color_hex": "#EC4899"
     },
     {
       "title": "Attention Mechanism-Based CSI Feedback Network for Massive MIMO Systems",
-      "authors": ["Jiajia Cui", "Zhilin Lu", "Jintao Wang", "Jian Song"],
+      "authors": [
+        "Jiajia Cui",
+        "Zhilin Lu",
+        "Jintao Wang",
+        "Jian Song"
+      ],
       "year": 2021,
       "venue": "IET Communications",
       "doi": "10.1049/cmu2.12155",
       "arxiv_id": null,
-      "abstract": "This paper introduces spatial and channel dual-attention mechanisms into the CSI feedback network. The spatial attention focuses on important spatial positions in the angular-delay domain, while channel attention re-weights feature channels. The combination of dual attention with a residual architecture achieves improved NMSE over CsiNet at comparable complexity.",
+      "abstract": "본 논문은 공간 및 채널 이중 어텐션 메커니즘을 CSI 피드백 네트워크에 도입한다. 공간 어텐션은 각도-지연 영역에서 중요한 공간 위치에 집중하고, 채널 어텐션은 특징 채널에 가중치를 재조정한다. 이중 어텐션과 잔차 구조의 결합을 통해 유사한 복잡도에서 CsiNet보다 향상된 NMSE를 달성한다.",
       "key_contributions": [
-        "Dual-attention (spatial + channel) mechanism for CSI feedback",
-        "Spatial attention highlights important angular-delay positions in CSI matrix",
-        "Improved NMSE over CsiNet with comparable encoder complexity"
+        "CSI 피드백을 위한 이중 어텐션(공간 + 채널) 메커니즘",
+        "CSI 행렬에서 중요한 각도-지연 위치를 강조하는 공간 어텐션",
+        "유사한 인코더 복잡도에서 CsiNet 대비 향상된 NMSE"
       ],
       "algorithms": [
-        "Spatial Attention Module",
-        "Channel Attention Module",
-        "Dual-Attention Residual Block",
-        "Attention-Enhanced CSI Decoder"
+        "Spatial Attention Module (공간 어텐션 모듈)",
+        "Channel Attention Module (채널 어텐션 모듈)",
+        "Dual-Attention Residual Block (이중 어텐션 잔차 블록)",
+        "Attention-Enhanced CSI Decoder (어텐션 강화 CSI 디코더)"
       ],
       "key_equations": [
         {
           "name": "Spatial Attention",
           "latex": "\\mathbf{A}_s = \\sigma(\\text{Conv}_{7\\times7}([\\text{AvgPool}(\\mathbf{F}); \\text{MaxPool}(\\mathbf{F})]))",
-          "description": "Spatial attention map computed from average and max pooled features along channel dimension"
+          "description": "채널 차원을 따라 평균 풀링 및 최대 풀링된 특징으로부터 계산된 공간 어텐션 맵"
         },
         {
           "name": "Channel Attention",
           "latex": "\\mathbf{A}_c = \\sigma(\\text{MLP}(\\text{GAP}(\\mathbf{F})) + \\text{MLP}(\\text{GMP}(\\mathbf{F})))",
-          "description": "Channel attention weights from global average and max pooling through shared MLP"
+          "description": "공유 MLP를 통한 전역 평균 풀링 및 전역 최대 풀링으로부터의 채널 어텐션 가중치"
         }
       ],
       "category": "cnn",
-      "tags": ["attention", "spatial-attention", "channel-attention", "dual-attention", "csi-feedback"],
+      "tags": [
+        "attention",
+        "spatial-attention",
+        "channel-attention",
+        "dual-attention",
+        "csi-feedback"
+      ],
       "pdf_url": null,
       "code_url": null,
       "color_hex": "#0EA5E9"
     },
     {
       "title": "CSI-GPT: Integrating Generative Pre-Trained Transformer with Federated-Tuning for Channel Estimation in Massive MIMO",
-      "authors": ["Ye Xue", "Chao-Kai Wen", "Shi Jin"],
+      "authors": [
+        "Ye Xue",
+        "Chao-Kai Wen",
+        "Shi Jin"
+      ],
       "year": 2024,
       "venue": "IEEE Transactions on Wireless Communications",
       "doi": "10.1109/TWC.2024.3364197",
       "arxiv_id": "2309.02726",
-      "abstract": "CSI-GPT applies the generative pre-trained transformer (GPT) paradigm to CSI feedback and channel estimation. A large transformer model is pre-trained on diverse CSI datasets, then fine-tuned via federated learning for specific environments. This approach generalizes across different antenna configurations and channel environments, addressing the key limitation of prior methods trained for fixed scenarios.",
+      "abstract": "CSI-GPT는 생성형 사전학습 트랜스포머(GPT) 패러다임을 CSI 피드백 및 채널 추정에 적용한다. 대형 트랜스포머 모델을 다양한 CSI 데이터셋에서 사전학습한 후, 연합 학습을 통해 특정 환경에 맞게 미세 조정한다. 이 접근법은 다양한 안테나 구성 및 채널 환경에 걸쳐 일반화되며, 고정 시나리오에서 학습된 기존 방법의 핵심 한계를 해결한다.",
       "key_contributions": [
-        "First GPT-style generative pre-training approach for CSI feedback and estimation",
-        "Federated fine-tuning enabling environment adaptation without sharing raw CSI data",
-        "Cross-scenario generalization across different antenna configurations and channel models"
+        "CSI 피드백 및 추정을 위한 최초의 GPT 스타일 생성형 사전학습 접근법",
+        "원시 CSI 데이터 공유 없이 환경 적응이 가능한 연합 미세 조정",
+        "다양한 안테나 구성 및 채널 모델에 걸친 교차 시나리오 일반화"
       ],
       "algorithms": [
         "CSI-GPT (Generative Pre-Trained Transformer for CSI)",
-        "Federated Fine-Tuning",
-        "Autoregressive CSI Generation",
-        "Masked CSI Prediction"
+        "Federated Fine-Tuning (연합 미세 조정)",
+        "Autoregressive CSI Generation (자기회귀적 CSI 생성)",
+        "Masked CSI Prediction (마스크 CSI 예측)"
       ],
       "key_equations": [
         {
           "name": "Autoregressive CSI Prediction",
           "latex": "p(\\mathbf{H}) = \\prod_{i=1}^{N} p(h_i | h_1, \\ldots, h_{i-1}; \\theta)",
-          "description": "CSI matrix modeled as autoregressive sequence with GPT predicting each element conditioned on previous"
+          "description": "CSI 행렬을 자기회귀 시퀀스로 모델링하여 GPT가 이전 원소들에 조건부로 각 원소를 예측"
         },
         {
           "name": "Federated Aggregation",
           "latex": "\\theta_{\\text{global}} = \\sum_{k=1}^{K} \\frac{n_k}{n} \\theta_k",
-          "description": "Federated averaging of local model parameters weighted by dataset sizes"
+          "description": "데이터셋 크기에 따라 가중된 로컬 모델 파라미터의 연합 평균화"
         }
       ],
       "category": "transformer",
-      "tags": ["gpt", "generative", "pre-training", "federated-learning", "csi-feedback", "generalization"],
+      "tags": [
+        "gpt",
+        "generative",
+        "pre-training",
+        "federated-learning",
+        "csi-feedback",
+        "generalization"
+      ],
       "pdf_url": "https://arxiv.org/pdf/2309.02726",
       "code_url": null,
       "color_hex": "#8B5CF6"
     },
     {
       "title": "Deep Learning-Based CSI Feedback with Variable Length Codewords for Adaptive FDD Massive MIMO",
-      "authors": ["Chao-Kai Wen", "Wan-Ting Shih", "Shi Jin"],
+      "authors": [
+        "Chao-Kai Wen",
+        "Wan-Ting Shih",
+        "Shi Jin"
+      ],
       "year": 2019,
       "venue": "IEEE Wireless Communications Letters",
       "doi": "10.1109/LWC.2019.2921137",
       "arxiv_id": null,
-      "abstract": "CsiNet+ extends CsiNet by introducing variable-length codeword feedback, allowing adaptive compression ratio selection based on channel quality. The encoder can produce codewords of different lengths, enabling the UE to trade off between feedback overhead and reconstruction accuracy depending on available uplink bandwidth. This is achieved through a novel progressive encoding scheme.",
+      "abstract": "CsiNet+는 가변 길이 코드워드 피드백을 도입하여 CsiNet을 확장하며, 채널 품질에 따라 적응적 압축률 선택이 가능하다. 인코더가 다양한 길이의 코드워드를 생성할 수 있어, UE가 가용한 업링크 대역폭에 따라 피드백 오버헤드와 복원 정확도 간의 트레이드오프를 조절할 수 있다. 이는 새로운 점진적 인코딩 기법을 통해 달성된다.",
       "key_contributions": [
-        "Variable-length codeword CSI feedback enabling adaptive compression ratio",
-        "Progressive encoding scheme where longer codewords refine shorter ones",
-        "Adaptive feedback bandwidth allocation based on channel conditions"
+        "적응적 압축률을 가능하게 하는 가변 길이 코드워드 CSI 피드백",
+        "더 긴 코드워드가 짧은 코드워드를 정제하는 점진적 인코딩 기법",
+        "채널 조건에 기반한 적응적 피드백 대역폭 할당"
       ],
       "algorithms": [
-        "CsiNet+ Progressive Encoder",
-        "Variable-Length Codeword Generation",
-        "Adaptive Compression Ratio Selection",
-        "Incremental Decoder"
+        "CsiNet+ Progressive Encoder (CsiNet+ 점진적 인코더)",
+        "Variable-Length Codeword Generation (가변 길이 코드워드 생성)",
+        "Adaptive Compression Ratio Selection (적응적 압축률 선택)",
+        "Incremental Decoder (증분 디코더)"
       ],
       "key_equations": [
         {
           "name": "Progressive Encoding",
           "latex": "\\mathbf{s}_{1:M} = [\\mathbf{s}_{1:M_1}, \\mathbf{s}_{M_1+1:M_2}, \\ldots, \\mathbf{s}_{M_{K-1}+1:M}]",
-          "description": "Codeword progressively refined: first M1 elements give coarse reconstruction, additional elements refine"
+          "description": "점진적으로 정제되는 코드워드: 처음 M1개 원소로 대략적 복원을 수행하고, 추가 원소가 이를 정제"
         },
         {
           "name": "Adaptive Rate Selection",
           "latex": "M^* = \\arg\\min_{M_k} M_k \\quad \\text{s.t.} \\quad \\text{NMSE}(M_k) \\leq \\epsilon",
-          "description": "Select minimum codeword length M_k that satisfies NMSE target epsilon"
+          "description": "NMSE 목표 엡실론을 만족하는 최소 코드워드 길이 M_k 선택"
         }
       ],
       "category": "autoencoder",
-      "tags": ["csinet-plus", "variable-rate", "adaptive", "progressive-encoding", "csi-feedback"],
+      "tags": [
+        "csinet-plus",
+        "variable-rate",
+        "adaptive",
+        "progressive-encoding",
+        "csi-feedback"
+      ],
       "pdf_url": null,
       "code_url": null,
       "color_hex": "#1D4ED8"
     },
     {
       "title": "Lightweight CSI Feedback via Mixed-Precision Quantization",
-      "authors": ["Zhilin Lu", "Jintao Wang", "Jian Song"],
+      "authors": [
+        "Zhilin Lu",
+        "Jintao Wang",
+        "Jian Song"
+      ],
       "year": 2023,
       "venue": "IEEE Transactions on Wireless Communications",
       "doi": "10.1109/TWC.2023.3251213",
       "arxiv_id": null,
-      "abstract": "This paper proposes a mixed-precision quantization framework for CSI feedback networks. Unlike uniform quantization that applies the same bit-width to all layers, this method assigns different bit-widths to different layers based on their sensitivity to quantization error, achieving better NMSE-bitrate tradeoffs. A hardware-aware search algorithm finds optimal per-layer bit allocation.",
+      "abstract": "본 논문은 CSI 피드백 네트워크를 위한 혼합 정밀도 양자화 프레임워크를 제안한다. 모든 레이어에 동일한 비트 폭을 적용하는 균일 양자화와 달리, 본 방법은 양자화 오류에 대한 민감도에 따라 각 레이어에 서로 다른 비트 폭을 할당하여 더 나은 NMSE-비트율 트레이드오프를 달성한다. 하드웨어 인식 탐색 알고리즘이 레이어별 최적 비트 할당을 찾는다.",
       "key_contributions": [
-        "Mixed-precision quantization framework assigning different bit-widths per layer for CSI feedback",
-        "Hardware-aware bit allocation search based on layer sensitivity analysis",
-        "Demonstrated 2-4x compression of model size with <0.5dB NMSE degradation"
+        "CSI 피드백을 위해 레이어별로 서로 다른 비트 폭을 할당하는 혼합 정밀도 양자화 프레임워크",
+        "레이어 민감도 분석에 기반한 하드웨어 인식 비트 할당 탐색",
+        "0.5dB 미만의 NMSE 저하로 모델 크기의 2-4배 압축을 입증"
       ],
       "algorithms": [
-        "Mixed-Precision Quantization Search",
-        "Layer Sensitivity Analysis",
-        "Hardware-Aware Bit Allocation",
-        "Fine-Tuning with STE"
+        "Mixed-Precision Quantization Search (혼합 정밀도 양자화 탐색)",
+        "Layer Sensitivity Analysis (레이어 민감도 분석)",
+        "Hardware-Aware Bit Allocation (하드웨어 인식 비트 할당)",
+        "Fine-Tuning with STE (STE를 활용한 미세 조정)"
       ],
       "key_equations": [
         {
           "name": "Mixed-Precision Objective",
           "latex": "\\min_{\\{b_l\\}} \\text{NMSE}(\\{b_l\\}) \\quad \\text{s.t.} \\quad \\sum_{l=1}^{L} |\\theta_l| \\cdot b_l \\leq B_{\\text{budget}}",
-          "description": "Minimize NMSE by selecting per-layer bit-widths b_l subject to total bit budget constraint"
+          "description": "전체 비트 예산 제약 하에서 레이어별 비트 폭 b_l을 선택하여 NMSE를 최소화"
         },
         {
           "name": "Layer Sensitivity",
           "latex": "S_l = \\frac{\\partial \\text{NMSE}}{\\partial b_l} \\approx \\text{NMSE}(b_l=8) - \\text{NMSE}(b_l=4)",
-          "description": "Sensitivity of each layer measured by NMSE change when reducing from 8-bit to 4-bit"
+          "description": "8비트에서 4비트로 감소 시 NMSE 변화로 측정한 각 레이어의 민감도"
         }
       ],
       "category": "quantization",
-      "tags": ["mixed-precision", "quantization", "bit-allocation", "hardware-aware", "csi-feedback", "model-compression"],
+      "tags": [
+        "mixed-precision",
+        "quantization",
+        "bit-allocation",
+        "hardware-aware",
+        "csi-feedback",
+        "model-compression"
+      ],
       "pdf_url": null,
       "code_url": null,
       "color_hex": "#9333EA"
     },
     {
       "title": "Pruning Deep Neural Networks for Efficient CSI Feedback",
-      "authors": ["Zhilin Lu", "Jintao Wang", "Jian Song"],
+      "authors": [
+        "Zhilin Lu",
+        "Jintao Wang",
+        "Jian Song"
+      ],
       "year": 2023,
       "venue": "IEEE Communications Letters",
       "doi": "10.1109/LCOMM.2023.3245112",
       "arxiv_id": null,
-      "abstract": "This paper applies structured pruning to CSI feedback networks, removing redundant filters and channels to create compact models for deployment on UE. A two-stage approach first identifies unimportant filters via L1-norm ranking, then fine-tunes the pruned network to recover accuracy. Results show 50-70% parameter reduction with minimal NMSE loss.",
+      "abstract": "본 논문은 구조적 프루닝을 CSI 피드백 네트워크에 적용하여 불필요한 필터와 채널을 제거함으로써 UE에 배포 가능한 소형 모델을 생성한다. 2단계 접근법으로 먼저 L1 노름 순위를 통해 중요하지 않은 필터를 식별한 후, 프루닝된 네트워크를 미세 조정하여 정확도를 회복한다. 결과적으로 최소한의 NMSE 손실로 50-70%의 파라미터 감소를 달성한다.",
       "key_contributions": [
-        "Structured filter pruning framework for CSI feedback encoder and decoder networks",
-        "L1-norm based importance ranking for identifying redundant convolutional filters",
-        "50-70% parameter reduction with less than 1dB NMSE degradation on COST2100"
+        "CSI 피드백 인코더 및 디코더 네트워크를 위한 구조적 필터 프루닝 프레임워크",
+        "불필요한 합성곱 필터 식별을 위한 L1 노름 기반 중요도 순위",
+        "COST2100에서 1dB 미만의 NMSE 저하로 50-70%의 파라미터 감소 달성"
       ],
       "algorithms": [
-        "Structured Filter Pruning",
-        "L1-Norm Importance Ranking",
-        "Iterative Prune-and-Retrain",
-        "Channel Pruning"
+        "Structured Filter Pruning (구조적 필터 프루닝)",
+        "L1-Norm Importance Ranking (L1 노름 중요도 순위)",
+        "Iterative Prune-and-Retrain (반복적 프루닝 및 재학습)",
+        "Channel Pruning (채널 프루닝)"
       ],
       "key_equations": [
         {
           "name": "Filter Importance Score",
           "latex": "I_j = \\|\\mathbf{F}_j\\|_1 = \\sum_{c,h,w} |F_{j,c,h,w}|",
-          "description": "Importance of filter j measured by L1-norm of its weight tensor"
+          "description": "가중치 텐서의 L1 노름으로 측정한 필터 j의 중요도"
         },
         {
           "name": "Pruning Ratio",
           "latex": "r = 1 - \\frac{|\\mathcal{F}_{\\text{kept}}|}{|\\mathcal{F}_{\\text{total}}|}",
-          "description": "Fraction of filters removed from the network"
+          "description": "네트워크에서 제거된 필터의 비율"
         }
       ],
       "category": "cnn",
-      "tags": ["pruning", "structured-pruning", "filter-pruning", "model-compression", "lightweight", "csi-feedback"],
+      "tags": [
+        "pruning",
+        "structured-pruning",
+        "filter-pruning",
+        "model-compression",
+        "lightweight",
+        "csi-feedback"
+      ],
       "pdf_url": null,
       "code_url": null,
       "color_hex": "#A21CAF"
     },
     {
       "title": "Adaptive Bit Allocation for Deep Learning-Based CSI Feedback",
-      "authors": ["Zhilin Lu", "Jintao Wang", "Jian Song"],
+      "authors": [
+        "Zhilin Lu",
+        "Jintao Wang",
+        "Jian Song"
+      ],
       "year": 2023,
       "venue": "IEEE Wireless Communications Letters",
       "doi": "10.1109/LWC.2023.3278125",
       "arxiv_id": null,
-      "abstract": "This paper proposes an adaptive bit allocation scheme that jointly optimizes codeword quantization bits and compression ratio based on channel conditions. An auxiliary network predicts optimal bit allocation for each CSI sample, enabling instance-level adaptive quantization that reduces total feedback bits while maintaining reconstruction quality.",
+      "abstract": "본 논문은 채널 조건에 따라 코드워드 양자화 비트와 압축률을 공동으로 최적화하는 적응적 비트 할당 기법을 제안한다. 보조 네트워크가 각 CSI 샘플에 대해 최적 비트 할당을 예측하여, 복원 품질을 유지하면서 총 피드백 비트를 줄이는 인스턴스 수준의 적응적 양자화를 가능하게 한다.",
       "key_contributions": [
-        "Instance-level adaptive bit allocation for CSI feedback codewords",
-        "Auxiliary network predicting optimal per-sample quantization strategy",
-        "Joint optimization of compression ratio and quantization bit-width"
+        "CSI 피드백 코드워드에 대한 인스턴스 수준 적응적 비트 할당",
+        "샘플별 최적 양자화 전략을 예측하는 보조 네트워크",
+        "압축률과 양자화 비트 폭의 공동 최적화"
       ],
       "algorithms": [
-        "Adaptive Bit Allocation Network",
-        "Per-Sample Quantization Prediction",
-        "Joint Rate-Distortion Optimization",
-        "Gumbel-Softmax Bit Selection"
+        "Adaptive Bit Allocation Network (적응적 비트 할당 네트워크)",
+        "Per-Sample Quantization Prediction (샘플별 양자화 예측)",
+        "Joint Rate-Distortion Optimization (공동 율-왜곡 최적화)",
+        "Gumbel-Softmax Bit Selection (Gumbel-Softmax 비트 선택)"
       ],
       "key_equations": [
         {
           "name": "Rate-Distortion Optimization",
           "latex": "\\min_{\\theta, \\phi} \\mathbb{E}[\\text{NMSE}(\\mathbf{H}, \\hat{\\mathbf{H}})] + \\lambda \\cdot \\mathbb{E}[R(\\mathbf{s}, B)]",
-          "description": "Joint minimization of distortion (NMSE) and rate (feedback bits) with Lagrange multiplier lambda"
+          "description": "라그랑주 승수 람다를 사용한 왜곡(NMSE)과 전송률(피드백 비트)의 공동 최소화"
         },
         {
           "name": "Adaptive Bit Selection",
           "latex": "B^* = g_\\phi(\\mathbf{s}) = \\text{argmax}_b \\text{softmax}(\\mathbf{W}_b \\mathbf{s} + \\mathbf{c}_b)",
-          "description": "Auxiliary network g selects optimal bit-width B for each codeword s"
+          "description": "보조 네트워크 g가 각 코드워드 s에 대해 최적 비트 폭 B를 선택"
         }
       ],
       "category": "quantization",
-      "tags": ["adaptive-quantization", "bit-allocation", "rate-distortion", "instance-adaptive", "csi-feedback"],
+      "tags": [
+        "adaptive-quantization",
+        "bit-allocation",
+        "rate-distortion",
+        "instance-adaptive",
+        "csi-feedback"
+      ],
       "pdf_url": null,
       "code_url": null,
       "color_hex": "#D946EF"
     },
     {
       "title": "ShuffleCsiNet: Lightweight CSI Feedback Network Based on ShuffleNet Architecture",
-      "authors": ["Xin Wang", "Chao-Kai Wen", "Shi Jin", "Geoffrey Ye Li"],
+      "authors": [
+        "Xin Wang",
+        "Chao-Kai Wen",
+        "Shi Jin",
+        "Geoffrey Ye Li"
+      ],
       "year": 2023,
       "venue": "IEEE Transactions on Vehicular Technology",
       "doi": "10.1109/TVT.2023.3256789",
       "arxiv_id": null,
-      "abstract": "ShuffleCsiNet introduces ShuffleNet-style channel shuffle operations and pointwise group convolutions to CSI feedback, drastically reducing encoder computation. The channel shuffle enables information flow between grouped convolution branches while maintaining low FLOPs. The architecture achieves comparable NMSE to CRNet with only 15% of the encoder parameters.",
+      "abstract": "ShuffleCsiNet은 ShuffleNet 스타일의 채널 셔플 연산과 포인트와이즈 그룹 합성곱을 CSI 피드백에 도입하여 인코더 연산량을 대폭 줄인다. 채널 셔플은 낮은 FLOPs를 유지하면서 그룹 합성곱 분기 간의 정보 흐름을 가능하게 한다. 이 아키텍처는 인코더 파라미터를 CRNet의 15%만 사용하면서 유사한 NMSE를 달성한다.",
       "key_contributions": [
-        "ShuffleNet-inspired architecture for CSI feedback with channel shuffle operations",
-        "Pointwise group convolutions reducing encoder parameters to 15% of CRNet",
-        "Demonstrated real-time CSI feedback on ARM Cortex-A mobile processors"
+        "채널 셔플 연산을 활용한 ShuffleNet 기반 CSI 피드백 아키텍처",
+        "인코더 파라미터를 CRNet의 15%로 줄이는 포인트와이즈 그룹 합성곱",
+        "ARM Cortex-A 모바일 프로세서에서의 실시간 CSI 피드백을 입증"
       ],
       "algorithms": [
-        "ShuffleCsiNet Encoder",
-        "Channel Shuffle Operation",
-        "Group Convolution",
-        "Pointwise Group Conv + Shuffle Block"
+        "ShuffleCsiNet Encoder (ShuffleCsiNet 인코더)",
+        "Channel Shuffle Operation (채널 셔플 연산)",
+        "Group Convolution (그룹 합성곱)",
+        "Pointwise Group Conv + Shuffle Block (포인트와이즈 그룹 합성곱 + 셔플 블록)"
       ],
       "key_equations": [
         {
           "name": "Channel Shuffle",
           "latex": "\\text{Shuffle}(\\mathbf{X}) = \\text{Reshape}(\\text{Transpose}(\\text{Reshape}(\\mathbf{X}, [g, n/g, H, W])), [n, H, W])",
-          "description": "Channel shuffle reshapes features into groups, transposes group and channel dimensions, then reshapes back"
+          "description": "채널 셔플은 특징을 그룹으로 재구성하고, 그룹과 채널 차원을 전치한 후 다시 재구성"
         },
         {
           "name": "Group Conv FLOPs",
           "latex": "\\text{FLOPs}_{\\text{group}} = \\frac{K^2 \\cdot C_{in} \\cdot C_{out} \\cdot H \\cdot W}{g}",
-          "description": "Group convolution reduces FLOPs by factor g compared to standard convolution"
+          "description": "그룹 합성곱은 표준 합성곱 대비 FLOPs를 g배 감소"
         }
       ],
       "category": "cnn",
-      "tags": ["shufflenet", "group-convolution", "channel-shuffle", "lightweight", "mobile", "csi-feedback"],
+      "tags": [
+        "shufflenet",
+        "group-convolution",
+        "channel-shuffle",
+        "lightweight",
+        "mobile",
+        "csi-feedback"
+      ],
       "pdf_url": null,
       "code_url": null,
       "color_hex": "#EA580C"
     },
     {
       "title": "Vector Quantized CSI Feedback with Learned Codebook",
-      "authors": ["Jiajia Cui", "Zhilin Lu", "Jintao Wang"],
+      "authors": [
+        "Jiajia Cui",
+        "Zhilin Lu",
+        "Jintao Wang"
+      ],
       "year": 2023,
       "venue": "IEEE Signal Processing Letters",
       "doi": "10.1109/LSP.2023.3289234",
       "arxiv_id": null,
-      "abstract": "This paper applies vector quantization (VQ) with a learned codebook to CSI feedback codewords. Instead of scalar quantization of each codeword element, the encoder output is quantized jointly using a trainable codebook via nearest-neighbor lookup. The VQ approach exploits statistical structure in the codeword space, achieving lower distortion at the same bit rate compared to scalar quantization.",
+      "abstract": "본 논문은 학습된 코드북을 사용한 벡터 양자화(VQ)를 CSI 피드백 코드워드에 적용한다. 각 코드워드 원소의 스칼라 양자화 대신, 인코더 출력을 학습 가능한 코드북을 통해 최근접 이웃 탐색으로 공동 양자화한다. VQ 접근법은 코드워드 공간의 통계적 구조를 활용하여 동일 비트율에서 스칼라 양자화 대비 더 낮은 왜곡을 달성한다.",
       "key_contributions": [
-        "Learned vector quantization codebook for CSI feedback codewords",
-        "Joint codeword quantization via nearest-neighbor codebook lookup",
-        "2-3dB NMSE improvement over scalar quantization at same feedback bit rate"
+        "CSI 피드백 코드워드를 위한 학습된 벡터 양자화 코드북",
+        "최근접 이웃 코드북 탐색을 통한 공동 코드워드 양자화",
+        "동일 피드백 비트율에서 스칼라 양자화 대비 2-3dB NMSE 개선"
       ],
       "algorithms": [
-        "Vector Quantization with Learned Codebook",
-        "Codebook Learning via EMA Update",
-        "Commitment Loss Training",
-        "Straight-Through VQ Gradient"
+        "Vector Quantization with Learned Codebook (학습된 코드북 기반 벡터 양자화)",
+        "Codebook Learning via EMA Update (EMA 업데이트를 통한 코드북 학습)",
+        "Commitment Loss Training (커미트먼트 손실 학습)",
+        "Straight-Through VQ Gradient (Straight-Through VQ 그래디언트)"
       ],
       "key_equations": [
         {
           "name": "Vector Quantization",
           "latex": "\\mathbf{s}_q = \\mathbf{e}_k, \\quad k = \\arg\\min_j \\|\\mathbf{s} - \\mathbf{e}_j\\|_2^2",
-          "description": "Codeword s quantized to nearest codebook entry e_k via Euclidean distance"
+          "description": "유클리드 거리를 기반으로 코드워드 s를 가장 가까운 코드북 엔트리 e_k로 양자화"
         },
         {
           "name": "VQ-VAE Loss",
           "latex": "\\mathcal{L} = \\|\\mathbf{H} - \\hat{\\mathbf{H}}\\|_2^2 + \\|\\text{sg}[\\mathbf{s}] - \\mathbf{e}_k\\|_2^2 + \\beta\\|\\mathbf{s} - \\text{sg}[\\mathbf{e}_k]\\|_2^2",
-          "description": "Combined reconstruction loss, codebook loss, and commitment loss with stop-gradient (sg)"
+          "description": "복원 손실, 코드북 손실, 그리고 stop-gradient(sg)를 사용한 커미트먼트 손실의 결합"
         }
       ],
       "category": "quantization",
-      "tags": ["vector-quantization", "vq-vae", "learned-codebook", "codeword-quantization", "csi-feedback"],
+      "tags": [
+        "vector-quantization",
+        "vq-vae",
+        "learned-codebook",
+        "codeword-quantization",
+        "csi-feedback"
+      ],
       "pdf_url": null,
       "code_url": null,
       "color_hex": "#4338CA"
     },
     {
       "title": "Generative Diffusion Model-Enhanced CSI Feedback",
-      "authors": ["Yi Song", "Chao-Kai Wen", "Shi Jin"],
+      "authors": [
+        "Yi Song",
+        "Chao-Kai Wen",
+        "Shi Jin"
+      ],
       "year": 2024,
       "venue": "IEEE Transactions on Wireless Communications",
       "doi": "10.1109/TWC.2024.3378901",
       "arxiv_id": "2310.04567",
-      "abstract": "This paper leverages denoising diffusion probabilistic models (DDPM) to enhance CSI feedback reconstruction quality at the base station decoder side. After receiving the compressed codeword, a diffusion model iteratively refines the initial decoder output by learning the distribution of CSI matrices. The diffusion-based refinement significantly improves reconstruction at very low compression ratios where traditional decoders struggle.",
+      "abstract": "본 논문은 기지국 디코더 측에서 CSI 피드백 복원 품질을 향상시키기 위해 잡음 제거 확산 확률 모델(DDPM)을 활용한다. 압축된 코드워드를 수신한 후, 확산 모델이 CSI 행렬의 분포를 학습하여 초기 디코더 출력을 반복적으로 정제한다. 확산 기반 정제는 기존 디코더가 어려움을 겪는 매우 낮은 압축비에서 복원 품질을 크게 향상시킨다.",
       "key_contributions": [
-        "First application of diffusion models to CSI feedback as a decoder-side refinement module",
-        "Iterative denoising refinement improving reconstruction quality at ultra-low compression ratios",
-        "Demonstrated 3-5dB NMSE improvement at gamma=1/64 compression ratio"
+        "디코더 측 정제 모듈로서 CSI 피드백에 확산 모델을 최초로 적용",
+        "초저압축비에서 복원 품질을 개선하는 반복적 잡음 제거 정제",
+        "감마=1/64 압축비에서 NMSE 3-5dB 개선을 실증"
       ],
       "algorithms": [
-        "DDPM-Based CSI Refinement",
-        "Conditional Diffusion with Codeword Conditioning",
-        "Iterative Denoising",
-        "Noise Schedule for CSI"
+        "DDPM 기반 CSI 정제(DDPM-Based CSI Refinement)",
+        "코드워드 조건부 조건부 확산(Conditional Diffusion with Codeword Conditioning)",
+        "반복적 잡음 제거(Iterative Denoising)",
+        "CSI용 노이즈 스케줄(Noise Schedule for CSI)"
       ],
       "key_equations": [
         {
           "name": "Diffusion Forward Process",
           "latex": "q(\\mathbf{H}_t | \\mathbf{H}_{t-1}) = \\mathcal{N}(\\mathbf{H}_t; \\sqrt{1-\\beta_t}\\mathbf{H}_{t-1}, \\beta_t \\mathbf{I})",
-          "description": "Forward diffusion adding Gaussian noise with schedule beta_t to CSI matrix"
+          "description": "스케줄 beta_t에 따라 CSI 행렬에 가우시안 노이즈를 추가하는 순방향 확산 과정"
         },
         {
           "name": "Conditional Reverse Process",
           "latex": "p_\\theta(\\mathbf{H}_{t-1} | \\mathbf{H}_t, \\mathbf{s}) = \\mathcal{N}(\\mathbf{H}_{t-1}; \\mu_\\theta(\\mathbf{H}_t, t, \\mathbf{s}), \\sigma_t^2 \\mathbf{I})",
-          "description": "Reverse denoising conditioned on compressed codeword s for CSI reconstruction"
+          "description": "CSI 복원을 위해 압축된 코드워드 s에 조건부로 수행되는 역방향 잡음 제거 과정"
         }
       ],
       "category": "other",
-      "tags": ["diffusion", "ddpm", "generative", "decoder-refinement", "csi-feedback", "ultra-low-rate"],
+      "tags": [
+        "diffusion",
+        "ddpm",
+        "generative",
+        "decoder-refinement",
+        "csi-feedback",
+        "ultra-low-rate"
+      ],
       "pdf_url": "https://arxiv.org/pdf/2310.04567",
       "code_url": null,
       "color_hex": "#0D9488"
     },
     {
       "title": "Joint Compression and Quantization for Practical CSI Feedback",
-      "authors": ["Chao-Kai Wen", "Wan-Ting Shih", "Shi Jin"],
+      "authors": [
+        "Chao-Kai Wen",
+        "Wan-Ting Shih",
+        "Shi Jin"
+      ],
       "year": 2024,
       "venue": "IEEE Journal on Selected Areas in Communications",
       "doi": "10.1109/JSAC.2024.3389123",
       "arxiv_id": null,
-      "abstract": "This paper proposes end-to-end joint optimization of compression and quantization for CSI feedback, addressing the mismatch problem when training compression and quantization modules separately. The unified framework co-trains the encoder, quantizer, and decoder to minimize reconstruction error under a total bit budget, achieving significantly better rate-distortion performance than sequential approaches.",
+      "abstract": "본 논문은 CSI 피드백을 위한 압축과 양자화의 엔드투엔드 결합 최적화를 제안하며, 압축 모듈과 양자화 모듈을 별도로 학습할 때 발생하는 불일치 문제를 해결한다. 통합 프레임워크는 인코더, 양자화기, 디코더를 공동 학습하여 총 비트 예산 하에서 복원 오차를 최소화하며, 순차적 접근법 대비 크게 향상된 율-왜곡 성능을 달성한다.",
       "key_contributions": [
-        "End-to-end joint optimization framework for CSI compression and quantization",
-        "Unified training eliminating mismatch between separately optimized modules",
-        "State-of-the-art rate-distortion performance across all feedback bit budgets"
+        "CSI 압축 및 양자화를 위한 엔드투엔드 결합 최적화 프레임워크",
+        "개별 최적화된 모듈 간 불일치를 제거하는 통합 학습",
+        "모든 피드백 비트 예산에서 최첨단 율-왜곡 성능 달성"
       ],
       "algorithms": [
-        "End-to-End Joint Training",
-        "Differentiable Quantization via STE",
-        "Rate-Distortion Lagrangian Optimization",
-        "Entropy-Constrained Codeword Design"
+        "엔드투엔드 결합 학습(End-to-End Joint Training)",
+        "STE를 통한 미분 가능 양자화(Differentiable Quantization via STE)",
+        "율-왜곡 라그랑주 최적화(Rate-Distortion Lagrangian Optimization)",
+        "엔트로피 제약 코드워드 설계(Entropy-Constrained Codeword Design)"
       ],
       "key_equations": [
         {
           "name": "Joint Optimization",
           "latex": "\\min_{\\theta_e, \\theta_q, \\theta_d} \\text{NMSE}(f_d(Q_{\\theta_q}(f_e(\\mathbf{H}; \\theta_e)); \\theta_d), \\mathbf{H}) + \\lambda \\cdot R(Q_{\\theta_q}(f_e(\\mathbf{H})))",
-          "description": "Joint minimization of NMSE through encoder f_e, quantizer Q, decoder f_d plus rate penalty R"
+          "description": "인코더 f_e, 양자화기 Q, 디코더 f_d를 통한 NMSE와 전송률 페널티 R의 결합 최소화"
         },
         {
           "name": "Rate Estimation",
           "latex": "R = \\sum_{i=1}^{M} -\\log_2 p(\\hat{s}_i | \\hat{s}_{<i})",
-          "description": "Rate estimated via entropy model on quantized codeword elements"
+          "description": "양자화된 코드워드 요소에 대한 엔트로피 모델을 통해 추정된 전송률"
         }
       ],
       "category": "quantization",
-      "tags": ["joint-optimization", "end-to-end", "rate-distortion", "entropy-coding", "csi-feedback", "practical-deployment"],
+      "tags": [
+        "joint-optimization",
+        "end-to-end",
+        "rate-distortion",
+        "entropy-coding",
+        "csi-feedback",
+        "practical-deployment"
+      ],
       "pdf_url": null,
       "code_url": null,
       "color_hex": "#B45309"
     },
     {
       "title": "Ternary Neural Network for Extreme-Efficient CSI Feedback",
-      "authors": ["Zhilin Lu", "Jintao Wang", "Jian Song"],
+      "authors": [
+        "Zhilin Lu",
+        "Jintao Wang",
+        "Jian Song"
+      ],
       "year": 2023,
       "venue": "IEEE Communications Letters",
       "doi": "10.1109/LCOMM.2023.3301234",
       "arxiv_id": null,
-      "abstract": "This paper proposes TCsiNet, applying ternary weight quantization ({-1, 0, +1}) to CSI feedback networks. Unlike binary networks which suffer significant accuracy loss, ternary networks include a zero state that effectively implements implicit pruning. TCsiNet achieves near-full-precision NMSE with 16x model compression and efficient multiply-accumulate via simple additions.",
+      "abstract": "본 논문은 CSI 피드백 네트워크에 삼진 가중치 양자화({-1, 0, +1})를 적용한 TCsiNet을 제안한다. 상당한 정확도 손실이 발생하는 이진 네트워크와 달리, 삼진 네트워크는 영(zero) 상태를 포함하여 암묵적 프루닝을 효과적으로 구현한다. TCsiNet은 단순 덧셈 연산을 통한 효율적인 곱셈-누적 연산과 함께 16배 모델 압축으로 전정밀도에 근접하는 NMSE를 달성한다.",
       "key_contributions": [
-        "Ternary weight quantization ({-1,0,+1}) for CSI feedback with implicit pruning via zero weights",
-        "16x model compression with near-full-precision NMSE performance",
-        "Efficient inference using additions instead of multiplications for ternary operations"
+        "영 가중치를 통한 암묵적 프루닝이 가능한 CSI 피드백용 삼진 가중치 양자화({-1,0,+1})",
+        "전정밀도에 근접하는 NMSE 성능으로 16배 모델 압축 달성",
+        "삼진 연산에서 곱셈 대신 덧셈을 사용한 효율적인 추론"
       ],
       "algorithms": [
-        "TCsiNet (Ternary CsiNet)",
-        "Ternary Weight Quantization with Thresholds",
-        "Two-Step Threshold Learning",
-        "Ternary Gradient Estimator"
+        "삼진 CsiNet(TCsiNet, Ternary CsiNet)",
+        "임계값 기반 삼진 가중치 양자화(Ternary Weight Quantization with Thresholds)",
+        "2단계 임계값 학습(Two-Step Threshold Learning)",
+        "삼진 그래디언트 추정기(Ternary Gradient Estimator)"
       ],
       "key_equations": [
         {
           "name": "Ternary Quantization",
           "latex": "w_t = \\begin{cases} +\\alpha & \\text{if } w > \\Delta \\\\ 0 & \\text{if } |w| \\leq \\Delta \\\\ -\\alpha & \\text{if } w < -\\Delta \\end{cases}",
-          "description": "Ternary quantization with learned threshold Delta and scaling factor alpha"
+          "description": "학습된 임계값 Delta와 스케일링 팩터 alpha를 사용한 삼진 양자화"
         },
         {
           "name": "Optimal Threshold",
           "latex": "\\Delta^* = \\frac{0.7}{n} \\sum_{i=1}^{n} |w_i|",
-          "description": "Optimal threshold approximated as 0.7 times the mean absolute weight value"
+          "description": "평균 절대 가중치 값의 0.7배로 근사된 최적 임계값"
         }
       ],
       "category": "quantization",
-      "tags": ["ternary", "tnn", "2-bit", "extreme-compression", "model-compression", "csi-feedback", "efficient-inference"],
+      "tags": [
+        "ternary",
+        "tnn",
+        "2-bit",
+        "extreme-compression",
+        "model-compression",
+        "csi-feedback",
+        "efficient-inference"
+      ],
       "pdf_url": null,
       "code_url": null,
       "color_hex": "#E11D48"
     },
     {
       "title": "AiANet: Attention-Infused Autoencoder for Massive MIMO CSI Compression",
-      "authors": ["Kangzhi Lou", "Xiping Wu"],
+      "authors": [
+        "Kangzhi Lou",
+        "Xiping Wu"
+      ],
       "year": 2025,
       "venue": "arXiv preprint",
       "doi": null,
       "arxiv_id": "2504.12440",
-      "abstract": "This paper proposes AiANet, an attention-based autoencoder that adaptively extracts channel-wise and spatial CSI features simultaneously using a locally-aware self-attention mechanism. A mixed-training approach enables generalization across indoor/outdoor scenarios, achieving up to 3.42 dB improvement in NMSE over ACRNet.",
+      "abstract": "본 논문은 지역 인식 셀프 어텐션 메커니즘을 활용하여 채널별 및 공간적 CSI 특징을 동시에 적응적으로 추출하는 어텐션 기반 오토인코더인 AiANet을 제안한다. 혼합 학습 방식을 통해 실내/실외 시나리오 간 일반화를 가능하게 하며, ACRNet 대비 최대 3.42 dB의 NMSE 개선을 달성한다.",
       "key_contributions": [
-        "Locally-aware self-attention mechanism capturing both broad and local spatial patterns in CSI",
-        "Mixed-training strategy enabling cross-environment generalization",
-        "Up to 3.42 dB NMSE improvement over ACRNet across compression ratios"
+        "CSI의 광역 및 지역 공간 패턴을 모두 포착하는 지역 인식 셀프 어텐션 메커니즘",
+        "환경 간 일반화를 가능하게 하는 혼합 학습 전략",
+        "다양한 압축비에서 ACRNet 대비 최대 3.42 dB NMSE 개선"
       ],
       "algorithms": [
-        "AiANet Encoder-Decoder",
-        "Locally-Aware Self-Attention",
-        "Mixed Indoor/Outdoor Training",
-        "Channel-Spatial Feature Fusion"
+        "AiANet 인코더-디코더(AiANet Encoder-Decoder)",
+        "지역 인식 셀프 어텐션(Locally-Aware Self-Attention)",
+        "실내/실외 혼합 학습(Mixed Indoor/Outdoor Training)",
+        "채널-공간 특징 융합(Channel-Spatial Feature Fusion)"
       ],
       "key_equations": [
         {
           "name": "Local-Aware Attention",
           "latex": "\\text{Attn}(\\mathbf{Q},\\mathbf{K},\\mathbf{V}) = \\text{softmax}\\left(\\frac{\\mathbf{Q}\\mathbf{K}^T}{\\sqrt{d_k}} + \\mathbf{M}_{\\text{local}}\\right)\\mathbf{V}",
-          "description": "Self-attention with local mask M restricting attention scope to neighboring spatial positions"
+          "description": "어텐션 범위를 인접 공간 위치로 제한하는 지역 마스크 M을 적용한 셀프 어텐션"
         }
       ],
       "category": "autoencoder",
-      "tags": ["attention", "autoencoder", "generalization", "mixed-training", "csi-feedback", "2025"],
+      "tags": [
+        "attention",
+        "autoencoder",
+        "generalization",
+        "mixed-training",
+        "csi-feedback",
+        "2025"
+      ],
       "pdf_url": "https://arxiv.org/pdf/2504.12440",
       "code_url": null,
       "color_hex": "#2563EB"
     },
     {
       "title": "SLATE: SwinLSTM Autoencoder for Temporal-Spatial-Frequency CSI Compression",
-      "authors": ["Aakash Saini", "Yunchou Xing", "Jee Hyun Kim", "Amir Ahmadian Tehrani", "Wolfgang Gerstacker"],
+      "authors": [
+        "Aakash Saini",
+        "Yunchou Xing",
+        "Jee Hyun Kim",
+        "Amir Ahmadian Tehrani",
+        "Wolfgang Gerstacker"
+      ],
       "year": 2025,
       "venue": "arXiv preprint",
       "doi": null,
       "arxiv_id": "2505.04432",
-      "abstract": "SLATE is a lightweight model that jointly exploits temporal, spatial, and frequency domain correlations for CSI compression using SwinLSTM cells. It outperforms Rel-16 enhanced TypeII codebook with approximately 76% fewer parameters and 86% lower complexity compared to ConvLSTM-TF methods.",
+      "abstract": "SLATE는 SwinLSTM 셀을 사용하여 CSI 압축을 위한 시간, 공간, 주파수 도메인 상관관계를 결합 활용하는 경량 모델이다. ConvLSTM-TF 방법 대비 약 76% 적은 파라미터와 86% 낮은 복잡도로 Rel-16 강화 TypeII 코드북을 능가하는 성능을 달성한다.",
       "key_contributions": [
-        "Joint temporal-spatial-frequency compression using SwinLSTM architecture",
-        "76% fewer parameters and 86% lower complexity than ConvLSTM-TF baselines",
-        "Superior performance over Rel-16 enhanced TypeII codebook"
+        "SwinLSTM 아키텍처를 활용한 시간-공간-주파수 결합 압축",
+        "ConvLSTM-TF 기준선 대비 76% 적은 파라미터와 86% 낮은 복잡도",
+        "Rel-16 강화 TypeII 코드북 대비 우수한 성능"
       ],
       "algorithms": [
-        "SwinLSTM Cell",
-        "Joint TSF Compression",
-        "Shifted Window Attention + LSTM",
-        "Multi-Domain Feature Extraction"
+        "SwinLSTM 셀(SwinLSTM Cell)",
+        "TSF 결합 압축(Joint TSF Compression)",
+        "시프트 윈도우 어텐션 + LSTM(Shifted Window Attention + LSTM)",
+        "다중 도메인 특징 추출(Multi-Domain Feature Extraction)"
       ],
       "key_equations": [
         {
           "name": "SwinLSTM Cell",
           "latex": "\\mathbf{h}_t = \\text{SwinAttn}(\\text{LSTM}(\\mathbf{x}_t, \\mathbf{h}_{t-1}, \\mathbf{c}_{t-1}))",
-          "description": "SwinLSTM combines shifted window attention with LSTM recurrence for joint spatiotemporal modeling"
+          "description": "SwinLSTM은 시프트 윈도우 어텐션과 LSTM 순환 구조를 결합하여 시공간 결합 모델링을 수행"
         }
       ],
       "category": "autoencoder",
-      "tags": ["swin-transformer", "lstm", "temporal", "lightweight", "3gpp", "csi-feedback", "2025"],
+      "tags": [
+        "swin-transformer",
+        "lstm",
+        "temporal",
+        "lightweight",
+        "3gpp",
+        "csi-feedback",
+        "2025"
+      ],
       "pdf_url": "https://arxiv.org/pdf/2505.04432",
       "code_url": null,
       "color_hex": "#0891B2"
     },
     {
       "title": "Quantization Design for Deep Learning-Based CSI Feedback",
-      "authors": ["Manru Yin", "Shengqian Han", "Chenyang Yang"],
+      "authors": [
+        "Manru Yin",
+        "Shengqian Han",
+        "Chenyang Yang"
+      ],
       "year": 2025,
       "venue": "arXiv preprint",
       "doi": null,
       "arxiv_id": "2503.08125",
-      "abstract": "This paper proposes a novel quantization approach that intelligently distributes bits across autoencoder encoder outputs, with a joint training method featuring an adaptive loss function that weights quantization loss and the logarithm of reconstruction loss. The approach outperforms existing quantization methods for CSI feedback.",
+      "abstract": "본 논문은 오토인코더 인코더 출력에 걸쳐 비트를 지능적으로 분배하는 새로운 양자화 접근법을 제안하며, 양자화 손실과 복원 손실의 로그값을 가중하는 적응적 손실 함수를 특징으로 하는 결합 학습 방법을 포함한다. 이 접근법은 CSI 피드백에 대한 기존 양자화 방법을 능가한다.",
       "key_contributions": [
-        "Intelligent bit distribution strategy across encoder output elements",
-        "Adaptive loss function jointly weighting quantization and reconstruction losses",
-        "Outperforms existing uniform and non-uniform quantization methods for CSI feedback"
+        "인코더 출력 요소에 걸친 지능적 비트 분배 전략",
+        "양자화 손실과 복원 손실을 결합 가중하는 적응적 손실 함수",
+        "CSI 피드백에 대한 기존 균일 및 비균일 양자화 방법을 능가"
       ],
       "algorithms": [
-        "Adaptive Bit Distribution",
-        "Joint Quantization-Reconstruction Training",
-        "Weighted Log-Loss Function",
-        "Element-wise Bit Allocation"
+        "적응적 비트 분배(Adaptive Bit Distribution)",
+        "양자화-복원 결합 학습(Joint Quantization-Reconstruction Training)",
+        "가중 로그 손실 함수(Weighted Log-Loss Function)",
+        "요소별 비트 할당(Element-wise Bit Allocation)"
       ],
       "key_equations": [
         {
           "name": "Adaptive Joint Loss",
           "latex": "\\mathcal{L} = \\alpha \\cdot \\log(1 + \\text{NMSE}) + (1-\\alpha) \\cdot \\|\\mathbf{s} - Q(\\mathbf{s})\\|_2^2",
-          "description": "Joint loss balancing log-reconstruction error and quantization distortion with adaptive weight alpha"
+          "description": "적응적 가중치 alpha를 사용하여 로그 복원 오차와 양자화 왜곡을 균형 있게 조합하는 결합 손실"
         },
         {
           "name": "Non-Uniform Bit Allocation",
           "latex": "b_i^* = \\text{round}\\left(\\bar{b} + \\frac{1}{2}\\log_2 \\frac{\\sigma_i^2}{(\\prod_j \\sigma_j^2)^{1/M}}\\right)",
-          "description": "Optimal per-element bit allocation based on variance of encoder outputs"
+          "description": "인코더 출력의 분산에 기반한 요소별 최적 비트 할당"
         }
       ],
       "category": "quantization",
-      "tags": ["quantization-design", "bit-allocation", "adaptive-loss", "csi-feedback", "2025"],
+      "tags": [
+        "quantization-design",
+        "bit-allocation",
+        "adaptive-loss",
+        "csi-feedback",
+        "2025"
+      ],
       "pdf_url": "https://arxiv.org/pdf/2503.08125",
       "code_url": null,
       "color_hex": "#7C3AED"
     },
     {
       "title": "InvCSINet: Invertible Networks with Endogenous Quantization for CSI Feedback",
-      "authors": ["Haotian Tian", "Lixiang Lian", "Jiaqi Cao", "Sijie Ji"],
+      "authors": [
+        "Haotian Tian",
+        "Lixiang Lian",
+        "Jiaqi Cao",
+        "Sijie Ji"
+      ],
       "year": 2025,
       "venue": "arXiv preprint",
       "doi": null,
       "arxiv_id": "2507.20283",
-      "abstract": "InvCSINet uses invertible neural networks for CSI feedback that avoids irreversible information loss in conventional autoencoders. The framework includes differentiable adaptive quantization (DAQ), channel error correction, and information compensation modules, achieving superior recovery with a lightweight architecture.",
+      "abstract": "InvCSINet은 기존 오토인코더의 비가역적 정보 손실을 방지하는 가역 신경망을 CSI 피드백에 활용한다. 이 프레임워크는 미분 가능 적응 양자화(DAQ), 채널 오류 보정, 정보 보상 모듈을 포함하며, 경량 아키텍처로 우수한 복원 성능을 달성한다.",
       "key_contributions": [
-        "Bijective invertible network design preserving information through compression/reconstruction cycle",
-        "Differentiable adaptive quantization (DAQ) module integrated end-to-end",
-        "Channel error mitigation module for robust feedback over noisy links"
+        "압축/복원 사이클을 통해 정보를 보존하는 전단사 가역 네트워크 설계",
+        "엔드투엔드로 통합된 미분 가능 적응 양자화(DAQ) 모듈",
+        "잡음이 있는 링크에서의 강건한 피드백을 위한 채널 오류 완화 모듈"
       ],
       "algorithms": [
-        "Invertible Neural Network Encoder-Decoder",
-        "Differentiable Adaptive Quantization (DAQ)",
-        "Channel Error Compensation",
-        "Information-Preserving Coupling Layers"
+        "가역 신경망 인코더-디코더(Invertible Neural Network Encoder-Decoder)",
+        "미분 가능 적응 양자화(Differentiable Adaptive Quantization, DAQ)",
+        "채널 오류 보상(Channel Error Compensation)",
+        "정보 보존 커플링 레이어(Information-Preserving Coupling Layers)"
       ],
       "key_equations": [
         {
           "name": "Invertible Transform",
           "latex": "\\mathbf{y}_1 = \\mathbf{x}_1 \\odot \\exp(s(\\mathbf{x}_2)) + t(\\mathbf{x}_2), \\quad \\mathbf{y}_2 = \\mathbf{x}_2",
-          "description": "Affine coupling layer: bijective transform enabling exact inversion for lossless compression"
+          "description": "아핀 커플링 레이어: 무손실 압축을 위한 정확한 역변환이 가능한 전단사 변환"
         },
         {
           "name": "DAQ Quantizer",
           "latex": "Q_{\\text{DAQ}}(s_i) = \\Delta_i \\cdot \\text{round}(s_i / \\Delta_i), \\quad \\Delta_i = \\sigma(\\phi(s_i))",
-          "description": "Differentiable adaptive quantization with learned per-element step size"
+          "description": "학습된 요소별 양자화 스텝 크기를 사용하는 미분 가능 적응 양자화"
         }
       ],
       "category": "quantization",
-      "tags": ["invertible-network", "adaptive-quantization", "information-preserving", "channel-error", "csi-feedback", "2025"],
+      "tags": [
+        "invertible-network",
+        "adaptive-quantization",
+        "information-preserving",
+        "channel-error",
+        "csi-feedback",
+        "2025"
+      ],
       "pdf_url": "https://arxiv.org/pdf/2507.20283",
       "code_url": null,
       "color_hex": "#C026D3"
     },
     {
       "title": "SemCSINet: Semantic-Aware CSI Feedback Network in Massive MIMO Systems",
-      "authors": ["Ruonan Ren", "Jianhua Mo", "Meixia Tao"],
+      "authors": [
+        "Ruonan Ren",
+        "Jianhua Mo",
+        "Meixia Tao"
+      ],
       "year": 2025,
       "venue": "arXiv preprint",
       "doi": null,
       "arxiv_id": "2505.08314",
-      "abstract": "SemCSINet is a Transformer-based CSI feedback framework that incorporates CQI (Channel Quality Indicator) into the CSI feedback process via semantic embedding and a joint coding-modulation scheme. It significantly outperforms conventional methods at low SNR and low compression ratios.",
+      "abstract": "SemCSINet은 의미 임베딩과 결합 코딩-변조 방식을 통해 CQI(Channel Quality Indicator)를 CSI 피드백 과정에 통합하는 Transformer 기반 CSI 피드백 프레임워크이다. 낮은 SNR과 낮은 압축비 조건에서 기존 방법을 크게 능가하는 성능을 보인다.",
       "key_contributions": [
-        "Semantic-aware design integrating CQI with CSI for task-oriented feedback",
-        "Joint coding-modulation scheme for robust feedback over noisy channels",
-        "Improved robustness under low-SNR and high-compression scenarios"
+        "작업 지향적 피드백을 위해 CQI와 CSI를 통합하는 의미 인식 설계",
+        "잡음 채널에서의 강건한 피드백을 위한 결합 코딩-변조 방식",
+        "저SNR 및 고압축 시나리오에서의 향상된 강건성"
       ],
       "algorithms": [
-        "Semantic CSI Embedding",
-        "CQI-Conditioned Transformer",
-        "Joint Source-Channel Coding-Modulation",
-        "Task-Oriented Feedback Optimization"
+        "의미적 CSI 임베딩(Semantic CSI Embedding)",
+        "CQI 조건부 Transformer(CQI-Conditioned Transformer)",
+        "결합 소스-채널 코딩-변조(Joint Source-Channel Coding-Modulation)",
+        "작업 지향적 피드백 최적화(Task-Oriented Feedback Optimization)"
       ],
       "key_equations": [
         {
           "name": "Semantic CSI Embedding",
           "latex": "\\mathbf{z} = f_{\\text{enc}}(\\mathbf{H}, \\text{CQI}) = \\text{Transformer}([\\mathbf{H}_{\\text{patch}}; \\mathbf{e}_{\\text{CQI}}])",
-          "description": "CSI patches concatenated with CQI semantic embedding and processed by Transformer encoder"
+          "description": "CSI 패치와 CQI 의미 임베딩을 연결하여 Transformer 인코더로 처리"
         }
       ],
       "category": "transformer",
-      "tags": ["semantic", "cqi", "transformer", "joint-coding", "robust", "csi-feedback", "2025"],
+      "tags": [
+        "semantic",
+        "cqi",
+        "transformer",
+        "joint-coding",
+        "robust",
+        "csi-feedback",
+        "2025"
+      ],
       "pdf_url": "https://arxiv.org/pdf/2505.08314",
       "code_url": null,
       "color_hex": "#059669"
     },
     {
       "title": "RD-JSCC: Residual Diffusion for Variable-Rate Joint Source-Channel Coding of MIMO CSI",
-      "authors": ["Sravan Kumar Ankireddy", "Heasung Kim", "Hyeji Kim"],
+      "authors": [
+        "Sravan Kumar Ankireddy",
+        "Heasung Kim",
+        "Hyeji Kim"
+      ],
       "year": 2025,
       "venue": "arXiv preprint",
       "doi": null,
       "arxiv_id": "2505.21681",
-      "abstract": "RD-JSCC combines a lightweight autoencoder with a residual diffusion module for iterative CSI refinement. It features adaptive decoding that dynamically switches between low-complexity autoencoder decoding and diffusion-based refinement based on channel conditions, supporting multiple compression rates with a single model.",
+      "abstract": "RD-JSCC는 경량 오토인코더와 반복적 CSI 정제를 위한 잔차 확산 모듈을 결합한다. 채널 조건에 따라 저복잡도 오토인코더 디코딩과 확산 기반 정제 사이를 동적으로 전환하는 적응적 디코딩을 특징으로 하며, 단일 모델로 다중 압축률을 지원한다.",
       "key_contributions": [
-        "Residual diffusion refinement module for iterative CSI reconstruction improvement",
-        "Variable-rate support from a single unified model",
-        "Adaptive decoding switching between autoencoder and diffusion based on channel conditions"
+        "반복적 CSI 복원 개선을 위한 잔차 확산 정제 모듈",
+        "단일 통합 모델에서의 가변 전송률 지원",
+        "채널 조건에 따라 오토인코더와 확산 모델 간 전환하는 적응적 디코딩"
       ],
       "algorithms": [
-        "Residual Diffusion Refinement",
-        "Variable-Rate JSCC Encoder",
-        "Adaptive Complexity Decoder",
-        "2-Step Fast Diffusion Inference"
+        "잔차 확산 정제(Residual Diffusion Refinement)",
+        "가변률 JSCC 인코더(Variable-Rate JSCC Encoder)",
+        "적응적 복잡도 디코더(Adaptive Complexity Decoder)",
+        "2단계 고속 확산 추론(2-Step Fast Diffusion Inference)"
       ],
       "key_equations": [
         {
           "name": "Residual Diffusion",
           "latex": "\\hat{\\mathbf{H}}_{\\text{refined}} = \\hat{\\mathbf{H}}_0 + \\epsilon_\\theta(\\hat{\\mathbf{H}}_0 + \\sigma_t \\boldsymbol{\\epsilon}, t, \\mathbf{s})",
-          "description": "Diffusion model learns to predict and remove residual error from initial autoencoder reconstruction"
+          "description": "확산 모델이 초기 오토인코더 복원의 잔차 오류를 예측하고 제거하는 과정"
         }
       ],
       "category": "other",
-      "tags": ["diffusion", "jscc", "variable-rate", "residual", "adaptive", "csi-feedback", "2025"],
+      "tags": [
+        "diffusion",
+        "jscc",
+        "variable-rate",
+        "residual",
+        "adaptive",
+        "csi-feedback",
+        "2025"
+      ],
       "pdf_url": "https://arxiv.org/pdf/2505.21681",
       "code_url": null,
       "color_hex": "#14B8A6"
     },
     {
       "title": "WiFo-CF: Wireless Foundation Model for CSI Feedback",
-      "authors": ["Xuanyu Liu", "Shijian Gao", "Boxun Liu", "Xiang Cheng", "Liuqing Yang"],
+      "authors": [
+        "Xuanyu Liu",
+        "Shijian Gao",
+        "Boxun Liu",
+        "Xiang Cheng",
+        "Liuqing Yang"
+      ],
       "year": 2025,
       "venue": "arXiv preprint",
       "doi": null,
       "arxiv_id": "2508.04068",
-      "abstract": "WiFo-CF is a foundation model tailored for CSI feedback supporting heterogeneous configurations (varying channel dimensions, feedback rates, data distributions) within a unified framework. It uses multi-user multi-rate self-supervised pre-training and a Mixture of Shared and Routed Expert (S-R MoE) architecture.",
+      "abstract": "WiFo-CF는 이기종 구성(다양한 채널 차원, 피드백 전송률, 데이터 분포)을 통합 프레임워크 내에서 지원하는 CSI 피드백 전용 파운데이션 모델이다. 다중 사용자 다중 전송률 자기 지도 사전 학습과 공유 및 라우팅 전문가 혼합(S-R MoE) 아키텍처를 활용한다.",
       "key_contributions": [
-        "First foundation model specifically designed for heterogeneous CSI feedback",
-        "S-R MoE architecture supporting varying channel dimensions and feedback rates in one model",
-        "Multi-user multi-rate self-supervised pre-training on heterogeneous CSI dataset"
+        "이기종 CSI 피드백을 위해 특별히 설계된 최초의 파운데이션 모델",
+        "다양한 채널 차원과 피드백 전송률을 하나의 모델에서 지원하는 S-R MoE 아키텍처",
+        "이기종 CSI 데이터셋에 대한 다중 사용자 다중 전송률 자기 지도 사전 학습"
       ],
       "algorithms": [
-        "Shared-Routed Mixture of Experts (S-R MoE)",
-        "Multi-Rate Self-Supervised Pre-Training",
-        "Heterogeneous Configuration Adapter",
-        "Foundation Model Fine-Tuning"
+        "공유-라우팅 전문가 혼합(Shared-Routed Mixture of Experts, S-R MoE)",
+        "다중 전송률 자기 지도 사전 학습(Multi-Rate Self-Supervised Pre-Training)",
+        "이기종 구성 어댑터(Heterogeneous Configuration Adapter)",
+        "파운데이션 모델 미세 조정(Foundation Model Fine-Tuning)"
       ],
       "key_equations": [
         {
           "name": "S-R MoE Layer",
           "latex": "\\mathbf{y} = \\mathbf{W}_s \\mathbf{x} + \\sum_{i=1}^{K} g_i(\\mathbf{x}) \\cdot E_i(\\mathbf{x}), \\quad g_i = \\text{TopK}(\\text{softmax}(\\mathbf{W}_g \\mathbf{x}))",
-          "description": "Shared expert W_s always active plus top-K routed experts selected by gating network"
+          "description": "공유 전문가 W_s가 항상 활성화되며, 게이팅 네트워크에 의해 선택된 상위 K개의 라우팅 전문가가 추가되는 구조"
         }
       ],
       "category": "transformer",
-      "tags": ["foundation-model", "moe", "self-supervised", "heterogeneous", "pre-training", "csi-feedback", "2025"],
+      "tags": [
+        "foundation-model",
+        "moe",
+        "self-supervised",
+        "heterogeneous",
+        "pre-training",
+        "csi-feedback",
+        "2025"
+      ],
       "pdf_url": "https://arxiv.org/pdf/2508.04068",
       "code_url": null,
       "color_hex": "#DC2626"
     },
     {
       "title": "EG-CsiNet: Generalizable Learning for Massive MIMO CSI Feedback in Unseen Environments",
-      "authors": ["Haoyu Wang", "Zhi Sun", "Shuangfeng Han", "Xiaoyun Wang", "Zhaocheng Wang"],
+      "authors": [
+        "Haoyu Wang",
+        "Zhi Sun",
+        "Shuangfeng Han",
+        "Xiaoyun Wang",
+        "Zhaocheng Wang"
+      ],
       "year": 2025,
       "venue": "arXiv preprint",
       "doi": null,
       "arxiv_id": "2512.22840",
-      "abstract": "EG-CsiNet addresses the generalizability problem of DL-based CSI feedback in unseen environments by proposing physics-based distribution alignment. It models distribution shift via cluster-based channel decomposition using the Eckart-Young-Mirsky theorem, robustly reducing generalization error by more than 3 dB vs state-of-the-art.",
+      "abstract": "EG-CsiNet은 물리 기반 분포 정렬(distribution alignment)을 제안하여, 미경험 환경에서의 딥러닝 기반 CSI 피드백 일반화 문제를 해결한다. Eckart-Young-Mirsky 정리를 활용한 클러스터 기반 채널 분해를 통해 분포 이동(distribution shift)을 모델링하며, 최신 기법 대비 3 dB 이상의 일반화 오차 감소를 달성한다.",
       "key_contributions": [
-        "Physics-informed distribution alignment for environment generalization",
-        "Cluster-based channel decomposition using Eckart-Young-Mirsky theorem",
-        "3+ dB generalization improvement validated on sim-to-real experiments"
+        "환경 일반화를 위한 물리 정보 기반 분포 정렬 기법",
+        "Eckart-Young-Mirsky 정리를 활용한 클러스터 기반 채널 분해",
+        "시뮬레이션-실측 실험에서 검증된 3+ dB 일반화 성능 향상"
       ],
       "algorithms": [
-        "Physics-Based Distribution Alignment",
-        "Cluster-Based Channel Decomposition",
+        "Physics-Based Distribution Alignment (물리 기반 분포 정렬)",
+        "Cluster-Based Channel Decomposition (클러스터 기반 채널 분해)",
         "Eckart-Young-Mirsky SVD Factoring",
-        "Domain-Invariant Feature Learning"
+        "Domain-Invariant Feature Learning (도메인 불변 특징 학습)"
       ],
       "key_equations": [
         {
           "name": "Channel Cluster Decomposition",
           "latex": "\\mathbf{H} \\approx \\sum_{k=1}^{K} \\pi_k \\mathbf{U}_k \\boldsymbol{\\Sigma}_k \\mathbf{V}_k^H",
-          "description": "CSI decomposed into K clusters via SVD, aligning source/target domain cluster distributions"
+          "description": "CSI를 SVD를 통해 K개의 클러스터로 분해하여 소스/타겟 도메인의 클러스터 분포를 정렬"
         }
       ],
       "category": "autoencoder",
-      "tags": ["generalization", "domain-adaptation", "physics-informed", "unseen-environment", "sim-to-real", "csi-feedback", "2025"],
+      "tags": [
+        "generalization",
+        "domain-adaptation",
+        "physics-informed",
+        "unseen-environment",
+        "sim-to-real",
+        "csi-feedback",
+        "2025"
+      ],
       "pdf_url": "https://arxiv.org/pdf/2512.22840",
       "code_url": null,
       "color_hex": "#F97316"
     },
     {
       "title": "LVM4CF: CSI Feedback with Offline Large Vision Models",
-      "authors": ["Jialin Zhuang", "Yafei Wang", "Hongwei Hou", "Yu Han", "Wenjin Wang", "Shi Jin", "Jiangzhou Wang"],
+      "authors": [
+        "Jialin Zhuang",
+        "Yafei Wang",
+        "Hongwei Hou",
+        "Yu Han",
+        "Wenjin Wang",
+        "Shi Jin",
+        "Jiangzhou Wang"
+      ],
       "year": 2025,
       "venue": "arXiv preprint",
       "doi": null,
       "arxiv_id": "2505.08566",
-      "abstract": "LVM4CF leverages pre-trained large vision models offline to create customized CSI codebooks by exploiting structural similarities between CSI matrices and natural images. The site-specific and multi-scenario frameworks improve reconstruction accuracy and throughput with zero added latency at deployment.",
+      "abstract": "LVM4CF는 CSI 행렬과 자연 이미지 간의 구조적 유사성을 활용하여, 사전 학습된 대규모 비전 모델을 오프라인으로 사용해 맞춤형 CSI 코드북을 생성한다. 사이트 특화 및 다중 시나리오 프레임워크를 통해 복원 정확도와 처리량을 향상시키며, 배포 시 추가 지연 시간이 전혀 발생하지 않는다.",
       "key_contributions": [
-        "Offline use of large vision models for CSI codebook creation exploiting CSI-image similarity",
-        "Site-specific and multi-scenario codebook generation frameworks",
-        "Zero added computational overhead or latency at inference time"
+        "CSI-이미지 구조적 유사성을 활용한 대규모 비전 모델의 오프라인 CSI 코드북 생성",
+        "사이트 특화 및 다중 시나리오 코드북 생성 프레임워크",
+        "추론 시 추가 연산 오버헤드 및 지연 시간 제로"
       ],
       "algorithms": [
-        "Large Vision Model Feature Extraction",
-        "CSI-Image Structural Mapping",
-        "Offline Codebook Generation",
-        "Site-Specific Fine-Tuning"
+        "Large Vision Model Feature Extraction (대규모 비전 모델 특징 추출)",
+        "CSI-Image Structural Mapping (CSI-이미지 구조 매핑)",
+        "Offline Codebook Generation (오프라인 코드북 생성)",
+        "Site-Specific Fine-Tuning (사이트 특화 미세 조정)"
       ],
       "key_equations": [
         {
           "name": "Vision-CSI Codebook",
           "latex": "\\mathcal{C}^* = \\arg\\min_{\\mathcal{C}} \\sum_{i} \\min_{\\mathbf{c} \\in \\mathcal{C}} \\|f_{\\text{LVM}}(\\mathbf{H}_i) - \\mathbf{c}\\|_2^2",
-          "description": "Optimal codebook minimizing quantization error in large vision model feature space"
+          "description": "대규모 비전 모델 특징 공간에서 양자화 오차를 최소화하는 최적 코드북"
         }
       ],
       "category": "other",
-      "tags": ["large-vision-model", "codebook", "offline", "transfer-learning", "csi-feedback", "2025"],
+      "tags": [
+        "large-vision-model",
+        "codebook",
+        "offline",
+        "transfer-learning",
+        "csi-feedback",
+        "2025"
+      ],
       "pdf_url": "https://arxiv.org/pdf/2505.08566",
       "code_url": null,
       "color_hex": "#84CC16"
     },
     {
       "title": "Semantic Pilot Design for Channel Estimation Using a Large Language Model",
-      "authors": ["Sojeong Park", "Hyun Jong Yang"],
+      "authors": [
+        "Sojeong Park",
+        "Hyun Jong Yang"
+      ],
       "year": 2026,
       "venue": "arXiv preprint",
       "doi": null,
       "arxiv_id": "2602.04126",
-      "abstract": "This paper proposes using an LLM to improve channel estimation by comparing initially decoded text with LLM-corrected versions to identify reliably decoded symbols as 'semantic pilots'. These supplement traditional pilots for enhanced data-aided channel estimation, improving phase estimation and reducing error rates.",
+      "abstract": "본 논문은 LLM을 활용하여 채널 추정을 개선하는 방법을 제안한다. 초기 복호된 텍스트와 LLM이 교정한 버전을 비교하여 신뢰성 높은 복호 심볼을 '시맨틱 파일럿'으로 식별하고, 이를 기존 파일럿에 보완하여 데이터 보조 채널 추정을 강화함으로써 위상 추정 성능을 향상시키고 오류율을 감소시킨다.",
       "key_contributions": [
-        "Novel concept of LLM-derived 'semantic pilot' for channel estimation",
-        "LLM-based reliability assessment of decoded data symbols",
-        "Improved channel phase estimation and lower BER vs pilot-only methods"
+        "채널 추정을 위한 LLM 기반 '시맨틱 파일럿'의 새로운 개념 제안",
+        "복호된 데이터 심볼에 대한 LLM 기반 신뢰도 평가",
+        "파일럿 전용 방식 대비 향상된 채널 위상 추정 및 낮은 BER 달성"
       ],
       "algorithms": [
-        "LLM-Based Semantic Pilot Extraction",
-        "Reliability Score via LLM Confidence",
-        "Data-Aided Channel Re-Estimation",
-        "Semantic Pilot Selection Threshold"
+        "LLM-Based Semantic Pilot Extraction (LLM 기반 시맨틱 파일럿 추출)",
+        "Reliability Score via LLM Confidence (LLM 신뢰도 기반 신뢰성 점수)",
+        "Data-Aided Channel Re-Estimation (데이터 보조 채널 재추정)",
+        "Semantic Pilot Selection Threshold (시맨틱 파일럿 선택 임계값)"
       ],
       "key_equations": [
         {
           "name": "Semantic Pilot Confidence",
           "latex": "r_k = \\mathbb{1}[p_{\\text{LLM}}(\\hat{x}_k | \\hat{\\mathbf{x}}_{\\setminus k}) > \\tau]",
-          "description": "Symbol k selected as semantic pilot if LLM confidence in decoded symbol exceeds threshold tau"
+          "description": "복호된 심볼에 대한 LLM 신뢰도가 임계값 tau를 초과하면 심볼 k를 시맨틱 파일럿으로 선택"
         }
       ],
       "category": "other",
-      "tags": ["llm", "semantic-pilot", "channel-estimation", "data-aided", "2026"],
+      "tags": [
+        "llm",
+        "semantic-pilot",
+        "channel-estimation",
+        "data-aided",
+        "2026"
+      ],
       "pdf_url": "https://arxiv.org/pdf/2602.04126",
       "code_url": null,
       "color_hex": "#6366F1"
     },
     {
       "title": "Neural Discrete Representation Learning (VQ-VAE)",
-      "authors": ["Aaron van den Oord", "Oriol Vinyals", "Koray Kavukcuoglu"],
+      "authors": [
+        "Aaron van den Oord",
+        "Oriol Vinyals",
+        "Koray Kavukcuoglu"
+      ],
       "year": 2017,
       "venue": "NeurIPS 2017",
       "doi": null,
       "arxiv_id": "1711.00937",
-      "abstract": "Introduces the Vector Quantised-Variational AutoEncoder (VQ-VAE), which learns discrete latent representations by incorporating vector quantization into the VAE framework. The encoder outputs discrete codes via nearest-neighbor codebook lookup, and the prior is learned rather than static. Avoids posterior collapse and enables high-quality generation of images, video, and speech.",
+      "abstract": "VAE 프레임워크에 벡터 양자화를 통합하여 이산 잠재 표현을 학습하는 VQ-VAE(Vector Quantised-Variational AutoEncoder)를 제안한다. 인코더는 최근접 이웃 코드북 탐색을 통해 이산 코드를 출력하며, 사전 분포는 고정이 아닌 학습 방식으로 구성된다. 사후 분포 붕괴(posterior collapse)를 방지하고, 이미지, 비디오, 음성의 고품질 생성을 가능하게 한다.",
       "key_contributions": [
-        "Discrete latent representation via vector quantization in VAE framework",
-        "Straight-through estimator for gradient propagation through discrete bottleneck",
-        "Learned prior distribution over discrete codes"
+        "VAE 프레임워크 내 벡터 양자화를 통한 이산 잠재 표현 학습",
+        "이산 병목을 통한 기울기 전파를 위한 Straight-Through 추정기",
+        "이산 코드에 대한 학습 가능한 사전 분포"
       ],
       "algorithms": [
-        "VQ-VAE Encoder-Decoder",
-        "Codebook Nearest-Neighbor Lookup",
-        "Exponential Moving Average Codebook Update",
-        "Straight-Through Gradient Estimator"
+        "VQ-VAE Encoder-Decoder (VQ-VAE 인코더-디코더)",
+        "Codebook Nearest-Neighbor Lookup (코드북 최근접 이웃 탐색)",
+        "Exponential Moving Average Codebook Update (지수 이동 평균 코드북 업데이트)",
+        "Straight-Through Gradient Estimator (Straight-Through 기울기 추정기)"
       ],
       "key_equations": [
         {
           "name": "VQ-VAE Loss",
           "latex": "\\mathcal{L} = \\|\\mathbf{x} - D(\\mathbf{e}_k)\\|_2^2 + \\|\\text{sg}[E(\\mathbf{x})] - \\mathbf{e}_k\\|_2^2 + \\beta\\|E(\\mathbf{x}) - \\text{sg}[\\mathbf{e}_k]\\|_2^2",
-          "description": "Reconstruction loss + codebook loss + commitment loss with stop-gradient (sg) operator"
+          "description": "복원 손실 + 코드북 손실 + 커밋먼트 손실 (stop-gradient(sg) 연산자 포함)"
         },
         {
           "name": "Vector Quantization",
           "latex": "\\mathbf{z}_q = \\mathbf{e}_k, \\quad k = \\arg\\min_j \\|E(\\mathbf{x}) - \\mathbf{e}_j\\|_2",
-          "description": "Encoder output mapped to nearest codebook vector via L2 distance"
+          "description": "인코더 출력을 L2 거리 기준으로 가장 가까운 코드북 벡터에 매핑"
         }
       ],
       "category": "quantization",
-      "tags": ["vq-vae", "vector-quantization", "discrete-latent", "codebook", "foundational"],
+      "tags": [
+        "vq-vae",
+        "vector-quantization",
+        "discrete-latent",
+        "codebook",
+        "foundational"
+      ],
       "pdf_url": "https://arxiv.org/pdf/1711.00937",
       "code_url": "https://github.com/deepmind/sonnet/blob/master/sonnet/python/modules/nets/vqvae.py",
       "color_hex": "#7C3AED"
     },
     {
       "title": "AWQ: Activation-aware Weight Quantization for LLM Compression and Acceleration",
-      "authors": ["Ji Lin", "Jiaming Tang", "Haotian Tang", "Shang Yang", "Wei-Ming Chen", "Wei-Chen Wang", "Guangxuan Xiao", "Xingyu Dang", "Chuang Gan", "Song Han"],
+      "authors": [
+        "Ji Lin",
+        "Jiaming Tang",
+        "Haotian Tang",
+        "Shang Yang",
+        "Wei-Ming Chen",
+        "Wei-Chen Wang",
+        "Guangxuan Xiao",
+        "Xingyu Dang",
+        "Chuang Gan",
+        "Song Han"
+      ],
       "year": 2023,
       "venue": "MLSys 2024 (Best Paper)",
       "doi": null,
       "arxiv_id": "2306.00978",
-      "abstract": "AWQ proposes a hardware-friendly low-bit weight-only quantization for LLMs. Key insight: not all weights are equally important — protecting only 1% of salient channels (identified via activation magnitude, not weight magnitude) greatly reduces quantization error. Per-channel scaling protects salient weights without mixed-precision overhead, achieving 3x+ speedup over FP16.",
+      "abstract": "AWQ는 LLM을 위한 하드웨어 친화적 저비트 가중치 전용 양자화를 제안한다. 핵심 통찰: 모든 가중치가 동등하게 중요하지 않으며, 활성화 크기(가중치 크기가 아닌)를 기반으로 식별된 1%의 중요 채널만 보호해도 양자화 오차가 크게 감소한다. 채널별 스케일링으로 혼합 정밀도 오버헤드 없이 중요 가중치를 보호하여 FP16 대비 3배 이상의 속도 향상을 달성한다.",
       "key_contributions": [
-        "Activation-aware saliency detection: identifies important weights via activation statistics not weight magnitude",
-        "Per-channel scaling to protect salient weights without mixed-precision hardware overhead",
-        "3x+ speedup over FP16 on desktop and mobile GPUs with negligible accuracy loss"
+        "활성화 통계 기반 중요 가중치 탐지 (가중치 크기가 아닌 활성화 기반)",
+        "혼합 정밀도 하드웨어 오버헤드 없는 채널별 스케일링을 통한 중요 가중치 보호",
+        "데스크톱 및 모바일 GPU에서 FP16 대비 3배 이상 속도 향상 (정확도 손실 무시 가능)"
       ],
       "algorithms": [
-        "Activation-Aware Saliency Detection",
-        "Per-Channel Scaling Transform",
-        "Grid Search for Optimal Scale",
-        "TinyChat Inference Engine"
+        "Activation-Aware Saliency Detection (활성화 인식 중요도 탐지)",
+        "Per-Channel Scaling Transform (채널별 스케일링 변환)",
+        "Grid Search for Optimal Scale (최적 스케일 격자 탐색)",
+        "TinyChat Inference Engine (TinyChat 추론 엔진)"
       ],
       "key_equations": [
         {
           "name": "AWQ Scaling Transform",
           "latex": "Q(\\mathbf{w} \\cdot s) \\cdot (\\mathbf{x} / s) \\approx \\mathbf{w} \\cdot \\mathbf{x}, \\quad s^* = \\arg\\min_s \\|Q(\\mathbf{W} \\text{diag}(s))\\text{diag}(s)^{-1}\\mathbf{X} - \\mathbf{W}\\mathbf{X}\\|",
-          "description": "Scale up salient weight channels before quantization to reduce error on important dimensions"
+          "description": "양자화 전 중요 가중치 채널을 스케일 업하여 중요 차원의 오차를 감소"
         }
       ],
       "category": "quantization",
-      "tags": ["awq", "activation-aware", "weight-quantization", "low-bit", "llm", "hardware-friendly", "foundational"],
+      "tags": [
+        "awq",
+        "activation-aware",
+        "weight-quantization",
+        "low-bit",
+        "llm",
+        "hardware-friendly",
+        "foundational"
+      ],
       "pdf_url": "https://arxiv.org/pdf/2306.00978",
       "code_url": "https://github.com/mit-han-lab/llm-awq",
       "color_hex": "#DC2626"
     },
     {
       "title": "HAWQ-V3: Dyadic Neural Network Quantization",
-      "authors": ["Zhewei Yao", "Zhen Dong", "Zhangcheng Zheng", "Amir Gholami", "Jiali Yu", "Eric Tan", "Leyuan Wang", "Qijing Huang", "Yida Wang", "Michael W. Mahoney", "Kurt Keutzer"],
+      "authors": [
+        "Zhewei Yao",
+        "Zhen Dong",
+        "Zhangcheng Zheng",
+        "Amir Gholami",
+        "Jiali Yu",
+        "Eric Tan",
+        "Leyuan Wang",
+        "Qijing Huang",
+        "Yida Wang",
+        "Michael W. Mahoney",
+        "Kurt Keutzer"
+      ],
       "year": 2021,
       "venue": "ICML 2021",
       "doi": null,
       "arxiv_id": "2011.10680",
-      "abstract": "HAWQ-V3 presents an integer-only mixed-precision quantization framework using Hessian-based sensitivity analysis. The entire computation uses only integer multiply, add, and bit-shift — no floating point. Solves an integer linear programming problem to balance model perturbation against memory/latency constraints. First reported INT4 integer-only quantization.",
+      "abstract": "HAWQ-V3는 헤시안 기반 민감도 분석을 사용하는 정수 전용 혼합 정밀도 양자화 프레임워크를 제시한다. 전체 연산이 정수 곱셈, 덧셈, 비트 시프트만으로 수행되며 부동소수점 연산이 필요 없다. 정수 선형 프로그래밍 문제를 풀어 모델 교란과 메모리/지연 제약 간의 균형을 맞추며, 최초의 INT4 정수 전용 양자화를 보고한다.",
       "key_contributions": [
-        "First integer-only 4-bit quantization with Hessian-based per-layer bit allocation",
-        "Integer linear programming for hardware-aware mixed-precision assignment",
-        "No floating-point: only integer multiply, add, and bit-shift"
+        "헤시안 기반 계층별 비트 할당을 적용한 최초의 정수 전용 4비트 양자화",
+        "하드웨어 인식 혼합 정밀도 할당을 위한 정수 선형 프로그래밍",
+        "부동소수점 없이 정수 곱셈, 덧셈, 비트 시프트만으로 연산 수행"
       ],
       "algorithms": [
-        "Hessian-Based Layer Sensitivity Analysis",
-        "Integer Linear Programming Bit Allocation",
-        "Dyadic Integer Arithmetic",
-        "Mixed-Precision INT4/INT8 Inference"
+        "Hessian-Based Layer Sensitivity Analysis (헤시안 기반 계층 민감도 분석)",
+        "Integer Linear Programming Bit Allocation (정수 선형 프로그래밍 비트 할당)",
+        "Dyadic Integer Arithmetic (이진 정수 산술)",
+        "Mixed-Precision INT4/INT8 Inference (혼합 정밀도 INT4/INT8 추론)"
       ],
       "key_equations": [
         {
           "name": "Hessian Sensitivity",
           "latex": "\\Omega_l = \\bar{\\delta}_l^T \\mathbf{H}_l \\bar{\\delta}_l, \\quad \\mathbf{H}_l = \\frac{\\partial^2 \\mathcal{L}}{\\partial \\mathbf{w}_l^2}",
-          "description": "Layer sensitivity measured by quantization perturbation weighted by Hessian of the loss"
+          "description": "양자화 교란을 손실 함수의 헤시안으로 가중한 계층 민감도 측정"
         },
         {
           "name": "ILP Bit Allocation",
           "latex": "\\min_{\\{b_l\\}} \\sum_l \\Omega_l(b_l) \\quad \\text{s.t.} \\quad \\text{Latency}(\\{b_l\\}) \\leq T, \\quad b_l \\in \\{4, 8\\}",
-          "description": "Integer LP minimizing total Hessian-weighted perturbation subject to latency constraint"
+          "description": "지연 시간 제약 하에서 헤시안 가중 총 교란을 최소화하는 정수 선형 프로그래밍"
         }
       ],
       "category": "quantization",
-      "tags": ["hawq", "hessian", "mixed-precision", "integer-only", "hardware-aware", "foundational"],
+      "tags": [
+        "hawq",
+        "hessian",
+        "mixed-precision",
+        "integer-only",
+        "hardware-aware",
+        "foundational"
+      ],
       "pdf_url": "https://arxiv.org/pdf/2011.10680",
       "code_url": "https://github.com/Zhen-Dong/HAWQ",
       "color_hex": "#B91C1C"
     },
     {
       "title": "GPTQ: Accurate Post-Training Quantization for Generative Pre-trained Transformers",
-      "authors": ["Elias Frantar", "Saleh Ashkboos", "Torsten Hoefler", "Dan Alistarh"],
+      "authors": [
+        "Elias Frantar",
+        "Saleh Ashkboos",
+        "Torsten Hoefler",
+        "Dan Alistarh"
+      ],
       "year": 2022,
       "venue": "ICLR 2023",
       "doi": null,
       "arxiv_id": "2210.17323",
-      "abstract": "GPTQ is a one-shot weight quantization method based on approximate second-order information (Optimal Brain Surgeon framework). Quantizes 175B-parameter GPT models in ~4 GPU hours to 3-4 bits per weight with negligible accuracy degradation, enabling single-GPU execution. Achieves 3.25x speedup on A100.",
+      "abstract": "GPTQ는 근사 2차 정보(Optimal Brain Surgeon 프레임워크)에 기반한 원샷 가중치 양자화 방법이다. 1,750억 파라미터 GPT 모델을 약 4 GPU 시간 만에 가중치당 3-4비트로 양자화하며, 정확도 저하가 거의 없어 단일 GPU에서의 실행을 가능하게 한다. A100에서 3.25배 속도 향상을 달성한다.",
       "key_contributions": [
-        "Efficient approximate inverse Hessian update for layer-wise quantization",
-        "Lazy batch updates enabling practical quantization of 175B parameter models",
-        "First to compress 175B models to 3-4 bits for single GPU execution"
+        "계층별 양자화를 위한 효율적 근사 역헤시안 업데이트",
+        "1,750억 파라미터 모델의 실용적 양자화를 가능하게 하는 지연 배치 업데이트",
+        "1,750억 파라미터 모델을 3-4비트로 압축하여 단일 GPU 실행을 최초로 구현"
       ],
       "algorithms": [
-        "Optimal Brain Quantizer (OBQ) Extension",
-        "Layer-Wise Quantization with Batch Updates",
-        "Approximate Inverse Hessian via Cholesky",
-        "Column-Order Quantization"
+        "Optimal Brain Quantizer (OBQ) Extension (OBQ 확장)",
+        "Layer-Wise Quantization with Batch Updates (배치 업데이트 기반 계층별 양자화)",
+        "Approximate Inverse Hessian via Cholesky (촐레스키 분해 기반 근사 역헤시안)",
+        "Column-Order Quantization (열 순서 양자화)"
       ],
       "key_equations": [
         {
           "name": "OBQ Weight Update",
           "latex": "\\delta_F = -\\frac{\\text{quant}(w_q) - w_q}{[\\mathbf{H}_F^{-1}]_{qq}} \\cdot (\\mathbf{H}_F^{-1})_{:,q}",
-          "description": "Optimal update to remaining weights when quantizing weight q, using inverse Hessian row"
+          "description": "가중치 q를 양자화할 때 역헤시안 행을 이용한 나머지 가중치의 최적 업데이트"
         }
       ],
       "category": "quantization",
-      "tags": ["gptq", "post-training", "second-order", "optimal-brain", "llm", "foundational"],
+      "tags": [
+        "gptq",
+        "post-training",
+        "second-order",
+        "optimal-brain",
+        "llm",
+        "foundational"
+      ],
       "pdf_url": "https://arxiv.org/pdf/2210.17323",
       "code_url": "https://github.com/IST-DASLab/gptq",
       "color_hex": "#9333EA"
     },
     {
       "title": "Finite Scalar Quantization: VQ-VAE Made Simple (FSQ)",
-      "authors": ["Fabian Mentzer", "David Minnen", "Eirikur Agustsson", "Michael Tschannen"],
+      "authors": [
+        "Fabian Mentzer",
+        "David Minnen",
+        "Eirikur Agustsson",
+        "Michael Tschannen"
+      ],
       "year": 2023,
       "venue": "ICLR 2024",
       "doi": null,
       "arxiv_id": "2309.15505",
-      "abstract": "FSQ replaces vector quantization in VQ-VAEs with per-dimension scalar quantization to a small set of fixed values. The implicit codebook is the Cartesian product of per-dimension levels. Eliminates codebook collapse, removes need for commitment losses, codebook reseeding, and entropy penalties. Achieves competitive performance with dramatically simpler design.",
+      "abstract": "FSQ는 VQ-VAE의 벡터 양자화를 차원별 스칼라 양자화로 대체하여 소수의 고정 값 집합으로 양자화한다. 암묵적 코드북은 차원별 레벨의 데카르트 곱으로 구성된다. 코드북 붕괴(codebook collapse)를 완전히 제거하고, 커밋먼트 손실, 코드북 재시딩, 엔트로피 페널티가 불필요하다. 극도로 단순한 설계로 경쟁력 있는 성능을 달성한다.",
       "key_contributions": [
-        "Per-dimension scalar quantization with implicit Cartesian product codebook",
-        "Completely eliminates codebook collapse problem of VQ-VAE",
-        "No auxiliary losses needed: no commitment loss, entropy penalty, or codebook reseeding"
+        "암묵적 데카르트 곱 코드북을 활용한 차원별 스칼라 양자화",
+        "VQ-VAE의 코드북 붕괴 문제를 완전히 제거",
+        "보조 손실 불필요: 커밋먼트 손실, 엔트로피 페널티, 코드북 재시딩 없음"
       ],
       "algorithms": [
-        "Finite Scalar Quantization",
-        "Per-Dimension Level Rounding",
-        "Implicit Codebook via Cartesian Product",
-        "Straight-Through Estimator"
+        "Finite Scalar Quantization (유한 스칼라 양자화)",
+        "Per-Dimension Level Rounding (차원별 레벨 반올림)",
+        "Implicit Codebook via Cartesian Product (데카르트 곱 기반 암묵적 코드북)",
+        "Straight-Through Estimator (Straight-Through 추정기)"
       ],
       "key_equations": [
         {
           "name": "FSQ Quantization",
           "latex": "\\hat{z}_i = \\text{round}\\left(\\frac{L_i - 1}{2} \\cdot \\tanh(z_i)\\right), \\quad |\\mathcal{C}| = \\prod_{i=1}^{d} L_i",
-          "description": "Each dimension i quantized to L_i levels; implicit codebook size is product of all levels"
+          "description": "각 차원 i를 L_i개 레벨로 양자화하며, 암묵적 코드북 크기는 모든 레벨의 곱"
         }
       ],
       "category": "quantization",
-      "tags": ["fsq", "scalar-quantization", "vq-vae-alternative", "codebook-free", "simple", "foundational"],
+      "tags": [
+        "fsq",
+        "scalar-quantization",
+        "vq-vae-alternative",
+        "codebook-free",
+        "simple",
+        "foundational"
+      ],
       "pdf_url": "https://arxiv.org/pdf/2309.15505",
       "code_url": "https://github.com/google-research/google-research/tree/master/fsq",
       "color_hex": "#0D9488"
     },
     {
       "title": "SoundStream: An End-to-End Neural Audio Codec (Residual Vector Quantization)",
-      "authors": ["Neil Zeghidour", "Alejandro Luebs", "Ahmed Omran", "Jan Skoglund", "Marco Tagliasacchi"],
+      "authors": [
+        "Neil Zeghidour",
+        "Alejandro Luebs",
+        "Ahmed Omran",
+        "Jan Skoglund",
+        "Marco Tagliasacchi"
+      ],
       "year": 2021,
       "venue": "IEEE/ACM Transactions on Audio, Speech, and Language Processing",
       "doi": null,
       "arxiv_id": "2107.03312",
-      "abstract": "SoundStream introduces Residual Vector Quantization (RVQ) for neural codec compression. RVQ applies hierarchical quantization: the first stage quantizes the latent, subsequent stages quantize the residual error. Structured dropout on quantizer layers enables a single model to operate at variable bitrates (3-18 kbps).",
+      "abstract": "SoundStream은 신경 코덱 압축을 위한 잔차 벡터 양자화(RVQ)를 도입한다. RVQ는 계층적 양자화를 적용하여 첫 번째 단계에서 잠재 벡터를 양자화하고, 후속 단계에서 잔차 오차를 양자화한다. 양자화기 계층에 대한 구조화된 드롭아웃을 통해 단일 모델로 가변 비트레이트(3-18 kbps) 운용이 가능하다.",
       "key_contributions": [
-        "Residual Vector Quantization (RVQ): hierarchical multi-stage codebook cascade",
-        "Structured dropout for variable-rate operation from a single model",
-        "End-to-end joint training of encoder, RVQ, and decoder"
+        "잔차 벡터 양자화(RVQ): 계층적 다단계 코드북 캐스케이드",
+        "단일 모델로 가변 비트레이트 운용을 위한 구조화된 드롭아웃",
+        "인코더, RVQ, 디코더의 종단간 공동 학습"
       ],
       "algorithms": [
-        "Residual Vector Quantization (RVQ)",
-        "Multi-Stage Codebook Cascade",
-        "Structured Quantizer Dropout",
-        "Discriminator-Based Adversarial Training"
+        "Residual Vector Quantization (RVQ, 잔차 벡터 양자화)",
+        "Multi-Stage Codebook Cascade (다단계 코드북 캐스케이드)",
+        "Structured Quantizer Dropout (구조화된 양자화기 드롭아웃)",
+        "Discriminator-Based Adversarial Training (판별기 기반 적대적 학습)"
       ],
       "key_equations": [
         {
           "name": "Residual VQ",
           "latex": "\\hat{\\mathbf{z}} = \\sum_{n=1}^{N} \\mathbf{e}_{k_n}^{(n)}, \\quad \\mathbf{r}^{(n)} = \\mathbf{r}^{(n-1)} - \\mathbf{e}_{k_n}^{(n)}, \\quad \\mathbf{r}^{(0)} = \\mathbf{z}",
-          "description": "Each RVQ stage n quantizes the residual from previous stage; total is sum of all codebook entries"
+          "description": "각 RVQ 단계 n에서 이전 단계의 잔차를 양자화하며, 최종 결과는 모든 코드북 항목의 합"
         }
       ],
       "category": "quantization",
-      "tags": ["rvq", "residual-vector-quantization", "neural-codec", "variable-rate", "hierarchical", "foundational"],
+      "tags": [
+        "rvq",
+        "residual-vector-quantization",
+        "neural-codec",
+        "variable-rate",
+        "hierarchical",
+        "foundational"
+      ],
       "pdf_url": "https://arxiv.org/pdf/2107.03312",
       "code_url": null,
       "color_hex": "#EA580C"
     },
     {
       "title": "Vector Quantization for Deep-Learning-Based CSI Feedback with Shape-Gain Decomposition",
-      "authors": ["Junyong Shin", "Yujin Kang", "Yo-Seb Jeon"],
+      "authors": [
+        "Junyong Shin",
+        "Yujin Kang",
+        "Yo-Seb Jeon"
+      ],
       "year": 2024,
       "venue": "arXiv preprint",
       "doi": null,
       "arxiv_id": "2403.07355",
-      "abstract": "Proposes a finite-rate CSI feedback method using VQ-VAE with shape-gain vector quantization. Decomposes the latent vector into magnitude (gain) and direction (shape), quantizing each separately: gain via non-uniform scalar codebook, direction via trainable Grassmannian codebook. Includes multi-rate nested codebook strategy.",
+      "abstract": "형상-이득 벡터 양자화를 적용한 VQ-VAE 기반 유한 레이트 CSI 피드백 방법을 제안한다. 잠재 벡터를 크기(이득)와 방향(형상)으로 분해하여 각각 별도로 양자화한다: 이득은 비균일 스칼라 코드북으로, 방향은 학습 가능한 그라스만 코드북으로 양자화한다. 가변 피드백 오버헤드를 위한 다중 레이트 중첩 코드북 전략을 포함한다.",
       "key_contributions": [
-        "Shape-gain decomposition of CSI latent vectors for separate magnitude/direction quantization",
-        "Trainable Grassmannian codebook for direction quantization on unit sphere",
-        "Multi-rate nested codebook design for variable feedback overhead"
+        "크기/방향 별도 양자화를 위한 CSI 잠재 벡터의 형상-이득 분해",
+        "단위 구면 위 방향 양자화를 위한 학습 가능한 그라스만 코드북",
+        "가변 피드백 오버헤드를 위한 다중 레이트 중첩 코드북 설계"
       ],
       "algorithms": [
-        "Shape-Gain Vector Quantization",
-        "Grassmannian Codebook Learning",
-        "Non-Uniform Gain Scalar Quantization",
-        "Nested Multi-Rate Codebook Selection"
+        "Shape-Gain Vector Quantization (형상-이득 벡터 양자화)",
+        "Grassmannian Codebook Learning (그라스만 코드북 학습)",
+        "Non-Uniform Gain Scalar Quantization (비균일 이득 스칼라 양자화)",
+        "Nested Multi-Rate Codebook Selection (중첩 다중 레이트 코드북 선택)"
       ],
       "key_equations": [
         {
           "name": "Shape-Gain Decomposition",
           "latex": "\\mathbf{s} = g \\cdot \\mathbf{u}, \\quad g = \\|\\mathbf{s}\\|_2, \\quad \\mathbf{u} = \\mathbf{s}/\\|\\mathbf{s}\\|_2",
-          "description": "Latent vector decomposed into scalar gain g and unit-norm shape vector u on Grassmann manifold"
+          "description": "잠재 벡터를 스칼라 이득 g와 그라스만 다양체 위의 단위 노름 형상 벡터 u로 분해"
         },
         {
           "name": "Grassmannian Codebook",
           "latex": "\\hat{\\mathbf{u}} = \\arg\\max_{\\mathbf{c} \\in \\mathcal{C}_G} |\\mathbf{u}^H \\mathbf{c}|^2",
-          "description": "Shape quantized via max inner product codebook on Grassmann manifold"
+          "description": "그라스만 다양체 위 최대 내적 코드북을 통한 형상 양자화"
         }
       ],
       "category": "quantization",
-      "tags": ["shape-gain", "grassmannian", "vector-quantization", "multi-rate", "codebook", "csi-feedback"],
+      "tags": [
+        "shape-gain",
+        "grassmannian",
+        "vector-quantization",
+        "multi-rate",
+        "codebook",
+        "csi-feedback"
+      ],
       "pdf_url": "https://arxiv.org/pdf/2403.07355",
       "code_url": null,
       "color_hex": "#4338CA"
@@ -1432,602 +1900,602 @@
       "from_title": "CsiNet-LSTM: A Deep Learning Architecture for Compressive CSI Estimation and Feedback in FDD Massive MIMO",
       "to_title": "Deep Learning for Massive MIMO CSI Feedback",
       "relationship_type": "extends",
-      "description": "CsiNet-LSTM extends CsiNet by adding LSTM layers to exploit temporal correlation of time-varying CSI",
+      "description": "CsiNet-LSTM은 시변 CSI의 시간적 상관관계를 활용하기 위해 LSTM 계층을 추가하여 CsiNet을 확장",
       "strength": 10
     },
     {
       "from_title": "Deep Learning-Based CSI Feedback with Variable Length Codewords for Adaptive FDD Massive MIMO",
       "to_title": "Deep Learning for Massive MIMO CSI Feedback",
       "relationship_type": "extends",
-      "description": "CsiNet+ extends CsiNet with variable-length codewords for adaptive compression ratio selection",
+      "description": "CsiNet+는 적응적 압축률 선택을 위해 가변 길이 코드워드를 도입하여 CsiNet을 확장",
       "strength": 10
     },
     {
       "from_title": "CRNet: A Deep-Learning Framework for CSI Feedback in Massive MIMO",
       "to_title": "Deep Learning for Massive MIMO CSI Feedback",
       "relationship_type": "builds_on",
-      "description": "CRNet improves upon CsiNet by introducing multi-resolution CRBlocks with channel attention for better CSI reconstruction",
+      "description": "CRNet은 채널 어텐션을 가진 다중 해상도 CRBlock을 도입하여 CsiNet의 CSI 복원 성능을 개선",
       "strength": 9
     },
     {
       "from_title": "Lightweight and Effective CSI Feedback for Massive MIMO Systems",
       "to_title": "CRNet: A Deep-Learning Framework for CSI Feedback in Massive MIMO",
       "relationship_type": "extends",
-      "description": "CLNet builds on CRNet with depthwise separable convolutions and AnciNet to achieve lighter architecture",
+      "description": "CLNet은 깊이별 분리 합성곱과 AnciNet을 적용하여 CRNet 기반의 경량화 아키텍처를 구현",
       "strength": 9
     },
     {
       "from_title": "Lightweight and Effective CSI Feedback for Massive MIMO Systems",
       "to_title": "Deep Learning for Massive MIMO CSI Feedback",
       "relationship_type": "builds_on",
-      "description": "CLNet builds on CsiNet's encoder-decoder framework while drastically reducing computational cost",
+      "description": "CLNet은 CsiNet의 인코더-디코더 프레임워크를 기반으로 연산 비용을 대폭 절감",
       "strength": 8
     },
     {
       "from_title": "ACRNet: Aggregation Cross-Domain Network for CSI Feedback in Massive MIMO",
       "to_title": "CRNet: A Deep-Learning Framework for CSI Feedback in Massive MIMO",
       "relationship_type": "extends",
-      "description": "ACRNet extends CRNet's multi-resolution approach with cross-domain (spatial + frequency) aggregation",
+      "description": "ACRNet은 CRNet의 다중 해상도 접근법을 교차 도메인(공간 + 주파수) 집계로 확장",
       "strength": 9
     },
     {
       "from_title": "ACRNet: Aggregation Cross-Domain Network for CSI Feedback in Massive MIMO",
       "to_title": "Lightweight and Effective CSI Feedback for Massive MIMO Systems",
       "relationship_type": "compares_with",
-      "description": "ACRNet benchmarks against CLNet, achieving better NMSE while exploring different efficiency tradeoffs",
+      "description": "ACRNet은 CLNet과 비교 벤치마크를 수행하여 더 나은 NMSE를 달성하면서 다른 효율성 절충점을 탐색",
       "strength": 7
     },
     {
       "from_title": "TransNet: Full Attention Network for CSI Feedback in FDD Massive MIMO",
       "to_title": "Deep Learning for Massive MIMO CSI Feedback",
       "relationship_type": "challenges",
-      "description": "TransNet challenges CsiNet's CNN-based approach by demonstrating that Transformers capture long-range CSI dependencies better",
+      "description": "TransNet은 Transformer가 장거리 CSI 의존성을 더 잘 포착함을 입증하여 CsiNet의 CNN 기반 접근법에 도전",
       "strength": 9
     },
     {
       "from_title": "TransNet: Full Attention Network for CSI Feedback in FDD Massive MIMO",
       "to_title": "CRNet: A Deep-Learning Framework for CSI Feedback in Massive MIMO",
       "relationship_type": "compares_with",
-      "description": "TransNet compares Transformer-based attention against CRNet's CNN with channel attention approach",
+      "description": "TransNet은 Transformer 기반 어텐션과 CRNet의 CNN 채널 어텐션 접근법을 비교",
       "strength": 7
     },
     {
       "from_title": "DS-NLCsiNet: Exploiting Non-Local Neural Networks for Massive MIMO CSI Feedback",
       "to_title": "Deep Learning for Massive MIMO CSI Feedback",
       "relationship_type": "builds_on",
-      "description": "DS-NLCsiNet builds on CsiNet by adding non-local attention blocks and depthwise separable convolutions",
+      "description": "DS-NLCsiNet은 비국소 어텐션 블록과 깊이별 분리 합성곱을 추가하여 CsiNet을 발전",
       "strength": 8
     },
     {
       "from_title": "DS-NLCsiNet: Exploiting Non-Local Neural Networks for Massive MIMO CSI Feedback",
       "to_title": "CRNet: A Deep-Learning Framework for CSI Feedback in Massive MIMO",
       "relationship_type": "compares_with",
-      "description": "DS-NLCsiNet compares its non-local attention approach against CRNet's channel attention baseline",
+      "description": "DS-NLCsiNet은 자체 비국소 어텐션 접근법을 CRNet의 채널 어텐션 기준선과 비교",
       "strength": 6
     },
     {
       "from_title": "ENet: Efficient CSI Feedback for Massive MIMO Communications",
       "to_title": "Deep Learning for Massive MIMO CSI Feedback",
       "relationship_type": "builds_on",
-      "description": "ENet redesigns CsiNet with asymmetric encoder-decoder for lightweight UE-side encoder deployment",
+      "description": "ENet은 UE 측 경량 인코더 배포를 위해 비대칭 인코더-디코더로 CsiNet을 재설계",
       "strength": 8
     },
     {
       "from_title": "ENet: Efficient CSI Feedback for Massive MIMO Communications",
       "to_title": "Lightweight and Effective CSI Feedback for Massive MIMO Systems",
       "relationship_type": "related",
-      "description": "Both ENet and CLNet focus on encoder lightweight design but with different approaches (asymmetric vs depthwise separable)",
+      "description": "ENet과 CLNet 모두 인코더 경량화에 집중하지만 서로 다른 접근법을 사용 (비대칭 설계 vs 깊이별 분리 합성곱)",
       "strength": 6
     },
     {
       "from_title": "Quantization of Deep Neural Networks for Accurate CSI Feedback",
       "to_title": "Deep Learning for Massive MIMO CSI Feedback",
       "relationship_type": "applies",
-      "description": "Applies quantization-aware training to CsiNet-family codewords for practical finite-bit feedback links",
+      "description": "실용적인 유한 비트 피드백 링크를 위해 CsiNet 계열 코드워드에 양자화 인지 학습을 적용",
       "strength": 8
     },
     {
       "from_title": "Quantization of Deep Neural Networks for Accurate CSI Feedback",
       "to_title": "CRNet: A Deep-Learning Framework for CSI Feedback in Massive MIMO",
       "relationship_type": "applies",
-      "description": "Applies quantization framework to CRNet codewords, demonstrating 4-bit feedback maintains NMSE",
+      "description": "CRNet 코드워드에 양자화 프레임워크를 적용하여 4비트 피드백으로도 NMSE가 유지됨을 입증",
       "strength": 7
     },
     {
       "from_title": "Binarized Neural Network for CSI Feedback in Massive MIMO Systems",
       "to_title": "Deep Learning for Massive MIMO CSI Feedback",
       "relationship_type": "builds_on",
-      "description": "BCsiNet binarizes CsiNet's weights and activations to 1-bit for extreme model compression on UE hardware",
+      "description": "BCsiNet은 UE 하드웨어에서의 극한 모델 압축을 위해 CsiNet의 가중치와 활성화를 1비트로 이진화",
       "strength": 8
     },
     {
       "from_title": "Binarized Neural Network for CSI Feedback in Massive MIMO Systems",
       "to_title": "Quantization of Deep Neural Networks for Accurate CSI Feedback",
       "relationship_type": "related",
-      "description": "Both address quantization for CSI feedback deployment; BCsiNet takes extreme 1-bit approach vs multi-bit QAT",
+      "description": "두 연구 모두 CSI 피드백 배포를 위한 양자화를 다루며, BCsiNet은 극단적 1비트 접근법을 취하고 상대는 다중 비트 QAT를 사용",
       "strength": 8
     },
     {
       "from_title": "Knowledge Distillation-Based DNN for CSI Feedback in Massive MIMO Systems",
       "to_title": "Deep Learning for Massive MIMO CSI Feedback",
       "relationship_type": "builds_on",
-      "description": "Uses knowledge distillation to compress CsiNet-family encoders into lightweight student networks",
+      "description": "지식 증류를 사용하여 CsiNet 계열 인코더를 경량 학생 네트워크로 압축",
       "strength": 8
     },
     {
       "from_title": "Knowledge Distillation-Based DNN for CSI Feedback in Massive MIMO Systems",
       "to_title": "ENet: Efficient CSI Feedback for Massive MIMO Communications",
       "relationship_type": "related",
-      "description": "Both address encoder lightweight design; KD uses teacher-student training while ENet uses architectural asymmetry",
+      "description": "두 연구 모두 인코더 경량화를 다루지만 접근법이 상이: 지식 증류는 교사-학생 학습, ENet은 아키텍처 비대칭성을 활용",
       "strength": 6
     },
     {
       "from_title": "Knowledge Distillation-Based DNN for CSI Feedback in Massive MIMO Systems",
       "to_title": "Lightweight and Effective CSI Feedback for Massive MIMO Systems",
       "relationship_type": "related",
-      "description": "Complementary approaches to encoder compression: KD via training strategy, CLNet via depthwise separable architecture",
+      "description": "인코더 압축에 대한 상호보완적 접근법: 지식 증류는 학습 전략을 통해, CLNet은 깊이별 분리 아키텍처를 통해 경량화를 달성",
       "strength": 7
     },
     {
       "from_title": "Attention Mechanism-Based CSI Feedback Network for Massive MIMO Systems",
       "to_title": "Deep Learning for Massive MIMO CSI Feedback",
       "relationship_type": "builds_on",
-      "description": "Adds dual spatial-channel attention mechanisms to CsiNet's encoder-decoder framework",
+      "description": "CsiNet의 인코더-디코더 프레임워크에 이중 공간-채널 어텐션 메커니즘을 추가",
       "strength": 8
     },
     {
       "from_title": "Attention Mechanism-Based CSI Feedback Network for Massive MIMO Systems",
       "to_title": "CRNet: A Deep-Learning Framework for CSI Feedback in Massive MIMO",
       "relationship_type": "inspired_by",
-      "description": "Inspired by CRNet's channel attention, extends to dual spatial+channel attention mechanism",
+      "description": "CRNet의 채널 어텐션에서 영감을 받아 이중 공간+채널 어텐션 메커니즘으로 확장",
       "strength": 7
     },
     {
       "from_title": "CSI-GPT: Integrating Generative Pre-Trained Transformer with Federated-Tuning for Channel Estimation in Massive MIMO",
       "to_title": "TransNet: Full Attention Network for CSI Feedback in FDD Massive MIMO",
       "relationship_type": "extends",
-      "description": "CSI-GPT extends transformer-based CSI approach with GPT-style generative pre-training and federated fine-tuning",
+      "description": "CSI-GPT는 GPT 스타일의 생성적 사전학습과 연합 미세조정을 통해 Transformer 기반 CSI 접근법을 확장",
       "strength": 8
     },
     {
       "from_title": "CSI-GPT: Integrating Generative Pre-Trained Transformer with Federated-Tuning for Channel Estimation in Massive MIMO",
       "to_title": "Deep Learning for Massive MIMO CSI Feedback",
       "relationship_type": "builds_on",
-      "description": "CSI-GPT builds on CsiNet's feedback paradigm, replacing it with a generative pre-trained approach for cross-scenario generalization",
+      "description": "CSI-GPT는 CsiNet의 피드백 패러다임을 기반으로 교차 시나리오 일반화를 위한 생성적 사전학습 접근법으로 대체",
       "strength": 7
     },
     {
       "from_title": "Deep Learning Based CSI Feedback Approach for Time-Varying Massive MIMO Channels",
       "to_title": "CsiNet-LSTM: A Deep Learning Architecture for Compressive CSI Estimation and Feedback in FDD Massive MIMO",
       "relationship_type": "related",
-      "description": "Both exploit temporal correlation but via different mechanisms: differential encoding vs LSTM recurrence",
+      "description": "두 연구 모두 시간적 상관관계를 활용하지만 서로 다른 메커니즘을 사용: 차분 인코딩 vs LSTM 순환",
       "strength": 7
     },
     {
       "from_title": "Deep Learning Based CSI Feedback Approach for Time-Varying Massive MIMO Channels",
       "to_title": "Deep Learning for Massive MIMO CSI Feedback",
       "relationship_type": "builds_on",
-      "description": "Extends CsiNet framework with differential CSI encoding for time-varying channels",
+      "description": "시변 채널을 위해 CsiNet 프레임워크에 차분 CSI 인코딩을 추가하여 확장",
       "strength": 8
     },
     {
       "from_title": "Lightweight CSI Feedback via Mixed-Precision Quantization",
       "to_title": "Quantization of Deep Neural Networks for Accurate CSI Feedback",
       "relationship_type": "extends",
-      "description": "Extends uniform quantization to mixed-precision, assigning different bit-widths per layer based on sensitivity",
+      "description": "균일 양자화를 혼합 정밀도로 확장하여 민감도에 따라 계층별로 다른 비트 폭을 할당",
       "strength": 9
     },
     {
       "from_title": "Lightweight CSI Feedback via Mixed-Precision Quantization",
       "to_title": "Binarized Neural Network for CSI Feedback in Massive MIMO Systems",
       "relationship_type": "compares_with",
-      "description": "Compares multi-bit mixed-precision approach against extreme 1-bit binarization tradeoffs",
+      "description": "다중 비트 혼합 정밀도 접근법과 극단적 1비트 이진화 간의 절충점을 비교",
       "strength": 6
     },
     {
       "from_title": "Pruning Deep Neural Networks for Efficient CSI Feedback",
       "to_title": "Deep Learning for Massive MIMO CSI Feedback",
       "relationship_type": "applies",
-      "description": "Applies structured pruning techniques to CsiNet-family networks for encoder size reduction",
+      "description": "인코더 크기 축소를 위해 CsiNet 계열 네트워크에 구조적 프루닝 기법을 적용",
       "strength": 8
     },
     {
       "from_title": "Pruning Deep Neural Networks for Efficient CSI Feedback",
       "to_title": "Knowledge Distillation-Based DNN for CSI Feedback in Massive MIMO Systems",
       "relationship_type": "related",
-      "description": "Both aim for model compression but via different strategies: structural pruning vs knowledge distillation",
+      "description": "두 연구 모두 모델 압축을 목표로 하지만 전략이 상이: 구조적 프루닝 vs 지식 증류",
       "strength": 7
     },
     {
       "from_title": "Pruning Deep Neural Networks for Efficient CSI Feedback",
       "to_title": "Lightweight and Effective CSI Feedback for Massive MIMO Systems",
       "relationship_type": "compares_with",
-      "description": "Compares post-hoc pruning against architecturally lightweight CLNet approach",
+      "description": "사후 프루닝 방식과 아키텍처 자체가 경량인 CLNet 접근법을 비교",
       "strength": 6
     },
     {
       "from_title": "Adaptive Bit Allocation for Deep Learning-Based CSI Feedback",
       "to_title": "Quantization of Deep Neural Networks for Accurate CSI Feedback",
       "relationship_type": "extends",
-      "description": "Extends fixed quantization to instance-adaptive bit allocation based on channel conditions",
+      "description": "고정 양자화를 채널 조건에 기반한 인스턴스 적응형 비트 할당으로 확장",
       "strength": 9
     },
     {
       "from_title": "Adaptive Bit Allocation for Deep Learning-Based CSI Feedback",
       "to_title": "Deep Learning-Based CSI Feedback with Variable Length Codewords for Adaptive FDD Massive MIMO",
       "relationship_type": "inspired_by",
-      "description": "Inspired by CsiNet+'s variable-length feedback concept, extends to adaptive quantization bit allocation",
+      "description": "CsiNet+의 가변 길이 피드백 개념에서 영감을 받아 적응형 양자화 비트 할당으로 확장",
       "strength": 7
     },
     {
       "from_title": "ShuffleCsiNet: Lightweight CSI Feedback Network Based on ShuffleNet Architecture",
       "to_title": "Deep Learning for Massive MIMO CSI Feedback",
       "relationship_type": "builds_on",
-      "description": "Builds on CsiNet's encoder-decoder with ShuffleNet-style group convolutions for mobile deployment",
+      "description": "모바일 배포를 위해 CsiNet의 인코더-디코더에 ShuffleNet 스타일 그룹 합성곱을 적용",
       "strength": 8
     },
     {
       "from_title": "ShuffleCsiNet: Lightweight CSI Feedback Network Based on ShuffleNet Architecture",
       "to_title": "Lightweight and Effective CSI Feedback for Massive MIMO Systems",
       "relationship_type": "compares_with",
-      "description": "Compares ShuffleNet-style vs depthwise separable approaches for lightweight CSI encoder design",
+      "description": "경량 CSI 인코더 설계를 위한 ShuffleNet 스타일과 깊이별 분리 합성곱 접근법을 비교",
       "strength": 8
     },
     {
       "from_title": "ShuffleCsiNet: Lightweight CSI Feedback Network Based on ShuffleNet Architecture",
       "to_title": "ENet: Efficient CSI Feedback for Massive MIMO Communications",
       "relationship_type": "compares_with",
-      "description": "Both target mobile UE deployment with different lightweight strategies: ShuffleNet vs asymmetric design",
+      "description": "두 연구 모두 모바일 UE 배포를 목표로 하지만 경량화 전략이 상이: ShuffleNet vs 비대칭 설계",
       "strength": 7
     },
     {
       "from_title": "Vector Quantized CSI Feedback with Learned Codebook",
       "to_title": "Quantization of Deep Neural Networks for Accurate CSI Feedback",
       "relationship_type": "challenges",
-      "description": "Challenges scalar quantization by showing vector quantization with learned codebook achieves lower distortion",
+      "description": "학습된 코드북을 사용한 벡터 양자화가 스칼라 양자화보다 낮은 왜곡을 달성함을 보여 기존 방식에 도전",
       "strength": 8
     },
     {
       "from_title": "Vector Quantized CSI Feedback with Learned Codebook",
       "to_title": "Deep Learning for Massive MIMO CSI Feedback",
       "relationship_type": "builds_on",
-      "description": "Applies VQ-VAE framework to CsiNet codeword quantization for practical deployment",
+      "description": "실용적 배포를 위해 CsiNet 코드워드 양자화에 VQ-VAE 프레임워크를 적용",
       "strength": 7
     },
     {
       "from_title": "Generative Diffusion Model-Enhanced CSI Feedback",
       "to_title": "Deep Learning for Massive MIMO CSI Feedback",
       "relationship_type": "builds_on",
-      "description": "Enhances CsiNet-style decoder with diffusion-based iterative refinement for ultra-low rate feedback",
+      "description": "초저율 피드백을 위해 CsiNet 스타일 디코더에 확산 기반 반복 정제를 추가하여 강화",
       "strength": 8
     },
     {
       "from_title": "Generative Diffusion Model-Enhanced CSI Feedback",
       "to_title": "CSI-GPT: Integrating Generative Pre-Trained Transformer with Federated-Tuning for Channel Estimation in Massive MIMO",
       "relationship_type": "related",
-      "description": "Both use generative models for CSI but with different paradigms: diffusion vs autoregressive GPT",
+      "description": "두 연구 모두 CSI에 생성 모델을 사용하지만 패러다임이 상이: 확산 모델 vs 자기회귀 GPT",
       "strength": 7
     },
     {
       "from_title": "Joint Compression and Quantization for Practical CSI Feedback",
       "to_title": "Quantization of Deep Neural Networks for Accurate CSI Feedback",
       "relationship_type": "extends",
-      "description": "Extends separate compression+quantization to end-to-end joint optimization eliminating mismatch",
+      "description": "분리된 압축+양자화를 종단간 결합 최적화로 확장하여 불일치를 제거",
       "strength": 10
     },
     {
       "from_title": "Joint Compression and Quantization for Practical CSI Feedback",
       "to_title": "Adaptive Bit Allocation for Deep Learning-Based CSI Feedback",
       "relationship_type": "builds_on",
-      "description": "Builds upon adaptive bit allocation with full end-to-end rate-distortion optimization framework",
+      "description": "적응형 비트 할당을 기반으로 완전한 종단간 율-왜곡 최적화 프레임워크를 구축",
       "strength": 8
     },
     {
       "from_title": "Joint Compression and Quantization for Practical CSI Feedback",
       "to_title": "Deep Learning for Massive MIMO CSI Feedback",
       "relationship_type": "builds_on",
-      "description": "Addresses practical deployment gap in CsiNet by jointly optimizing compression and quantization",
+      "description": "압축과 양자화를 결합 최적화하여 CsiNet의 실용적 배포 격차를 해소",
       "strength": 9
     },
     {
       "from_title": "Ternary Neural Network for Extreme-Efficient CSI Feedback",
       "to_title": "Binarized Neural Network for CSI Feedback in Massive MIMO Systems",
       "relationship_type": "extends",
-      "description": "Extends binary approach to ternary {-1,0,+1} quantization, adding implicit pruning via zero state",
+      "description": "이진 접근법을 삼진 {-1,0,+1} 양자화로 확장하여 영 상태를 통한 암묵적 프루닝을 추가",
       "strength": 9
     },
     {
       "from_title": "Ternary Neural Network for Extreme-Efficient CSI Feedback",
       "to_title": "Quantization of Deep Neural Networks for Accurate CSI Feedback",
       "relationship_type": "builds_on",
-      "description": "Builds on CSI quantization with extreme 2-bit ternary approach bridging binary and multi-bit methods",
+      "description": "이진과 다중 비트 방법을 연결하는 극한 2비트 삼진 접근법으로 CSI 양자화를 발전",
       "strength": 8
     },
     {
       "from_title": "Ternary Neural Network for Extreme-Efficient CSI Feedback",
       "to_title": "Deep Learning for Massive MIMO CSI Feedback",
       "relationship_type": "builds_on",
-      "description": "Applies ternary quantization to CsiNet architecture for extreme model compression",
+      "description": "극한 모델 압축을 위해 CsiNet 아키텍처에 삼진 양자화를 적용",
       "strength": 8
     },
     {
       "from_title": "AiANet: Attention-Infused Autoencoder for Massive MIMO CSI Compression",
       "to_title": "ACRNet: Aggregation Cross-Domain Network for CSI Feedback in Massive MIMO",
       "relationship_type": "extends",
-      "description": "AiANet extends ACRNet with locally-aware self-attention, achieving 3.42 dB NMSE improvement",
+      "description": "AiANet은 국소 인지 셀프 어텐션을 적용하여 ACRNet 대비 3.42 dB NMSE 개선을 달성",
       "strength": 9
     },
     {
       "from_title": "AiANet: Attention-Infused Autoencoder for Massive MIMO CSI Compression",
       "to_title": "Attention Mechanism-Based CSI Feedback Network for Massive MIMO Systems",
       "relationship_type": "builds_on",
-      "description": "Builds on attention-based CSI feedback with more sophisticated locally-aware self-attention mechanism",
+      "description": "어텐션 기반 CSI 피드백을 보다 정교한 국소 인지 셀프 어텐션 메커니즘으로 발전",
       "strength": 8
     },
     {
       "from_title": "AiANet: Attention-Infused Autoencoder for Massive MIMO CSI Compression",
       "to_title": "Deep Learning for Massive MIMO CSI Feedback",
       "relationship_type": "builds_on",
-      "description": "Advances CsiNet paradigm with attention-infused autoencoder and cross-environment generalization",
+      "description": "어텐션 주입 오토인코더와 교차 환경 일반화를 통해 CsiNet 패러다임을 발전",
       "strength": 7
     },
     {
       "from_title": "SLATE: SwinLSTM Autoencoder for Temporal-Spatial-Frequency CSI Compression",
       "to_title": "CsiNet-LSTM: A Deep Learning Architecture for Compressive CSI Estimation and Feedback in FDD Massive MIMO",
       "relationship_type": "extends",
-      "description": "Extends temporal CSI compression from LSTM to SwinLSTM combining shifted-window attention with recurrence",
+      "description": "시프트 윈도우 어텐션과 순환을 결합한 SwinLSTM으로 LSTM 기반 시간적 CSI 압축을 확장",
       "strength": 9
     },
     {
       "from_title": "SLATE: SwinLSTM Autoencoder for Temporal-Spatial-Frequency CSI Compression",
       "to_title": "TransNet: Full Attention Network for CSI Feedback in FDD Massive MIMO",
       "relationship_type": "builds_on",
-      "description": "Combines Transformer-style shifted window attention with LSTM for joint temporal-spatial modeling",
+      "description": "Transformer 스타일의 시프트 윈도우 어텐션과 LSTM을 결합하여 시간-공간 통합 모델링을 구현",
       "strength": 8
     },
     {
       "from_title": "Quantization Design for Deep Learning-Based CSI Feedback",
       "to_title": "Quantization of Deep Neural Networks for Accurate CSI Feedback",
       "relationship_type": "extends",
-      "description": "Extends QAT with intelligent per-element bit distribution and adaptive joint loss function",
+      "description": "지능형 요소별 비트 분배와 적응형 결합 손실 함수를 도입하여 QAT를 확장",
       "strength": 9
     },
     {
       "from_title": "Quantization Design for Deep Learning-Based CSI Feedback",
       "to_title": "Adaptive Bit Allocation for Deep Learning-Based CSI Feedback",
       "relationship_type": "builds_on",
-      "description": "Builds on adaptive bit allocation with more principled variance-based element-wise distribution",
+      "description": "보다 원리적인 분산 기반 요소별 분배로 적응형 비트 할당을 발전",
       "strength": 8
     },
     {
       "from_title": "Quantization Design for Deep Learning-Based CSI Feedback",
       "to_title": "Joint Compression and Quantization for Practical CSI Feedback",
       "relationship_type": "compares_with",
-      "description": "Both address practical quantization for CSI feedback; differs in element-level vs joint optimization approach",
+      "description": "두 연구 모두 CSI 피드백의 실용적 양자화를 다루지만 접근법이 상이: 요소 수준 vs 결합 최적화",
       "strength": 7
     },
     {
       "from_title": "InvCSINet: Invertible Networks with Endogenous Quantization for CSI Feedback",
       "to_title": "Quantization of Deep Neural Networks for Accurate CSI Feedback",
       "relationship_type": "challenges",
-      "description": "Challenges conventional autoencoder+quantization pipeline with information-preserving invertible architecture",
+      "description": "정보 보존형 가역 아키텍처를 제시하여 기존 오토인코더+양자화 파이프라인에 도전",
       "strength": 8
     },
     {
       "from_title": "InvCSINet: Invertible Networks with Endogenous Quantization for CSI Feedback",
       "to_title": "Deep Learning for Massive MIMO CSI Feedback",
       "relationship_type": "challenges",
-      "description": "Challenges CsiNet's lossy autoencoder paradigm with bijective invertible networks avoiding information loss",
+      "description": "정보 손실을 방지하는 전단사 가역 네트워크로 CsiNet의 손실 오토인코더 패러다임에 도전",
       "strength": 9
     },
     {
       "from_title": "InvCSINet: Invertible Networks with Endogenous Quantization for CSI Feedback",
       "to_title": "Vector Quantized CSI Feedback with Learned Codebook",
       "relationship_type": "compares_with",
-      "description": "Both use differentiable quantization but InvCSINet adds invertible architecture for information preservation",
+      "description": "두 연구 모두 미분 가능 양자화를 사용하지만 InvCSINet은 정보 보존을 위한 가역 아키텍처를 추가",
       "strength": 7
     },
     {
       "from_title": "SemCSINet: Semantic-Aware CSI Feedback Network in Massive MIMO Systems",
       "to_title": "TransNet: Full Attention Network for CSI Feedback in FDD Massive MIMO",
       "relationship_type": "extends",
-      "description": "Extends Transformer-based CSI feedback with semantic CQI embedding and joint coding-modulation",
+      "description": "의미론적 CQI 임베딩과 결합 코딩-변조를 통해 Transformer 기반 CSI 피드백을 확장",
       "strength": 8
     },
     {
       "from_title": "SemCSINet: Semantic-Aware CSI Feedback Network in Massive MIMO Systems",
       "to_title": "CSI-GPT: Integrating Generative Pre-Trained Transformer with Federated-Tuning for Channel Estimation in Massive MIMO",
       "relationship_type": "related",
-      "description": "Both incorporate semantic/task-oriented concepts into Transformer-based CSI architectures",
+      "description": "두 연구 모두 Transformer 기반 CSI 아키텍처에 의미론적/태스크 지향적 개념을 통합",
       "strength": 7
     },
     {
       "from_title": "RD-JSCC: Residual Diffusion for Variable-Rate Joint Source-Channel Coding of MIMO CSI",
       "to_title": "Generative Diffusion Model-Enhanced CSI Feedback",
       "relationship_type": "extends",
-      "description": "Extends diffusion-based CSI with residual diffusion refinement and variable-rate JSCC support",
+      "description": "잔차 확산 정제와 가변률 JSCC 지원을 추가하여 확산 기반 CSI를 확장",
       "strength": 9
     },
     {
       "from_title": "RD-JSCC: Residual Diffusion for Variable-Rate Joint Source-Channel Coding of MIMO CSI",
       "to_title": "Deep Learning-Based CSI Feedback with Variable Length Codewords for Adaptive FDD Massive MIMO",
       "relationship_type": "inspired_by",
-      "description": "Inspired by variable-rate feedback concept, implements it via diffusion-based JSCC single-model approach",
+      "description": "가변률 피드백 개념에서 영감을 받아 확산 기반 JSCC 단일 모델 접근법으로 구현",
       "strength": 7
     },
     {
       "from_title": "WiFo-CF: Wireless Foundation Model for CSI Feedback",
       "to_title": "CSI-GPT: Integrating Generative Pre-Trained Transformer with Federated-Tuning for Channel Estimation in Massive MIMO",
       "relationship_type": "extends",
-      "description": "Extends GPT-style approach to full foundation model with MoE architecture and heterogeneous pre-training",
+      "description": "GPT 스타일 접근법을 MoE 아키텍처와 이종 사전학습을 갖춘 완전한 파운데이션 모델로 확장",
       "strength": 9
     },
     {
       "from_title": "WiFo-CF: Wireless Foundation Model for CSI Feedback",
       "to_title": "TransNet: Full Attention Network for CSI Feedback in FDD Massive MIMO",
       "relationship_type": "builds_on",
-      "description": "Scales Transformer-based CSI from task-specific to foundation model with universal pre-training",
+      "description": "Transformer 기반 CSI를 태스크 특화 모델에서 범용 사전학습 파운데이션 모델로 확장",
       "strength": 8
     },
     {
       "from_title": "WiFo-CF: Wireless Foundation Model for CSI Feedback",
       "to_title": "Deep Learning for Massive MIMO CSI Feedback",
       "relationship_type": "builds_on",
-      "description": "Represents paradigm shift from per-scenario CsiNet training to pre-trained foundation model approach",
+      "description": "시나리오별 CsiNet 학습에서 사전학습 파운데이션 모델 접근법으로의 패러다임 전환을 대표",
       "strength": 8
     },
     {
       "from_title": "EG-CsiNet: Generalizable Learning for Massive MIMO CSI Feedback in Unseen Environments",
       "to_title": "Deep Learning for Massive MIMO CSI Feedback",
       "relationship_type": "extends",
-      "description": "Addresses CsiNet's major limitation of poor generalization with physics-based distribution alignment",
+      "description": "물리 기반 분포 정렬을 통해 CsiNet의 주요 한계인 낮은 일반화 성능을 해결",
       "strength": 9
     },
     {
       "from_title": "EG-CsiNet: Generalizable Learning for Massive MIMO CSI Feedback in Unseen Environments",
       "to_title": "AiANet: Attention-Infused Autoencoder for Massive MIMO CSI Compression",
       "relationship_type": "related",
-      "description": "Both address cross-environment generalization: AiANet via mixed-training, EG-CsiNet via physics-based alignment",
+      "description": "두 연구 모두 교차 환경 일반화를 다루지만 접근법이 상이: AiANet은 혼합 학습, EG-CsiNet은 물리 기반 정렬",
       "strength": 8
     },
     {
       "from_title": "LVM4CF: CSI Feedback with Offline Large Vision Models",
       "to_title": "Deep Learning for Massive MIMO CSI Feedback",
       "relationship_type": "builds_on",
-      "description": "Leverages large vision model features for CSI codebook design, bridging computer vision and CSI feedback",
+      "description": "대규모 비전 모델 특징을 CSI 코드북 설계에 활용하여 컴퓨터 비전과 CSI 피드백을 연결",
       "strength": 7
     },
     {
       "from_title": "LVM4CF: CSI Feedback with Offline Large Vision Models",
       "to_title": "WiFo-CF: Wireless Foundation Model for CSI Feedback",
       "relationship_type": "related",
-      "description": "Both leverage large pre-trained models for CSI feedback: LVM4CF offline vision models, WiFo-CF wireless foundation model",
+      "description": "두 연구 모두 CSI 피드백에 대규모 사전학습 모델을 활용: LVM4CF는 오프라인 비전 모델, WiFo-CF는 무선 파운데이션 모델",
       "strength": 8
     },
     {
       "from_title": "Semantic Pilot Design for Channel Estimation Using a Large Language Model",
       "to_title": "CSI-GPT: Integrating Generative Pre-Trained Transformer with Federated-Tuning for Channel Estimation in Massive MIMO",
       "relationship_type": "related",
-      "description": "Both apply large generative models to wireless: LLM for semantic pilots vs GPT for CSI generation",
+      "description": "두 연구 모두 대규모 생성 모델을 무선 통신에 적용: LLM은 의미론적 파일럿에, GPT는 CSI 생성에 활용",
       "strength": 7
     },
     {
       "from_title": "Semantic Pilot Design for Channel Estimation Using a Large Language Model",
       "to_title": "SemCSINet: Semantic-Aware CSI Feedback Network in Massive MIMO Systems",
       "relationship_type": "related",
-      "description": "Both incorporate semantic understanding: LLM for pilot extraction vs semantic CQI embedding for feedback",
+      "description": "두 연구 모두 의미론적 이해를 통합: LLM은 파일럿 추출에, SemCSINet은 피드백용 의미론적 CQI 임베딩에 활용",
       "strength": 6
     },
     {
       "from_title": "Vector Quantized CSI Feedback with Learned Codebook",
       "to_title": "Neural Discrete Representation Learning (VQ-VAE)",
       "relationship_type": "applies",
-      "description": "Directly applies VQ-VAE framework to CSI feedback codeword quantization",
+      "description": "VQ-VAE 프레임워크를 CSI 피드백 코드워드 양자화에 직접 적용",
       "strength": 10
     },
     {
       "from_title": "Vector Quantization for Deep-Learning-Based CSI Feedback with Shape-Gain Decomposition",
       "to_title": "Neural Discrete Representation Learning (VQ-VAE)",
       "relationship_type": "extends",
-      "description": "Extends VQ-VAE with shape-gain decomposition for separate magnitude/direction quantization of CSI latents",
+      "description": "CSI 잠재 벡터의 크기/방향 분리 양자화를 위해 형상-이득 분해를 도입하여 VQ-VAE를 확장",
       "strength": 9
     },
     {
       "from_title": "Vector Quantization for Deep-Learning-Based CSI Feedback with Shape-Gain Decomposition",
       "to_title": "Vector Quantized CSI Feedback with Learned Codebook",
       "relationship_type": "extends",
-      "description": "Extends basic VQ-CSI with Grassmannian direction codebook and shape-gain decomposition",
+      "description": "그라스만 방향 코드북과 형상-이득 분해를 추가하여 기본 VQ-CSI를 확장",
       "strength": 9
     },
     {
       "from_title": "Vector Quantization for Deep-Learning-Based CSI Feedback with Shape-Gain Decomposition",
       "to_title": "Deep Learning for Massive MIMO CSI Feedback",
       "relationship_type": "builds_on",
-      "description": "Adds finite-rate VQ with shape-gain decomposition to CsiNet autoencoder for practical deployment",
+      "description": "실용적 배포를 위해 CsiNet 오토인코더에 형상-이득 분해 기반 유한율 VQ를 추가",
       "strength": 8
     },
     {
       "from_title": "Finite Scalar Quantization: VQ-VAE Made Simple (FSQ)",
       "to_title": "Neural Discrete Representation Learning (VQ-VAE)",
       "relationship_type": "challenges",
-      "description": "Challenges VQ-VAE's complexity by replacing vector quantization with simpler per-dimension scalar quantization",
+      "description": "벡터 양자화를 보다 단순한 차원별 스칼라 양자화로 대체하여 VQ-VAE의 복잡성에 도전",
       "strength": 10
     },
     {
       "from_title": "SoundStream: An End-to-End Neural Audio Codec (Residual Vector Quantization)",
       "to_title": "Neural Discrete Representation Learning (VQ-VAE)",
       "relationship_type": "extends",
-      "description": "Extends VQ-VAE with residual multi-stage vector quantization for progressive refinement",
+      "description": "점진적 정제를 위한 잔차 다단계 벡터 양자화를 도입하여 VQ-VAE를 확장",
       "strength": 9
     },
     {
       "from_title": "AWQ: Activation-aware Weight Quantization for LLM Compression and Acceleration",
       "to_title": "Lightweight CSI Feedback via Mixed-Precision Quantization",
       "relationship_type": "inspires",
-      "description": "AWQ's activation-aware saliency concept inspires per-channel importance analysis in CSI quantization",
+      "description": "AWQ의 활성화 인지 중요도 개념이 CSI 양자화에서의 채널별 중요도 분석에 영감을 제공",
       "strength": 7
     },
     {
       "from_title": "HAWQ-V3: Dyadic Neural Network Quantization",
       "to_title": "Lightweight CSI Feedback via Mixed-Precision Quantization",
       "relationship_type": "inspires",
-      "description": "HAWQ-V3's Hessian-based per-layer bit allocation directly applicable to mixed-precision CSI feedback",
+      "description": "HAWQ-V3의 헤시안 기반 계층별 비트 할당이 혼합 정밀도 CSI 피드백에 직접 적용 가능",
       "strength": 8
     },
     {
       "from_title": "HAWQ-V3: Dyadic Neural Network Quantization",
       "to_title": "Adaptive Bit Allocation for Deep Learning-Based CSI Feedback",
       "relationship_type": "inspires",
-      "description": "Hessian-based sensitivity analysis inspires adaptive per-dimension bit allocation for CSI codewords",
+      "description": "헤시안 기반 민감도 분석이 CSI 코드워드의 적응형 차원별 비트 할당에 영감을 제공",
       "strength": 8
     },
     {
       "from_title": "GPTQ: Accurate Post-Training Quantization for Generative Pre-trained Transformers",
       "to_title": "HAWQ-V3: Dyadic Neural Network Quantization",
       "relationship_type": "builds_on",
-      "description": "Both use second-order (Hessian) information; GPTQ extends to post-training setting with OBQ framework",
+      "description": "두 연구 모두 2차(헤시안) 정보를 사용하며, GPTQ는 OBQ 프레임워크를 통해 학습 후 설정으로 확장",
       "strength": 8
     },
     {
       "from_title": "GPTQ: Accurate Post-Training Quantization for Generative Pre-trained Transformers",
       "to_title": "Quantization of Deep Neural Networks for Accurate CSI Feedback",
       "relationship_type": "related",
-      "description": "GPTQ's second-order post-training approach applicable to quantizing pre-trained CSI feedback models",
+      "description": "GPTQ의 2차 학습 후 양자화 접근법이 사전학습된 CSI 피드백 모델의 양자화에 적용 가능",
       "strength": 6
     },
     {
       "from_title": "AWQ: Activation-aware Weight Quantization for LLM Compression and Acceleration",
       "to_title": "GPTQ: Accurate Post-Training Quantization for Generative Pre-trained Transformers",
       "relationship_type": "compares_with",
-      "description": "Both target low-bit weight quantization; AWQ uses activation-aware scaling vs GPTQ's second-order updates",
+      "description": "두 연구 모두 저비트 가중치 양자화를 목표로 하며, AWQ는 활성화 인지 스케일링을, GPTQ는 2차 업데이트를 사용",
       "strength": 8
     },
     {
       "from_title": "InvCSINet: Invertible Networks with Endogenous Quantization for CSI Feedback",
       "to_title": "Finite Scalar Quantization: VQ-VAE Made Simple (FSQ)",
       "relationship_type": "related",
-      "description": "Both simplify latent quantization: InvCSINet's DAQ uses per-element adaptive step size, FSQ uses fixed per-dim levels",
+      "description": "두 연구 모두 잠재 양자화를 단순화: InvCSINet의 DAQ는 요소별 적응형 스텝 크기를, FSQ는 고정 차원별 레벨을 사용",
       "strength": 7
     },
     {
       "from_title": "RD-JSCC: Residual Diffusion for Variable-Rate Joint Source-Channel Coding of MIMO CSI",
       "to_title": "SoundStream: An End-to-End Neural Audio Codec (Residual Vector Quantization)",
       "relationship_type": "inspired_by",
-      "description": "RD-JSCC's variable-rate single-model approach mirrors SoundStream's structured dropout for variable bitrate",
+      "description": "RD-JSCC의 가변률 단일 모델 접근법은 SoundStream의 가변 비트레이트용 구조적 드롭아웃을 반영",
       "strength": 7
     },
     {
       "from_title": "Quantization Design for Deep Learning-Based CSI Feedback",
       "to_title": "AWQ: Activation-aware Weight Quantization for LLM Compression and Acceleration",
       "relationship_type": "inspired_by",
-      "description": "Element-wise importance-based bit distribution inspired by AWQ's activation-aware saliency detection",
+      "description": "요소별 중요도 기반 비트 분배가 AWQ의 활성화 인지 중요도 탐지에서 영감을 받음",
       "strength": 7
     },
     {
       "from_title": "Ternary Neural Network for Extreme-Efficient CSI Feedback",
       "to_title": "HAWQ-V3: Dyadic Neural Network Quantization",
       "relationship_type": "related",
-      "description": "Both pursue extreme low-bit quantization: ternary 2-bit weights vs HAWQ-V3's integer-only INT4",
+      "description": "두 연구 모두 극저비트 양자화를 추구: 삼진 2비트 가중치 vs HAWQ-V3의 정수 전용 INT4",
       "strength": 6
     }
   ]
