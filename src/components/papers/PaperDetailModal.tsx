@@ -20,6 +20,7 @@ import {
   buildPaperCoreSnapshot,
   summarizeRelationship,
 } from '@/lib/papers/insights';
+import EquationPreviewCard from '@/components/papers/EquationPreviewCard';
 import NoteEditor from '@/components/notes/NoteEditor';
 import PaperEquations from './PaperEquation';
 
@@ -212,17 +213,7 @@ export default function PaperDetailModal({
                 </p>
                 <div className="space-y-2">
                   {snapshot.equationPreviews.slice(0, 2).map((equation) => (
-                    <div
-                      key={equation.name}
-                      className="rounded-md border border-gray-200 bg-gray-50 px-2.5 py-2 dark:border-gray-700 dark:bg-gray-800"
-                    >
-                      <p className="line-clamp-1 text-xs font-semibold text-gray-700 dark:text-gray-200">
-                        {equation.name}
-                      </p>
-                      <code className="line-clamp-2 block text-[11px] text-gray-600 dark:text-gray-300">
-                        {equation.latex}
-                      </code>
-                    </div>
+                    <EquationPreviewCard key={equation.name} equation={equation} />
                   ))}
                 </div>
               </div>
