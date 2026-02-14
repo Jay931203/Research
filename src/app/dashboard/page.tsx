@@ -2,7 +2,7 @@
 
 import dynamic from 'next/dynamic';
 import { useCallback, useEffect, useMemo, useState } from 'react';
-import { BookOpen, CheckCircle, Link2, Maximize2, Minimize2, Plus, Star } from 'lucide-react';
+import { BookOpen, CheckCircle, GraduationCap, Link2, Maximize2, Minimize2, Plus, Star } from 'lucide-react';
 import Link from 'next/link';
 import MainLayout from '@/components/layout/MainLayout';
 import ErrorBoundary from '@/components/common/ErrorBoundary';
@@ -220,12 +220,21 @@ export default function DashboardPage() {
                 <div className="mb-3 flex items-center justify-between">
                   <h3 className="text-sm font-bold text-gray-800 dark:text-gray-100">핵심 리마인드</h3>
                   {selectedPaper && (
-                    <button
-                      onClick={() => openPaperDetail(selectedPaper.id)}
-                      className="rounded-md border border-gray-300 px-2.5 py-1 text-xs font-semibold hover:bg-gray-100 dark:border-gray-600 dark:hover:bg-gray-700"
-                    >
-                      상세 열기
-                    </button>
+                    <div className="flex items-center gap-2">
+                      <Link
+                        href={`/paper/${selectedPaper.id}`}
+                        className="inline-flex items-center gap-1.5 rounded-md bg-indigo-600 px-2.5 py-1 text-xs font-semibold text-white hover:bg-indigo-700"
+                      >
+                        <GraduationCap className="h-3.5 w-3.5" />
+                        학습 페이지
+                      </Link>
+                      <button
+                        onClick={() => openPaperDetail(selectedPaper.id)}
+                        className="rounded-md border border-gray-300 px-2.5 py-1 text-xs font-semibold hover:bg-gray-100 dark:border-gray-600 dark:hover:bg-gray-700"
+                      >
+                        상세 열기
+                      </button>
+                    </div>
                   )}
                 </div>
 
@@ -351,20 +360,31 @@ export default function DashboardPage() {
                 ) : (
                   <div className="space-y-2">
                     {reviewQueue.map((paper, index) => (
-                      <button
+                      <div
                         key={paper.id}
-                        onClick={() => openPaperDetail(paper.id)}
-                        className="animate-slide-up w-full rounded-md border border-gray-200 px-2.5 py-2 text-left hover:bg-gray-50 dark:border-gray-700 dark:hover:bg-gray-700"
+                        className="animate-slide-up flex items-center gap-2 rounded-md border border-gray-200 px-2.5 py-2 dark:border-gray-700"
                         style={{ animationDelay: `${index * 50}ms` }}
                       >
-                        <p className="line-clamp-1 text-sm font-medium text-gray-800 dark:text-gray-200">
-                          {paper.title}
-                        </p>
-                        <p className="text-[11px] text-gray-500 dark:text-gray-400">
-                          {paper.year} · {FAMILIARITY_LABELS[paper.familiarity_level ?? 'not_started']}
-                          {paper.importance_rating ? ` · 중요도 ${paper.importance_rating}` : ''}
-                        </p>
-                      </button>
+                        <button
+                          onClick={() => openPaperDetail(paper.id)}
+                          className="min-w-0 flex-1 text-left hover:opacity-80"
+                        >
+                          <p className="line-clamp-1 text-sm font-medium text-gray-800 dark:text-gray-200">
+                            {paper.title}
+                          </p>
+                          <p className="text-[11px] text-gray-500 dark:text-gray-400">
+                            {paper.year} · {FAMILIARITY_LABELS[paper.familiarity_level ?? 'not_started']}
+                            {paper.importance_rating ? ` · 중요도 ${paper.importance_rating}` : ''}
+                          </p>
+                        </button>
+                        <Link
+                          href={`/paper/${paper.id}`}
+                          className="flex-shrink-0 rounded-md p-1.5 text-gray-400 transition hover:bg-indigo-50 hover:text-indigo-600 dark:hover:bg-indigo-900/30"
+                          title="학습 페이지로 이동"
+                        >
+                          <GraduationCap className="h-4 w-4" />
+                        </Link>
+                      </div>
                     ))}
                   </div>
                 )}

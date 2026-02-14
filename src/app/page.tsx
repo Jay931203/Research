@@ -24,10 +24,10 @@ const cards = [
 
 export default function HomePage() {
   return (
-    <main className="relative min-h-screen overflow-hidden bg-[radial-gradient(circle_at_15%_20%,#dbeafe_0%,transparent_45%),radial-gradient(circle_at_85%_15%,#cffafe_0%,transparent_40%),linear-gradient(135deg,#f8fafc_0%,#eef2ff_45%,#ecfeff_100%)] px-4 py-16 dark:bg-[radial-gradient(circle_at_20%_20%,#172554_0%,transparent_45%),radial-gradient(circle_at_80%_10%,#083344_0%,transparent_42%),linear-gradient(135deg,#020617_0%,#0f172a_50%,#111827_100%)] sm:px-6 lg:px-8">
+    <main className="relative min-h-screen overflow-hidden bg-[radial-gradient(circle_at_10%_15%,#dbeafe_0%,transparent_50%),radial-gradient(circle_at_90%_10%,#e0e7ff_0%,transparent_45%),radial-gradient(circle_at_50%_80%,#cffafe_0%,transparent_40%),linear-gradient(160deg,#f8fafc_0%,#eef2ff_35%,#f0f9ff_65%,#fafbfd_100%)] px-4 py-16 dark:bg-[radial-gradient(circle_at_20%_20%,#172554_0%,transparent_45%),radial-gradient(circle_at_80%_10%,#083344_0%,transparent_42%),linear-gradient(135deg,#020617_0%,#0f172a_50%,#111827_100%)] sm:px-6 lg:px-8">
       <div className="mx-auto w-full max-w-6xl space-y-10">
         <section className="space-y-4 text-center">
-          <p className="inline-flex rounded-full border border-blue-200 bg-white/80 px-3 py-1 text-xs font-semibold tracking-[0.14em] text-blue-700 backdrop-blur dark:border-blue-800 dark:bg-slate-900/70 dark:text-blue-200">
+          <p className="inline-flex rounded-full border border-blue-200/80 bg-white/90 px-3 py-1 text-xs font-semibold tracking-[0.14em] text-blue-600 shadow-sm backdrop-blur dark:border-blue-800 dark:bg-slate-900/70 dark:text-blue-200">
             CSI AUTOENCODER RESEARCH WORKSPACE
           </p>
           <h1 className="mx-auto max-w-4xl text-4xl font-black leading-tight text-slate-900 dark:text-slate-100 sm:text-5xl lg:text-6xl">
@@ -42,14 +42,14 @@ export default function HomePage() {
           <div className="flex items-center justify-center gap-3 pt-2">
             <Link
               href="/dashboard"
-              className="inline-flex items-center gap-2 rounded-lg bg-slate-900 px-4 py-2.5 text-sm font-semibold text-white transition hover:bg-slate-800 dark:bg-blue-600 dark:hover:bg-blue-500"
+              className="inline-flex items-center gap-2 rounded-lg bg-blue-600 px-4 py-2.5 text-sm font-semibold text-white shadow-md shadow-blue-600/25 transition hover:bg-blue-500 hover:shadow-lg hover:shadow-blue-600/30 dark:bg-blue-600 dark:hover:bg-blue-500"
             >
               대시보드 열기
               <ArrowRight className="h-4 w-4" />
             </Link>
             <Link
               href="/import"
-              className="inline-flex items-center gap-2 rounded-lg border border-slate-300 bg-white/80 px-4 py-2.5 text-sm font-semibold text-slate-700 transition hover:bg-white dark:border-slate-700 dark:bg-slate-900/70 dark:text-slate-200 dark:hover:bg-slate-800"
+              className="inline-flex items-center gap-2 rounded-lg border border-slate-200 bg-white/90 px-4 py-2.5 text-sm font-semibold text-slate-700 shadow-sm transition hover:bg-white hover:border-slate-300 hover:shadow dark:border-slate-700 dark:bg-slate-900/70 dark:text-slate-200 dark:hover:bg-slate-800"
             >
               데이터 관리
             </Link>
@@ -61,9 +61,9 @@ export default function HomePage() {
             <Link
               key={card.href}
               href={card.href}
-              className="group rounded-2xl border border-white/60 bg-white/85 p-5 shadow-[0_10px_40px_-22px_rgba(15,23,42,0.35)] backdrop-blur transition hover:-translate-y-0.5 hover:shadow-[0_18px_45px_-22px_rgba(37,99,235,0.35)] dark:border-slate-700 dark:bg-slate-900/70"
+              className="group rounded-2xl border border-slate-200/70 bg-white/90 p-5 shadow-sm ring-1 ring-slate-100 backdrop-blur transition hover:-translate-y-0.5 hover:shadow-md hover:shadow-blue-500/10 hover:ring-blue-200/50 dark:border-slate-700 dark:bg-slate-900/70 dark:ring-slate-800 dark:hover:ring-blue-500/20"
             >
-              <div className="mb-3 inline-flex rounded-xl bg-slate-100 p-2.5 dark:bg-slate-800">
+              <div className="mb-3 inline-flex rounded-xl bg-slate-50 p-2.5 ring-1 ring-slate-100 dark:bg-slate-800 dark:ring-slate-700">
                 {card.icon}
               </div>
               <h2 className="text-lg font-bold text-slate-900 dark:text-slate-100">{card.title}</h2>

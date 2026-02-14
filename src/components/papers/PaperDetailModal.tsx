@@ -7,11 +7,13 @@ import {
   Code,
   ExternalLink,
   FileText,
+  GraduationCap,
   Link2,
   Sparkles,
   Star,
   X,
 } from 'lucide-react';
+import Link from 'next/link';
 import type { PaperRelationship, PaperWithNote } from '@/types';
 import { RELATIONSHIP_STYLES } from '@/lib/visualization/graphUtils';
 import {
@@ -141,32 +143,37 @@ export default function PaperDetailModal({
             </button>
           </div>
 
-          {(paper.pdf_url || paper.code_url) && (
-            <div className="mt-3 flex items-center gap-2">
-              {paper.pdf_url && (
-                <a
-                  href={paper.pdf_url}
-                  target="_blank"
-                  rel="noopener noreferrer"
-                  className="inline-flex items-center gap-1.5 rounded-lg bg-blue-600 px-3 py-1.5 text-xs font-semibold text-white transition hover:bg-blue-700"
-                >
-                  <ExternalLink className="h-3.5 w-3.5" />
-                  PDF
-                </a>
-              )}
-              {paper.code_url && (
-                <a
-                  href={paper.code_url}
-                  target="_blank"
-                  rel="noopener noreferrer"
-                  className="inline-flex items-center gap-1.5 rounded-lg bg-gray-700 px-3 py-1.5 text-xs font-semibold text-white transition hover:bg-gray-800"
-                >
-                  <Code className="h-3.5 w-3.5" />
-                  Code
-                </a>
-              )}
-            </div>
-          )}
+          <div className="mt-3 flex items-center gap-2">
+            <Link
+              href={`/paper/${paper.id}`}
+              className="inline-flex items-center gap-1.5 rounded-lg bg-indigo-600 px-3 py-1.5 text-xs font-semibold text-white transition hover:bg-indigo-700"
+            >
+              <GraduationCap className="h-3.5 w-3.5" />
+              논문 공부 페이지
+            </Link>
+            {paper.pdf_url && (
+              <a
+                href={paper.pdf_url}
+                target="_blank"
+                rel="noopener noreferrer"
+                className="inline-flex items-center gap-1.5 rounded-lg bg-blue-600 px-3 py-1.5 text-xs font-semibold text-white transition hover:bg-blue-700"
+              >
+                <ExternalLink className="h-3.5 w-3.5" />
+                PDF
+              </a>
+            )}
+            {paper.code_url && (
+              <a
+                href={paper.code_url}
+                target="_blank"
+                rel="noopener noreferrer"
+                className="inline-flex items-center gap-1.5 rounded-lg bg-gray-700 px-3 py-1.5 text-xs font-semibold text-white transition hover:bg-gray-800"
+              >
+                <Code className="h-3.5 w-3.5" />
+                Code
+              </a>
+            )}
+          </div>
         </div>
 
         <div className="h-[calc(100%-148px)] space-y-7 overflow-y-auto px-6 py-5">
