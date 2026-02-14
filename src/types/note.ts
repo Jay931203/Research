@@ -47,6 +47,11 @@ export interface PaperWithNote {
   key_contributions?: string[];
   algorithms?: string[];
   key_equations?: any[];
+  architecture_detail?: string;
+  difficulty_level?: 'beginner' | 'intermediate' | 'advanced';
+  prerequisites?: string[];
+  learning_objectives?: string[];
+  self_check_questions?: string[];
   category: string;
   tags?: string[];
   pdf_url?: string;

@@ -33,6 +33,9 @@ export interface Paper {
   // 수식
   key_equations?: Equation[];
 
+  // 아키텍처 상세
+  architecture_detail?: string;
+
   // 분류
   category: PaperCategory;
   tags?: string[];
@@ -45,6 +48,12 @@ export interface Paper {
   // 시각화
   color_hex: string;
   icon_name?: string;
+
+  // 학습 메타데이터
+  difficulty_level?: 'beginner' | 'intermediate' | 'advanced';
+  prerequisites?: string[];
+  learning_objectives?: string[];
+  self_check_questions?: string[];
 
   // 타임스탬프
   created_at: string;
