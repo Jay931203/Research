@@ -5,6 +5,7 @@ import {
   BookOpen,
   ChevronRight,
   Code,
+  Cpu,
   ExternalLink,
   FileText,
   GraduationCap,
@@ -107,7 +108,12 @@ export default function PaperDetailModal({
     <>
       <div className="fixed inset-0 z-50 bg-black/45 backdrop-blur-sm" onClick={handleClose} />
 
-      <div className={`fixed right-0 top-0 z-50 h-full w-full max-w-3xl overflow-hidden bg-white shadow-2xl dark:bg-gray-900 ${isClosing ? 'animate-slide-out-right' : 'animate-slide-in-right'}`}>
+      <div
+        role="dialog"
+        aria-modal="true"
+        aria-labelledby="paper-detail-title"
+        className={`fixed right-0 top-0 z-50 h-full w-full max-w-3xl overflow-hidden bg-white shadow-2xl dark:bg-gray-900 ${isClosing ? 'animate-slide-out-right' : 'animate-slide-in-right'}`}
+      >
         <div
           className="sticky top-0 z-10 border-b border-gray-200 px-6 py-4 dark:border-gray-700"
           style={{ backgroundColor: `${paper.color_hex}10` }}
@@ -126,7 +132,7 @@ export default function PaperDetailModal({
                 </span>
                 {paper.is_favorite && <Star className="h-4 w-4 fill-yellow-500 text-yellow-500" />}
               </div>
-              <h2 className="text-lg font-bold leading-tight text-gray-900 dark:text-gray-100">
+              <h2 id="paper-detail-title" className="text-lg font-bold leading-tight text-gray-900 dark:text-gray-100">
                 {paper.title}
               </h2>
               <p className="mt-1 text-sm text-gray-600 dark:text-gray-300">
@@ -243,6 +249,14 @@ export default function PaperDetailModal({
             <Section icon={<FileText className="h-4 w-4" />} title="초록">
               <p className="whitespace-pre-wrap text-sm leading-relaxed text-gray-700 dark:text-gray-300">
                 {paper.abstract}
+              </p>
+            </Section>
+          )}
+
+          {paper.architecture_detail && (
+            <Section icon={<Cpu className="h-4 w-4" />} title="아키텍처">
+              <p className="whitespace-pre-wrap text-sm leading-relaxed text-gray-700 dark:text-gray-300">
+                {paper.architecture_detail}
               </p>
             </Section>
           )}

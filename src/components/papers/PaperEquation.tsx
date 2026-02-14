@@ -36,7 +36,7 @@ function SingleEquation({ equation }: PaperEquationProps) {
         {html ? (
           <div
             dangerouslySetInnerHTML={{ __html: html }}
-            className="text-center"
+            className="text-center text-gray-900 dark:text-gray-100"
           />
         ) : (
           <code className="text-sm text-red-500 dark:text-red-400 block text-center">
@@ -59,7 +59,7 @@ export default function PaperEquations({ equations }: PaperEquationsProps) {
   return (
     <div className="space-y-3">
       {equations.map((eq, idx) => (
-        <SingleEquation key={idx} equation={eq} />
+        <SingleEquation key={eq.name || idx} equation={eq} />
       ))}
     </div>
   );

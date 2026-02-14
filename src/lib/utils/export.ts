@@ -1,12 +1,5 @@
 import type { PaperRelationship, PaperWithNote } from '@/types';
-
-const FAMILIARITY_LABELS: Record<string, string> = {
-  not_started: '미시작',
-  difficult: '어려움',
-  moderate: '보통',
-  familiar: '익숙함',
-  expert: '전문가',
-};
+import { FAMILIARITY_LABELS } from '@/lib/visualization/graphUtils';
 
 const RELATIONSHIP_LABELS: Record<string, string> = {
   extends: '확장',

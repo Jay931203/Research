@@ -41,17 +41,7 @@ function toPaperNodes(papers: PaperWithNote[]): PaperNode[] {
     position: { x: 0, y: 0 },
     data: {
       paper: {
-        id: paper.id,
-        title: paper.title,
-        authors: paper.authors,
-        year: paper.year,
-        venue: paper.venue,
-        doi: undefined,
-        arxiv_id: undefined,
-        abstract: paper.abstract,
-        key_contributions: paper.key_contributions,
-        algorithms: paper.algorithms,
-        key_equations: paper.key_equations,
+        ...paper,
         category: paper.category as
           | 'csi_compression'
           | 'autoencoder'
@@ -59,12 +49,6 @@ function toPaperNodes(papers: PaperWithNote[]): PaperNode[] {
           | 'transformer'
           | 'cnn'
           | 'other',
-        tags: paper.tags,
-        pdf_url: paper.pdf_url,
-        code_url: paper.code_url,
-        color_hex: paper.color_hex,
-        created_at: paper.created_at,
-        updated_at: paper.updated_at,
       },
       familiarity_level: paper.familiarity_level,
       is_favorite: paper.is_favorite,

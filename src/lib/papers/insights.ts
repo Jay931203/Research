@@ -105,8 +105,10 @@ function buildExpectedOutcomes(
     /(improv|reduc|gain|state-of-the-art|significant|efficient|generaliz|deploy|향상|개선|감소|효율|일반화|성능)/i;
 
   const candidate = contributions.filter((item) => signalPattern.test(item));
-  if (candidate.length >= 2) return candidate.slice(0, 3);
+  if (candidate.length) return candidate.slice(0, 3);
 
+  // Avoid repeating the exact first bullets shown in reminder points.
+  if (contributions.length >= 4) return contributions.slice(-3);
   if (contributions.length) return contributions.slice(0, 3);
 
   const abstractSentence = getFirstSentence(abstract);
@@ -446,4 +448,3 @@ export function getConnectionPreview(
 ): PaperConnection[] {
   return buildPaperConnections(paperId, papers, relationships).slice(0, limit);
 }
-

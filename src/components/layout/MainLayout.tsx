@@ -3,7 +3,6 @@
 import { useState } from 'react';
 import Header from './Header';
 import Sidebar from './Sidebar';
-import ScrollToTop from '@/components/common/ScrollToTop';
 import CommandPalette from '@/components/common/CommandPalette';
 import KeyboardShortcutsHelp from '@/components/common/KeyboardShortcutsHelp';
 import { useKeyboardShortcuts } from '@/hooks/useKeyboardShortcuts';
@@ -36,7 +35,6 @@ export default function MainLayout({ children }: MainLayoutProps) {
           {children}
         </div>
       </main>
-      <ScrollToTop />
       <CommandPalette isOpen={isCommandPaletteOpen} onClose={closeCommandPalette} />
       <KeyboardShortcutsHelp isOpen={isHelpOpen} onClose={closeHelp} />
     </div>

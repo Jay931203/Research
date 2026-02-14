@@ -105,8 +105,9 @@ export async function searchPapers(filters: PaperFilters): Promise<Paper[]> {
 
   // 검색 텍스트 (제목, 저자)
   if (filters.searchText) {
+    const escaped = filters.searchText.replace(/[%_]/g, '\\$&');
     query = query.or(
-      `title.ilike.%${filters.searchText}%,authors.cs.{${filters.searchText}}`
+      `title.ilike.%${escaped}%,authors.cs.{${escaped}}`
     );
   }
 

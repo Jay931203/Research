@@ -74,6 +74,10 @@ body {
 /* KaTeX styles */
 @import 'katex/dist/katex.min.css';
 
+/* Force KaTeX equation colors for readability */
+.katex { color: #1e293b; }
+.dark .katex { color: #e2e8f0; }
+
 /* Slide-in animation for detail modal */
 @keyframes slide-in-right {
   from {
