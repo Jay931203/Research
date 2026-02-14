@@ -1,24 +1,24 @@
 import Link from 'next/link';
-import { ArrowRight, Database, GitBranch, NotebookPen } from 'lucide-react';
+import { ArrowRight, BookOpen, Database, GitBranch } from 'lucide-react';
 
 const cards = [
   {
     href: '/dashboard',
     title: '연구 대시보드',
-    description: '논문 핵심 요약과 관계 그래프를 한 화면에서 탐색합니다.',
+    description: '논문 관계 그래프와 핵심 리마인드를 한 화면에서 탐색합니다.',
     icon: <GitBranch className="h-6 w-6 text-blue-600" />,
   },
   {
-    href: '/import',
-    title: '데이터 가져오기',
-    description: '논문/관계 데이터를 안전하게 병합하고 상태를 확인합니다.',
-    icon: <Database className="h-6 w-6 text-emerald-600" />,
+    href: '/glossary',
+    title: '용어집',
+    description: '22개 핵심 기술 용어의 정의와 관련 논문을 빠르게 확인합니다.',
+    icon: <BookOpen className="h-6 w-6 text-violet-600" />,
   },
   {
-    href: '/test',
-    title: '시스템 점검',
-    description: 'Supabase 연결과 테이블 상태를 빠르게 점검합니다.',
-    icon: <NotebookPen className="h-6 w-6 text-violet-600" />,
+    href: '/import',
+    title: '데이터 관리',
+    description: '논문/관계 데이터를 안전하게 병합하고 상태를 확인합니다.',
+    icon: <Database className="h-6 w-6 text-emerald-600" />,
   },
 ];
 

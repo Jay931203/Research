@@ -70,8 +70,8 @@ export default function Header({ onSearchClick }: HeaderProps = {}) {
 
         <nav className="hidden items-center gap-2 md:flex">
           <HeaderLink href="/dashboard" active={pathname === '/dashboard'}>대시보드</HeaderLink>
-          <HeaderLink href="/import" active={pathname === '/import'}>데이터 가져오기</HeaderLink>
-          <HeaderLink href="/test" active={pathname === '/test'}>시스템 점검</HeaderLink>
+          <HeaderLink href="/glossary" active={pathname === '/glossary'}>용어집</HeaderLink>
+          <HeaderLink href="/import" active={pathname === '/import'}>데이터 관리</HeaderLink>
 
           {onSearchClick && (
             <button
@@ -142,11 +142,11 @@ export default function Header({ onSearchClick }: HeaderProps = {}) {
             <MobileHeaderLink href="/dashboard" onClick={() => setMobileMenuOpen(false)} active={pathname === '/dashboard'}>
               대시보드
             </MobileHeaderLink>
-            <MobileHeaderLink href="/import" onClick={() => setMobileMenuOpen(false)} active={pathname === '/import'}>
-              데이터 가져오기
+            <MobileHeaderLink href="/glossary" onClick={() => setMobileMenuOpen(false)} active={pathname === '/glossary'}>
+              용어집
             </MobileHeaderLink>
-            <MobileHeaderLink href="/test" onClick={() => setMobileMenuOpen(false)} active={pathname === '/test'}>
-              시스템 점검
+            <MobileHeaderLink href="/import" onClick={() => setMobileMenuOpen(false)} active={pathname === '/import'}>
+              데이터 관리
             </MobileHeaderLink>
             <a
               href={REPO_URL}
