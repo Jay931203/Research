@@ -27,6 +27,11 @@ interface ImportPaper {
   pdf_url?: string | null;
   code_url?: string | null;
   color_hex?: string | null;
+  architecture_detail?: string | null;
+  difficulty_level?: 'beginner' | 'intermediate' | 'advanced' | null;
+  prerequisites?: string[];
+  learning_objectives?: string[];
+  self_check_questions?: string[];
 }
 
 interface ImportRelationship {
@@ -143,6 +148,11 @@ export default function ImportPage() {
           pdf_url: paper.pdf_url ?? undefined,
           code_url: paper.code_url ?? undefined,
           color_hex: paper.color_hex ?? '#6366f1',
+          architecture_detail: paper.architecture_detail ?? undefined,
+          difficulty_level: paper.difficulty_level ?? undefined,
+          prerequisites: paper.prerequisites ?? [],
+          learning_objectives: paper.learning_objectives ?? [],
+          self_check_questions: paper.self_check_questions ?? [],
         };
 
         const createdPaper = await createPaper(paperData);
