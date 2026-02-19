@@ -12,6 +12,7 @@ import { getEdgeStrokeWidth, RELATIONSHIP_STYLES } from '@/lib/visualization/gra
 
 interface UseGraphDataOptions {
   direction?: 'TB' | 'LR';
+  applyFamiliarityOpacity?: boolean;
 }
 
 function getFlowSourceTarget(relationship: PaperRelationship): {
@@ -34,7 +35,10 @@ function getFlowSourceTarget(relationship: PaperRelationship): {
   };
 }
 
-function toPaperNodes(papers: PaperWithNote[]): PaperNode[] {
+function toPaperNodes(
+  papers: PaperWithNote[],
+  applyFamiliarityOpacity: boolean
+): PaperNode[] {
   return papers.map((paper) => ({
     id: paper.id,
     type: 'paperNode',
@@ -51,6 +55,7 @@ function toPaperNodes(papers: PaperWithNote[]): PaperNode[] {
           | 'other',
       },
       familiarity_level: paper.familiarity_level,
+      apply_familiarity_opacity: applyFamiliarityOpacity,
       is_favorite: paper.is_favorite,
       note_content: paper.note_content,
     },
@@ -92,8 +97,8 @@ function toRelationshipEdges(
         fontWeight: 600,
       },
       labelBgStyle: {
-        fill: 'white',
-        fillOpacity: 0.86,
+        fill: 'transparent',
+        fillOpacity: 0,
       },
       labelBgPadding: [6, 3] as [number, number],
       labelBgBorderRadius: 4,
@@ -106,14 +111,14 @@ export function useGraphData(
   relationships: PaperRelationship[],
   options: UseGraphDataOptions = {}
 ): GraphData {
-  const { direction = 'TB' } = options;
+  const { direction = 'TB', applyFamiliarityOpacity = false } = options;
 
   return useMemo(() => {
     if (!papers.length) {
       return { nodes: [], edges: [] };
     }
 
-    const nodes = toPaperNodes(papers);
+    const nodes = toPaperNodes(papers, applyFamiliarityOpacity);
     const edges = toRelationshipEdges(relationships);
     const positionedNodes = applyDagreLayout(nodes, edges, { direction });
 
@@ -121,6 +126,5 @@ export function useGraphData(
       nodes: positionedNodes,
       edges,
     };
-  }, [papers, relationships, direction]);
+  }, [papers, relationships, direction, applyFamiliarityOpacity]);
 }
-
