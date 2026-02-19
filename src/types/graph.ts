@@ -9,6 +9,7 @@ import { FamiliarityLevel } from './note';
 export interface PaperNodeData {
   paper: Paper;
   familiarity_level?: FamiliarityLevel;
+  apply_familiarity_opacity?: boolean;
   is_favorite?: boolean;
   note_content?: string;
 }
