@@ -16,7 +16,6 @@ import {
   ArrowRightLeft,
   Filter,
   ListTree,
-  Network,
   Search,
   SlidersHorizontal,
   Star,
@@ -36,6 +35,7 @@ import {
   getFamiliarityStarScore,
   RESEARCH_TOPIC_LABELS,
   RESEARCH_TOPIC_ORDER,
+  type ResearchTopic,
   inferResearchTopic,
 } from '@/lib/visualization/graphUtils';
 import { useGraphData } from '@/hooks/useGraphData';
@@ -63,8 +63,8 @@ const CORE_REL_TYPES: RelationshipType[] = ['extends', 'builds_on', 'inspired_by
 const ALL_REL_TYPES = Object.keys(RELATIONSHIP_STYLES) as RelationshipType[];
 const FAMILIARITY_STAR_OPTIONS = [0, 1, 2, 3] as const;
 const IMPORTANCE_OPTIONS = [1, 2, 3, 4, 5] as const;
-const MINDMAP_FILTERS_STORAGE_KEY = 'dashboard-mindmap-filters-v1';
-const MINDMAP_FILTERS_PINNED_STORAGE_KEY = 'dashboard-mindmap-filters-pinned-v1';
+const MINDMAP_FILTERS_STORAGE_KEY = 'dashboard-mindmap-filters-v2';
+const MINDMAP_FILTERS_PINNED_STORAGE_KEY = 'dashboard-mindmap-filters-pinned-v2';
 
 interface MindMapFilterPayload {
   surfaceMode: SurfaceMode;
@@ -81,6 +81,7 @@ interface MindMapFilterPayload {
   selectedPaperIds: string[];
   selectedFamiliarityStars: number[];
   selectedImportanceRatings: number[];
+  selectedResearchTopics: ResearchTopic[];
 }
 
 interface MindMapPinnedSnapshot {
@@ -146,7 +147,7 @@ function matchesSearch(paper: PaperWithNote, rawQuery: string): boolean {
 }
 
 function MindMapInner({ papers, relationships, onNodeClick }: MindMapProps) {
-  const [surfaceMode, setSurfaceMode] = useState<SurfaceMode>('graph');
+  const [surfaceMode] = useState<SurfaceMode>('graph');
   const [viewMode, setViewMode] = useState<GraphViewMode>('overview');
   const [direction, setDirection] = useState<'TB' | 'LR'>('TB');
   const [layerMode, setLayerMode] = useState<LayerMode>('year_topic');
@@ -162,6 +163,7 @@ function MindMapInner({ papers, relationships, onNodeClick }: MindMapProps) {
   const [selectedPaperIds, setSelectedPaperIds] = useState<string[]>([]);
   const [selectedFamiliarityStars, setSelectedFamiliarityStars] = useState<number[]>([]);
   const [selectedImportanceRatings, setSelectedImportanceRatings] = useState<number[]>([]);
+  const [selectedResearchTopics, setSelectedResearchTopics] = useState<ResearchTopic[]>([]);
   const [isFilterStateHydrated, setIsFilterStateHydrated] = useState(false);
   const [hasPinnedSnapshot, setHasPinnedSnapshot] = useState(false);
   const [pinnedSavedAt, setPinnedSavedAt] = useState<string | null>(null);
@@ -183,6 +185,7 @@ function MindMapInner({ papers, relationships, onNodeClick }: MindMapProps) {
       selectedPaperIds,
       selectedFamiliarityStars,
       selectedImportanceRatings,
+      selectedResearchTopics,
     }),
     [
       surfaceMode,
@@ -199,13 +202,11 @@ function MindMapInner({ papers, relationships, onNodeClick }: MindMapProps) {
       selectedPaperIds,
       selectedFamiliarityStars,
       selectedImportanceRatings,
+      selectedResearchTopics,
     ]
   );
 
   const applyFilterPayload = useCallback((parsed: Partial<MindMapFilterPayload>) => {
-    if (parsed.surfaceMode === 'graph' || parsed.surfaceMode === 'list') {
-      setSurfaceMode(parsed.surfaceMode);
-    }
     if (
       parsed.viewMode === 'overview' ||
       parsed.viewMode === 'focus' ||
@@ -216,13 +217,8 @@ function MindMapInner({ papers, relationships, onNodeClick }: MindMapProps) {
     if (parsed.direction === 'TB' || parsed.direction === 'LR') {
       setDirection(parsed.direction);
     }
-    if (
-      parsed.layerMode === 'year' ||
-      parsed.layerMode === 'year_topic' ||
-      parsed.layerMode === 'category'
-    ) {
-      setLayerMode(parsed.layerMode);
-    }
+    // Keep layer mode fixed to year/topic lanes for consistent dashboard map.
+    setLayerMode('year_topic');
     if (parsed.focusDepth === 1 || parsed.focusDepth === 2) {
       setFocusDepth(parsed.focusDepth);
     }
@@ -275,6 +271,18 @@ function MindMapInner({ papers, relationships, onNodeClick }: MindMapProps) {
         .sort((a, b) => a - b);
       setSelectedImportanceRatings(Array.from(new Set(nextImportanceRatings)));
     }
+    if (Array.isArray(parsed.selectedResearchTopics)) {
+      const nextTopics = parsed.selectedResearchTopics.filter(
+        (value): value is ResearchTopic =>
+          typeof value === 'string' &&
+          RESEARCH_TOPIC_ORDER.includes(value as ResearchTopic)
+      );
+      setSelectedResearchTopics(
+        Array.from(new Set(nextTopics)).sort(
+          (a, b) => RESEARCH_TOPIC_ORDER.indexOf(a) - RESEARCH_TOPIC_ORDER.indexOf(b)
+        )
+      );
+    }
   }, []);
 
   useEffect(() => {
@@ -319,9 +327,26 @@ function MindMapInner({ papers, relationships, onNodeClick }: MindMapProps) {
       const importance = paper.importance_rating ?? 0;
       const importanceMatch =
         !selectedImportanceRatings.length || selectedImportanceRatings.includes(importance);
-      return familiarityMatch && importanceMatch;
+      const researchTopic = inferResearchTopic(paper);
+      const researchTopicMatch =
+        !selectedResearchTopics.length || selectedResearchTopics.includes(researchTopic);
+      return familiarityMatch && importanceMatch && researchTopicMatch;
     });
-  }, [papers, selectedFamiliarityStars, selectedImportanceRatings]);
+  }, [papers, selectedFamiliarityStars, selectedImportanceRatings, selectedResearchTopics]);
+
+  const researchTopicCounts = useMemo(() => {
+    const counts: Partial<Record<ResearchTopic, number>> = {};
+    for (const paper of papers) {
+      const topic = inferResearchTopic(paper);
+      counts[topic] = (counts[topic] ?? 0) + 1;
+    }
+    return counts;
+  }, [papers]);
+
+  const availableResearchTopics = useMemo(
+    () => RESEARCH_TOPIC_ORDER.filter((topic) => (researchTopicCounts[topic] ?? 0) > 0),
+    [researchTopicCounts]
+  );
 
   const filteredPaperIdSet = useMemo(
     () => new Set(filteredPapers.map((paper) => paper.id)),
@@ -740,6 +765,16 @@ function MindMapInner({ papers, relationships, onNodeClick }: MindMapProps) {
     );
   }, []);
 
+  const toggleResearchTopicFilter = useCallback((topic: ResearchTopic) => {
+    setSelectedResearchTopics((previous) =>
+      previous.includes(topic)
+        ? previous.filter((value) => value !== topic)
+        : [...previous, topic].sort(
+            (a, b) => RESEARCH_TOPIC_ORDER.indexOf(a) - RESEARCH_TOPIC_ORDER.indexOf(b)
+          )
+    );
+  }, []);
+
   const clearPaperSelection = useCallback(() => {
     setSelectedPaperIds([]);
   }, []);
@@ -751,6 +786,21 @@ function MindMapInner({ papers, relationships, onNodeClick }: MindMapProps) {
   const selectSearchCandidates = useCallback(() => {
     setSelectedPaperIds(selectionCandidates.map((paper) => paper.id));
   }, [selectionCandidates]);
+
+  const resetAllFilters = useCallback(() => {
+    setViewMode('overview');
+    setDirection('TB');
+    setLayerMode('year_topic');
+    setFocusDepth(1);
+    setEnabledRelationshipTypes(CORE_REL_TYPES);
+    setMinStrength(4);
+    setUseFamiliarityOpacity(false);
+    setSearchText('');
+    setSelectedPaperIds([]);
+    setSelectedFamiliarityStars([]);
+    setSelectedImportanceRatings([]);
+    setSelectedResearchTopics([]);
+  }, []);
 
   const savePinnedFilterState = useCallback(() => {
     const snapshot: MindMapPinnedSnapshot = {
@@ -821,18 +871,10 @@ function MindMapInner({ papers, relationships, onNodeClick }: MindMapProps) {
       {isPanelOpen ? (
         <div className="absolute left-3 top-3 z-20 w-[calc(100%-24px)] max-h-[56vh] overflow-auto rounded-xl border border-gray-200 bg-white/95 p-3 shadow-lg md:w-[760px] md:max-w-[calc(100%-420px)] dark:border-gray-700 dark:bg-gray-900/95">
           <div className="mb-3 flex items-center gap-2">
-            <button className={tabClass(surfaceMode === 'list')} onClick={() => setSurfaceMode('list')}>
-              <span className="inline-flex items-center gap-1">
-                <ListTree className="h-3.5 w-3.5" />
-                관계 리스트
-              </span>
-            </button>
-            <button className={tabClass(surfaceMode === 'graph')} onClick={() => setSurfaceMode('graph')}>
-              <span className="inline-flex items-center gap-1">
-                <Network className="h-3.5 w-3.5" />
-                그래프
-              </span>
-            </button>
+            <span className="inline-flex items-center gap-1 rounded-md bg-blue-600 px-3 py-1.5 text-xs font-semibold text-white">
+              <ListTree className="h-3.5 w-3.5" />
+              그래프
+            </span>
 
             <button
               onClick={savePinnedFilterState}
@@ -848,6 +890,13 @@ function MindMapInner({ papers, relationships, onNodeClick }: MindMapProps) {
               title="저장한 필터 상태 불러오기"
             >
               상태 불러오기
+            </button>
+            <button
+              onClick={resetAllFilters}
+              className="rounded-md border border-gray-300 bg-white px-2 py-1 text-[11px] font-semibold text-gray-700 hover:bg-gray-100 dark:border-gray-600 dark:bg-gray-900 dark:text-gray-200 dark:hover:bg-gray-800"
+              title="필터/선택/검색 전체 초기화"
+            >
+              전체 초기화
             </button>
             {hasPinnedSnapshot && (
               <span className="text-[10px] text-gray-500 dark:text-gray-400">
@@ -955,11 +1004,44 @@ function MindMapInner({ papers, relationships, onNodeClick }: MindMapProps) {
             </div>
           </div>
 
+          <div className="mb-3">
+            <div className="mb-1 flex items-center justify-between text-[11px] text-gray-600 dark:text-gray-300">
+              <span className="font-semibold">대표 카테고리</span>
+              {!!selectedResearchTopics.length && (
+                <button
+                  onClick={() => setSelectedResearchTopics([])}
+                  className="text-[10px] font-semibold text-blue-600 hover:text-blue-700"
+                >
+                  초기화
+                </button>
+              )}
+            </div>
+            <div className="flex flex-wrap gap-1.5">
+              {availableResearchTopics.map((topic) => {
+                const active = selectedResearchTopics.includes(topic);
+                const count = researchTopicCounts[topic] ?? 0;
+                return (
+                  <button
+                    key={topic}
+                    onClick={() => toggleResearchTopicFilter(topic)}
+                    className={`rounded-full border px-2 py-0.5 text-[10px] font-semibold transition ${
+                      active
+                        ? 'border-blue-600 bg-blue-600 text-white'
+                        : 'border-gray-300 bg-white text-gray-600 hover:border-blue-400 dark:border-gray-600 dark:bg-gray-900 dark:text-gray-300'
+                    }`}
+                  >
+                    {RESEARCH_TOPIC_LABELS[topic]} ({count})
+                  </button>
+                );
+              })}
+            </div>
+          </div>
+
           <div className="mb-3 flex items-center justify-between rounded-md border border-gray-200 bg-gray-50 px-2.5 py-2 text-[11px] dark:border-gray-700 dark:bg-gray-800">
             <div>
-              <p className="font-semibold text-gray-700 dark:text-gray-200">익숙도 투명도 시각화</p>
+              <p className="font-semibold text-gray-700 dark:text-gray-200">익숙도 배경 강조 시각화</p>
               <p className="text-[10px] text-gray-500 dark:text-gray-400">
-                켜면 별 0개 노드가 완전 투명하게 표시됩니다.
+                별 0개도 불투명 상태를 유지하고, 별이 높을수록 배경색이 더 진해집니다.
               </p>
             </div>
             <button
@@ -1088,15 +1170,9 @@ function MindMapInner({ papers, relationships, onNodeClick }: MindMapProps) {
                 <option value="overview">전체 보기</option>
                 <option value="timeline">타임라인</option>
               </select>
-              <select
-                value={layerMode}
-                onChange={(event) => setLayerMode(event.target.value as LayerMode)}
-                className="input-base !py-2 !text-xs"
-              >
-                <option value="year_topic">연도 x 주제 정렬</option>
-                <option value="year">연도 행 정렬</option>
-                <option value="category">카테고리 열 정렬</option>
-              </select>
+              <span className="inline-flex items-center rounded-md border border-blue-200 bg-blue-50 px-2.5 py-2 text-xs font-semibold text-blue-700 dark:border-blue-800 dark:bg-blue-900/30 dark:text-blue-300">
+                연도 x 주제 정렬
+              </span>
               <select
                 value={focusDepth}
                 onChange={(event) => {
@@ -1352,12 +1428,18 @@ function MindMapInner({ papers, relationships, onNodeClick }: MindMapProps) {
             onMove={(_, viewport) => setZoomLevel(viewport.zoom)}
             nodeTypes={nodeTypes}
             edgeTypes={edgeTypes}
+            zoomOnScroll
+            zoomOnPinch
+            zoomOnDoubleClick
+            panOnDrag
+            panOnScroll={false}
+            preventScrolling
             nodesDraggable={false}
             nodesConnectable={false}
             fitView
             fitViewOptions={{ padding: 0.25, duration: 500 }}
-            minZoom={0.2}
-            maxZoom={2}
+            minZoom={0.15}
+            maxZoom={2.8}
             proOptions={{ hideAttribution: true }}
             className="bg-gray-50 dark:bg-gray-900"
           >
