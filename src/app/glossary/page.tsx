@@ -646,10 +646,6 @@ export default function GlossaryPage() {
                       </p>
                     ) : null}
                   </div>
-
-                  <span className="flex-shrink-0 text-xs text-gray-400 dark:text-gray-500">
-                    {term.related_paper_titles.length}편
-                  </span>
                   <ChevronDown
                     className={`h-4 w-4 flex-shrink-0 text-gray-400 transition-transform dark:text-gray-500 ${
                       isExpanded ? 'rotate-180' : ''
@@ -712,39 +708,6 @@ export default function GlossaryPage() {
                         })}
                       </div>
                     )}
-
-                    <div>
-                      <p className="mb-2 text-xs font-semibold text-gray-500 dark:text-gray-400">
-                        관련 논문 ({term.related_paper_titles.length}편)
-                      </p>
-                      <div className="space-y-1.5">
-                        {term.related_paper_titles.map((title) => {
-                          const paper = paperByTitle.get(title.toLowerCase());
-                          if (!paper) {
-                            return (
-                              <p key={title} className="px-3 py-2 text-xs text-gray-400 dark:text-gray-500">
-                                {title}
-                              </p>
-                            );
-                          }
-
-                          return (
-                            <Link
-                              key={title}
-                              href={`/paper/${paper.id}`}
-                              className="flex items-center gap-2 rounded-lg px-3 py-2 text-sm text-gray-700 transition hover:bg-gray-50 dark:text-gray-300 dark:hover:bg-gray-800"
-                            >
-                              <span
-                                className="h-2 w-2 flex-shrink-0 rounded-full"
-                                style={{ backgroundColor: paper.colorHex }}
-                              />
-                              <span className="line-clamp-1">{paper.title}</span>
-                              <ChevronRight className="ml-auto h-3 w-3 flex-shrink-0 text-gray-400" />
-                            </Link>
-                          );
-                        })}
-                      </div>
-                    </div>
                   </div>
                 )}
               </div>
@@ -761,42 +724,6 @@ export default function GlossaryPage() {
           </section>
 
           <aside className="space-y-3 lg:sticky lg:top-24 lg:h-[calc(100vh-7rem)] lg:overflow-y-auto lg:pl-1">
-            <div className="rounded-xl border border-gray-200 bg-white/90 p-4 dark:border-gray-700 dark:bg-gray-900/80">
-              <p className="mb-1 text-[11px] font-semibold uppercase tracking-wide text-gray-500 dark:text-gray-400">
-                Selected Term
-              </p>
-              {!selectedTerm && (
-                <p className="text-sm text-gray-500 dark:text-gray-400">중앙 목록에서 용어를 선택하세요.</p>
-              )}
-              {selectedTerm && (
-                <>
-                  <div className="mb-2 flex items-center gap-2">
-                    <h2 className="text-base font-bold text-gray-800 dark:text-gray-100">{selectedTerm.name}</h2>
-                    <span
-                      className="rounded-full px-2 py-0.5 text-[10px] font-semibold"
-                      style={{
-                        backgroundColor: `${CATEGORY_META[selectedTerm.category].color}15`,
-                        color: CATEGORY_META[selectedTerm.category].color,
-                      }}
-                    >
-                      {CATEGORY_META[selectedTerm.category].label}
-                    </span>
-                  </div>
-                  {selectedTerm.hierarchy?.length ? (
-                    <p className="mb-2 inline-flex items-center gap-1 text-[11px] text-gray-500 dark:text-gray-400">
-                      <GitBranch className="h-3 w-3" />
-                      {selectedTerm.hierarchy.join(' > ')}
-                    </p>
-                  ) : null}
-                  <MarkdownContent
-                    content={selectedTerm.description}
-                    className="text-sm leading-relaxed text-gray-700 dark:text-gray-300"
-                    glossaryTerms={terms}
-                  />
-                </>
-              )}
-            </div>
-
             {selectedTerm && (
               <div className="rounded-xl border border-gray-200 bg-white/90 p-4 dark:border-gray-700 dark:bg-gray-900/80">
                 <p className="mb-2 text-[11px] font-semibold uppercase tracking-wide text-gray-500 dark:text-gray-400">
