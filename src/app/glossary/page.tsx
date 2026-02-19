@@ -85,6 +85,51 @@ function termMatches(term: GlossaryTerm, query: string): boolean {
   );
 }
 
+function collectTermSignals(term: GlossaryTerm): Set<string> {
+  const signals = new Set<string>();
+  signals.add(`category:${term.category}`);
+  if (term.term_set) signals.add(`term_set:${term.term_set}`);
+
+  for (const depth of term.hierarchy ?? []) {
+    const value = depth.trim().toLowerCase();
+    if (value) signals.add(`hierarchy:${value}`);
+  }
+
+  for (const axis of ALL_STUDY_AXES) {
+    const values = term.study_classification?.[axis] ?? [];
+    for (const value of values) {
+      const normalized = value.trim().toLowerCase();
+      if (normalized) signals.add(`study:${axis}:${normalized}`);
+    }
+  }
+
+  return signals;
+}
+
+function scoreTermSimilarity(baseTerm: GlossaryTerm, candidateTerm: GlossaryTerm): number {
+  let score = 0;
+
+  if (baseTerm.category === candidateTerm.category) score += 2;
+  if (baseTerm.term_set && baseTerm.term_set === candidateTerm.term_set) score += 4;
+
+  const baseSignals = collectTermSignals(baseTerm);
+  const candidateSignals = collectTermSignals(candidateTerm);
+  let overlapCount = 0;
+  for (const signal of Array.from(baseSignals)) {
+    if (candidateSignals.has(signal)) overlapCount += 1;
+  }
+  score += Math.min(overlapCount, 8);
+
+  const basePapers = new Set(baseTerm.related_paper_titles.map((title) => title.toLowerCase()));
+  let sharedPaperCount = 0;
+  for (const title of candidateTerm.related_paper_titles) {
+    if (basePapers.has(title.toLowerCase())) sharedPaperCount += 1;
+  }
+  score += Math.min(sharedPaperCount, 2) * 2;
+
+  return score;
+}
+
 export default function GlossaryPage() {
   const { terms, isLoading } = useGlossary();
   const { papers } = usePapersWithNotes();
@@ -95,7 +140,8 @@ export default function GlossaryPage() {
   const [selectedTermSet, setSelectedTermSet] = useState<string>('all');
   const [selectedStudyAxis, setSelectedStudyAxis] = useState<GlossaryStudyAxis | 'all'>('all');
   const [selectedStudyTag, setSelectedStudyTag] = useState('all');
-  const [expandedId, setExpandedId] = useState<string | null>(null);
+  const [selectedTermId, setSelectedTermId] = useState<string | null>(null);
+  const [expandedIds, setExpandedIds] = useState<string[]>([]);
 
   const appliedQueryRef = useRef<string | null>(null);
 
@@ -114,13 +160,14 @@ export default function GlossaryPage() {
     const matched = terms.find((t) => termMatches(t, queryFromUrl));
     if (!matched) {
       setSelectedCategory('all');
-      setExpandedId(null);
+      setExpandedIds([]);
       return;
     }
 
     setSelectedCategory(matched.category);
     setSelectedTermSet(matched.term_set ?? 'all');
-    setExpandedId(matched.id);
+    setSelectedTermId(matched.id);
+    setExpandedIds((prev) => (prev.includes(matched.id) ? prev : [...prev, matched.id]));
 
     setTimeout(() => {
       document.getElementById(`glossary-term-${matched.id}`)?.scrollIntoView({
@@ -210,6 +257,45 @@ export default function GlossaryPage() {
     return result;
   }, [terms, selectedCategory, selectedTermSet, searchQuery, selectedStudyAxis, selectedStudyTag]);
 
+  const filteredSorted = useMemo(
+    () => [...filtered].sort((a, b) => a.name.localeCompare(b.name, 'ko-KR')),
+    [filtered]
+  );
+
+  useEffect(() => {
+    if (!filteredSorted.length) {
+      setSelectedTermId(null);
+      return;
+    }
+
+    if (!selectedTermId || !filteredSorted.some((term) => term.id === selectedTermId)) {
+      setSelectedTermId(filteredSorted[0].id);
+    }
+  }, [filteredSorted, selectedTermId]);
+
+  const selectedTerm = useMemo(
+    () => filteredSorted.find((term) => term.id === selectedTermId) ?? null,
+    [filteredSorted, selectedTermId]
+  );
+
+  const relatedTerms = useMemo(() => {
+    if (!selectedTerm) return [];
+
+    const scored = terms
+      .filter((term) => term.id !== selectedTerm.id)
+      .map((term) => ({ term, score: scoreTermSimilarity(selectedTerm, term) }))
+      .filter((item) => item.score > 0)
+      .sort((a, b) => b.score - a.score || a.term.name.localeCompare(b.term.name, 'ko-KR'))
+      .slice(0, 12)
+      .map((item) => item.term);
+
+    if (scored.length > 0) return scored;
+
+    return terms
+      .filter((term) => term.id !== selectedTerm.id && term.category === selectedTerm.category)
+      .slice(0, 12);
+  }, [terms, selectedTerm]);
+
   const paperByTitle = useMemo(() => {
     const map = new Map<string, { id: string; title: string; colorHex: string }>();
     for (const p of papers) {
@@ -234,6 +320,42 @@ export default function GlossaryPage() {
     return counts;
   }, [terms, availableTermSets]);
 
+  const toggleExpanded = (id: string) => {
+    setExpandedIds((prev) => (prev.includes(id) ? prev.filter((item) => item !== id) : [...prev, id]));
+  };
+
+  const focusTerm = (
+    id: string,
+    options: {
+      open?: boolean;
+      resetFilters?: boolean;
+      scroll?: boolean;
+    } = {}
+  ) => {
+    if (options.resetFilters) {
+      setSearchQuery('');
+      setSelectedCategory('all');
+      setSelectedTermSet('all');
+      setSelectedStudyAxis('all');
+      setSelectedStudyTag('all');
+    }
+
+    setSelectedTermId(id);
+
+    if (options.open) {
+      setExpandedIds((prev) => (prev.includes(id) ? prev : [...prev, id]));
+    }
+
+    if (options.scroll !== false) {
+      setTimeout(() => {
+        document.getElementById(`glossary-term-${id}`)?.scrollIntoView({
+          behavior: 'smooth',
+          block: 'center',
+        });
+      }, 90);
+    }
+  };
+
   if (isLoading) {
     return (
       <div className="min-h-screen bg-gray-50 dark:bg-gray-950">
@@ -251,13 +373,14 @@ export default function GlossaryPage() {
     <div className="min-h-screen bg-gray-50 dark:bg-gray-950">
       <Header />
 
-      <main className="mx-auto max-w-4xl px-4 pb-16 pt-8 sm:px-6 lg:px-8">
+      <main className="mx-auto max-w-[1600px] px-4 pb-16 pt-8 sm:px-6 lg:px-8">
         <h1 className="mb-2 text-xl font-bold text-gray-800 dark:text-gray-200">용어집</h1>
         <p className="mb-6 text-sm text-gray-500 dark:text-gray-400">
           논문 페이지에서 클릭한 용어는 여기에서 상세 정의와 관련 논문으로 이어집니다.
         </p>
 
-        <div className="mb-6 space-y-4">
+        <div className="grid gap-4 lg:grid-cols-[280px_minmax(0,1fr)_320px] xl:gap-5">
+          <aside className="space-y-4 lg:sticky lg:top-24 lg:h-[calc(100vh-7rem)] lg:overflow-y-auto lg:pr-1">
           <div className="relative">
             <Search className="absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-gray-400" />
             <input
@@ -414,26 +537,73 @@ export default function GlossaryPage() {
               </div>
             )}
           </div>
-        </div>
+          <div className="space-y-2 rounded-xl border border-gray-200 bg-white/80 p-3 dark:border-gray-700 dark:bg-gray-900/70">
+            <p className="text-[11px] font-semibold text-gray-600 dark:text-gray-300">
+              백과사전 네비게이션 ({filteredSorted.length})
+            </p>
+            <div className="max-h-72 space-y-1 overflow-y-auto pr-1">
+              {filteredSorted.map((term) => (
+                <button
+                  key={`nav-${term.id}`}
+                  onClick={() => focusTerm(term.id, { open: true })}
+                  className={`flex w-full items-center justify-between rounded-lg px-2.5 py-2 text-left text-xs transition ${
+                    selectedTermId === term.id
+                      ? 'bg-blue-50 text-blue-700 ring-1 ring-blue-200 dark:bg-blue-900/30 dark:text-blue-300 dark:ring-blue-800/60'
+                      : 'text-gray-600 hover:bg-gray-100 dark:text-gray-300 dark:hover:bg-gray-800'
+                  }`}
+                >
+                  <span className="line-clamp-1">{term.name}</span>
+                  <ChevronRight className="h-3.5 w-3.5 flex-shrink-0" />
+                </button>
+              ))}
+              {filteredSorted.length === 0 && (
+                <p className="px-2 py-6 text-center text-xs text-gray-400 dark:text-gray-500">
+                  조건에 맞는 용어가 없습니다.
+                </p>
+              )}
+            </div>
+          </div>
+          </aside>
 
-        <p className="mb-4 text-xs text-gray-500 dark:text-gray-400">
-          {filtered.length}개 용어 표시 중
-        </p>
+          <section className="min-w-0">
+            <div className="mb-4 flex flex-wrap items-center gap-2">
+              <p className="text-xs text-gray-500 dark:text-gray-400">
+                {filteredSorted.length}개 용어 표시 중
+              </p>
+              <button
+                onClick={() => setExpandedIds(filteredSorted.map((term) => term.id))}
+                className="rounded-full border border-gray-200 bg-white px-2.5 py-1 text-[11px] font-medium text-gray-600 hover:bg-gray-50 dark:border-gray-700 dark:bg-gray-900 dark:text-gray-300 dark:hover:bg-gray-800"
+              >
+                전체 펼치기
+              </button>
+              <button
+                onClick={() => setExpandedIds([])}
+                className="rounded-full border border-gray-200 bg-white px-2.5 py-1 text-[11px] font-medium text-gray-600 hover:bg-gray-50 dark:border-gray-700 dark:bg-gray-900 dark:text-gray-300 dark:hover:bg-gray-800"
+              >
+                전체 접기
+              </button>
+            </div>
 
-        <div className="space-y-3">
-          {filtered.map((term) => {
+            <div className="space-y-3">
+              {filteredSorted.map((term) => {
             const meta = CATEGORY_META[term.category];
             const Icon = meta.icon;
-            const isExpanded = expandedId === term.id;
+            const isExpanded = expandedIds.includes(term.id);
+            const isSelected = selectedTermId === term.id;
 
             return (
               <div
                 id={`glossary-term-${term.id}`}
                 key={term.id}
-                className="rounded-xl bg-white shadow-sm transition dark:bg-gray-900 dark:shadow-none dark:ring-1 dark:ring-gray-800"
+                className={`rounded-xl bg-white shadow-sm transition dark:bg-gray-900 dark:shadow-none dark:ring-1 dark:ring-gray-800 ${
+                  isSelected ? 'ring-2 ring-blue-200 dark:ring-blue-800/70' : ''
+                }`}
               >
                 <button
-                  onClick={() => setExpandedId(isExpanded ? null : term.id)}
+                  onClick={() => {
+                    setSelectedTermId(term.id);
+                    toggleExpanded(term.id);
+                  }}
                   className="flex w-full items-center gap-3 p-4 text-left"
                 >
                   <div
@@ -581,12 +751,117 @@ export default function GlossaryPage() {
             );
           })}
 
-          {filtered.length === 0 && (
-            <div className="flex flex-col items-center justify-center py-16">
-              <Search className="mb-3 h-8 w-8 text-gray-300 dark:text-gray-600" />
-              <p className="text-sm text-gray-500 dark:text-gray-400">검색 결과가 없습니다.</p>
+              {filteredSorted.length === 0 && (
+                <div className="flex flex-col items-center justify-center py-16">
+                  <Search className="mb-3 h-8 w-8 text-gray-300 dark:text-gray-600" />
+                  <p className="text-sm text-gray-500 dark:text-gray-400">검색 결과가 없습니다.</p>
+                </div>
+              )}
             </div>
-          )}
+          </section>
+
+          <aside className="space-y-3 lg:sticky lg:top-24 lg:h-[calc(100vh-7rem)] lg:overflow-y-auto lg:pl-1">
+            <div className="rounded-xl border border-gray-200 bg-white/90 p-4 dark:border-gray-700 dark:bg-gray-900/80">
+              <p className="mb-1 text-[11px] font-semibold uppercase tracking-wide text-gray-500 dark:text-gray-400">
+                Selected Term
+              </p>
+              {!selectedTerm && (
+                <p className="text-sm text-gray-500 dark:text-gray-400">중앙 목록에서 용어를 선택하세요.</p>
+              )}
+              {selectedTerm && (
+                <>
+                  <div className="mb-2 flex items-center gap-2">
+                    <h2 className="text-base font-bold text-gray-800 dark:text-gray-100">{selectedTerm.name}</h2>
+                    <span
+                      className="rounded-full px-2 py-0.5 text-[10px] font-semibold"
+                      style={{
+                        backgroundColor: `${CATEGORY_META[selectedTerm.category].color}15`,
+                        color: CATEGORY_META[selectedTerm.category].color,
+                      }}
+                    >
+                      {CATEGORY_META[selectedTerm.category].label}
+                    </span>
+                  </div>
+                  {selectedTerm.hierarchy?.length ? (
+                    <p className="mb-2 inline-flex items-center gap-1 text-[11px] text-gray-500 dark:text-gray-400">
+                      <GitBranch className="h-3 w-3" />
+                      {selectedTerm.hierarchy.join(' > ')}
+                    </p>
+                  ) : null}
+                  <MarkdownContent
+                    content={selectedTerm.description}
+                    className="text-sm leading-relaxed text-gray-700 dark:text-gray-300"
+                    glossaryTerms={terms}
+                  />
+                </>
+              )}
+            </div>
+
+            {selectedTerm && (
+              <div className="rounded-xl border border-gray-200 bg-white/90 p-4 dark:border-gray-700 dark:bg-gray-900/80">
+                <p className="mb-2 text-[11px] font-semibold uppercase tracking-wide text-gray-500 dark:text-gray-400">
+                  Similar Terms
+                </p>
+                <div className="space-y-1.5">
+                  {relatedTerms.map((term) => {
+                    const meta = CATEGORY_META[term.category];
+                    return (
+                      <button
+                        key={`related-${term.id}`}
+                        onClick={() => focusTerm(term.id, { resetFilters: true, open: true })}
+                        className="flex w-full items-center gap-2 rounded-lg px-2.5 py-2 text-left text-sm text-gray-700 transition hover:bg-gray-50 dark:text-gray-200 dark:hover:bg-gray-800"
+                      >
+                        <span
+                          className="h-2 w-2 flex-shrink-0 rounded-full"
+                          style={{ backgroundColor: meta.color }}
+                        />
+                        <span className="line-clamp-1 flex-1">{term.name}</span>
+                        <ChevronRight className="h-3.5 w-3.5 flex-shrink-0 text-gray-400" />
+                      </button>
+                    );
+                  })}
+                  {relatedTerms.length === 0 && (
+                    <p className="text-xs text-gray-400 dark:text-gray-500">유사 용어가 아직 없습니다.</p>
+                  )}
+                </div>
+              </div>
+            )}
+
+            {selectedTerm && (
+              <div className="rounded-xl border border-gray-200 bg-white/90 p-4 dark:border-gray-700 dark:bg-gray-900/80">
+                <p className="mb-2 text-[11px] font-semibold uppercase tracking-wide text-gray-500 dark:text-gray-400">
+                  Related Papers
+                </p>
+                <div className="space-y-1.5">
+                  {selectedTerm.related_paper_titles.map((title) => {
+                    const paper = paperByTitle.get(title.toLowerCase());
+                    if (!paper) {
+                      return (
+                        <p key={`side-${title}`} className="px-2 py-1.5 text-xs text-gray-400 dark:text-gray-500">
+                          {title}
+                        </p>
+                      );
+                    }
+
+                    return (
+                      <Link
+                        key={`side-${title}`}
+                        href={`/paper/${paper.id}`}
+                        className="flex items-center gap-2 rounded-lg px-2.5 py-2 text-sm text-gray-700 transition hover:bg-gray-50 dark:text-gray-300 dark:hover:bg-gray-800"
+                      >
+                        <span
+                          className="h-2 w-2 flex-shrink-0 rounded-full"
+                          style={{ backgroundColor: paper.colorHex }}
+                        />
+                        <span className="line-clamp-1">{paper.title}</span>
+                        <ChevronRight className="ml-auto h-3 w-3 flex-shrink-0 text-gray-400" />
+                      </Link>
+                    );
+                  })}
+                </div>
+              </div>
+            )}
+          </aside>
         </div>
       </main>
     </div>
