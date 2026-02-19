@@ -1,4 +1,4 @@
-'use client';
+﻿'use client';
 
 import { useCallback, useEffect, useMemo, useState } from 'react';
 import ReactFlow, {
@@ -839,12 +839,12 @@ function MindMapInner({ papers, relationships, onNodeClick }: MindMapProps) {
   }, [applyFilterPayload]);
 
   useEffect(() => {
-    if (surfaceMode !== 'graph' || !nodes.length) return;
+    if (surfaceMode !== 'graph' || !layeredNodes.length) return;
     const raf = window.requestAnimationFrame(() => {
       fitView({ padding: 0.22, duration: 350 });
     });
     return () => window.cancelAnimationFrame(raf);
-  }, [nodes, edges, surfaceMode, fitView]);
+  }, [layeredNodes, surfaceMode, fitView]);
 
   const tabClass = (active: boolean) =>
     `rounded-md px-3 py-1.5 text-xs font-semibold transition ${
@@ -857,7 +857,7 @@ function MindMapInner({ papers, relationships, onNodeClick }: MindMapProps) {
     return (
       <div className="flex h-full items-center justify-center">
         <div className="text-center">
-          <p className="mb-2 text-gray-600 dark:text-gray-300">표시할 논문이 없습니다.</p>
+          <p className="mb-2 text-gray-600 dark:text-gray-300">?쒖떆???쇰Ц???놁뒿?덈떎.</p>
           <p className="text-sm text-gray-500 dark:text-gray-400">
             Import 페이지에서 데이터를 먼저 불러오세요.
           </p>
@@ -873,8 +873,7 @@ function MindMapInner({ papers, relationships, onNodeClick }: MindMapProps) {
           <div className="mb-3 flex items-center gap-2">
             <span className="inline-flex items-center gap-1 rounded-md bg-blue-600 px-3 py-1.5 text-xs font-semibold text-white">
               <ListTree className="h-3.5 w-3.5" />
-              그래프
-            </span>
+              洹몃옒??            </span>
 
             <button
               onClick={savePinnedFilterState}
@@ -907,20 +906,20 @@ function MindMapInner({ papers, relationships, onNodeClick }: MindMapProps) {
             <button
               onClick={() => setIsPanelOpen(false)}
               className="ml-auto rounded-md border border-gray-300 p-1.5 text-gray-500 hover:bg-gray-100 dark:border-gray-600 dark:text-gray-300 dark:hover:bg-gray-800"
-              title="패널 닫기"
+              title="?⑤꼸 ?リ린"
             >
               <X className="h-4 w-4" />
             </button>
           </div>
 
           <div className="mb-3 grid grid-cols-2 gap-2 text-[11px] md:grid-cols-5">
-            <div className="rounded-md bg-gray-50 px-2 py-1.5 dark:bg-gray-800">전체 논문 {papers.length}</div>
-            <div className="rounded-md bg-gray-50 px-2 py-1.5 dark:bg-gray-800">표시 논문 {displayPapers.length}</div>
+            <div className="rounded-md bg-gray-50 px-2 py-1.5 dark:bg-gray-800">?꾩껜 ?쇰Ц {papers.length}</div>
+            <div className="rounded-md bg-gray-50 px-2 py-1.5 dark:bg-gray-800">?쒖떆 ?쇰Ц {displayPapers.length}</div>
             <div className="rounded-md bg-gray-50 px-2 py-1.5 dark:bg-gray-800">표시 관계 {displayRelationships.length}</div>
             <div className="rounded-md bg-gray-50 px-2 py-1.5 dark:bg-gray-800">
-              선택 논문 {selectedPaperIds.length || sortedPapers.length}
+              ?좏깮 ?쇰Ц {selectedPaperIds.length || sortedPapers.length}
             </div>
-            <div className="rounded-md bg-gray-50 px-2 py-1.5 dark:bg-gray-800">최소 강도 {minStrength}</div>
+            <div className="rounded-md bg-gray-50 px-2 py-1.5 dark:bg-gray-800">理쒖냼 媛뺣룄 {minStrength}</div>
           </div>
 
           <div className="mb-3">
@@ -941,14 +940,13 @@ function MindMapInner({ papers, relationships, onNodeClick }: MindMapProps) {
           <div className="mb-3 grid grid-cols-1 gap-2 md:grid-cols-2">
             <div>
               <div className="mb-1 flex items-center justify-between text-[11px] text-gray-600 dark:text-gray-300">
-                <span className="font-semibold">익숙도(별)</span>
+                <span className="font-semibold">?듭닕??蹂?</span>
                 {!!selectedFamiliarityStars.length && (
                   <button
                     onClick={() => setSelectedFamiliarityStars([])}
                     className="text-[10px] font-semibold text-blue-600 hover:text-blue-700"
                   >
-                    초기화
-                  </button>
+                    珥덇린??                  </button>
                 )}
               </div>
               <div className="flex flex-wrap gap-1.5">
@@ -964,8 +962,7 @@ function MindMapInner({ papers, relationships, onNodeClick }: MindMapProps) {
                           : 'border-gray-300 bg-white text-gray-600 hover:border-blue-400 dark:border-gray-600 dark:bg-gray-900 dark:text-gray-300'
                       }`}
                     >
-                      별 {star}개
-                    </button>
+                      蹂?{star}媛?                    </button>
                   );
                 })}
               </div>
@@ -979,8 +976,7 @@ function MindMapInner({ papers, relationships, onNodeClick }: MindMapProps) {
                     onClick={() => setSelectedImportanceRatings([])}
                     className="text-[10px] font-semibold text-blue-600 hover:text-blue-700"
                   >
-                    초기화
-                  </button>
+                    珥덇린??                  </button>
                 )}
               </div>
               <div className="flex flex-wrap gap-1.5">
@@ -1012,8 +1008,7 @@ function MindMapInner({ papers, relationships, onNodeClick }: MindMapProps) {
                   onClick={() => setSelectedResearchTopics([])}
                   className="text-[10px] font-semibold text-blue-600 hover:text-blue-700"
                 >
-                  초기화
-                </button>
+                  珥덇린??                </button>
               )}
             </div>
             <div className="flex flex-wrap gap-1.5">
@@ -1041,7 +1036,7 @@ function MindMapInner({ papers, relationships, onNodeClick }: MindMapProps) {
             <div>
               <p className="font-semibold text-gray-700 dark:text-gray-200">익숙도 배경 강조 시각화</p>
               <p className="text-[10px] text-gray-500 dark:text-gray-400">
-                별 0개도 불투명 상태를 유지하고, 별이 높을수록 배경색이 더 진해집니다.
+                蹂?0媛쒕룄 遺덊닾紐??곹깭瑜??좎??섍퀬, 蹂꾩씠 ?믪쓣?섎줉 諛곌꼍?됱씠 ??吏꾪빐吏묐땲??
               </p>
             </div>
             <button
@@ -1052,7 +1047,7 @@ function MindMapInner({ papers, relationships, onNodeClick }: MindMapProps) {
                   : 'border-gray-300 bg-white text-gray-600 hover:border-blue-400 dark:border-gray-600 dark:bg-gray-900 dark:text-gray-300'
               }`}
             >
-              {useFamiliarityOpacity ? '켜짐' : '꺼짐'}
+              {useFamiliarityOpacity ? '耳쒖쭚' : '爰쇱쭚'}
             </button>
           </div>
 
@@ -1075,14 +1070,13 @@ function MindMapInner({ papers, relationships, onNodeClick }: MindMapProps) {
                   className="inline-flex items-center gap-1 rounded border border-amber-300 bg-amber-50 px-2 py-0.5 text-[10px] font-semibold text-amber-700 hover:bg-amber-100 dark:border-amber-700 dark:bg-amber-900/30 dark:text-amber-300 dark:hover:bg-amber-900/50"
                 >
                   <Star className="h-3 w-3" />
-                  즐겨찾기만
-                </button>
+                  利먭꺼李얘린留?                </button>
                 <button
                   onClick={clearPaperSelection}
                   disabled={!selectedPaperIds.length}
                   className="rounded border border-gray-300 px-2 py-0.5 text-[10px] font-semibold text-gray-600 hover:bg-gray-100 disabled:cursor-not-allowed disabled:opacity-50 dark:border-gray-700 dark:text-gray-300 dark:hover:bg-gray-800"
                 >
-                  전체 보기
+                  ?꾩껜 蹂닿린
                 </button>
               </div>
             </div>
@@ -1166,12 +1160,12 @@ function MindMapInner({ papers, relationships, onNodeClick }: MindMapProps) {
                 onChange={(event) => setViewMode(event.target.value as GraphViewMode)}
                 className="input-base !py-2 !text-xs"
               >
-                <option value="focus">초점 모드</option>
-                <option value="overview">전체 보기</option>
+                <option value="focus">珥덉젏 紐⑤뱶</option>
+                <option value="overview">?꾩껜 蹂닿린</option>
                 <option value="timeline">타임라인</option>
               </select>
               <span className="inline-flex items-center rounded-md border border-blue-200 bg-blue-50 px-2.5 py-2 text-xs font-semibold text-blue-700 dark:border-blue-800 dark:bg-blue-900/30 dark:text-blue-300">
-                연도 x 주제 정렬
+                ?곕룄 x 二쇱젣 ?뺣젹
               </span>
               <select
                 value={focusDepth}
@@ -1187,23 +1181,23 @@ function MindMapInner({ papers, relationships, onNodeClick }: MindMapProps) {
           </div>
 
           <div className="mt-3 rounded-md border border-blue-100 bg-blue-50 px-3 py-2 text-[11px] text-blue-900 dark:border-blue-900/40 dark:bg-blue-900/20 dark:text-blue-100">
-            <p className="font-semibold">동작 원리 요약</p>
+            <p className="font-semibold">?숈옉 ?먮━ ?붿빟</p>
             <p className="mt-1">
-              화면 관계 = 관계 타입 + 최소 강도 + 검색 조건을 동시에 만족하는 연결입니다.
+              화면 관계는 관계 타입 + 최소 강도 + 검색 조건을 동시에 만족하는 연결만 보여줍니다.
             </p>
             <p className="mt-0.5">
-              포커스 모드는 기준 논문에서 {focusDepth}-hop 이내만 남겨 복잡도를 줄입니다.
+              ?ъ빱??紐⑤뱶??湲곗? ?쇰Ц?먯꽌 {focusDepth}-hop ?대궡留??④꺼 蹂듭옟?꾨? 以꾩엯?덈떎.
             </p>
             <p className="mt-0.5">
               논문 선택/필터/정렬 변경 시 맵은 자동으로 재정렬됩니다.
             </p>
             {layerMode === 'year_topic' && (
               <p className="mt-0.5">
-                현재 x축 주제: {visibleTopicLabels.length ? visibleTopicLabels.join(' · ') : '없음'}
+                ?꾩옱 x異?二쇱젣: {visibleTopicLabels.length ? visibleTopicLabels.join(' 쨌 ') : '?놁쓬'}
               </p>
             )}
             <p className="mt-0.5">
-              2-hop 추천 점수는 공통 연결·경로 강도·카테고리·태그·연도·복습 우선순위를 함께 반영합니다.
+              2-hop 異붿쿇 ?먯닔??怨듯넻 ?곌껐쨌寃쎈줈 媛뺣룄쨌移댄뀒怨좊━쨌?쒓렇쨌?곕룄쨌蹂듭뒿 ?곗꽑?쒖쐞瑜??④퍡 諛섏쁺?⑸땲??
             </p>
           </div>
         </div>
@@ -1213,7 +1207,7 @@ function MindMapInner({ papers, relationships, onNodeClick }: MindMapProps) {
           className="absolute left-3 top-3 z-20 inline-flex items-center gap-2 rounded-lg border border-gray-200 bg-white/95 px-3 py-2 text-xs font-semibold text-gray-700 shadow hover:bg-gray-100 dark:border-gray-700 dark:bg-gray-900/95 dark:text-gray-200 dark:hover:bg-gray-800"
         >
           <SlidersHorizontal className="h-4 w-4" />
-          패널 열기
+          ?⑤꼸 ?닿린
         </button>
       )}
 
@@ -1222,7 +1216,7 @@ function MindMapInner({ papers, relationships, onNodeClick }: MindMapProps) {
           <div className="grid grid-cols-1 gap-3 xl:grid-cols-3">
             <section className="rounded-xl border border-gray-200 bg-white p-4 shadow-sm xl:col-span-1 dark:border-gray-700 dark:bg-gray-900">
               {!focusPaper || !focusSnapshot ? (
-                <p className="text-sm text-gray-500 dark:text-gray-400">논문을 선택해주세요.</p>
+                <p className="text-sm text-gray-500 dark:text-gray-400">?쇰Ц???좏깮?댁＜?몄슂.</p>
               ) : (
                 <div className="space-y-3">
                   <div className="flex items-center justify-between gap-2">
@@ -1236,7 +1230,7 @@ function MindMapInner({ papers, relationships, onNodeClick }: MindMapProps) {
                       onClick={() => onNodeClick?.(focusPaper.id)}
                       className="rounded-md border border-gray-300 px-2 py-1 text-[11px] font-semibold hover:bg-gray-100 dark:border-gray-600 dark:hover:bg-gray-800"
                     >
-                      상세 열기
+                      ?곸꽭 ?닿린
                     </button>
                   </div>
 
@@ -1247,12 +1241,11 @@ function MindMapInner({ papers, relationships, onNodeClick }: MindMapProps) {
                   {!!focusSnapshot.rememberPoints.length && (
                     <div>
                       <p className="mb-1 text-[11px] font-semibold text-gray-600 dark:text-gray-300">
-                        리마인드 체크포인트
-                      </p>
+                        由щ쭏?몃뱶 泥댄겕?ъ씤??                      </p>
                       <ul className="space-y-1">
                         {focusSnapshot.rememberPoints.map((item) => (
                           <li key={item} className="text-xs text-gray-700 dark:text-gray-300">
-                            • {item}
+                            ??{item}
                           </li>
                         ))}
                       </ul>
@@ -1262,12 +1255,12 @@ function MindMapInner({ papers, relationships, onNodeClick }: MindMapProps) {
                   {!!focusSnapshot.expectedOutcomes.length && (
                     <div>
                       <p className="mb-1 text-[11px] font-semibold text-gray-600 dark:text-gray-300">
-                        기대 기여/결과
+                        湲곕? 湲곗뿬/寃곌낵
                       </p>
                       <ul className="space-y-1">
                         {focusSnapshot.expectedOutcomes.map((item) => (
                           <li key={item} className="text-xs text-gray-700 dark:text-gray-300">
-                            • {item}
+                            ??{item}
                           </li>
                         ))}
                       </ul>
@@ -1277,7 +1270,7 @@ function MindMapInner({ papers, relationships, onNodeClick }: MindMapProps) {
                   {!!focusSnapshot.equationPreviews.length && (
                     <div>
                       <p className="mb-1 text-[11px] font-semibold text-gray-600 dark:text-gray-300">
-                        핵심 수식
+                        ?듭떖 ?섏떇
                       </p>
                       <div className="space-y-1.5">
                         {focusSnapshot.equationPreviews.slice(0, 2).map((equation) => (
@@ -1304,18 +1297,17 @@ function MindMapInner({ papers, relationships, onNodeClick }: MindMapProps) {
               <div className="mb-2 flex items-center justify-between">
                 <h3 className="text-sm font-bold text-gray-900 dark:text-gray-100">직접 연결 관계</h3>
                 <span className="text-xs text-gray-500 dark:text-gray-400">
-                  {focusConnections.length}개
-                </span>
+                  {focusConnections.length}媛?                </span>
               </div>
 
               <div className="max-h-[300px] overflow-auto rounded-md border border-gray-200 dark:border-gray-700">
                 <table className="w-full text-left text-xs">
                   <thead className="sticky top-0 bg-gray-50 dark:bg-gray-800">
                     <tr className="text-[11px] text-gray-500 dark:text-gray-300">
-                      <th className="px-2 py-2">방향</th>
+                      <th className="px-2 py-2">諛⑺뼢</th>
                       <th className="px-2 py-2">관계</th>
-                      <th className="px-2 py-2">연결 논문</th>
-                      <th className="px-2 py-2">강도</th>
+                      <th className="px-2 py-2">?곌껐 ?쇰Ц</th>
+                      <th className="px-2 py-2">媛뺣룄</th>
                     </tr>
                   </thead>
                   <tbody>
@@ -1367,7 +1359,7 @@ function MindMapInner({ papers, relationships, onNodeClick }: MindMapProps) {
               {!!focusRecommendations.length && (
                 <div className="mt-3">
                   <h4 className="mb-2 text-xs font-semibold text-gray-700 dark:text-gray-200">
-                    2-hop 추천 연결
+                    2-hop 異붿쿇 ?곌껐
                   </h4>
                   <div className="space-y-1.5">
                     {focusRecommendations.map((recommendation) => (
@@ -1380,7 +1372,7 @@ function MindMapInner({ papers, relationships, onNodeClick }: MindMapProps) {
                           {recommendation.paper.title}
                         </span>
                         <span className="text-[10px] text-gray-500 dark:text-gray-400">
-                          점수 {recommendation.score}
+                          ?먯닔 {recommendation.score}
                         </span>
                       </button>
                     ))}
@@ -1405,10 +1397,10 @@ function MindMapInner({ papers, relationships, onNodeClick }: MindMapProps) {
                     <ArrowRightLeft className="h-3.5 w-3.5 text-gray-400" />
                     <div className="min-w-0 flex-1">
                       <p className="line-clamp-1 text-xs text-gray-700 dark:text-gray-200">
-                        {item.from?.title} → {item.to?.title}
+                        {item.from?.title} ??{item.to?.title}
                       </p>
                       <p className="text-[10px] text-gray-500 dark:text-gray-400">
-                        {RELATIONSHIP_STYLES[item.relationship.relationship_type].label} · 강도 {item.relationship.strength}/10
+                        {RELATIONSHIP_STYLES[item.relationship.relationship_type].label} 쨌 媛뺣룄 {item.relationship.strength}/10
                       </p>
                     </div>
                   </button>
@@ -1459,82 +1451,6 @@ function MindMapInner({ papers, relationships, onNodeClick }: MindMapProps) {
             <MindMapControls direction={direction} onDirectionChange={setDirection} />
             <GraphLegend />
           </ReactFlow>
-
-          {focusPaper && focusSnapshot && (
-            <div className="absolute right-3 top-3 z-20 hidden max-h-[76vh] w-[360px] overflow-auto rounded-xl border border-gray-200 bg-white/95 p-3 shadow-lg xl:block dark:border-gray-700 dark:bg-gray-900/95">
-              <div className="flex items-center justify-between gap-2">
-                <div>
-                  <p className="text-xs font-semibold text-blue-600">{focusPaper.year}</p>
-                  <h3 className="line-clamp-2 text-sm font-bold text-gray-900 dark:text-gray-100">
-                    {focusPaper.title}
-                  </h3>
-                </div>
-                <button
-                  onClick={() => onNodeClick?.(focusPaper.id)}
-                  className="rounded-md border border-gray-300 px-2 py-1 text-[11px] font-semibold hover:bg-gray-100 dark:border-gray-600 dark:hover:bg-gray-800"
-                >
-                  상세 보기
-                </button>
-              </div>
-
-              <p className="mt-2 rounded-md bg-blue-50 px-2.5 py-2 text-xs text-blue-900 dark:bg-blue-900/20 dark:text-blue-100">
-                {focusSnapshot.oneLiner}
-              </p>
-
-              {!!focusSnapshot.rememberPoints.length && (
-                <div className="mt-2">
-                  <p className="mb-1 text-[11px] font-semibold text-gray-600 dark:text-gray-300">
-                    리마인드 체크포인트
-                  </p>
-                  <ul className="space-y-1">
-                    {focusSnapshot.rememberPoints.map((item) => (
-                      <li key={item} className="text-[11px] text-gray-700 dark:text-gray-300">
-                        • {item}
-                      </li>
-                    ))}
-                  </ul>
-                </div>
-              )}
-
-              {!!focusSnapshot.expectedOutcomes.length && (
-                <div className="mt-2">
-                  <p className="mb-1 text-[11px] font-semibold text-gray-600 dark:text-gray-300">
-                    기대 기여/결과
-                  </p>
-                  <ul className="space-y-1">
-                    {focusSnapshot.expectedOutcomes.slice(0, 3).map((item) => (
-                      <li key={item} className="text-[11px] text-gray-700 dark:text-gray-300">
-                        • {item}
-                      </li>
-                    ))}
-                  </ul>
-                </div>
-              )}
-
-              {!!focusSnapshot.equationPreviews.length && (
-                <div className="mt-2">
-                  <p className="mb-1 text-[11px] font-semibold text-gray-600 dark:text-gray-300">
-                    핵심 수식
-                  </p>
-                  <div className="space-y-1.5">
-                    {focusSnapshot.equationPreviews.slice(0, 2).map((equation) => (
-                      <div
-                        key={equation.name}
-                        className="rounded-md border border-gray-200 bg-gray-50 px-2 py-1.5 dark:border-gray-700 dark:bg-gray-800"
-                      >
-                        <p className="line-clamp-1 text-[11px] font-semibold text-gray-700 dark:text-gray-200">
-                          {equation.name}
-                        </p>
-                        <code className="line-clamp-2 block text-[10px] text-gray-600 dark:text-gray-300">
-                          {equation.latex}
-                        </code>
-                      </div>
-                    ))}
-                  </div>
-                </div>
-              )}
-            </div>
-          )}
         </>
       )}
     </div>
