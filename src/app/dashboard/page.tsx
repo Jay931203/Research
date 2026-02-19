@@ -37,6 +37,7 @@ export default function DashboardPage() {
   const { papers, isLoading: papersLoading } = usePapersWithNotes();
   const { relationships, isLoading: relationshipsLoading } = useRelationships();
   const sidebarVisiblePaperIds = useAppStore((state) => state.sidebarVisiblePaperIds);
+  const graphFilterSettings = useAppStore((state) => state.graphFilterSettings);
 
   const [isMapFullscreen, setIsMapFullscreen] = useState(false);
   const [isFavoritesModalOpen, setIsFavoritesModalOpen] = useState(false);
@@ -219,6 +220,7 @@ export default function DashboardPage() {
                 <MindMap
                   papers={mapPapers}
                   relationships={mapRelationships}
+                  graphFilterSettings={graphFilterSettings}
                   onNodeClick={handleNodeClick}
                 />
               </div>
@@ -242,6 +244,7 @@ export default function DashboardPage() {
               <MindMap
                 papers={mapPapers}
                 relationships={mapRelationships}
+                graphFilterSettings={graphFilterSettings}
                 onNodeClick={handleNodeClick}
               />
             </div>

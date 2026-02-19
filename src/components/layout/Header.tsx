@@ -37,13 +37,11 @@ export default function Header({ onSearchClick }: HeaderProps = {}) {
 
   useEffect(() => {
     if (!showExportMenu) return;
-
     const handleOutsideClick = (event: MouseEvent) => {
       const target = event.target as Node | null;
       if (target && exportRef.current?.contains(target)) return;
       setShowExportMenu(false);
     };
-
     document.addEventListener('mousedown', handleOutsideClick);
     return () => {
       document.removeEventListener('mousedown', handleOutsideClick);
@@ -72,9 +70,15 @@ export default function Header({ onSearchClick }: HeaderProps = {}) {
         </button>
 
         <nav className="hidden items-center gap-2 md:flex">
-          <HeaderLink href="/dashboard" active={pathname === '/dashboard' || pathname.startsWith('/paper/')}>대시보드</HeaderLink>
-          <HeaderLink href="/glossary" active={pathname === '/glossary'}>용어집</HeaderLink>
-          <HeaderLink href="/import" active={pathname === '/import'}>데이터 관리</HeaderLink>
+          <HeaderLink
+            href="/dashboard"
+            active={pathname === '/dashboard' || pathname.startsWith('/paper/')}
+          >
+            대시보드
+          </HeaderLink>
+          <HeaderLink href="/glossary" active={pathname === '/glossary'}>
+            용어집
+          </HeaderLink>
 
           {onSearchClick && (
             <button
@@ -142,14 +146,19 @@ export default function Header({ onSearchClick }: HeaderProps = {}) {
       {mobileMenuOpen && (
         <div className="border-t border-gray-200 bg-white px-3 py-2 dark:border-gray-700 dark:bg-gray-900 md:hidden">
           <div className="flex flex-col gap-1">
-            <MobileHeaderLink href="/dashboard" onClick={() => setMobileMenuOpen(false)} active={pathname === '/dashboard' || pathname.startsWith('/paper/')}>
+            <MobileHeaderLink
+              href="/dashboard"
+              onClick={() => setMobileMenuOpen(false)}
+              active={pathname === '/dashboard' || pathname.startsWith('/paper/')}
+            >
               대시보드
             </MobileHeaderLink>
-            <MobileHeaderLink href="/glossary" onClick={() => setMobileMenuOpen(false)} active={pathname === '/glossary'}>
+            <MobileHeaderLink
+              href="/glossary"
+              onClick={() => setMobileMenuOpen(false)}
+              active={pathname === '/glossary'}
+            >
               용어집
-            </MobileHeaderLink>
-            <MobileHeaderLink href="/import" onClick={() => setMobileMenuOpen(false)} active={pathname === '/import'}>
-              데이터 관리
             </MobileHeaderLink>
             <a
               href={REPO_URL}
@@ -166,7 +175,15 @@ export default function Header({ onSearchClick }: HeaderProps = {}) {
   );
 }
 
-function HeaderLink({ href, children, active }: { href: string; children: React.ReactNode; active?: boolean }) {
+function HeaderLink({
+  href,
+  children,
+  active,
+}: {
+  href: string;
+  children: React.ReactNode;
+  active?: boolean;
+}) {
   return (
     <Link
       href={href}
@@ -241,7 +258,7 @@ function ThemeToggle() {
       onClick={nextTheme}
       className="rounded-md p-2 text-gray-500 transition hover:bg-gray-100 hover:text-gray-900 dark:text-gray-400 dark:hover:bg-gray-800 dark:hover:text-white"
       title={`테마: ${label}`}
-      aria-label={`테마 변경: 현재 ${label}`}
+      aria-label={`테마 변경, 현재 ${label}`}
     >
       {icon}
     </button>

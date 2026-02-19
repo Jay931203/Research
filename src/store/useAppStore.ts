@@ -1,32 +1,55 @@
 import { create } from 'zustand';
+import type { RelationshipType } from '@/types';
+
+export interface GraphFilterSettings {
+  minStrength: number;
+  enabledRelationshipTypes: RelationshipType[];
+  useFamiliarityOpacity: boolean;
+}
+
+export const CORE_RELATIONSHIP_TYPES: RelationshipType[] = [
+  'extends',
+  'builds_on',
+  'inspired_by',
+];
+
+export const DEFAULT_GRAPH_FILTER_SETTINGS: GraphFilterSettings = {
+  minStrength: 4,
+  enabledRelationshipTypes: CORE_RELATIONSHIP_TYPES,
+  useFamiliarityOpacity: false,
+};
 
 interface AppState {
-  // Sidebar UI state
   sidebarOpen: boolean;
   toggleSidebar: () => void;
   setSidebarOpen: (open: boolean) => void;
 
-  // Paper IDs visible under sidebar filters. `null` means not hydrated yet.
   sidebarVisiblePaperIds: string[] | null;
   setSidebarVisiblePaperIds: (paperIds: string[] | null) => void;
 
-  // Review queue modal state
+  graphFilterSettings: GraphFilterSettings;
+  setGraphFilterSettings: (settings: GraphFilterSettings) => void;
+  resetGraphFilterSettings: () => void;
+
   isReviewQueueOpen: boolean;
   toggleReviewQueue: () => void;
 }
 
 export const useAppStore = create<AppState>((set) => ({
-  // Sidebar UI state
   sidebarOpen: true,
   toggleSidebar: () => set((state) => ({ sidebarOpen: !state.sidebarOpen })),
   setSidebarOpen: (open: boolean) => set({ sidebarOpen: open }),
 
-  // Sidebar filtered paper IDs
   sidebarVisiblePaperIds: null,
   setSidebarVisiblePaperIds: (paperIds: string[] | null) =>
     set({ sidebarVisiblePaperIds: paperIds }),
 
-  // Review queue modal state
+  graphFilterSettings: DEFAULT_GRAPH_FILTER_SETTINGS,
+  setGraphFilterSettings: (settings: GraphFilterSettings) =>
+    set({ graphFilterSettings: settings }),
+  resetGraphFilterSettings: () =>
+    set({ graphFilterSettings: DEFAULT_GRAPH_FILTER_SETTINGS }),
+
   isReviewQueueOpen: false,
   toggleReviewQueue: () => set((state) => ({ isReviewQueueOpen: !state.isReviewQueueOpen })),
 }));
