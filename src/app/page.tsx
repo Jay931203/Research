@@ -5,13 +5,13 @@ const cards = [
   {
     href: '/dashboard',
     title: '연구 대시보드',
-    description: '논문 관계 그래프와 핵심 리마인드를 한 화면에서 탐색합니다.',
+    description: '논문 관계 그래프를 한눈에 탐색하고 학습 페이지로 바로 이동합니다.',
     icon: <GitBranch className="h-6 w-6 text-blue-600" />,
   },
   {
     href: '/glossary',
     title: '용어집',
-    description: '22개 핵심 기술 용어의 정의와 관련 논문을 빠르게 확인합니다.',
+    description: '핵심 기술 용어의 정의와 관련 논문을 집합별로 빠르게 확인합니다.',
     icon: <BookOpen className="h-6 w-6 text-violet-600" />,
   },
   {
@@ -28,7 +28,7 @@ export default function HomePage() {
       <div className="mx-auto w-full max-w-6xl space-y-10">
         <section className="space-y-4 text-center">
           <p className="inline-flex rounded-full border border-blue-200/80 bg-white/90 px-3 py-1 text-xs font-semibold tracking-[0.14em] text-blue-600 shadow-sm backdrop-blur dark:border-blue-800 dark:bg-slate-900/70 dark:text-blue-200">
-            CSI AUTOENCODER RESEARCH WORKSPACE
+            RESEARCH GRAPH WORKSPACE
           </p>
           <h1 className="mx-auto max-w-4xl text-4xl font-black leading-tight text-slate-900 dark:text-slate-100 sm:text-5xl lg:text-6xl">
             논문 핵심을 빠르게 기억하고
@@ -36,8 +36,7 @@ export default function HomePage() {
             연계 흐름을 한 번에 읽는 연구 그래프
           </h1>
           <p className="mx-auto max-w-2xl text-sm text-slate-600 dark:text-slate-300 sm:text-base">
-            단순 마인드맵이 아니라, 논문별 리마인드 카드와 관계 추천을 중심으로
-            연구 맥락을 추적합니다.
+            논문 관계 그래프, 용어 팝업, 복습 큐를 통해 연구 맥락을 추적합니다.
           </p>
           <div className="flex items-center justify-center gap-3 pt-2">
             <Link
@@ -79,4 +78,3 @@ export default function HomePage() {
     </main>
   );
 }
-

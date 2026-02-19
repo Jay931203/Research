@@ -1,11 +1,11 @@
-import { supabase } from './client';
+﻿import { supabase } from './client';
 import type { UserNote, NoteUpsert, PaperWithNote } from '@/types';
 
-// 기본 세션 ID
+// Default session id for anonymous/local usage
 const DEFAULT_SESSION_ID = 'default_user';
 
 /**
- * 특정 논문의 노트 조회
+ * Fetch a single note by paper id
  */
 export async function getNoteByPaperId(
   paperId: string,
@@ -16,54 +16,80 @@ export async function getNoteByPaperId(
     .select('*')
     .eq('paper_id', paperId)
     .eq('session_id', sessionId)
-    .single();
+    .maybeSingle();
 
   if (error) {
-    // 노트가 없는 경우는 에러가 아님
-    if (error.code === 'PGRST116') {
-      return null;
-    }
     console.error(`Error fetching note for paper ${paperId}:`, error);
     return null;
   }
 
-  return data;
+  return data ?? null;
 }
 
 /**
- * 노트 생성 또는 수정 (Upsert)
+ * Create or update a note (upsert)
  */
 export async function upsertNote(
   paperId: string,
   noteData: Partial<NoteUpsert>,
   sessionId: string = DEFAULT_SESSION_ID
 ): Promise<UserNote | null> {
-  const upsertData: NoteUpsert = {
+  const upsertData: Partial<NoteUpsert> &
+    Pick<NoteUpsert, 'paper_id' | 'session_id'> = {
     paper_id: paperId,
     session_id: sessionId,
-    familiarity_level: noteData.familiarity_level || 'not_started',
-    is_favorite: noteData.is_favorite || false,
-    ...noteData,
   };
 
-  const { data, error } = await supabase
-    .from('user_notes')
-    .upsert(upsertData, {
-      onConflict: 'paper_id,session_id',
-    })
-    .select()
-    .single();
+  if (noteData.familiarity_level !== undefined) {
+    upsertData.familiarity_level = noteData.familiarity_level;
+  }
+  if (noteData.is_favorite !== undefined) {
+    upsertData.is_favorite = noteData.is_favorite;
+  }
+  if (noteData.note_content !== undefined) {
+    upsertData.note_content = noteData.note_content;
+  }
+  if (noteData.personal_tags !== undefined) {
+    upsertData.personal_tags = noteData.personal_tags;
+  }
+  if (noteData.last_read_at !== undefined) {
+    upsertData.last_read_at = noteData.last_read_at;
+  }
+  if (
+    noteData.importance_rating !== undefined &&
+    noteData.importance_rating >= 1 &&
+    noteData.importance_rating <= 5
+  ) {
+    upsertData.importance_rating = noteData.importance_rating;
+  }
+
+  const { error } = await supabase.from('user_notes').upsert(upsertData, {
+    onConflict: 'paper_id,session_id',
+  });
 
   if (error) {
     console.error(`Error upserting note for paper ${paperId}:`, error);
     throw error;
   }
 
-  return data;
+  // If readback fails due temporary/select policy issues, keep save as success.
+  const { data, error: fetchError } = await supabase
+    .from('user_notes')
+    .select('*')
+    .eq('paper_id', paperId)
+    .eq('session_id', sessionId)
+    .maybeSingle();
+
+  if (fetchError) {
+    console.warn(`Upsert succeeded but note fetch failed for paper ${paperId}:`, fetchError);
+    return null;
+  }
+
+  return data ?? null;
 }
 
 /**
- * 노트 삭제
+ * Delete a note
  */
 export async function deleteNote(
   paperId: string,
@@ -84,7 +110,7 @@ export async function deleteNote(
 }
 
 /**
- * 논문 + 노트 통합 조회 (papers_with_notes 뷰 사용)
+ * Fetch integrated papers + notes (using papers_with_notes view)
  */
 export async function getPapersWithNotes(): Promise<PaperWithNote[]> {
   const { data, error } = await supabase
@@ -101,7 +127,7 @@ export async function getPapersWithNotes(): Promise<PaperWithNote[]> {
 }
 
 /**
- * 즐겨찾기 논문 조회
+ * Fetch favorite notes
  */
 export async function getFavoritePapers(
   sessionId: string = DEFAULT_SESSION_ID

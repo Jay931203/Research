@@ -1,9 +1,9 @@
 'use client';
 
 import { useCallback, useEffect, useMemo, useRef, useState } from 'react';
+import { useRouter } from 'next/navigation';
 import { FileText, Search } from 'lucide-react';
 import { usePapersWithNotes } from '@/hooks/useNotes';
-import { useAppStore } from '@/store/useAppStore';
 
 interface CommandPaletteProps {
   isOpen: boolean;
@@ -18,7 +18,7 @@ export default function CommandPalette({ isOpen, onClose }: CommandPaletteProps)
   const panelRef = useRef<HTMLDivElement>(null);
 
   const { papers } = usePapersWithNotes();
-  const openPaperDetail = useAppStore((s) => s.openPaperDetail);
+  const router = useRouter();
 
   const results = useMemo(() => {
     if (!query.trim()) return papers.slice(0, 10);
@@ -28,7 +28,8 @@ export default function CommandPalette({ isOpen, onClose }: CommandPaletteProps)
         (p) =>
           p.title.toLowerCase().includes(lower) ||
           p.authors.some((a) => a.toLowerCase().includes(lower)) ||
-          p.category.toLowerCase().includes(lower)
+          p.category.toLowerCase().includes(lower) ||
+          (p.tags ?? []).some((tag) => tag.toLowerCase().includes(lower))
       )
       .slice(0, 10);
   }, [papers, query]);
@@ -59,10 +60,10 @@ export default function CommandPalette({ isOpen, onClose }: CommandPaletteProps)
 
   const selectItem = useCallback(
     (paperId: string) => {
-      openPaperDetail(paperId);
+      router.push(`/paper/${paperId}`);
       onClose();
     },
-    [openPaperDetail, onClose]
+    [router, onClose]
   );
 
   const handleKeyDown = useCallback(

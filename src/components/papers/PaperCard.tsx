@@ -1,23 +1,41 @@
 import { Code, ExternalLink, Star } from 'lucide-react';
-import type { PaperWithNote } from '@/types';
-import { CATEGORY_LABELS, FAMILIARITY_LABELS } from '@/lib/visualization/graphUtils';
+import type { FamiliarityLevel, PaperWithNote } from '@/types';
+import {
+  FAMILIARITY_LABELS,
+  FAMILIARITY_SELECTABLE_LEVELS,
+  getPaperCategoryLabel,
+} from '@/lib/visualization/graphUtils';
 
 interface PaperCardProps {
   paper: PaperWithNote;
   isSelected?: boolean;
   onClick?: () => void;
+  onFavoriteToggle?: (paper: PaperWithNote) => void;
+  onFamiliarityChange?: (paper: PaperWithNote, level: FamiliarityLevel) => void;
+  isSaving?: boolean;
 }
 
 const familiarityStyles: Record<string, string> = {
   not_started: 'bg-gray-100 text-gray-700 dark:bg-gray-700 dark:text-gray-200',
-  difficult: 'bg-red-100 text-red-700 dark:bg-red-900/30 dark:text-red-300',
-  moderate: 'bg-amber-100 text-amber-700 dark:bg-amber-900/30 dark:text-amber-300',
-  familiar: 'bg-emerald-100 text-emerald-700 dark:bg-emerald-900/30 dark:text-emerald-300',
+  difficult: 'bg-amber-100 text-amber-700 dark:bg-amber-900/30 dark:text-amber-300',
+  moderate: 'bg-sky-100 text-sky-700 dark:bg-sky-900/30 dark:text-sky-300',
+  familiar: 'bg-blue-100 text-blue-700 dark:bg-blue-900/30 dark:text-blue-300',
   expert: 'bg-blue-100 text-blue-700 dark:bg-blue-900/30 dark:text-blue-300',
 };
 
-export default function PaperCard({ paper, isSelected, onClick }: PaperCardProps) {
+const QUICK_FAMILIARITY_LEVELS: FamiliarityLevel[] = FAMILIARITY_SELECTABLE_LEVELS;
+
+export default function PaperCard({
+  paper,
+  isSelected,
+  onClick,
+  onFavoriteToggle,
+  onFamiliarityChange,
+  isSaving = false,
+}: PaperCardProps) {
   const familiarity = paper.familiarity_level ?? 'not_started';
+  const normalizedFamiliarity: FamiliarityLevel =
+    familiarity === 'expert' ? 'familiar' : familiarity;
 
   return (
     <article
@@ -38,7 +56,28 @@ export default function PaperCard({ paper, isSelected, onClick }: PaperCardProps
     >
       <div className="mb-2 flex items-start justify-between gap-2">
         <h3 className="line-clamp-2 flex-1 text-sm font-semibold">{paper.title}</h3>
-        {paper.is_favorite && <Star className="h-4 w-4 flex-shrink-0 fill-yellow-500 text-yellow-500" />}
+        <button
+          type="button"
+          aria-label={paper.is_favorite ? '즐겨찾기 해제' : '즐겨찾기'}
+          title={paper.is_favorite ? '즐겨찾기 해제' : '즐겨찾기'}
+          disabled={isSaving || !onFavoriteToggle}
+          onClick={(event) => {
+            event.stopPropagation();
+            if (!onFavoriteToggle || isSaving) return;
+            onFavoriteToggle(paper);
+          }}
+          className={`rounded p-0.5 transition ${
+            isSaving || !onFavoriteToggle
+              ? 'cursor-not-allowed opacity-60'
+              : 'hover:bg-amber-50 dark:hover:bg-amber-900/20'
+          }`}
+        >
+          <Star
+            className={`h-4 w-4 flex-shrink-0 ${
+              paper.is_favorite ? 'fill-yellow-500 text-yellow-500' : 'text-gray-400'
+            }`}
+          />
+        </button>
       </div>
 
       <div className="mb-2 text-xs text-gray-600 dark:text-gray-400">
@@ -59,7 +98,7 @@ export default function PaperCard({ paper, isSelected, onClick }: PaperCardProps
           className="inline-flex items-center rounded px-2 py-1 text-xs font-medium"
           style={{ backgroundColor: `${paper.color_hex}20`, color: paper.color_hex }}
         >
-          {CATEGORY_LABELS[paper.category] ?? paper.category}
+          {getPaperCategoryLabel(paper)}
         </span>
 
         <span
@@ -69,6 +108,35 @@ export default function PaperCard({ paper, isSelected, onClick }: PaperCardProps
         >
           {FAMILIARITY_LABELS[familiarity] ?? familiarity}
         </span>
+      </div>
+
+      <div className="mb-2 flex flex-wrap items-center gap-1.5">
+        {QUICK_FAMILIARITY_LEVELS.map((level, idx) => {
+          const active = normalizedFamiliarity === level;
+          return (
+            <button
+              key={level}
+              type="button"
+              disabled={isSaving || !onFamiliarityChange}
+              title={`익숙도 ${idx}단계 저장`}
+              onClick={(event) => {
+                event.stopPropagation();
+                if (!onFamiliarityChange || isSaving) return;
+                onFamiliarityChange(paper, level);
+              }}
+              className={`rounded-full border px-2 py-0.5 text-[10px] font-semibold transition ${
+                active
+                  ? 'border-blue-600 bg-blue-600 text-white'
+                  : 'border-gray-300 bg-white text-gray-600 hover:border-blue-400 dark:border-gray-600 dark:bg-gray-900 dark:text-gray-300'
+              } ${isSaving || !onFamiliarityChange ? 'cursor-not-allowed opacity-60' : ''}`}
+            >
+              ★{idx}
+            </button>
+          );
+        })}
+        {isSaving && (
+          <span className="text-[10px] font-medium text-blue-600 dark:text-blue-300">저장 중...</span>
+        )}
       </div>
 
       {!!paper.tags?.length && (
@@ -116,4 +184,3 @@ export default function PaperCard({ paper, isSelected, onClick }: PaperCardProps
     </article>
   );
 }
-

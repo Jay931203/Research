@@ -1,4 +1,4 @@
-'use client';
+﻿'use client';
 
 import { useCallback, useEffect, useRef, useState } from 'react';
 import { Star, Tag, X } from 'lucide-react';
@@ -14,7 +14,21 @@ interface NoteEditorProps {
   initialFavorite?: boolean;
   initialImportance?: number;
   initialTags?: string[];
-  onSave?: () => void;
+  onSave?: () => void | Promise<void>;
+}
+
+type SavePatch = Record<string, unknown>;
+
+interface LocalNoteState {
+  content: string;
+  familiarity: FamiliarityLevel;
+  isFavorite: boolean;
+  importance: number;
+  personalTags: string[];
+}
+
+function sleep(ms: number) {
+  return new Promise((resolve) => setTimeout(resolve, ms));
 }
 
 export default function NoteEditor({
@@ -32,7 +46,18 @@ export default function NoteEditor({
   const [importance, setImportance] = useState(initialImportance);
   const [personalTags, setPersonalTags] = useState<string[]>(initialTags);
   const [tagInput, setTagInput] = useState('');
+
   const debounceRef = useRef<ReturnType<typeof setTimeout> | null>(null);
+  const savingRef = useRef(false);
+  const queuedPatchRef = useRef<SavePatch | null>(null);
+  const latestStateRef = useRef<LocalNoteState>({
+    content: initialContent,
+    familiarity: initialFamiliarity,
+    isFavorite: initialFavorite,
+    importance: initialImportance,
+    personalTags: initialTags,
+  });
+
   const addToast = useToastStore((s) => s.addToast);
 
   useEffect(() => {
@@ -41,6 +66,13 @@ export default function NoteEditor({
     setIsFavorite(initialFavorite);
     setImportance(initialImportance);
     setPersonalTags(initialTags);
+    latestStateRef.current = {
+      content: initialContent,
+      familiarity: initialFamiliarity,
+      isFavorite: initialFavorite,
+      importance: initialImportance,
+      personalTags: initialTags,
+    };
   }, [
     paperId,
     initialContent,
@@ -50,55 +82,139 @@ export default function NoteEditor({
     initialTags,
   ]);
 
-  const doSave = useCallback(
-    async (data: Record<string, unknown>) => {
-      try {
-        await upsertNote(paperId, {
-          note_content: (data.note_content as string) ?? content,
-          familiarity_level: (data.familiarity_level as FamiliarityLevel) ?? familiarity,
-          is_favorite: (data.is_favorite as boolean) ?? isFavorite,
-          importance_rating: (data.importance_rating as number) ?? importance,
-          personal_tags: (data.personal_tags as string[]) ?? personalTags,
-          last_read_at: new Date().toISOString(),
-        });
+  useEffect(() => {
+    latestStateRef.current = {
+      content,
+      familiarity,
+      isFavorite,
+      importance,
+      personalTags,
+    };
+  }, [content, familiarity, isFavorite, importance, personalTags]);
 
-        addToast('success', '노트 저장 완료');
-        onSave?.();
-      } catch (error) {
-        console.error('Note save error:', error);
-        addToast('error', '저장 실패, 재시도합니다');
+  useEffect(() => {
+    return () => {
+      if (debounceRef.current) clearTimeout(debounceRef.current);
+    };
+  }, []);
+
+  const buildPayload = useCallback((patch: SavePatch) => {
+    const latest = latestStateRef.current;
+    const nextImportance = (patch.importance_rating as number | undefined) ?? latest.importance;
+    const sanitizedImportance =
+      typeof nextImportance === 'number' && nextImportance >= 1 && nextImportance <= 5
+        ? nextImportance
+        : undefined;
+
+    return {
+      note_content: (patch.note_content as string | undefined) ?? latest.content,
+      familiarity_level:
+        (patch.familiarity_level as FamiliarityLevel | undefined) ?? latest.familiarity,
+      is_favorite: (patch.is_favorite as boolean | undefined) ?? latest.isFavorite,
+      importance_rating: sanitizedImportance,
+      personal_tags: (patch.personal_tags as string[] | undefined) ?? latest.personalTags,
+      last_read_at: new Date().toISOString(),
+    };
+  }, []);
+
+  const saveWithRetry = useCallback(
+    async (patch: SavePatch) => {
+      let lastError: unknown;
+      for (let attempt = 1; attempt <= 3; attempt += 1) {
+        try {
+          await upsertNote(paperId, buildPayload(patch));
+          return;
+        } catch (error) {
+          lastError = error;
+          if (attempt < 3) {
+            await sleep(250 * attempt);
+          }
+        }
       }
+      throw lastError;
     },
-    [paperId, content, familiarity, isFavorite, importance, personalTags, onSave, addToast]
+    [paperId, buildPayload]
   );
 
-  const autoSave = useCallback(
-    (data: Record<string, unknown>) => {
+  const runSaveQueue = useCallback(async () => {
+    if (savingRef.current) return;
+    if (!queuedPatchRef.current) return;
+
+    savingRef.current = true;
+    try {
+      while (queuedPatchRef.current) {
+        const patch = queuedPatchRef.current;
+        queuedPatchRef.current = null;
+
+        try {
+          await saveWithRetry(patch);
+          addToast('success', '노트 저장 완료');
+          if (onSave) {
+            try {
+              await Promise.resolve(onSave());
+            } catch (refreshError) {
+              console.warn('Note saved but post-save refresh failed:', refreshError);
+            }
+          }
+        } catch (error) {
+          console.error('Note save error:', error);
+          // Put failed patch back and retry later.
+          queuedPatchRef.current = {
+            ...(patch ?? {}),
+            ...(queuedPatchRef.current ?? {}),
+          };
+          addToast('error', '저장 실패, 재시도합니다');
+          setTimeout(() => {
+            void runSaveQueue();
+          }, 1200);
+          return;
+        }
+      }
+    } finally {
+      savingRef.current = false;
+    }
+  }, [saveWithRetry, addToast, onSave]);
+
+  const enqueueSave = useCallback(
+    (patch: SavePatch, immediate = false) => {
+      queuedPatchRef.current = {
+        ...(queuedPatchRef.current ?? {}),
+        ...patch,
+      };
+
+      if (immediate) {
+        if (debounceRef.current) clearTimeout(debounceRef.current);
+        void runSaveQueue();
+        return;
+      }
+
       if (debounceRef.current) clearTimeout(debounceRef.current);
-      debounceRef.current = setTimeout(() => doSave(data), 1400);
+      debounceRef.current = setTimeout(() => {
+        void runSaveQueue();
+      }, 1400);
     },
-    [doSave]
+    [runSaveQueue]
   );
 
   const handleContentChange = (value: string) => {
     setContent(value);
-    autoSave({ note_content: value });
+    enqueueSave({ note_content: value });
   };
 
   const handleFamiliarityChange = (level: FamiliarityLevel) => {
     setFamiliarity(level);
-    void doSave({ familiarity_level: level });
+    enqueueSave({ familiarity_level: level }, true);
   };
 
   const handleFavoriteToggle = () => {
     const next = !isFavorite;
     setIsFavorite(next);
-    void doSave({ is_favorite: next });
+    enqueueSave({ is_favorite: next }, true);
   };
 
   const handleImportanceChange = (rating: number) => {
     setImportance(rating);
-    void doSave({ importance_rating: rating });
+    enqueueSave({ importance_rating: rating }, true);
   };
 
   const handleAddTag = () => {
@@ -108,13 +224,13 @@ export default function NoteEditor({
     const next = [...personalTags, tag];
     setPersonalTags(next);
     setTagInput('');
-    void doSave({ personal_tags: next });
+    enqueueSave({ personal_tags: next }, true);
   };
 
   const handleRemoveTag = (tag: string) => {
     const next = personalTags.filter((item) => item !== tag);
     setPersonalTags(next);
-    void doSave({ personal_tags: next });
+    enqueueSave({ personal_tags: next }, true);
   };
 
   return (
@@ -184,7 +300,7 @@ export default function NoteEditor({
             >
               <Tag className="h-3 w-3" />
               {tag}
-              <button onClick={() => handleRemoveTag(tag)} aria-label={`${tag} 태그 삭제`}>
+              <button onClick={() => handleRemoveTag(tag)} aria-label={`${tag} 태그 제거`}>
                 <X className="h-3 w-3 transition hover:text-red-500" />
               </button>
             </span>
@@ -206,4 +322,3 @@ export default function NoteEditor({
     </div>
   );
 }
-

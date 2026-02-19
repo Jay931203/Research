@@ -6,6 +6,7 @@ export type PaperCategory =
   | 'quantization'
   | 'transformer'
   | 'cnn'
+  | 'representation_learning'
   | 'other';
 
 export interface Equation {

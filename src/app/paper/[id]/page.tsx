@@ -19,7 +19,6 @@ import {
   Layers,
   Link2,
   List,
-  Sparkles,
   Star,
   Zap,
 } from 'lucide-react';
@@ -29,15 +28,15 @@ import { useRelationships } from '@/hooks/useRelationships';
 import {
   buildBridgeRecommendations,
   buildPaperConnections,
-  buildPaperCoreSnapshot,
   summarizeRelationship,
 } from '@/lib/papers/insights';
 import {
   FAMILIARITY_LABELS,
   FAMILIARITY_COLORS,
+  getPaperCategoryLabel,
+  inferResearchTopic,
   RELATIONSHIP_STYLES,
 } from '@/lib/visualization/graphUtils';
-import EquationPreviewCard from '@/components/papers/EquationPreviewCard';
 import PaperEquations from '@/components/papers/PaperEquation';
 import NoteEditor from '@/components/notes/NoteEditor';
 import MarkdownContent from '@/components/common/MarkdownContent';
@@ -54,7 +53,6 @@ const TOC_SECTIONS = [
   { id: 'section-learning-guide', label: '학습 안내', icon: GraduationCap },
   { id: 'section-abstract', label: '초록', icon: FileText },
   { id: 'section-contributions', label: '주요 기여', icon: List },
-  { id: 'section-reminder', label: '핵심 리마인드', icon: Sparkles },
   { id: 'section-architecture', label: '아키텍처', icon: Cpu },
   { id: 'section-equations', label: '핵심 수식', icon: Hash },
   { id: 'section-shared-techniques', label: '공통 기술', icon: Zap },
@@ -87,6 +85,7 @@ const CATEGORY_ARCH_HINTS: Record<string, string> = {
   transformer: 'Self-Attention 기반 구조',
   cnn: 'Convolutional Neural Network 구조',
   csi_compression: 'CSI 피드백 압축/복원 파이프라인',
+  representation_learning: '표현 학습 기반 사전학습/자기지도 파이프라인',
 };
 
 type AlgorithmStepCardData = {
@@ -268,11 +267,6 @@ export default function PaperStudyPage() {
     ? sortedPapers[currentIndex + 1]
     : null;
 
-  const snapshot = useMemo(() => {
-    if (!paper) return null;
-    return buildPaperCoreSnapshot(paper);
-  }, [paper]);
-
   const connections = useMemo(() => {
     if (!paper) return [];
     return buildPaperConnections(paper.id, papers, relationships);
@@ -403,7 +397,7 @@ export default function PaperStudyPage() {
     return <LoadingSkeleton />;
   }
 
-  if (!paper || !snapshot) {
+  if (!paper) {
     return (
       <div className="min-h-screen bg-gray-50 dark:bg-gray-950">
         <Header />
@@ -428,6 +422,12 @@ export default function PaperStudyPage() {
   const algorithms = paper.algorithms ?? [];
   const algorithmSteps = algorithms.map((algo, idx) => parseAlgorithmStep(algo, idx));
   const archTags = (paper.tags ?? []).filter(hasArchKeyword);
+  const inferredResearchTopic = inferResearchTopic(paper);
+  const categoryArchHint =
+    CATEGORY_ARCH_HINTS[paper.category] ??
+    (inferredResearchTopic === 'representation_learning'
+      ? CATEGORY_ARCH_HINTS.representation_learning
+      : undefined);
 
   /* ================================================================ */
   /*  Render                                                           */
@@ -519,7 +519,7 @@ export default function PaperStudyPage() {
                     {paper.year}
                   </span>
                   <span className="rounded-full bg-gray-100 px-3 py-1 text-xs font-medium text-gray-600 dark:bg-gray-800 dark:text-gray-400">
-                    {paper.category}
+                    {getPaperCategoryLabel(paper)}
                   </span>
                   <span
                     className="rounded-full px-3 py-1 text-xs font-semibold"
@@ -691,70 +691,6 @@ export default function PaperStudyPage() {
               </div>
             </section>
 
-            {/* ===== Section 4: Core Reminder ===== */}
-            <section id="section-reminder" className="scroll-mt-20">
-              <SectionHeading icon={<Sparkles className="h-5 w-5" />} title="핵심 리마인드" collapsed={!!collapsed['section-reminder']} onToggle={() => toggleSection('section-reminder')} />
-              <div className={`overflow-hidden transition-all duration-300 ${collapsed['section-reminder'] ? 'max-h-0' : 'max-h-[2000px]'}`}>
-              <div className="rounded-xl bg-white p-6 shadow-sm dark:bg-gray-900 dark:shadow-none dark:ring-1 dark:ring-gray-800">
-                <p className="rounded-lg bg-blue-50 px-4 py-3 text-sm font-medium leading-relaxed text-blue-900 dark:bg-blue-900/20 dark:text-blue-100">
-                  {snapshot.oneLiner}
-                </p>
-
-                {!!snapshot.methods.length && (
-                  <div className="mt-4 flex flex-wrap gap-2">
-                    {snapshot.methods.map((method) => (
-                      <span
-                        key={method}
-                        className="rounded-full bg-purple-100 px-3 py-1 text-xs font-medium text-purple-700 dark:bg-purple-900/30 dark:text-purple-200"
-                      >
-                        {method}
-                      </span>
-                    ))}
-                  </div>
-                )}
-
-                {!!snapshot.rememberPoints.length && (
-                  <div className="mt-5">
-                    <p className="mb-2 text-xs font-semibold text-gray-500 dark:text-gray-400">리마인드 체크포인트</p>
-                    <ul className="space-y-2">
-                      {snapshot.rememberPoints.map((point) => (
-                        <li key={point} className="flex items-start gap-2.5 text-sm text-gray-700 dark:text-gray-300">
-                          <span className="mt-[7px] h-2 w-2 flex-shrink-0 rounded-full bg-indigo-500" />
-                          {point}
-                        </li>
-                      ))}
-                    </ul>
-                  </div>
-                )}
-
-                {!!snapshot.expectedOutcomes.length && (
-                  <div className="mt-5">
-                    <p className="mb-2 text-xs font-semibold text-gray-500 dark:text-gray-400">기대 기여/결과</p>
-                    <ul className="space-y-2">
-                      {snapshot.expectedOutcomes.map((outcome) => (
-                        <li key={outcome} className="flex items-start gap-2.5 text-sm text-gray-700 dark:text-gray-300">
-                          <span className="mt-[7px] h-2 w-2 flex-shrink-0 rounded-full bg-blue-500" />
-                          {outcome}
-                        </li>
-                      ))}
-                    </ul>
-                  </div>
-                )}
-
-                {!!snapshot.equationPreviews.length && (
-                  <div className="mt-5">
-                    <p className="mb-2 text-xs font-semibold text-gray-500 dark:text-gray-400">핵심 수식</p>
-                    <div className="grid gap-3 md:grid-cols-2">
-                      {snapshot.equationPreviews.slice(0, 2).map((eq) => (
-                        <EquationPreviewCard key={eq.name} equation={eq} />
-                      ))}
-                    </div>
-                  </div>
-                )}
-              </div>
-              </div>
-            </section>
-
             {/* ===== Section 5: Architecture (with glossary highlights) ===== */}
             <section id="section-architecture" className="scroll-mt-20">
               <SectionHeading icon={<Cpu className="h-5 w-5" />} title="아키텍처 & 모델 구조" collapsed={!!collapsed['section-architecture']} onToggle={() => toggleSection('section-architecture')} />
@@ -899,8 +835,8 @@ export default function PaperStudyPage() {
                     )}
 
                     <p className="mt-4 text-xs text-gray-500 dark:text-gray-400">
-                      카테고리: {paper.category}
-                      {CATEGORY_ARCH_HINTS[paper.category] ? ` · ${CATEGORY_ARCH_HINTS[paper.category]}` : ''}
+                      카테고리: {getPaperCategoryLabel(paper)}
+                      {categoryArchHint ? ` · ${categoryArchHint}` : ''}
                     </p>
                   </>
                 ) : !paper.architecture_detail ? (
@@ -1210,7 +1146,7 @@ function ConnectionList({
               {isHovered && (
                 <div className="absolute left-0 top-full z-30 mt-1 w-72 rounded-lg border border-gray-200 bg-white p-3 shadow-lg dark:border-gray-700 dark:bg-gray-800">
                   <p className="text-xs font-semibold text-gray-700 dark:text-gray-300">
-                    {item.otherPaper.year} · {item.otherPaper.category}
+                    {item.otherPaper.year} · {getPaperCategoryLabel(item.otherPaper)}
                   </p>
                   {item.otherPaper.key_contributions?.[0] && (
                     <p className="mt-1 line-clamp-2 text-xs text-gray-500 dark:text-gray-400">

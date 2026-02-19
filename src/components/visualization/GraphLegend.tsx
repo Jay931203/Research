@@ -10,6 +10,7 @@ import {
   RESEARCH_TOPIC_COLORS,
   RESEARCH_TOPIC_LABELS,
   RESEARCH_TOPIC_ORDER,
+  getFamiliarityBackgroundIntensity,
   getFamiliarityOpacity,
 } from '@/lib/visualization/graphUtils';
 import type { FamiliarityLevel, RelationshipType } from '@/types';
@@ -110,14 +111,14 @@ export default function GraphLegend() {
                       style={{ backgroundColor: color, opacity: getFamiliarityOpacity(level) }}
                     />
                     <span className="text-[10px] text-gray-600 dark:text-gray-300">
-                      {FAMILIARITY_LABELS[level]} · 투명도{' '}
-                      {Math.round((1 - getFamiliarityOpacity(level)) * 100)}%
+                      {FAMILIARITY_LABELS[level]} · 배경 강조{' '}
+                      {Math.round(getFamiliarityBackgroundIntensity(level) * 100)}%
                     </span>
                   </div>
                 ))}
               </div>
               <p className="mt-1 text-[10px] text-gray-500 dark:text-gray-400">
-                별 0개 완전 투명, 별 3개 최대 불투명
+                별 0개도 선명하게 보이며, 별이 높을수록 배경색이 진해집니다.
               </p>
             </div>
 

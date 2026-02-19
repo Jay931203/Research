@@ -2396,6 +2396,1264 @@
         "Grassmannian 초기화가 중요한 이유는 무엇인가?",
         "nested 코드북의 gamma 가중은 어떤 역할을 하는가?"
       ]
+    },
+    {
+      "title": "A Lightweight Deep Network for Efficient CSI Feedback in Massive MIMO Systems",
+      "authors": [
+        "Yuyao Sun",
+        "Wei Xu",
+        "Le Liang",
+        "Ning Wang",
+        "Geoffery Ye Li",
+        "Xiaohu You"
+      ],
+      "year": 2021,
+      "venue": "IEEE Wireless Communications Letters",
+      "doi": "10.1109/LWC.2021.3083331",
+      "arxiv_id": null,
+      "abstract": "This paper proposes a lightweight deep CSI feedback network for massive MIMO with explicit focus on user-equipment deployment cost. It redesigns the encoder-decoder pipeline to reduce encoder complexity while preserving reconstruction quality at low feedback rates.",
+      "key_contributions": [
+        "Introduces a lightweight CSI feedback network tailored for resource-constrained UE inference.",
+        "Reduces encoder-side complexity through compact convolutional design while keeping decoder-side recovery capability strong.",
+        "Demonstrates improved complexity-accuracy trade-offs against prior CSI feedback baselines in low-rate settings.",
+        "Provides deployment-oriented analysis for practical massive MIMO feedback pipelines."
+      ],
+      "algorithms": [
+        "Transform channel matrix to angle-delay representation and normalize input.",
+        "Use lightweight convolutional encoder blocks to produce compact feedback codewords.",
+        "Transmit fixed-length codewords over the feedback link.",
+        "Apply stronger decoder refinement blocks at BS to recover high-fidelity CSI.",
+        "Train end-to-end with NMSE-driven objective and deployment-aware complexity tracking."
+      ],
+      "key_equations": [
+        {
+          "name": "Encoder Complexity (Convolutional FLOPs)",
+          "latex": "C_{\\mathrm{enc}} = \\sum_{l=1}^{L} H_l W_l K_l^2 C_{\\mathrm{in},l} C_{\\mathrm{out},l}",
+          "description": "Layer-wise encoder computation cost. Lightweight design focuses on lowering this sum for UE-side inference."
+        },
+        {
+          "name": "Depthwise-Separable Approximation",
+          "latex": "C_{\\mathrm{dw+pw}} = \\sum_{l=1}^{L} H_l W_l\\left(K_l^2 C_{\\mathrm{in},l} + C_{\\mathrm{in},l} C_{\\mathrm{out},l}\\right)",
+          "description": "A compact factorization view that highlights complexity savings over standard convolution blocks."
+        },
+        {
+          "name": "NMSE Objective",
+          "latex": "\\mathrm{NMSE}=\\mathbb{E}\\left[\\frac{\\|\\hat{\\mathbf{H}}-\\mathbf{H}\\|_2^2}{\\|\\mathbf{H}\\|_2^2}\\right]",
+          "description": "Primary reconstruction objective used to compare feedback quality under fixed rate constraints."
+        }
+      ],
+      "category": "cnn",
+      "tags": [
+        "lightweight",
+        "csi-feedback",
+        "massive-mimo",
+        "deployment",
+        "encoder-complexity"
+      ],
+      "pdf_url": "https://doi.org/10.1109/LWC.2021.3083331",
+      "code_url": null,
+      "notes_summary": "A deployment-oriented lightweight CSI feedback model that targets UE compute constraints while maintaining reconstruction quality.",
+      "color_hex": "#F97316",
+      "architecture_detail": "## 1) Problem Setup\nUE-side CSI feedback models must run under strict latency, memory, and energy budgets. The paper treats complexity as a first-class design objective, not just an implementation afterthought.\n\n## 2) Design Goal\nThe target is to minimize encoder compute while preserving reconstruction fidelity at BS. This creates a practical asymmetric architecture where UE encoder is compact and BS decoder handles heavier recovery.\n\n## 3) Lightweight Encoder Strategy\nThe encoder uses compact convolutional blocks and narrow channel dimensions to reduce FLOPs and parameter count. The design can be interpreted via [Depthwise Separable Convolution](/glossary?q=Depthwise%20Separable%20Convolution) style factorization and low-cost projection layers.\n\n## 4) Decoder-Side Compensation\nDecoder blocks are allowed to be relatively stronger because BS resources are less constrained. This asymmetry keeps end-to-end NMSE competitive under strict feedback budget.\n\n## 5) Complexity-NMSE Trade-off\nThe practical objective is not only lower NMSE but lower NMSE *at a fixed UE compute envelope*. The model is evaluated on both reconstruction accuracy and deployment efficiency.\n\n## 6) Key Training/Optimization Notes\n- End-to-end training with NMSE objective.\n- Monitor encoder FLOPs and parameter count alongside validation NMSE.\n- Keep feedback codeword length fixed to align with protocol constraints.\n\n## 7) Why This Paper Matters\nThis work systematically pushes CSI feedback architecture toward deployable UE models, complementing later quantization/bit-allocation studies that optimize transmission cost on top of lightweight networks."
+    },
+    {
+      "title": "Signature Verification using a \"Siamese\" Time Delay Neural Network",
+      "authors": [
+        "Jane Bromley",
+        "Yann LeCun",
+        "et al."
+      ],
+      "year": 1993,
+      "venue": "NeurIPS 1993",
+      "abstract": "검증 문제를 쌍 유사도 학습으로 재정의해 분류기 대신 표현 공간의 거리를 직접 학습한다. 이 논문은 특히 \"Signature Verification using a \"Siamese\" Time Delay Neural Network\" 맥락에서 해당 방법의 설계 선택과 학습 안정화 포인트를 실험적으로 보여준다.",
+      "key_contributions": [
+        "Siamese 공유가중치 구조 정립",
+        "검증 과제를 거리 학습으로 정식화",
+        "양성/음성 쌍 기반 손실 설계",
+        "임계값 기반 운영 절차 제시",
+        "대규모 클래스 환경의 확장성 확보",
+        "후속 contrastive/few-shot 흐름 기반 제공"
+      ],
+      "algorithms": [
+        "pair 샘플 구성(동일/상이)",
+        "공유 인코더 임베딩 생성",
+        "거리/유사도 계산",
+        "대조 손실 최적화",
+        "임계값 캘리브레이션",
+        "검증 지표(ROC/EER) 평가"
+      ],
+      "key_equations": [
+        {
+          "name": "Distance",
+          "latex": "d=\\|f_\\theta(x_1)-f_\\theta(x_2)\\|_2",
+          "description": "두 샘플 임베딩 거리를 측정한다."
+        },
+        {
+          "name": "Contrastive Loss",
+          "latex": "L=yd^2+(1-y)\\max(0,m-d)^2",
+          "description": "양성은 밀집, 음성은 margin 분리한다."
+        }
+      ],
+      "category": "representation_learning",
+      "tags": [
+        "representation_learning",
+        "siamese"
+      ],
+      "pdf_url": "https://proceedings.neurips.cc/paper_files/paper/1993/file/288cc0ff022877bd3df94bc9360b9c5d-Paper.pdf",
+      "color_hex": "#0f766e",
+      "architecture_detail": "## 1) 문제 설정\n클래스 수가 계속 늘어나는 검증 문제에서 다중분류 방식은 비효율적이고 재학습 비용이 크다.\n\n## 2) 핵심 아이디어\n같은 인코더를 두 입력에 적용해 비교 가능한 임베딩을 만들고, 거리 기반 의사결정을 수행한다.\n\n## 3) 방법 흐름\n1. pair 샘플 구성(동일/상이)\n2. 공유 인코더 임베딩 생성\n3. 거리/유사도 계산\n4. 대조 손실 최적화\n5. 임계값 캘리브레이션\n6. 검증 지표(ROC/EER) 평가\n\n## 4) 수식 해석 흐름\n- distance 식은 표현 품질을 직접 최적화 대상으로 만든다.\n- contrastive loss의 음성항은 margin 바깥 분리를 강제한다.\n\n## 5) 핵심 수식 (원문 기준)\n- **Distance**\n$$\nd=\\|f_\\theta(x_1)-f_\\theta(x_2)\\|_2\n$$\n두 샘플 임베딩 거리를 측정한다.\n\n- **Contrastive Loss**\n$$\nL=yd^2+(1-y)\\max(0,m-d)^2\n$$\n양성은 밀집, 음성은 margin 분리한다.\n\n\n## 6) 구현 체크리스트\n- pair sampling 균형이 무너지면 학습 붕괴 위험이 커진다.\n- hard negative mining이 분리도를 빠르게 높인다.\n- threshold는 운영 정책(FAR/FRR)과 함께 관리한다.\n- 도메인 이동 시 calibration 세트로 재보정한다.\n\n## 7) 한계와 후속\npair 라벨 비용이 크고 negative 설계 민감성이 높다. 이를 완화하려는 흐름이 CPC/MoCo/SimCLR로 이어졌다.",
+      "difficulty_level": "intermediate",
+      "prerequisites": [
+        "기본 선형대수/확률",
+        "딥러닝 최적화",
+        "자기지도학습 기초",
+        "Transformer 또는 Metric learning 기초"
+      ],
+      "learning_objectives": [
+        "핵심 목적함수와 변수 의미를 수식으로 설명할 수 있다.",
+        "학습 안정화 장치(정규화/EMA/마스킹)의 역할을 설명할 수 있다.",
+        "후속 연구가 개선한 병목을 연결 그래프로 설명할 수 있다.",
+        "재현 시 필요한 구현 체크리스트를 말할 수 있다."
+      ],
+      "self_check_questions": [
+        "핵심 손실이 줄어들 때 어떤 표현 특성이 강화되는가?",
+        "하이퍼파라미터 중 성능 민감도가 높은 항목은 무엇인가?",
+        "이 논문의 한계를 보완한 후속 논문은 무엇인가?",
+        "실제 재현 시 가장 먼저 점검할 디버깅 포인트는 무엇인가?"
+      ]
+    },
+    {
+      "title": "Learning a Similarity Metric Discriminatively, with Application to Face Verification",
+      "authors": [
+        "Sumit Chopra",
+        "Raia Hadsell",
+        "Yann LeCun"
+      ],
+      "year": 2005,
+      "venue": "CVPR 2005",
+      "abstract": "검증 문제를 쌍 유사도 학습으로 재정의해 분류기 대신 표현 공간의 거리를 직접 학습한다. 이 논문은 특히 \"Learning a Similarity Metric Discriminatively, with Application to Face Verification\" 맥락에서 해당 방법의 설계 선택과 학습 안정화 포인트를 실험적으로 보여준다.",
+      "key_contributions": [
+        "Siamese 공유가중치 구조 정립",
+        "검증 과제를 거리 학습으로 정식화",
+        "양성/음성 쌍 기반 손실 설계",
+        "임계값 기반 운영 절차 제시",
+        "대규모 클래스 환경의 확장성 확보",
+        "후속 contrastive/few-shot 흐름 기반 제공"
+      ],
+      "algorithms": [
+        "pair 샘플 구성(동일/상이)",
+        "공유 인코더 임베딩 생성",
+        "거리/유사도 계산",
+        "대조 손실 최적화",
+        "임계값 캘리브레이션",
+        "검증 지표(ROC/EER) 평가"
+      ],
+      "key_equations": [
+        {
+          "name": "Distance",
+          "latex": "d=\\|f_\\theta(x_1)-f_\\theta(x_2)\\|_2",
+          "description": "두 샘플 임베딩 거리를 측정한다."
+        },
+        {
+          "name": "Contrastive Loss",
+          "latex": "L=yd^2+(1-y)\\max(0,m-d)^2",
+          "description": "양성은 밀집, 음성은 margin 분리한다."
+        }
+      ],
+      "category": "representation_learning",
+      "tags": [
+        "representation_learning",
+        "face-verification"
+      ],
+      "pdf_url": "https://yann.lecun.com/exdb/publis/pdf/chopra-05.pdf",
+      "color_hex": "#0f766e",
+      "architecture_detail": "## 1) 문제 설정\n클래스 수가 계속 늘어나는 검증 문제에서 다중분류 방식은 비효율적이고 재학습 비용이 크다.\n\n## 2) 핵심 아이디어\n같은 인코더를 두 입력에 적용해 비교 가능한 임베딩을 만들고, 거리 기반 의사결정을 수행한다.\n\n## 3) 방법 흐름\n1. pair 샘플 구성(동일/상이)\n2. 공유 인코더 임베딩 생성\n3. 거리/유사도 계산\n4. 대조 손실 최적화\n5. 임계값 캘리브레이션\n6. 검증 지표(ROC/EER) 평가\n\n## 4) 수식 해석 흐름\n- distance 식은 표현 품질을 직접 최적화 대상으로 만든다.\n- contrastive loss의 음성항은 margin 바깥 분리를 강제한다.\n\n## 5) 핵심 수식 (원문 기준)\n- **Distance**\n$$\nd=\\|f_\\theta(x_1)-f_\\theta(x_2)\\|_2\n$$\n두 샘플 임베딩 거리를 측정한다.\n\n- **Contrastive Loss**\n$$\nL=yd^2+(1-y)\\max(0,m-d)^2\n$$\n양성은 밀집, 음성은 margin 분리한다.\n\n\n## 6) 구현 체크리스트\n- pair sampling 균형이 무너지면 학습 붕괴 위험이 커진다.\n- hard negative mining이 분리도를 빠르게 높인다.\n- threshold는 운영 정책(FAR/FRR)과 함께 관리한다.\n- 도메인 이동 시 calibration 세트로 재보정한다.\n\n## 7) 한계와 후속\npair 라벨 비용이 크고 negative 설계 민감성이 높다. 이를 완화하려는 흐름이 CPC/MoCo/SimCLR로 이어졌다.",
+      "difficulty_level": "intermediate",
+      "prerequisites": [
+        "기본 선형대수/확률",
+        "딥러닝 최적화",
+        "자기지도학습 기초",
+        "Transformer 또는 Metric learning 기초"
+      ],
+      "learning_objectives": [
+        "핵심 목적함수와 변수 의미를 수식으로 설명할 수 있다.",
+        "학습 안정화 장치(정규화/EMA/마스킹)의 역할을 설명할 수 있다.",
+        "후속 연구가 개선한 병목을 연결 그래프로 설명할 수 있다.",
+        "재현 시 필요한 구현 체크리스트를 말할 수 있다."
+      ],
+      "self_check_questions": [
+        "핵심 손실이 줄어들 때 어떤 표현 특성이 강화되는가?",
+        "하이퍼파라미터 중 성능 민감도가 높은 항목은 무엇인가?",
+        "이 논문의 한계를 보완한 후속 논문은 무엇인가?",
+        "실제 재현 시 가장 먼저 점검할 디버깅 포인트는 무엇인가?"
+      ]
+    },
+    {
+      "title": "Siamese Neural Networks for One-shot Image Recognition",
+      "authors": [
+        "Gregory Koch",
+        "Richard Zemel",
+        "Ruslan Salakhutdinov"
+      ],
+      "year": 2015,
+      "venue": "ICML Deep Learning Workshop 2015",
+      "abstract": "검증 문제를 쌍 유사도 학습으로 재정의해 분류기 대신 표현 공간의 거리를 직접 학습한다. 이 논문은 특히 \"Siamese Neural Networks for One-shot Image Recognition\" 맥락에서 해당 방법의 설계 선택과 학습 안정화 포인트를 실험적으로 보여준다.",
+      "key_contributions": [
+        "Siamese 공유가중치 구조 정립",
+        "검증 과제를 거리 학습으로 정식화",
+        "양성/음성 쌍 기반 손실 설계",
+        "임계값 기반 운영 절차 제시",
+        "대규모 클래스 환경의 확장성 확보",
+        "후속 contrastive/few-shot 흐름 기반 제공"
+      ],
+      "algorithms": [
+        "pair 샘플 구성(동일/상이)",
+        "공유 인코더 임베딩 생성",
+        "거리/유사도 계산",
+        "대조 손실 최적화",
+        "임계값 캘리브레이션",
+        "검증 지표(ROC/EER) 평가"
+      ],
+      "key_equations": [
+        {
+          "name": "Distance",
+          "latex": "d=\\|f_\\theta(x_1)-f_\\theta(x_2)\\|_2",
+          "description": "두 샘플 임베딩 거리를 측정한다."
+        },
+        {
+          "name": "Contrastive Loss",
+          "latex": "L=yd^2+(1-y)\\max(0,m-d)^2",
+          "description": "양성은 밀집, 음성은 margin 분리한다."
+        }
+      ],
+      "category": "representation_learning",
+      "tags": [
+        "representation_learning",
+        "few-shot"
+      ],
+      "pdf_url": "https://www.cs.toronto.edu/~rsalakhu/papers/oneshot1.pdf",
+      "color_hex": "#0f766e",
+      "architecture_detail": "## 1) 문제 설정\n클래스 수가 계속 늘어나는 검증 문제에서 다중분류 방식은 비효율적이고 재학습 비용이 크다.\n\n## 2) 핵심 아이디어\n같은 인코더를 두 입력에 적용해 비교 가능한 임베딩을 만들고, 거리 기반 의사결정을 수행한다.\n\n## 3) 방법 흐름\n1. pair 샘플 구성(동일/상이)\n2. 공유 인코더 임베딩 생성\n3. 거리/유사도 계산\n4. 대조 손실 최적화\n5. 임계값 캘리브레이션\n6. 검증 지표(ROC/EER) 평가\n\n## 4) 수식 해석 흐름\n- distance 식은 표현 품질을 직접 최적화 대상으로 만든다.\n- contrastive loss의 음성항은 margin 바깥 분리를 강제한다.\n\n## 5) 핵심 수식 (원문 기준)\n- **Distance**\n$$\nd=\\|f_\\theta(x_1)-f_\\theta(x_2)\\|_2\n$$\n두 샘플 임베딩 거리를 측정한다.\n\n- **Contrastive Loss**\n$$\nL=yd^2+(1-y)\\max(0,m-d)^2\n$$\n양성은 밀집, 음성은 margin 분리한다.\n\n\n## 6) 구현 체크리스트\n- pair sampling 균형이 무너지면 학습 붕괴 위험이 커진다.\n- hard negative mining이 분리도를 빠르게 높인다.\n- threshold는 운영 정책(FAR/FRR)과 함께 관리한다.\n- 도메인 이동 시 calibration 세트로 재보정한다.\n\n## 7) 한계와 후속\npair 라벨 비용이 크고 negative 설계 민감성이 높다. 이를 완화하려는 흐름이 CPC/MoCo/SimCLR로 이어졌다.",
+      "difficulty_level": "intermediate",
+      "prerequisites": [
+        "기본 선형대수/확률",
+        "딥러닝 최적화",
+        "자기지도학습 기초",
+        "Transformer 또는 Metric learning 기초"
+      ],
+      "learning_objectives": [
+        "핵심 목적함수와 변수 의미를 수식으로 설명할 수 있다.",
+        "학습 안정화 장치(정규화/EMA/마스킹)의 역할을 설명할 수 있다.",
+        "후속 연구가 개선한 병목을 연결 그래프로 설명할 수 있다.",
+        "재현 시 필요한 구현 체크리스트를 말할 수 있다."
+      ],
+      "self_check_questions": [
+        "핵심 손실이 줄어들 때 어떤 표현 특성이 강화되는가?",
+        "하이퍼파라미터 중 성능 민감도가 높은 항목은 무엇인가?",
+        "이 논문의 한계를 보완한 후속 논문은 무엇인가?",
+        "실제 재현 시 가장 먼저 점검할 디버깅 포인트는 무엇인가?"
+      ]
+    },
+    {
+      "title": "Representation Learning with Contrastive Predictive Coding",
+      "authors": [
+        "Aaron van den Oord",
+        "Yazhe Li",
+        "Oriol Vinyals"
+      ],
+      "year": 2018,
+      "venue": "arXiv",
+      "abstract": "미래 잠재표현 예측과 InfoNCE를 결합해 라벨 없이 정보량 높은 표현을 학습한다. 이 논문은 특히 \"Representation Learning with Contrastive Predictive Coding\" 맥락에서 해당 방법의 설계 선택과 학습 안정화 포인트를 실험적으로 보여준다.",
+      "key_contributions": [
+        "미래예측 기반 SSL 정립",
+        "InfoNCE와 MI 하한 연결",
+        "context encoder 분리 설계",
+        "모달리티 범용성 실증",
+        "negative sampling 중요성 체계화",
+        "현대 contrastive SSL 기반 제공"
+      ],
+      "algorithms": [
+        "local encoder로 z_t 추출",
+        "context model로 c_t 생성",
+        "미래 z_{t+k} score 계산",
+        "positive/negative set 구성",
+        "InfoNCE 최소화",
+        "전이 성능 평가"
+      ],
+      "key_equations": [
+        {
+          "name": "InfoNCE",
+          "latex": "L=-\\log\\frac{e^{s(c,z^+)}}{e^{s(c,z^+)}+\\sum_j e^{s(c,z_j^-)}}",
+          "description": "양성 상대확률을 높인다."
+        },
+        {
+          "name": "MI Lower Bound",
+          "latex": "I(x;c)\\ge\\log N - L_{NCE}",
+          "description": "loss 감소가 MI 하한 상승으로 해석된다."
+        }
+      ],
+      "category": "representation_learning",
+      "tags": [
+        "representation_learning",
+        "cpc",
+        "infonce"
+      ],
+      "pdf_url": "https://arxiv.org/pdf/1807.03748.pdf",
+      "color_hex": "#0f766e",
+      "architecture_detail": "## 1) 문제 설정\n라벨 없이도 의미 구조를 보존하는 표현학습 목표가 필요하다.\n\n## 2) 핵심 아이디어\n현재 문맥이 미래 잠재를 맞추도록 강제해 예측 가능한 구조를 내재화한다.\n\n## 3) 방법 흐름\n1. local encoder로 z_t 추출\n2. context model로 c_t 생성\n3. 미래 z_{t+k} score 계산\n4. positive/negative set 구성\n5. InfoNCE 최소화\n6. 전이 성능 평가\n\n## 4) 수식 해석 흐름\n- InfoNCE 분모는 음성 대비 경쟁을 만든다.\n- MI 하한 식은 목적함수의 정보이론적 의미를 제공한다.\n\n## 5) 핵심 수식 (원문 기준)\n- **InfoNCE**\n$$\nL=-\\log\\frac{e^{s(c,z^+)}}{e^{s(c,z^+)}+\\sum_j e^{s(c,z_j^-)}}\n$$\n양성 상대확률을 높인다.\n\n- **MI Lower Bound**\n$$\nI(x;c)\\ge\\log N - L_{NCE}\n$$\nloss 감소가 MI 하한 상승으로 해석된다.\n\n\n## 6) 구현 체크리스트\n- negative pool 다양성이 낮으면 shortcut 학습이 발생한다.\n- temperature/normalization 설정이 학습 안정성에 민감하다.\n- k-step 예측 범위가 장단기 정보 균형을 좌우한다.\n- score 함수 파라미터화(내적/MLP)가 성능에 영향을 준다.\n\n## 7) 한계와 후속\nnegative 품질 의존성이 존재한다. MoCo는 queue, SimCLR은 large-batch로 이를 보완했다.",
+      "difficulty_level": "intermediate",
+      "prerequisites": [
+        "기본 선형대수/확률",
+        "딥러닝 최적화",
+        "자기지도학습 기초",
+        "Transformer 또는 Metric learning 기초"
+      ],
+      "learning_objectives": [
+        "핵심 목적함수와 변수 의미를 수식으로 설명할 수 있다.",
+        "학습 안정화 장치(정규화/EMA/마스킹)의 역할을 설명할 수 있다.",
+        "후속 연구가 개선한 병목을 연결 그래프로 설명할 수 있다.",
+        "재현 시 필요한 구현 체크리스트를 말할 수 있다."
+      ],
+      "self_check_questions": [
+        "핵심 손실이 줄어들 때 어떤 표현 특성이 강화되는가?",
+        "하이퍼파라미터 중 성능 민감도가 높은 항목은 무엇인가?",
+        "이 논문의 한계를 보완한 후속 논문은 무엇인가?",
+        "실제 재현 시 가장 먼저 점검할 디버깅 포인트는 무엇인가?"
+      ]
+    },
+    {
+      "title": "Momentum Contrast for Unsupervised Visual Representation Learning",
+      "authors": [
+        "Kaiming He",
+        "Haoqi Fan",
+        "Yuxin Wu",
+        "Saining Xie",
+        "Ross Girshick"
+      ],
+      "year": 2020,
+      "venue": "CVPR 2020",
+      "abstract": "모멘텀 인코더와 큐 기반 dictionary로 large-batch 없이도 강한 contrastive 학습을 달성한다. 이 논문은 특히 \"Momentum Contrast for Unsupervised Visual Representation Learning\" 맥락에서 해당 방법의 설계 선택과 학습 안정화 포인트를 실험적으로 보여준다.",
+      "key_contributions": [
+        "EMA key encoder 도입",
+        "queue dictionary로 대규모 음성 유지",
+        "대배치 의존 완화",
+        "target drift 안정화",
+        "실용적 학습 파이프라인 제시",
+        "teacher-student SSL 확장 기반 제공"
+      ],
+      "algorithms": [
+        "두 뷰에서 q/k 생성",
+        "key encoder EMA 업데이트",
+        "queue 음성 조회",
+        "InfoNCE 계산",
+        "enqueue/dequeue 수행",
+        "query encoder 전이 사용"
+      ],
+      "key_equations": [
+        {
+          "name": "MoCo Loss",
+          "latex": "L=-\\log\\frac{e^{q\\cdot k^+/\\tau}}{e^{q\\cdot k^+/\\tau}+\\sum_i e^{q\\cdot k_i^-/\\tau}}",
+          "description": "양성 정렬과 음성 분리를 동시에 수행한다."
+        },
+        {
+          "name": "EMA Update",
+          "latex": "\\theta_k\\leftarrow m\\theta_k+(1-m)\\theta_q",
+          "description": "key 분포를 안정화한다."
+        }
+      ],
+      "category": "representation_learning",
+      "tags": [
+        "representation_learning",
+        "moco"
+      ],
+      "pdf_url": "https://arxiv.org/pdf/1911.05722.pdf",
+      "code_url": "https://github.com/facebookresearch/moco",
+      "color_hex": "#0f766e",
+      "architecture_detail": "## 1) 문제 설정\ncontrastive는 음성 샘플이 많이 필요해 메모리/연산 비용이 높다.\n\n## 2) 핵심 아이디어\n큐를 활용해 큰 음성 집합을 유지하고 EMA 타깃으로 학습 목표를 안정화한다.\n\n## 3) 방법 흐름\n1. 두 뷰에서 q/k 생성\n2. key encoder EMA 업데이트\n3. queue 음성 조회\n4. InfoNCE 계산\n5. enqueue/dequeue 수행\n6. query encoder 전이 사용\n\n## 4) 수식 해석 흐름\n- 분모의 K개 음성이 queue에서 제공된다.\n- EMA 식이 key representation drift를 줄인다.\n\n## 5) 핵심 수식 (원문 기준)\n- **MoCo Loss**\n$$\nL=-\\log\\frac{e^{q\\cdot k^+/\\tau}}{e^{q\\cdot k^+/\\tau}+\\sum_i e^{q\\cdot k_i^-/\\tau}}\n$$\n양성 정렬과 음성 분리를 동시에 수행한다.\n\n- **EMA Update**\n$$\n\\theta_k\\leftarrow m\\theta_k+(1-m)\\theta_q\n$$\nkey 분포를 안정화한다.\n\n\n## 6) 구현 체크리스트\n- queue 크기와 temperature를 함께 튜닝해야 한다.\n- BN 동기화/셔플 구현이 분산학습 성능에 중요하다.\n- 초기 warm-up 구간에서 불안정성을 모니터링한다.\n- augmentation 강도가 부족하면 분별력이 낮아진다.\n\n## 7) 한계와 후속\nqueue가 과거 분포를 포함해 편향될 수 있다. SimCLR/BYOL/SimSiam이 다른 해법을 제시한다.",
+      "difficulty_level": "intermediate",
+      "prerequisites": [
+        "기본 선형대수/확률",
+        "딥러닝 최적화",
+        "자기지도학습 기초",
+        "Transformer 또는 Metric learning 기초"
+      ],
+      "learning_objectives": [
+        "핵심 목적함수와 변수 의미를 수식으로 설명할 수 있다.",
+        "학습 안정화 장치(정규화/EMA/마스킹)의 역할을 설명할 수 있다.",
+        "후속 연구가 개선한 병목을 연결 그래프로 설명할 수 있다.",
+        "재현 시 필요한 구현 체크리스트를 말할 수 있다."
+      ],
+      "self_check_questions": [
+        "핵심 손실이 줄어들 때 어떤 표현 특성이 강화되는가?",
+        "하이퍼파라미터 중 성능 민감도가 높은 항목은 무엇인가?",
+        "이 논문의 한계를 보완한 후속 논문은 무엇인가?",
+        "실제 재현 시 가장 먼저 점검할 디버깅 포인트는 무엇인가?"
+      ]
+    },
+    {
+      "title": "A Simple Framework for Contrastive Learning of Visual Representations",
+      "authors": [
+        "Ting Chen",
+        "Simon Kornblith",
+        "Mohammad Norouzi",
+        "Geoffrey Hinton"
+      ],
+      "year": 2020,
+      "venue": "ICML 2020",
+      "abstract": "강한 증강, projection head, NT-Xent 손실의 조합으로 단순하면서도 강력한 SSL 기준선을 제시한다. 이 논문은 특히 \"A Simple Framework for Contrastive Learning of Visual Representations\" 맥락에서 해당 방법의 설계 선택과 학습 안정화 포인트를 실험적으로 보여준다.",
+      "key_contributions": [
+        "memory bank 없는 단순 contrastive 프레임워크",
+        "NT-Xent 안정화",
+        "projection head 효과 규명",
+        "증강 조합 중요성 실증",
+        "large-batch의 역할 분석",
+        "SSL 공통 베이스라인 정립"
+      ],
+      "algorithms": [
+        "두 증강 뷰 생성",
+        "encoder+projector 통과",
+        "양성/음성 쌍 구성",
+        "NT-Xent 최적화",
+        "projector 제거",
+        "linear/fine-tune 전이"
+      ],
+      "key_equations": [
+        {
+          "name": "NT-Xent",
+          "latex": "\\ell_{i,j}=-\\log\\frac{e^{sim(z_i,z_j)/\\tau}}{\\sum_{k\\neq i}e^{sim(z_i,z_k)/\\tau}}",
+          "description": "양성 상대확률을 최대화한다."
+        },
+        {
+          "name": "Batch Loss",
+          "latex": "L=\\frac{1}{2N}\\sum_i(\\ell_{2i-1,2i}+\\ell_{2i,2i-1})",
+          "description": "양방향 정렬을 수행한다."
+        }
+      ],
+      "category": "representation_learning",
+      "tags": [
+        "representation_learning",
+        "simclr"
+      ],
+      "pdf_url": "https://arxiv.org/pdf/2002.05709.pdf",
+      "code_url": "https://github.com/google-research/simclr",
+      "color_hex": "#0f766e",
+      "architecture_detail": "## 1) 문제 설정\n복잡한 메모리 구조 없이도 재현 가능한 고성능 SSL이 필요했다.\n\n## 2) 핵심 아이디어\n단순한 구조 위에 데이터 증강과 손실 설계를 집중 최적화한다.\n\n## 3) 방법 흐름\n1. 두 증강 뷰 생성\n2. encoder+projector 통과\n3. 양성/음성 쌍 구성\n4. NT-Xent 최적화\n5. projector 제거\n6. linear/fine-tune 전이\n\n## 4) 수식 해석 흐름\n- 분모는 배치 전체를 경쟁 집합으로 사용한다.\n- temperature는 분포 sharpness를 제어한다.\n\n## 5) 핵심 수식 (원문 기준)\n- **NT-Xent**\n$$\n\\ell_{i,j}=-\\log\\frac{e^{sim(z_i,z_j)/\\tau}}{\\sum_{k\\neq i}e^{sim(z_i,z_k)/\\tau}}\n$$\n양성 상대확률을 최대화한다.\n\n- **Batch Loss**\n$$\nL=\\frac{1}{2N}\\sum_i(\\ell_{2i-1,2i}+\\ell_{2i,2i-1})\n$$\n양방향 정렬을 수행한다.\n\n\n## 6) 구현 체크리스트\n- 배치 크기 부족 시 gradient accumulation으로 보완한다.\n- color jitter/blur 조합이 핵심이다.\n- projector 차원과 깊이가 전이 성능에 영향 준다.\n- linear eval 프로토콜을 고정해야 공정 비교가 된다.\n\n## 7) 한계와 후속\nlarge-batch 의존이 크다. MoCo의 queue 기반, BYOL의 negative-free 접근이 이를 보완한다.",
+      "difficulty_level": "intermediate",
+      "prerequisites": [
+        "기본 선형대수/확률",
+        "딥러닝 최적화",
+        "자기지도학습 기초",
+        "Transformer 또는 Metric learning 기초"
+      ],
+      "learning_objectives": [
+        "핵심 목적함수와 변수 의미를 수식으로 설명할 수 있다.",
+        "학습 안정화 장치(정규화/EMA/마스킹)의 역할을 설명할 수 있다.",
+        "후속 연구가 개선한 병목을 연결 그래프로 설명할 수 있다.",
+        "재현 시 필요한 구현 체크리스트를 말할 수 있다."
+      ],
+      "self_check_questions": [
+        "핵심 손실이 줄어들 때 어떤 표현 특성이 강화되는가?",
+        "하이퍼파라미터 중 성능 민감도가 높은 항목은 무엇인가?",
+        "이 논문의 한계를 보완한 후속 논문은 무엇인가?",
+        "실제 재현 시 가장 먼저 점검할 디버깅 포인트는 무엇인가?"
+      ]
+    },
+    {
+      "title": "Bootstrap Your Own Latent: A New Approach to Self-Supervised Learning",
+      "authors": [
+        "Jean-Bastien Grill",
+        "et al."
+      ],
+      "year": 2020,
+      "venue": "NeurIPS 2020",
+      "abstract": "negative sample 없이도 EMA teacher-student와 predictor, stop-gradient 조합으로 강한 SSL을 달성한다. 이 논문은 특히 \"Bootstrap Your Own Latent: A New Approach to Self-Supervised Learning\" 맥락에서 해당 방법의 설계 선택과 학습 안정화 포인트를 실험적으로 보여준다.",
+      "key_contributions": [
+        "negative-free SSL 가능성 입증",
+        "EMA teacher 구조 정립",
+        "predictor/stop-gradient 역할 제시",
+        "대규모 벤치마크 성능 확보",
+        "negative mining 의존도 감소",
+        "SimSiam/DINO 계열 기반 제공"
+      ],
+      "algorithms": [
+        "두 뷰 생성",
+        "online prediction 계산",
+        "target representation 계산",
+        "stop-gradient 정렬",
+        "EMA 업데이트",
+        "전이 평가"
+      ],
+      "key_equations": [
+        {
+          "name": "BYOL Loss",
+          "latex": "L=2-2\\frac{p_\\theta(v)\\cdot z_\\xi(v\\')}{\\|p_\\theta(v)\\|\\|z_\\xi(v\\')\\|}",
+          "description": "online과 target 표현을 정렬한다."
+        },
+        {
+          "name": "Teacher EMA",
+          "latex": "\\xi\\leftarrow\\tau\\xi+(1-\\tau)\\theta",
+          "description": "target 파라미터를 느리게 추적한다."
+        }
+      ],
+      "category": "representation_learning",
+      "tags": [
+        "representation_learning",
+        "byol"
+      ],
+      "pdf_url": "https://arxiv.org/pdf/2006.07733.pdf",
+      "code_url": "https://github.com/deepmind/deepmind-research/tree/master/byol",
+      "color_hex": "#0f766e",
+      "architecture_detail": "## 1) 문제 설정\nnegative quality와 대규모 음성 집합 의존성이 학습 비용을 높였다.\n\n## 2) 핵심 아이디어\n비대칭 teacher-student와 stop-gradient로 positive-only 정렬 학습을 수행한다.\n\n## 3) 방법 흐름\n1. 두 뷰 생성\n2. online prediction 계산\n3. target representation 계산\n4. stop-gradient 정렬\n5. EMA 업데이트\n6. 전이 평가\n\n## 4) 수식 해석 흐름\n- alignment loss는 cosine 정렬 신호를 제공한다.\n- EMA teacher가 학습 목표를 저주파화한다.\n\n## 5) 핵심 수식 (원문 기준)\n- **BYOL Loss**\n$$\nL=2-2\\frac{p_\\theta(v)\\cdot z_\\xi(v\\')}{\\|p_\\theta(v)\\|\\|z_\\xi(v\\')\\|}\n$$\nonline과 target 표현을 정렬한다.\n\n- **Teacher EMA**\n$$\n\\xi\\leftarrow\\tau\\xi+(1-\\tau)\\theta\n$$\ntarget 파라미터를 느리게 추적한다.\n\n\n## 6) 구현 체크리스트\n- augmentation 약하면 identity shortcut 위험이 커진다.\n- tau 스케줄이 안정성에 중요하다.\n- predictor 차원/깊이 튜닝이 필요하다.\n- BN 모드 설정 불일치가 재현성 문제를 만든다.\n\n## 7) 한계와 후속\ncollapse 방지 원리의 이론적 해석이 완전히 정립되진 않았다. SimSiam/VICReg가 이를 단순화/분석했다.",
+      "difficulty_level": "intermediate",
+      "prerequisites": [
+        "기본 선형대수/확률",
+        "딥러닝 최적화",
+        "자기지도학습 기초",
+        "Transformer 또는 Metric learning 기초"
+      ],
+      "learning_objectives": [
+        "핵심 목적함수와 변수 의미를 수식으로 설명할 수 있다.",
+        "학습 안정화 장치(정규화/EMA/마스킹)의 역할을 설명할 수 있다.",
+        "후속 연구가 개선한 병목을 연결 그래프로 설명할 수 있다.",
+        "재현 시 필요한 구현 체크리스트를 말할 수 있다."
+      ],
+      "self_check_questions": [
+        "핵심 손실이 줄어들 때 어떤 표현 특성이 강화되는가?",
+        "하이퍼파라미터 중 성능 민감도가 높은 항목은 무엇인가?",
+        "이 논문의 한계를 보완한 후속 논문은 무엇인가?",
+        "실제 재현 시 가장 먼저 점검할 디버깅 포인트는 무엇인가?"
+      ]
+    },
+    {
+      "title": "Unsupervised Learning of Visual Features by Contrasting Cluster Assignments",
+      "authors": [
+        "Mathilde Caron",
+        "et al."
+      ],
+      "year": 2020,
+      "venue": "NeurIPS 2020",
+      "abstract": "클러스터 할당을 뷰 간 교차 예측하고 Sinkhorn 균형화로 collapse를 억제하는 online clustering SSL. 이 논문은 특히 \"Unsupervised Learning of Visual Features by Contrasting Cluster Assignments\" 맥락에서 해당 방법의 설계 선택과 학습 안정화 포인트를 실험적으로 보여준다.",
+      "key_contributions": [
+        "swapped assignment objective 제안",
+        "prototype 기반 학습 도입",
+        "Sinkhorn balanced assignment 적용",
+        "negative 의존 감소",
+        "multi-crop 효율 학습",
+        "DINO 등 후속 ViT SSL에 영향"
+      ],
+      "algorithms": [
+        "다중 뷰 특징 추출",
+        "prototype logits 계산",
+        "Sinkhorn 균형 할당",
+        "교차 예측 손실",
+        "prototype/backbone 공동 업데이트",
+        "전이 평가"
+      ],
+      "key_equations": [
+        {
+          "name": "Swapped Loss",
+          "latex": "L=\\sum_{(s,t)}\\ell(q_s,p_t)",
+          "description": "뷰 간 assignment 일관성을 학습한다."
+        },
+        {
+          "name": "Balanced Assignment",
+          "latex": "Q^*=\\arg\\max_Q Tr(Q^\\top C^\\top Z)+\\epsilon H(Q)",
+          "description": "엔트로피 정규화 균형 할당을 구한다."
+        }
+      ],
+      "category": "representation_learning",
+      "tags": [
+        "representation_learning",
+        "swav",
+        "sinkhorn"
+      ],
+      "pdf_url": "https://arxiv.org/pdf/2006.09882.pdf",
+      "code_url": "https://github.com/facebookresearch/swav",
+      "color_hex": "#0f766e",
+      "architecture_detail": "## 1) 문제 설정\ninstance-level contrastive는 계산비용과 노이즈 민감성이 크다.\n\n## 2) 핵심 아이디어\n샘플이 아닌 클러스터 할당 일관성을 학습 신호로 사용한다.\n\n## 3) 방법 흐름\n1. 다중 뷰 특징 추출\n2. prototype logits 계산\n3. Sinkhorn 균형 할당\n4. 교차 예측 손실\n5. prototype/backbone 공동 업데이트\n6. 전이 평가\n\n## 4) 수식 해석 흐름\n- assignment 최적화는 OT 관점으로 해석된다.\n- swapped loss는 뷰 불변성을 강화한다.\n\n## 5) 핵심 수식 (원문 기준)\n- **Swapped Loss**\n$$\nL=\\sum_{(s,t)}\\ell(q_s,p_t)\n$$\n뷰 간 assignment 일관성을 학습한다.\n\n- **Balanced Assignment**\n$$\nQ^*=\\arg\\max_Q Tr(Q^\\top C^\\top Z)+\\epsilon H(Q)\n$$\n엔트로피 정규화 균형 할당을 구한다.\n\n\n## 6) 구현 체크리스트\n- prototype 수 K가 성능/안정성을 크게 좌우한다.\n- Sinkhorn epsilon과 반복 횟수 튜닝이 중요하다.\n- multi-crop 구성은 효율성과 성능 trade-off를 만든다.\n- assignment entropy 모니터링으로 collapse를 조기 탐지한다.\n\n## 7) 한계와 후속\n하이퍼파라미터 민감성이 높다. DINO는 teacher distribution 정렬로 보다 단순한 경로를 제공한다.",
+      "difficulty_level": "intermediate",
+      "prerequisites": [
+        "기본 선형대수/확률",
+        "딥러닝 최적화",
+        "자기지도학습 기초",
+        "Transformer 또는 Metric learning 기초"
+      ],
+      "learning_objectives": [
+        "핵심 목적함수와 변수 의미를 수식으로 설명할 수 있다.",
+        "학습 안정화 장치(정규화/EMA/마스킹)의 역할을 설명할 수 있다.",
+        "후속 연구가 개선한 병목을 연결 그래프로 설명할 수 있다.",
+        "재현 시 필요한 구현 체크리스트를 말할 수 있다."
+      ],
+      "self_check_questions": [
+        "핵심 손실이 줄어들 때 어떤 표현 특성이 강화되는가?",
+        "하이퍼파라미터 중 성능 민감도가 높은 항목은 무엇인가?",
+        "이 논문의 한계를 보완한 후속 논문은 무엇인가?",
+        "실제 재현 시 가장 먼저 점검할 디버깅 포인트는 무엇인가?"
+      ]
+    },
+    {
+      "title": "Concerning Nonnegative Matrices and Doubly Stochastic Matrices",
+      "authors": [
+        "Richard Sinkhorn",
+        "Paul Knopp"
+      ],
+      "year": 1967,
+      "venue": "Pacific Journal of Mathematics",
+      "abstract": "행/열 교대 정규화와 엔트로피 정규화 OT를 통해 분포 할당 문제를 고속으로 근사 계산한다. 이 논문은 특히 \"Concerning Nonnegative Matrices and Doubly Stochastic Matrices\" 맥락에서 해당 방법의 설계 선택과 학습 안정화 포인트를 실험적으로 보여준다.",
+      "key_contributions": [
+        "행렬 교대 정규화 반복 정식화",
+        "doubly-stochastic 제약 해결",
+        "엔트로피 정규화 OT 실용화",
+        "고속 반복 계산 경로 제시",
+        "OT 기반 ML 응용 확대",
+        "SwAV assignment 계산 기반 제공"
+      ],
+      "algorithms": [
+        "비음수 행렬/비용행렬 구성",
+        "row scaling",
+        "column scaling",
+        "교대 반복",
+        "수렴 판정",
+        "거리/할당 계산"
+      ],
+      "key_equations": [
+        {
+          "name": "Row Scaling",
+          "latex": "K\\leftarrow diag(1/(K\\mathbf{1}))K",
+          "description": "행합을 1로 맞춘다."
+        },
+        {
+          "name": "Entropic OT",
+          "latex": "\\min_{P\\in U(a,b)}\\langle P,C\\rangle-\\epsilon H(P)",
+          "description": "정규화 OT 목적을 정의한다."
+        }
+      ],
+      "category": "representation_learning",
+      "tags": [
+        "representation_learning",
+        "sinkhorn"
+      ],
+      "pdf_url": "https://projecteuclid.org/journals/pacific-journal-of-mathematics/volume-21/issue-2/Concerning-nonnegative-matrices-and-doubly-stochastic-matrices/pjm/1102992505.pdf",
+      "color_hex": "#0f766e",
+      "architecture_detail": "## 1) 문제 설정\n정확한 OT는 계산량이 커 대규모 학습에 바로 쓰기 어렵다.\n\n## 2) 핵심 아이디어\n엔트로피 정규화 + Sinkhorn 반복으로 속도와 안정성을 확보한다.\n\n## 3) 방법 흐름\n1. 비음수 행렬/비용행렬 구성\n2. row scaling\n3. column scaling\n4. 교대 반복\n5. 수렴 판정\n6. 거리/할당 계산\n\n## 4) 수식 해석 흐름\n- row/col scaling이 제약을 교대로 만족시킨다.\n- epsilon이 속도-정밀도 균형을 결정한다.\n\n## 5) 핵심 수식 (원문 기준)\n- **Row Scaling**\n$$\nK\\leftarrow diag(1/(K\\mathbf{1}))K\n$$\n행합을 1로 맞춘다.\n\n- **Entropic OT**\n$$\n\\min_{P\\in U(a,b)}\\langle P,C\\rangle-\\epsilon H(P)\n$$\n정규화 OT 목적을 정의한다.\n\n\n## 6) 구현 체크리스트\n- 로그 도메인 구현으로 수치불안정을 줄인다.\n- epsilon annealing이 초기 안정성에 유리하다.\n- 수렴 기준은 primal/dual 잔차를 함께 본다.\n- 배치 OT에서는 메모리 블록화가 필요하다.\n\n## 7) 한계와 후속\n정규화 편향이 존재하며 epsilon 튜닝이 민감하다. 그래도 대규모 ML 응용에서는 실용성이 매우 높다.",
+      "difficulty_level": "intermediate",
+      "prerequisites": [
+        "기본 선형대수/확률",
+        "딥러닝 최적화",
+        "자기지도학습 기초",
+        "Transformer 또는 Metric learning 기초"
+      ],
+      "learning_objectives": [
+        "핵심 목적함수와 변수 의미를 수식으로 설명할 수 있다.",
+        "학습 안정화 장치(정규화/EMA/마스킹)의 역할을 설명할 수 있다.",
+        "후속 연구가 개선한 병목을 연결 그래프로 설명할 수 있다.",
+        "재현 시 필요한 구현 체크리스트를 말할 수 있다."
+      ],
+      "self_check_questions": [
+        "핵심 손실이 줄어들 때 어떤 표현 특성이 강화되는가?",
+        "하이퍼파라미터 중 성능 민감도가 높은 항목은 무엇인가?",
+        "이 논문의 한계를 보완한 후속 논문은 무엇인가?",
+        "실제 재현 시 가장 먼저 점검할 디버깅 포인트는 무엇인가?"
+      ]
+    },
+    {
+      "title": "Sinkhorn Distances: Lightspeed Computation of Optimal Transport",
+      "authors": [
+        "Marco Cuturi"
+      ],
+      "year": 2013,
+      "venue": "NeurIPS 2013",
+      "abstract": "행/열 교대 정규화와 엔트로피 정규화 OT를 통해 분포 할당 문제를 고속으로 근사 계산한다. 이 논문은 특히 \"Sinkhorn Distances: Lightspeed Computation of Optimal Transport\" 맥락에서 해당 방법의 설계 선택과 학습 안정화 포인트를 실험적으로 보여준다.",
+      "key_contributions": [
+        "행렬 교대 정규화 반복 정식화",
+        "doubly-stochastic 제약 해결",
+        "엔트로피 정규화 OT 실용화",
+        "고속 반복 계산 경로 제시",
+        "OT 기반 ML 응용 확대",
+        "SwAV assignment 계산 기반 제공"
+      ],
+      "algorithms": [
+        "비음수 행렬/비용행렬 구성",
+        "row scaling",
+        "column scaling",
+        "교대 반복",
+        "수렴 판정",
+        "거리/할당 계산"
+      ],
+      "key_equations": [
+        {
+          "name": "Row Scaling",
+          "latex": "K\\leftarrow diag(1/(K\\mathbf{1}))K",
+          "description": "행합을 1로 맞춘다."
+        },
+        {
+          "name": "Entropic OT",
+          "latex": "\\min_{P\\in U(a,b)}\\langle P,C\\rangle-\\epsilon H(P)",
+          "description": "정규화 OT 목적을 정의한다."
+        }
+      ],
+      "category": "representation_learning",
+      "tags": [
+        "representation_learning",
+        "optimal-transport"
+      ],
+      "pdf_url": "https://arxiv.org/pdf/1306.0895.pdf",
+      "color_hex": "#0f766e",
+      "architecture_detail": "## 1) 문제 설정\n정확한 OT는 계산량이 커 대규모 학습에 바로 쓰기 어렵다.\n\n## 2) 핵심 아이디어\n엔트로피 정규화 + Sinkhorn 반복으로 속도와 안정성을 확보한다.\n\n## 3) 방법 흐름\n1. 비음수 행렬/비용행렬 구성\n2. row scaling\n3. column scaling\n4. 교대 반복\n5. 수렴 판정\n6. 거리/할당 계산\n\n## 4) 수식 해석 흐름\n- row/col scaling이 제약을 교대로 만족시킨다.\n- epsilon이 속도-정밀도 균형을 결정한다.\n\n## 5) 핵심 수식 (원문 기준)\n- **Row Scaling**\n$$\nK\\leftarrow diag(1/(K\\mathbf{1}))K\n$$\n행합을 1로 맞춘다.\n\n- **Entropic OT**\n$$\n\\min_{P\\in U(a,b)}\\langle P,C\\rangle-\\epsilon H(P)\n$$\n정규화 OT 목적을 정의한다.\n\n\n## 6) 구현 체크리스트\n- 로그 도메인 구현으로 수치불안정을 줄인다.\n- epsilon annealing이 초기 안정성에 유리하다.\n- 수렴 기준은 primal/dual 잔차를 함께 본다.\n- 배치 OT에서는 메모리 블록화가 필요하다.\n\n## 7) 한계와 후속\n정규화 편향이 존재하며 epsilon 튜닝이 민감하다. 그래도 대규모 ML 응용에서는 실용성이 매우 높다.",
+      "difficulty_level": "intermediate",
+      "prerequisites": [
+        "기본 선형대수/확률",
+        "딥러닝 최적화",
+        "자기지도학습 기초",
+        "Transformer 또는 Metric learning 기초"
+      ],
+      "learning_objectives": [
+        "핵심 목적함수와 변수 의미를 수식으로 설명할 수 있다.",
+        "학습 안정화 장치(정규화/EMA/마스킹)의 역할을 설명할 수 있다.",
+        "후속 연구가 개선한 병목을 연결 그래프로 설명할 수 있다.",
+        "재현 시 필요한 구현 체크리스트를 말할 수 있다."
+      ],
+      "self_check_questions": [
+        "핵심 손실이 줄어들 때 어떤 표현 특성이 강화되는가?",
+        "하이퍼파라미터 중 성능 민감도가 높은 항목은 무엇인가?",
+        "이 논문의 한계를 보완한 후속 논문은 무엇인가?",
+        "실제 재현 시 가장 먼저 점검할 디버깅 포인트는 무엇인가?"
+      ]
+    },
+    {
+      "title": "Exploring Simple Siamese Representation Learning",
+      "authors": [
+        "Xinlei Chen",
+        "Kaiming He"
+      ],
+      "year": 2021,
+      "venue": "CVPR 2021",
+      "abstract": "momentum encoder 없이 predictor+stop-gradient만으로 non-contrastive SSL을 단순화한 방법. 이 논문은 특히 \"Exploring Simple Siamese Representation Learning\" 맥락에서 해당 방법의 설계 선택과 학습 안정화 포인트를 실험적으로 보여준다.",
+      "key_contributions": [
+        "negative/momentum 제거한 최소 구조",
+        "stop-gradient 중요성 실증",
+        "구현 단순화와 고성능 균형",
+        "BYOL 메커니즘 해석 촉진",
+        "강력한 baseline 제공",
+        "이론 연구 촉발"
+      ],
+      "algorithms": [
+        "두 뷰 생성",
+        "공유 인코더+projector",
+        "predictor 적용",
+        "stop-gradient target",
+        "대칭 정렬 손실",
+        "전이 평가"
+      ],
+      "key_equations": [
+        {
+          "name": "SimSiam Loss",
+          "latex": "L=-\\frac{1}{2}(\\frac{p_1\\cdot sg(z_2)}{\\|p_1\\|\\|z_2\\|}+\\frac{p_2\\cdot sg(z_1)}{\\|p_2\\|\\|z_1\\|})",
+          "description": "대칭 정렬 objective."
+        },
+        {
+          "name": "Stop-Gradient",
+          "latex": "\\partial sg(z)/\\partial z=0",
+          "description": "target 경로의 역전파를 차단한다."
+        }
+      ],
+      "category": "representation_learning",
+      "tags": [
+        "representation_learning",
+        "simsiam"
+      ],
+      "pdf_url": "https://arxiv.org/pdf/2011.10566.pdf",
+      "code_url": "https://github.com/facebookresearch/simsiam",
+      "color_hex": "#0f766e",
+      "architecture_detail": "## 1) 문제 설정\nSSL 구조 복잡도가 커져 핵심 안정화 원리 파악이 어려웠다.\n\n## 2) 핵심 아이디어\n필수 요소만 남긴 단순 구조로도 학습이 가능한지 검증한다.\n\n## 3) 방법 흐름\n1. 두 뷰 생성\n2. 공유 인코더+projector\n3. predictor 적용\n4. stop-gradient target\n5. 대칭 정렬 손실\n6. 전이 평가\n\n## 4) 수식 해석 흐름\n- sg가 one-side fixed target 역할을 한다.\n- 대칭 손실이 양쪽 분기 신호를 균형화한다.\n\n## 5) 핵심 수식 (원문 기준)\n- **SimSiam Loss**\n$$\nL=-\\frac{1}{2}(\\frac{p_1\\cdot sg(z_2)}{\\|p_1\\|\\|z_2\\|}+\\frac{p_2\\cdot sg(z_1)}{\\|p_2\\|\\|z_1\\|})\n$$\n대칭 정렬 objective.\n\n- **Stop-Gradient**\n$$\n\\partial sg(z)/\\partial z=0\n$$\ntarget 경로의 역전파를 차단한다.\n\n\n## 6) 구현 체크리스트\n- BN/augmentation 설정에 매우 민감하다.\n- predictor 차원이 너무 작으면 표현력이 떨어진다.\n- 초기 learning rate 과대 설정 시 collapse 가능성이 커진다.\n- 재현성 확보를 위해 protocol 고정이 중요하다.\n\n## 7) 한계와 후속\n왜 collapse가 억제되는지 이론적 설명이 완전하지 않다. 후속 이론/규제 기반 연구가 이를 보완한다.",
+      "difficulty_level": "intermediate",
+      "prerequisites": [
+        "기본 선형대수/확률",
+        "딥러닝 최적화",
+        "자기지도학습 기초",
+        "Transformer 또는 Metric learning 기초"
+      ],
+      "learning_objectives": [
+        "핵심 목적함수와 변수 의미를 수식으로 설명할 수 있다.",
+        "학습 안정화 장치(정규화/EMA/마스킹)의 역할을 설명할 수 있다.",
+        "후속 연구가 개선한 병목을 연결 그래프로 설명할 수 있다.",
+        "재현 시 필요한 구현 체크리스트를 말할 수 있다."
+      ],
+      "self_check_questions": [
+        "핵심 손실이 줄어들 때 어떤 표현 특성이 강화되는가?",
+        "하이퍼파라미터 중 성능 민감도가 높은 항목은 무엇인가?",
+        "이 논문의 한계를 보완한 후속 논문은 무엇인가?",
+        "실제 재현 시 가장 먼저 점검할 디버깅 포인트는 무엇인가?"
+      ]
+    },
+    {
+      "title": "Barlow Twins: Self-Supervised Learning via Redundancy Reduction",
+      "authors": [
+        "Jure Zbontar",
+        "et al."
+      ],
+      "year": 2021,
+      "venue": "ICML 2021",
+      "abstract": "교차상관 행렬을 단위행렬로 유도해 invariance와 redundancy reduction을 동시에 달성하는 non-contrastive SSL. 이 논문은 특히 \"Barlow Twins: Self-Supervised Learning via Redundancy Reduction\" 맥락에서 해당 방법의 설계 선택과 학습 안정화 포인트를 실험적으로 보여준다.",
+      "key_contributions": [
+        "redundancy reduction objective 제안",
+        "대각 정렬/비대각 억제 결합",
+        "negative-free 성능 입증",
+        "단순 배치통계 구현",
+        "VICReg 계열 기반 제공",
+        "SSL 목적 해석 확장"
+      ],
+      "algorithms": [
+        "두 뷰 특징 추출",
+        "정규화",
+        "교차상관 C 계산",
+        "대각 항 손실",
+        "비대각 항 손실",
+        "합성 objective 최적화"
+      ],
+      "key_equations": [
+        {
+          "name": "Cross-Correlation",
+          "latex": "C_{ij}=\\frac{\\sum_b z_{b,i}^A z_{b,j}^B}{\\sqrt{\\sum_b(z_{b,i}^A)^2}\\sqrt{\\sum_b(z_{b,j}^B)^2}}",
+          "description": "채널 상관을 측정한다."
+        },
+        {
+          "name": "Barlow Loss",
+          "latex": "L=\\sum_i(1-C_{ii})^2+\\lambda\\sum_{i\\ne j}C_{ij}^2",
+          "description": "대각 정렬과 중복 억제를 동시에 수행한다."
+        }
+      ],
+      "category": "representation_learning",
+      "tags": [
+        "representation_learning",
+        "barlow-twins"
+      ],
+      "pdf_url": "https://arxiv.org/pdf/2103.03230.pdf",
+      "color_hex": "#0f766e",
+      "architecture_detail": "## 1) 문제 설정\nnegative 없이도 collapse를 피하고 정보량을 유지해야 한다.\n\n## 2) 핵심 아이디어\n상관 구조를 직접 제어해 표현 중복을 줄이고 불변성을 확보한다.\n\n## 3) 방법 흐름\n1. 두 뷰 특징 추출\n2. 정규화\n3. 교차상관 C 계산\n4. 대각 항 손실\n5. 비대각 항 손실\n6. 합성 objective 최적화\n\n## 4) 수식 해석 흐름\n- C_ii는 뷰 정렬, C_ij는 채널 중복을 나타낸다.\n- lambda가 두 목표의 균형을 조절한다.\n\n## 5) 핵심 수식 (원문 기준)\n- **Cross-Correlation**\n$$\nC_{ij}=\\frac{\\sum_b z_{b,i}^A z_{b,j}^B}{\\sqrt{\\sum_b(z_{b,i}^A)^2}\\sqrt{\\sum_b(z_{b,j}^B)^2}}\n$$\n채널 상관을 측정한다.\n\n- **Barlow Loss**\n$$\nL=\\sum_i(1-C_{ii})^2+\\lambda\\sum_{i\\ne j}C_{ij}^2\n$$\n대각 정렬과 중복 억제를 동시에 수행한다.\n\n\n## 6) 구현 체크리스트\n- 배치 크기가 작으면 C 추정 노이즈가 커진다.\n- 출력 차원과 정규화 방식이 성능에 영향 준다.\n- lambda 스케줄링이 안정화에 도움될 수 있다.\n- 평가 시 linear protocol 고정이 중요하다.\n\n## 7) 한계와 후속\n배치 통계 의존성이 크다. VICReg는 variance/covariance 분리 규제로 이를 보완한다.",
+      "difficulty_level": "intermediate",
+      "prerequisites": [
+        "기본 선형대수/확률",
+        "딥러닝 최적화",
+        "자기지도학습 기초",
+        "Transformer 또는 Metric learning 기초"
+      ],
+      "learning_objectives": [
+        "핵심 목적함수와 변수 의미를 수식으로 설명할 수 있다.",
+        "학습 안정화 장치(정규화/EMA/마스킹)의 역할을 설명할 수 있다.",
+        "후속 연구가 개선한 병목을 연결 그래프로 설명할 수 있다.",
+        "재현 시 필요한 구현 체크리스트를 말할 수 있다."
+      ],
+      "self_check_questions": [
+        "핵심 손실이 줄어들 때 어떤 표현 특성이 강화되는가?",
+        "하이퍼파라미터 중 성능 민감도가 높은 항목은 무엇인가?",
+        "이 논문의 한계를 보완한 후속 논문은 무엇인가?",
+        "실제 재현 시 가장 먼저 점검할 디버깅 포인트는 무엇인가?"
+      ]
+    },
+    {
+      "title": "Emerging Properties in Self-Supervised Vision Transformers",
+      "authors": [
+        "Mathilde Caron",
+        "et al."
+      ],
+      "year": 2021,
+      "venue": "ICCV 2021",
+      "abstract": "ViT 기반 self-distillation과 centering/sharpening으로 라벨 없이 강한 표현 및 의미적 attention 특성을 획득한다. 이 논문은 특히 \"Emerging Properties in Self-Supervised Vision Transformers\" 맥락에서 해당 방법의 설계 선택과 학습 안정화 포인트를 실험적으로 보여준다.",
+      "key_contributions": [
+        "ViT self-distillation SSL 정립",
+        "teacher centering/sharpening 도입",
+        "multi-crop 학습 효율화",
+        "emergent attention 현상 보고",
+        "ViT SSL 전환 가속",
+        "세그멘테이션 전이 기반 제공"
+      ],
+      "algorithms": [
+        "multi-crop 생성",
+        "teacher/student forward",
+        "teacher 분포 보정",
+        "cross-view distillation",
+        "EMA teacher 업데이트",
+        "전이 평가"
+      ],
+      "key_equations": [
+        {
+          "name": "Distillation Loss",
+          "latex": "L=\\sum_{v\\in V_s}\\sum_{u\\in V_t}H(sg(p_t^u),p_s^v)",
+          "description": "teacher 분포를 student가 모방한다."
+        },
+        {
+          "name": "Teacher Prob",
+          "latex": "p_t=softmax((g_t(x)-c)/T_t)",
+          "description": "center/temperature로 분포를 안정화한다."
+        }
+      ],
+      "category": "representation_learning",
+      "tags": [
+        "representation_learning",
+        "dino"
+      ],
+      "pdf_url": "https://arxiv.org/pdf/2104.14294.pdf",
+      "code_url": "https://github.com/facebookresearch/dino",
+      "color_hex": "#0f766e",
+      "architecture_detail": "## 1) 문제 설정\nViT에서 안정적인 자기지도 사전학습과 의미 있는 시각표현이 필요했다.\n\n## 2) 핵심 아이디어\nEMA teacher 분포를 여러 student 뷰가 정렬하도록 학습한다.\n\n## 3) 방법 흐름\n1. multi-crop 생성\n2. teacher/student forward\n3. teacher 분포 보정\n4. cross-view distillation\n5. EMA teacher 업데이트\n6. 전이 평가\n\n## 4) 수식 해석 흐름\n- distillation은 라벨 대신 teacher soft target을 사용한다.\n- centering/sharpening이 collapse를 억제한다.\n\n## 5) 핵심 수식 (원문 기준)\n- **Distillation Loss**\n$$\nL=\\sum_{v\\in V_s}\\sum_{u\\in V_t}H(sg(p_t^u),p_s^v)\n$$\nteacher 분포를 student가 모방한다.\n\n- **Teacher Prob**\n$$\np_t=softmax((g_t(x)-c)/T_t)\n$$\ncenter/temperature로 분포를 안정화한다.\n\n\n## 6) 구현 체크리스트\n- teacher temperature warm-up이 중요하다.\n- center 업데이트 모멘텀 튜닝이 필요하다.\n- multi-crop 구성은 계산량/성능 균형 핵심이다.\n- ViT patch size가 전이 및 attention 해석에 영향 준다.\n\n## 7) 한계와 후속\nattention map 해석은 보조 지표이지 완전한 분할 감독이 아니다. MAE와의 보완적 결합 연구가 많다.",
+      "difficulty_level": "intermediate",
+      "prerequisites": [
+        "기본 선형대수/확률",
+        "딥러닝 최적화",
+        "자기지도학습 기초",
+        "Transformer 또는 Metric learning 기초"
+      ],
+      "learning_objectives": [
+        "핵심 목적함수와 변수 의미를 수식으로 설명할 수 있다.",
+        "학습 안정화 장치(정규화/EMA/마스킹)의 역할을 설명할 수 있다.",
+        "후속 연구가 개선한 병목을 연결 그래프로 설명할 수 있다.",
+        "재현 시 필요한 구현 체크리스트를 말할 수 있다."
+      ],
+      "self_check_questions": [
+        "핵심 손실이 줄어들 때 어떤 표현 특성이 강화되는가?",
+        "하이퍼파라미터 중 성능 민감도가 높은 항목은 무엇인가?",
+        "이 논문의 한계를 보완한 후속 논문은 무엇인가?",
+        "실제 재현 시 가장 먼저 점검할 디버깅 포인트는 무엇인가?"
+      ]
+    },
+    {
+      "title": "Attention Is All You Need",
+      "authors": [
+        "Ashish Vaswani",
+        "et al."
+      ],
+      "year": 2017,
+      "venue": "NeurIPS 2017",
+      "abstract": "Self-attention 중심 Transformer 구조로 순환 없이 전역 의존성을 병렬 학습한다. 이 논문은 특히 \"Attention Is All You Need\" 맥락에서 해당 방법의 설계 선택과 학습 안정화 포인트를 실험적으로 보여준다.",
+      "key_contributions": [
+        "attention-only encoder-decoder 제안",
+        "scaled dot-product 정식화",
+        "multi-head 병렬 학습",
+        "위치 인코딩 도입",
+        "대규모 병렬학습 기반 제공",
+        "GPT/BERT/ViT/MAE 공통 백본 구축"
+      ],
+      "algorithms": [
+        "임베딩+위치정보",
+        "MHA+FFN 반복",
+        "잔차+정규화",
+        "인코더-디코더 attention",
+        "masked decoding",
+        "스케줄드 최적화"
+      ],
+      "key_equations": [
+        {
+          "name": "Attention",
+          "latex": "Attention(Q,K,V)=softmax(QK^T/\\sqrt{d_k})V",
+          "description": "전역 토큰 관계를 계산한다."
+        },
+        {
+          "name": "MHA",
+          "latex": "MHA=Concat(head_1,...,head_h)W^O",
+          "description": "다양한 관계를 병렬 학습한다."
+        }
+      ],
+      "category": "representation_learning",
+      "tags": [
+        "representation_learning",
+        "transformer"
+      ],
+      "pdf_url": "https://arxiv.org/pdf/1706.03762.pdf",
+      "color_hex": "#0f766e",
+      "architecture_detail": "## 1) 문제 설정\nRNN의 순차 병목과 장기 의존성 한계를 동시에 해결해야 했다.\n\n## 2) 핵심 아이디어\n모든 토큰 간 관계를 attention으로 병렬 계산한다.\n\n## 3) 방법 흐름\n1. 임베딩+위치정보\n2. MHA+FFN 반복\n3. 잔차+정규화\n4. 인코더-디코더 attention\n5. masked decoding\n6. 스케줄드 최적화\n\n## 4) 수식 해석 흐름\n- sqrt(d_k)는 로짓 스케일 폭주를 완화한다.\n- MHA는 표현 하위공간 다양성을 높인다.\n\n## 5) 핵심 수식 (원문 기준)\n- **Attention**\n$$\nAttention(Q,K,V)=softmax(QK^T/\\sqrt{d_k})V\n$$\n전역 토큰 관계를 계산한다.\n\n- **MHA**\n$$\nMHA=Concat(head_1,...,head_h)W^O\n$$\n다양한 관계를 병렬 학습한다.\n\n\n## 6) 구현 체크리스트\n- 긴 시퀀스에서 O(n^2) 비용이 병목이다.\n- warm-up 스케줄이 초기 안정성에 필수다.\n- mask 구현 오류는 생성 품질을 크게 망친다.\n- pre/post-norm 선택이 깊은 모델 안정성을 좌우한다.\n\n## 7) 한계와 후속\n긴 시퀀스 계산비용이 높다. sparse/linear attention 계열이 이를 보완하려고 등장했다.",
+      "difficulty_level": "intermediate",
+      "prerequisites": [
+        "기본 선형대수/확률",
+        "딥러닝 최적화",
+        "자기지도학습 기초",
+        "Transformer 또는 Metric learning 기초"
+      ],
+      "learning_objectives": [
+        "핵심 목적함수와 변수 의미를 수식으로 설명할 수 있다.",
+        "학습 안정화 장치(정규화/EMA/마스킹)의 역할을 설명할 수 있다.",
+        "후속 연구가 개선한 병목을 연결 그래프로 설명할 수 있다.",
+        "재현 시 필요한 구현 체크리스트를 말할 수 있다."
+      ],
+      "self_check_questions": [
+        "핵심 손실이 줄어들 때 어떤 표현 특성이 강화되는가?",
+        "하이퍼파라미터 중 성능 민감도가 높은 항목은 무엇인가?",
+        "이 논문의 한계를 보완한 후속 논문은 무엇인가?",
+        "실제 재현 시 가장 먼저 점검할 디버깅 포인트는 무엇인가?"
+      ]
+    },
+    {
+      "title": "Improving Language Understanding by Generative Pre-Training",
+      "authors": [
+        "Alec Radford",
+        "Karthik Narasimhan",
+        "Tim Salimans",
+        "Ilya Sutskever"
+      ],
+      "year": 2018,
+      "venue": "OpenAI Technical Report",
+      "abstract": "생성형 언어모델 사전학습 후 태스크 미세조정하는 pretrain-finetune 패러다임을 정립한다. 이 논문은 특히 \"Improving Language Understanding by Generative Pre-Training\" 맥락에서 해당 방법의 설계 선택과 학습 안정화 포인트를 실험적으로 보여준다.",
+      "key_contributions": [
+        "causal LM 사전학습 정립",
+        "전이 가능한 표현 확보",
+        "다목적 NLP 태스크 적용",
+        "입력 포맷 기반 적응",
+        "저자원 태스크 성능 개선",
+        "현대 GPT 계열 기반 제공"
+      ],
+      "algorithms": [
+        "LM 사전학습",
+        "태스크 포맷 구성",
+        "가중치 전이",
+        "미세조정",
+        "보조 LM 유지",
+        "성능 평가"
+      ],
+      "key_equations": [
+        {
+          "name": "Causal LM",
+          "latex": "\\max_\\theta\\sum_t\\log p_\\theta(x_t|x_{<t})",
+          "description": "다음 토큰 예측으로 언어 통계를 학습한다."
+        },
+        {
+          "name": "Fine-tune Objective",
+          "latex": "L=L_{task}+\\lambda L_{LM}",
+          "description": "태스크 적합성과 일반성을 함께 유지한다."
+        }
+      ],
+      "category": "representation_learning",
+      "tags": [
+        "representation_learning",
+        "gpt"
+      ],
+      "pdf_url": "https://cdn.openai.com/research-covers/language-unsupervised/language_understanding_paper.pdf",
+      "code_url": "https://github.com/openai/finetune-transformer-lm",
+      "color_hex": "#0f766e",
+      "architecture_detail": "## 1) 문제 설정\n라벨 데이터가 적은 태스크에서 일반화 가능한 언어표현이 필요하다.\n\n## 2) 핵심 아이디어\n비지도 대규모 pretraining으로 일반 표현을 먼저 학습하고 태스크별로 적응한다.\n\n## 3) 방법 흐름\n1. LM 사전학습\n2. 태스크 포맷 구성\n3. 가중치 전이\n4. 미세조정\n5. 보조 LM 유지\n6. 성능 평가\n\n## 4) 수식 해석 흐름\n- causal objective는 생성 능력을 직접 학습한다.\n- joint objective는 forgetting 완화에 도움된다.\n\n## 5) 핵심 수식 (원문 기준)\n- **Causal LM**\n$$\n\\max_\\theta\\sum_t\\log p_\\theta(x_t|x_{<t})\n$$\n다음 토큰 예측으로 언어 통계를 학습한다.\n\n- **Fine-tune Objective**\n$$\nL=L_{task}+\\lambda L_{LM}\n$$\n태스크 적합성과 일반성을 함께 유지한다.\n\n\n## 6) 구현 체크리스트\n- pretraining 코퍼스 품질/규모가 전이 성능을 좌우한다.\n- 미세조정 학습률은 작게 시작하는 것이 안정적이다.\n- 태스크 입력 포맷이 성능 병목이 될 수 있다.\n- head 초기화 방식이 초반 수렴에 영향 준다.\n\n## 7) 한계와 후속\n단방향 문맥 한계가 있다. 이를 보완하는 양방향 pretraining 축이 BERT로 전개되었다.",
+      "difficulty_level": "intermediate",
+      "prerequisites": [
+        "기본 선형대수/확률",
+        "딥러닝 최적화",
+        "자기지도학습 기초",
+        "Transformer 또는 Metric learning 기초"
+      ],
+      "learning_objectives": [
+        "핵심 목적함수와 변수 의미를 수식으로 설명할 수 있다.",
+        "학습 안정화 장치(정규화/EMA/마스킹)의 역할을 설명할 수 있다.",
+        "후속 연구가 개선한 병목을 연결 그래프로 설명할 수 있다.",
+        "재현 시 필요한 구현 체크리스트를 말할 수 있다."
+      ],
+      "self_check_questions": [
+        "핵심 손실이 줄어들 때 어떤 표현 특성이 강화되는가?",
+        "하이퍼파라미터 중 성능 민감도가 높은 항목은 무엇인가?",
+        "이 논문의 한계를 보완한 후속 논문은 무엇인가?",
+        "실제 재현 시 가장 먼저 점검할 디버깅 포인트는 무엇인가?"
+      ]
+    },
+    {
+      "title": "BERT: Pre-training of Deep Bidirectional Transformers for Language Understanding",
+      "authors": [
+        "Jacob Devlin",
+        "Ming-Wei Chang",
+        "Kenton Lee",
+        "Kristina Toutanova"
+      ],
+      "year": 2019,
+      "venue": "NAACL 2019",
+      "abstract": "MLM과 NSP를 결합한 양방향 Transformer 사전학습으로 NLP 전반 성능을 크게 끌어올린다. 이 논문은 특히 \"BERT: Pre-training of Deep Bidirectional Transformers for Language Understanding\" 맥락에서 해당 방법의 설계 선택과 학습 안정화 포인트를 실험적으로 보여준다.",
+      "key_contributions": [
+        "양방향 encoder pretraining 정립",
+        "MLM 대중화",
+        "NSP 결합",
+        "벤치마크 대폭 향상",
+        "사전학습-미세조정 표준화",
+        "후속 BERT 계열 기반 제공"
+      ],
+      "algorithms": [
+        "토큰화/세그먼트 구성",
+        "마스킹 샘플 생성",
+        "MLM+NSP 학습",
+        "태스크 헤드 추가",
+        "미세조정",
+        "전이 평가"
+      ],
+      "key_equations": [
+        {
+          "name": "MLM",
+          "latex": "\\max_\\theta\\sum_{i\\in M}\\log p_\\theta(x_i|x_{\\setminus M})",
+          "description": "마스크 토큰 복원으로 양방향 문맥을 학습한다."
+        },
+        {
+          "name": "Joint Loss",
+          "latex": "L=L_{MLM}+L_{NSP}",
+          "description": "토큰/문장 수준 목표를 동시에 학습한다."
+        }
+      ],
+      "category": "representation_learning",
+      "tags": [
+        "representation_learning",
+        "bert",
+        "mlm"
+      ],
+      "pdf_url": "https://arxiv.org/pdf/1810.04805.pdf",
+      "code_url": "https://github.com/google-research/bert",
+      "color_hex": "#0f766e",
+      "architecture_detail": "## 1) 문제 설정\n단방향 LM은 양방향 문맥 정보를 충분히 활용하지 못한다.\n\n## 2) 핵심 아이디어\n복원형 목표로 양방향 표현을 학습해 태스크 전이를 강화한다.\n\n## 3) 방법 흐름\n1. 토큰화/세그먼트 구성\n2. 마스킹 샘플 생성\n3. MLM+NSP 학습\n4. 태스크 헤드 추가\n5. 미세조정\n6. 전이 평가\n\n## 4) 수식 해석 흐름\n- MLM은 reconstruction SSL의 언어 버전이다.\n- NSP는 문장 관계 신호를 추가한다.\n\n## 5) 핵심 수식 (원문 기준)\n- **MLM**\n$$\n\\max_\\theta\\sum_{i\\in M}\\log p_\\theta(x_i|x_{\\setminus M})\n$$\n마스크 토큰 복원으로 양방향 문맥을 학습한다.\n\n- **Joint Loss**\n$$\nL=L_{MLM}+L_{NSP}\n$$\n토큰/문장 수준 목표를 동시에 학습한다.\n\n\n## 6) 구현 체크리스트\n- 마스킹 규칙 구현 정확성이 중요하다.\n- 코퍼스 구성과 시퀀스 길이 설정이 성능에 큰 영향 준다.\n- layer-wise lr decay가 미세조정 안정성에 도움될 수 있다.\n- 도메인 적응 pretraining으로 성능 향상이 가능하다.\n\n## 7) 한계와 후속\n사전학습 비용이 크고 NSP 유효성 논쟁이 있다. RoBERTa 계열이 이를 재설계했다.",
+      "difficulty_level": "intermediate",
+      "prerequisites": [
+        "기본 선형대수/확률",
+        "딥러닝 최적화",
+        "자기지도학습 기초",
+        "Transformer 또는 Metric learning 기초"
+      ],
+      "learning_objectives": [
+        "핵심 목적함수와 변수 의미를 수식으로 설명할 수 있다.",
+        "학습 안정화 장치(정규화/EMA/마스킹)의 역할을 설명할 수 있다.",
+        "후속 연구가 개선한 병목을 연결 그래프로 설명할 수 있다.",
+        "재현 시 필요한 구현 체크리스트를 말할 수 있다."
+      ],
+      "self_check_questions": [
+        "핵심 손실이 줄어들 때 어떤 표현 특성이 강화되는가?",
+        "하이퍼파라미터 중 성능 민감도가 높은 항목은 무엇인가?",
+        "이 논문의 한계를 보완한 후속 논문은 무엇인가?",
+        "실제 재현 시 가장 먼저 점검할 디버깅 포인트는 무엇인가?"
+      ]
+    },
+    {
+      "title": "Masked Autoencoders Are Scalable Vision Learners",
+      "authors": [
+        "Kaiming He",
+        "Xinlei Chen",
+        "Saining Xie",
+        "Yanghao Li",
+        "Piotr Dollár",
+        "Ross Girshick"
+      ],
+      "year": 2022,
+      "venue": "CVPR 2022",
+      "abstract": "높은 마스킹 비율과 비대칭 encoder-decoder로 비전 복원형 SSL을 효율적으로 확장한다. 이 논문은 특히 \"Masked Autoencoders Are Scalable Vision Learners\" 맥락에서 해당 방법의 설계 선택과 학습 안정화 포인트를 실험적으로 보여준다.",
+      "key_contributions": [
+        "visible-only encoder 구조",
+        "고마스킹 전략",
+        "복원형 objective로 강한 전이",
+        "학습 효율 개선",
+        "decoder 분리 설계",
+        "ViT SSL 핵심 축 형성"
+      ],
+      "algorithms": [
+        "패치 분할/마스킹",
+        "visible patch 인코딩",
+        "경량 디코더 복원",
+        "마스크 영역 손실",
+        "인코더 추출",
+        "전이 평가"
+      ],
+      "key_equations": [
+        {
+          "name": "MAE Loss",
+          "latex": "L=\\frac{1}{|M|}\\sum_{i\\in M}\\|\\hat{x}_i-x_i\\|_2^2",
+          "description": "마스크 영역 복원 손실만 계산한다."
+        },
+        {
+          "name": "Mask Ratio",
+          "latex": "r=|M|/N_{patch}",
+          "description": "정보 병목 강도를 결정한다."
+        }
+      ],
+      "category": "representation_learning",
+      "tags": [
+        "representation_learning",
+        "mae"
+      ],
+      "pdf_url": "https://arxiv.org/pdf/2111.06377.pdf",
+      "code_url": "https://github.com/facebookresearch/mae",
+      "color_hex": "#0f766e",
+      "architecture_detail": "## 1) 문제 설정\n비전 마스킹 학습은 계산비용이 크고 효율이 낮았다.\n\n## 2) 핵심 아이디어\n인코더 계산을 visible 영역에 집중하고 복원은 경량 디코더가 담당한다.\n\n## 3) 방법 흐름\n1. 패치 분할/마스킹\n2. visible patch 인코딩\n3. 경량 디코더 복원\n4. 마스크 영역 손실\n5. 인코더 추출\n6. 전이 평가\n\n## 4) 수식 해석 흐름\n- 손실을 마스크 영역에 집중해 신호 효율을 높인다.\n- r 값이 난이도와 표현 품질 균형을 좌우한다.\n\n## 5) 핵심 수식 (원문 기준)\n- **MAE Loss**\n$$\nL=\\frac{1}{|M|}\\sum_{i\\in M}\\|\\hat{x}_i-x_i\\|_2^2\n$$\n마스크 영역 복원 손실만 계산한다.\n\n- **Mask Ratio**\n$$\nr=|M|/N_{patch}\n$$\n정보 병목 강도를 결정한다.\n\n\n## 6) 구현 체크리스트\n- mask sampling 균일성이 중요하다.\n- decoder 용량이 과도하면 encoder 표현 품질이 떨어질 수 있다.\n- pixel normalization 여부를 점검한다.\n- fine-tune 시 lr decay 전략이 유효하다.\n\n## 7) 한계와 후속\n복원 objective가 항상 semantic 정렬을 보장하지 않는다. DINO류 distillation과 상보적이다.",
+      "difficulty_level": "intermediate",
+      "prerequisites": [
+        "기본 선형대수/확률",
+        "딥러닝 최적화",
+        "자기지도학습 기초",
+        "Transformer 또는 Metric learning 기초"
+      ],
+      "learning_objectives": [
+        "핵심 목적함수와 변수 의미를 수식으로 설명할 수 있다.",
+        "학습 안정화 장치(정규화/EMA/마스킹)의 역할을 설명할 수 있다.",
+        "후속 연구가 개선한 병목을 연결 그래프로 설명할 수 있다.",
+        "재현 시 필요한 구현 체크리스트를 말할 수 있다."
+      ],
+      "self_check_questions": [
+        "핵심 손실이 줄어들 때 어떤 표현 특성이 강화되는가?",
+        "하이퍼파라미터 중 성능 민감도가 높은 항목은 무엇인가?",
+        "이 논문의 한계를 보완한 후속 논문은 무엇인가?",
+        "실제 재현 시 가장 먼저 점검할 디버깅 포인트는 무엇인가?"
+      ]
+    },
+    {
+      "title": "An Image is Worth 16x16 Words: Transformers for Image Recognition at Scale",
+      "authors": [
+        "Alexey Dosovitskiy",
+        "et al."
+      ],
+      "year": 2021,
+      "venue": "ICLR 2021",
+      "abstract": "이미지를 패치 토큰으로 변환해 Transformer를 비전에 직접 적용하고 대규모 데이터에서 경쟁력 있는 성능을 입증한다. 이 논문은 특히 \"An Image is Worth 16x16 Words: Transformers for Image Recognition at Scale\" 맥락에서 해당 방법의 설계 선택과 학습 안정화 포인트를 실험적으로 보여준다.",
+      "key_contributions": [
+        "패치 토큰화 기반 비전 모델 정립",
+        "순수 Transformer 비전 적용",
+        "CLS 토큰 분류 체계 도입",
+        "대규모 사전학습 성능 검증",
+        "ViT 생태계 기반 제공",
+        "비전-언어 구조 통합 가능성 제시"
+      ],
+      "algorithms": [
+        "이미지 패치화",
+        "선형 임베딩",
+        "CLS/위치 임베딩 추가",
+        "Transformer encoder",
+        "분류 헤드",
+        "전이 미세조정"
+      ],
+      "key_equations": [
+        {
+          "name": "Patch Input",
+          "latex": "z_0=[x_{cls};x_p^1E;...;x_p^NE]+E_{pos}",
+          "description": "이미지를 토큰 시퀀스로 변환한다."
+        },
+        {
+          "name": "Encoder Block",
+          "latex": "z_l^\\prime=MSA(LN(z_{l-1}))+z_{l-1},\\ z_l=MLP(LN(z_l^\\prime))+z_l^\\prime",
+          "description": "표준 Transformer 블록을 반복한다."
+        }
+      ],
+      "category": "representation_learning",
+      "tags": [
+        "representation_learning",
+        "vit"
+      ],
+      "pdf_url": "https://arxiv.org/pdf/2010.11929.pdf",
+      "code_url": "https://github.com/google-research/vision_transformer",
+      "color_hex": "#0f766e",
+      "architecture_detail": "## 1) 문제 설정\n비전 모델이 CNN bias에 크게 의존해 아키텍처 통합성이 낮았다.\n\n## 2) 핵심 아이디어\n이미지를 토큰 시퀀스로 재해석해 NLP Transformer를 재사용한다.\n\n## 3) 방법 흐름\n1. 이미지 패치화\n2. 선형 임베딩\n3. CLS/위치 임베딩 추가\n4. Transformer encoder\n5. 분류 헤드\n6. 전이 미세조정\n\n## 4) 수식 해석 흐름\n- 패치 임베딩이 비전 입력을 시퀀스 공간으로 매핑한다.\n- 반복 블록이 전역 관계를 심층적으로 학습한다.\n\n## 5) 핵심 수식 (원문 기준)\n- **Patch Input**\n$$\nz_0=[x_{cls};x_p^1E;...;x_p^NE]+E_{pos}\n$$\n이미지를 토큰 시퀀스로 변환한다.\n\n- **Encoder Block**\n$$\nz_l^\\prime=MSA(LN(z_{l-1}))+z_{l-1},\\ z_l=MLP(LN(z_l^\\prime))+z_l^\\prime\n$$\n표준 Transformer 블록을 반복한다.\n\n\n## 6) 구현 체크리스트\n- 패치 크기와 해상도 조합이 계산량을 좌우한다.\n- 소규모 데이터에서는 정규화/증강/증류가 필요하다.\n- position embedding 보간이 해상도 전환에 필요하다.\n- 사전학습 규모가 충분해야 CNN 대비 장점이 나온다.\n\n## 7) 한계와 후속\n초기엔 데이터 효율이 낮았다. DeiT/MAE/DINO가 이를 개선하며 실용성을 높였다.",
+      "difficulty_level": "intermediate",
+      "prerequisites": [
+        "기본 선형대수/확률",
+        "딥러닝 최적화",
+        "자기지도학습 기초",
+        "Transformer 또는 Metric learning 기초"
+      ],
+      "learning_objectives": [
+        "핵심 목적함수와 변수 의미를 수식으로 설명할 수 있다.",
+        "학습 안정화 장치(정규화/EMA/마스킹)의 역할을 설명할 수 있다.",
+        "후속 연구가 개선한 병목을 연결 그래프로 설명할 수 있다.",
+        "재현 시 필요한 구현 체크리스트를 말할 수 있다."
+      ],
+      "self_check_questions": [
+        "핵심 손실이 줄어들 때 어떤 표현 특성이 강화되는가?",
+        "하이퍼파라미터 중 성능 민감도가 높은 항목은 무엇인가?",
+        "이 논문의 한계를 보완한 후속 논문은 무엇인가?",
+        "실제 재현 시 가장 먼저 점검할 디버깅 포인트는 무엇인가?"
+      ]
     }
   ],
   "relationships": [
@@ -3042,6 +4300,146 @@
       "relationship_type": "compares_with",
       "description": "둘 다 CSI bit-level 전송을 다루지만 adaptor 보정 기반 접근과 shape-gain VQ 코드북 접근으로 방법이 다르다.",
       "strength": 7
+    },
+    {
+      "from_title": "A Lightweight Deep Network for Efficient CSI Feedback in Massive MIMO Systems",
+      "to_title": "Deep Learning for Massive MIMO CSI Feedback",
+      "relationship_type": "builds_on",
+      "description": "Builds on the CsiNet feedback paradigm while shifting the focus to encoder-side deployment efficiency.",
+      "strength": 8
+    },
+    {
+      "from_title": "A Lightweight Deep Network for Efficient CSI Feedback in Massive MIMO Systems",
+      "to_title": "ENet: Efficient CSI Feedback for Massive MIMO Communications",
+      "relationship_type": "related",
+      "description": "Both works target lightweight CSI feedback architectures for practical massive MIMO deployment.",
+      "strength": 8
+    },
+    {
+      "from_title": "A Lightweight Deep Network for Efficient CSI Feedback in Massive MIMO Systems",
+      "to_title": "Lightweight and Effective CSI Feedback for Massive MIMO Systems",
+      "relationship_type": "compares_with",
+      "description": "Compares lightweight encoder design choices with alternative mobile-oriented CSI feedback models.",
+      "strength": 7
+    },
+    {
+      "from_title": "Learning a Similarity Metric Discriminatively, with Application to Face Verification",
+      "to_title": "Signature Verification using a \"Siamese\" Time Delay Neural Network",
+      "relationship_type": "builds_on",
+      "description": "representation learning 계열 핵심 연결",
+      "strength": 9
+    },
+    {
+      "from_title": "Siamese Neural Networks for One-shot Image Recognition",
+      "to_title": "Learning a Similarity Metric Discriminatively, with Application to Face Verification",
+      "relationship_type": "builds_on",
+      "description": "representation learning 계열 핵심 연결",
+      "strength": 8
+    },
+    {
+      "from_title": "Representation Learning with Contrastive Predictive Coding",
+      "to_title": "Siamese Neural Networks for One-shot Image Recognition",
+      "relationship_type": "related",
+      "description": "representation learning 계열 핵심 연결",
+      "strength": 6
+    },
+    {
+      "from_title": "Momentum Contrast for Unsupervised Visual Representation Learning",
+      "to_title": "Representation Learning with Contrastive Predictive Coding",
+      "relationship_type": "builds_on",
+      "description": "representation learning 계열 핵심 연결",
+      "strength": 10
+    },
+    {
+      "from_title": "A Simple Framework for Contrastive Learning of Visual Representations",
+      "to_title": "Representation Learning with Contrastive Predictive Coding",
+      "relationship_type": "builds_on",
+      "description": "representation learning 계열 핵심 연결",
+      "strength": 10
+    },
+    {
+      "from_title": "Bootstrap Your Own Latent: A New Approach to Self-Supervised Learning",
+      "to_title": "Momentum Contrast for Unsupervised Visual Representation Learning",
+      "relationship_type": "challenges",
+      "description": "representation learning 계열 핵심 연결",
+      "strength": 8
+    },
+    {
+      "from_title": "Exploring Simple Siamese Representation Learning",
+      "to_title": "Bootstrap Your Own Latent: A New Approach to Self-Supervised Learning",
+      "relationship_type": "builds_on",
+      "description": "representation learning 계열 핵심 연결",
+      "strength": 9
+    },
+    {
+      "from_title": "Barlow Twins: Self-Supervised Learning via Redundancy Reduction",
+      "to_title": "Bootstrap Your Own Latent: A New Approach to Self-Supervised Learning",
+      "relationship_type": "related",
+      "description": "representation learning 계열 핵심 연결",
+      "strength": 8
+    },
+    {
+      "from_title": "Unsupervised Learning of Visual Features by Contrasting Cluster Assignments",
+      "to_title": "Concerning Nonnegative Matrices and Doubly Stochastic Matrices",
+      "relationship_type": "applies",
+      "description": "representation learning 계열 핵심 연결",
+      "strength": 9
+    },
+    {
+      "from_title": "Unsupervised Learning of Visual Features by Contrasting Cluster Assignments",
+      "to_title": "Sinkhorn Distances: Lightspeed Computation of Optimal Transport",
+      "relationship_type": "builds_on",
+      "description": "representation learning 계열 핵심 연결",
+      "strength": 8
+    },
+    {
+      "from_title": "Emerging Properties in Self-Supervised Vision Transformers",
+      "to_title": "Unsupervised Learning of Visual Features by Contrasting Cluster Assignments",
+      "relationship_type": "builds_on",
+      "description": "representation learning 계열 핵심 연결",
+      "strength": 8
+    },
+    {
+      "from_title": "Improving Language Understanding by Generative Pre-Training",
+      "to_title": "Attention Is All You Need",
+      "relationship_type": "builds_on",
+      "description": "representation learning 계열 핵심 연결",
+      "strength": 10
+    },
+    {
+      "from_title": "BERT: Pre-training of Deep Bidirectional Transformers for Language Understanding",
+      "to_title": "Attention Is All You Need",
+      "relationship_type": "builds_on",
+      "description": "representation learning 계열 핵심 연결",
+      "strength": 10
+    },
+    {
+      "from_title": "An Image is Worth 16x16 Words: Transformers for Image Recognition at Scale",
+      "to_title": "Attention Is All You Need",
+      "relationship_type": "builds_on",
+      "description": "representation learning 계열 핵심 연결",
+      "strength": 10
+    },
+    {
+      "from_title": "Masked Autoencoders Are Scalable Vision Learners",
+      "to_title": "An Image is Worth 16x16 Words: Transformers for Image Recognition at Scale",
+      "relationship_type": "builds_on",
+      "description": "representation learning 계열 핵심 연결",
+      "strength": 10
+    },
+    {
+      "from_title": "Masked Autoencoders Are Scalable Vision Learners",
+      "to_title": "BERT: Pre-training of Deep Bidirectional Transformers for Language Understanding",
+      "relationship_type": "inspired_by",
+      "description": "representation learning 계열 핵심 연결",
+      "strength": 9
+    },
+    {
+      "from_title": "Emerging Properties in Self-Supervised Vision Transformers",
+      "to_title": "An Image is Worth 16x16 Words: Transformers for Image Recognition at Scale",
+      "relationship_type": "builds_on",
+      "description": "representation learning 계열 핵심 연결",
+      "strength": 9
     }
   ]
 }

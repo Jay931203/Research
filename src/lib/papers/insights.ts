@@ -51,7 +51,7 @@ const FAMILIARITY_PRIORITY: Record<FamiliarityLevel, number> = {
   difficult: 1,
   moderate: 2,
   familiar: 3,
-  expert: 4,
+  expert: 3,
 };
 
 const DEFAULT_BRIDGE_SCORING: BridgeScoringOptions = {
@@ -318,7 +318,12 @@ export function buildBridgeRecommendations(
     .slice(0, limit);
 }
 
-export function buildReviewQueue(papers: PaperWithNote[], limit = 6): PaperWithNote[] {
+export interface ReviewQueueItem {
+  paper: PaperWithNote;
+  reason: string;
+}
+
+export function buildReviewQueue(papers: PaperWithNote[], limit = 6): ReviewQueueItem[] {
   return [...papers]
     .sort((a, b) => {
       const levelA = a.familiarity_level ?? 'not_started';
@@ -333,7 +338,23 @@ export function buildReviewQueue(papers: PaperWithNote[], limit = 6): PaperWithN
 
       return b.year - a.year;
     })
-    .slice(0, limit);
+    .slice(0, limit)
+    .map((paper) => {
+      const level = paper.familiarity_level ?? 'not_started';
+      let reason: string;
+      if (level === 'not_started') {
+        reason = '별 0개 · 학습 시작 전';
+      } else if (level === 'difficult') {
+        reason = paper.importance_rating
+          ? `별 1개 · 중요도 ${paper.importance_rating}`
+          : '별 1개';
+      } else if (level === 'moderate') {
+        reason = '별 2개 · 복습 권장';
+      } else {
+        reason = '별 3개';
+      }
+      return { paper, reason };
+    });
 }
 
 export function countRecentPapers(papers: PaperWithNote[], years = 2): number {

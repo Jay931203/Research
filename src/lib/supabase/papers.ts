@@ -1,6 +1,22 @@
 import { supabase } from './client';
 import type { Paper, PaperInsert, PaperUpdate } from '@/types';
 
+function normalizePaperCategoryForDb<
+  T extends { category?: string | null; tags?: string[] | null }
+>(payload: T): T {
+  if (payload.category !== 'representation_learning') return payload;
+
+  const normalizedTags = Array.from(
+    new Set([...(payload.tags ?? []), 'representation_learning'])
+  );
+
+  return {
+    ...payload,
+    category: 'other',
+    tags: normalizedTags,
+  };
+}
+
 /**
  * 모든 논문 조회
  */
@@ -40,9 +56,10 @@ export async function getPaperById(id: string): Promise<Paper | null> {
  * 논문 생성
  */
 export async function createPaper(paper: PaperInsert): Promise<Paper | null> {
+  const normalizedPaper = normalizePaperCategoryForDb(paper);
   const { data, error } = await supabase
     .from('papers')
-    .insert(paper)
+    .insert(normalizedPaper)
     .select()
     .single();
 
@@ -61,9 +78,10 @@ export async function updatePaper(
   id: string,
   updates: PaperUpdate
 ): Promise<Paper | null> {
+  const normalizedUpdates = normalizePaperCategoryForDb(updates);
   const { data, error } = await supabase
     .from('papers')
-    .update(updates)
+    .update(normalizedUpdates)
     .eq('id', id)
     .select()
     .single();

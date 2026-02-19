@@ -6,16 +6,23 @@ import PaperSearch from '@/components/papers/PaperSearch';
 import PaperList from '@/components/papers/PaperList';
 import PaperFormModal from '@/components/papers/PaperFormModal';
 import { usePapersWithNotes } from '@/hooks/useNotes';
+import { filterPapersBySearchFilters, type PaperSearchFilters } from '@/lib/papers/filtering';
+import { useAppStore } from '@/store/useAppStore';
+import type { FamiliarityLevel } from '@/types';
 
 interface SidebarProps {
   isOpen: boolean;
   onToggle: () => void;
 }
 
+const SIDEBAR_FILTERS_STORAGE_KEY = 'sidebar-paper-search-filters-v1';
+
 export default function Sidebar({ isOpen, onToggle }: SidebarProps) {
   const currentYear = new Date().getFullYear();
   const [showAddModal, setShowAddModal] = useState(false);
   const { papers, refresh } = usePapersWithNotes();
+  const setSidebarVisiblePaperIds = useAppStore((state) => state.setSidebarVisiblePaperIds);
+  const [isSearchFilterHydrated, setIsSearchFilterHydrated] = useState(false);
 
   const yearBounds = useMemo<[number, number]>(() => {
     if (!papers.length) return [2018, currentYear];
@@ -23,12 +30,81 @@ export default function Sidebar({ isOpen, onToggle }: SidebarProps) {
     return [years[0], years[years.length - 1]];
   }, [papers, currentYear]);
 
-  const [searchFilters, setSearchFilters] = useState({
+  const [searchFilters, setSearchFilters] = useState<PaperSearchFilters>({
     searchText: '',
     categories: [] as string[],
     yearRange: yearBounds,
-    familiarityLevels: [] as string[],
+    familiarityLevels: [] as FamiliarityLevel[],
+    importanceRatings: [] as number[],
   });
+
+  useEffect(() => {
+    try {
+      const fallbackYearRange: [number, number] = [2018, new Date().getFullYear()];
+      const raw = localStorage.getItem(SIDEBAR_FILTERS_STORAGE_KEY);
+      if (!raw) {
+        setIsSearchFilterHydrated(true);
+        return;
+      }
+
+      const parsed = JSON.parse(raw) as Partial<{
+        searchText: string;
+        categories: string[];
+        yearRange: [number, number];
+        familiarityLevels: string[];
+        importanceRatings: number[];
+      }>;
+
+      const nextSearchText = typeof parsed.searchText === 'string' ? parsed.searchText : '';
+      const nextCategories = Array.isArray(parsed.categories)
+        ? parsed.categories.filter((item): item is string => typeof item === 'string')
+        : [];
+      const nextYearRange =
+        Array.isArray(parsed.yearRange) &&
+        parsed.yearRange.length === 2 &&
+        typeof parsed.yearRange[0] === 'number' &&
+        typeof parsed.yearRange[1] === 'number'
+          ? (parsed.yearRange as [number, number])
+          : fallbackYearRange;
+      const nextFamiliarityLevels = Array.isArray(parsed.familiarityLevels)
+        ? Array.from(
+            new Set(
+              parsed.familiarityLevels
+                .map((level) => (level === 'expert' ? 'familiar' : level))
+                .filter(
+                  (level): level is FamiliarityLevel =>
+                    level === 'not_started' ||
+                    level === 'difficult' ||
+                    level === 'moderate' ||
+                    level === 'familiar'
+                )
+            )
+          )
+        : [];
+      const nextImportanceRatings = Array.isArray(parsed.importanceRatings)
+        ? Array.from(
+            new Set(
+              parsed.importanceRatings.filter(
+                (value): value is number =>
+                  typeof value === 'number' && value >= 1 && value <= 5
+              )
+            )
+          )
+        : [];
+
+      setSearchFilters({
+        searchText: nextSearchText,
+        categories: nextCategories,
+        yearRange: nextYearRange,
+        familiarityLevels: nextFamiliarityLevels,
+        importanceRatings: nextImportanceRatings,
+      });
+    } catch (error) {
+      console.warn('Failed to restore sidebar search filters:', error);
+    } finally {
+      setIsSearchFilterHydrated(true);
+    }
+  }, []);
 
   useEffect(() => {
     setSearchFilters((prev) => {
@@ -52,6 +128,31 @@ export default function Sidebar({ isOpen, onToggle }: SidebarProps) {
       };
     });
   }, [yearBounds, currentYear]);
+
+  useEffect(() => {
+    if (!isSearchFilterHydrated) return;
+    try {
+      localStorage.setItem(SIDEBAR_FILTERS_STORAGE_KEY, JSON.stringify(searchFilters));
+    } catch (error) {
+      console.warn('Failed to persist sidebar search filters:', error);
+    }
+  }, [searchFilters, isSearchFilterHydrated]);
+
+  const visiblePaperIds = useMemo(() => {
+    if (!isSearchFilterHydrated) return null;
+    return filterPapersBySearchFilters(papers, searchFilters).map((paper) => paper.id);
+  }, [papers, searchFilters, isSearchFilterHydrated]);
+
+  useEffect(() => {
+    if (!isSearchFilterHydrated || visiblePaperIds === null) return;
+    setSidebarVisiblePaperIds(visiblePaperIds);
+  }, [isSearchFilterHydrated, visiblePaperIds, setSidebarVisiblePaperIds]);
+
+  useEffect(() => {
+    return () => {
+      setSidebarVisiblePaperIds(null);
+    };
+  }, [setSidebarVisiblePaperIds]);
 
   return (
     <>

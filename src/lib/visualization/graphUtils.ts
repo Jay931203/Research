@@ -20,6 +20,7 @@ export const CATEGORY_COLORS: Record<string, string> = {
   quantization: '#dc2626',
   transformer: '#8b5cf6',
   cnn: '#10b981',
+  representation_learning: '#0f766e',
   other: '#6b7280',
 };
 
@@ -29,6 +30,7 @@ export const CATEGORY_LABELS: Record<string, string> = {
   quantization: 'Quantization',
   transformer: 'Transformer',
   cnn: 'CNN',
+  representation_learning: 'Representation Learning',
   other: 'Other',
 };
 
@@ -66,10 +68,17 @@ export const FAMILIARITY_LABELS: Record<FamiliarityLevel, string> = {
 };
 
 export const FAMILIARITY_OPACITY_BY_STAR: Record<FamiliarityStarScore, number> = {
-  0: 0,
-  1: 0.35,
-  2: 0.7,
+  0: 1,
+  1: 1,
+  2: 1,
   3: 1,
+};
+
+export const FAMILIARITY_BG_INTENSITY_BY_STAR: Record<FamiliarityStarScore, number> = {
+  0: 0.14,
+  1: 0.26,
+  2: 0.38,
+  3: 0.52,
 };
 
 export function getFamiliarityStarScore(level?: FamiliarityLevel): FamiliarityStarScore {
@@ -81,6 +90,33 @@ export function getFamiliarityOpacity(level?: FamiliarityLevel): number {
   return FAMILIARITY_OPACITY_BY_STAR[getFamiliarityStarScore(level)];
 }
 
+export function getFamiliarityBackgroundIntensity(level?: FamiliarityLevel): number {
+  return FAMILIARITY_BG_INTENSITY_BY_STAR[getFamiliarityStarScore(level)];
+}
+
+export function colorWithAlpha(hex: string, alpha: number): string {
+  const normalized = hex.replace('#', '').trim();
+  const safeAlpha = Math.max(0, Math.min(1, alpha));
+
+  if (!/^[0-9a-fA-F]{3}([0-9a-fA-F]{3})?$/.test(normalized)) {
+    return `rgba(59, 130, 246, ${safeAlpha})`;
+  }
+
+  const expanded =
+    normalized.length === 3
+      ? normalized
+          .split('')
+          .map((char) => char + char)
+          .join('')
+      : normalized;
+
+  const r = Number.parseInt(expanded.slice(0, 2), 16);
+  const g = Number.parseInt(expanded.slice(2, 4), 16);
+  const b = Number.parseInt(expanded.slice(4, 6), 16);
+
+  return `rgba(${r}, ${g}, ${b}, ${safeAlpha})`;
+}
+
 export function getEdgeStrokeWidth(strength: number): number {
   return Math.max(1, Math.min(4, strength / 3));
 }
@@ -89,6 +125,7 @@ export type ResearchTopic =
   | 'csi_architecture'
   | 'csi_quantization'
   | 'general_quantization'
+  | 'representation_learning'
   | 'state_space'
   | 'other';
 
@@ -96,6 +133,7 @@ export const RESEARCH_TOPIC_ORDER: ResearchTopic[] = [
   'csi_architecture',
   'csi_quantization',
   'general_quantization',
+  'representation_learning',
   'state_space',
   'other',
 ];
@@ -104,6 +142,7 @@ export const RESEARCH_TOPIC_LABELS: Record<ResearchTopic, string> = {
   csi_architecture: 'CSI Architecture',
   csi_quantization: 'CSI Quantization',
   general_quantization: 'General Quantization',
+  representation_learning: 'Representation Learning',
   state_space: 'State-Space',
   other: 'Other',
 };
@@ -112,6 +151,7 @@ export const RESEARCH_TOPIC_COLORS: Record<ResearchTopic, string> = {
   csi_architecture: '#2563eb',
   csi_quantization: '#059669',
   general_quantization: '#dc2626',
+  representation_learning: '#0f766e',
   state_space: '#7c3aed',
   other: '#6b7280',
 };
@@ -152,8 +192,29 @@ const QUANTIZATION_KEYWORDS = [
   'fsq',
 ];
 
+const REPRESENTATION_KEYWORDS = [
+  'representation learning',
+  'self-supervised',
+  'self supervised',
+  'contrastive learning',
+  'contrastive predictive coding',
+  'simclr',
+  'moco',
+  'byol',
+  'simsiam',
+  'barlow twins',
+  'swav',
+  'dino',
+  'masked autoencoder',
+  'masked language model',
+  'vision transformer',
+  'pre-training',
+  'pretraining',
+];
+
 const STATE_SPACE_PHRASES = ['state-space', 'state space', 'state-space model'];
 const STATE_SPACE_TOKENS = ['ssm', 'mamba', 's4'];
+const REPRESENTATION_TOKENS = ['ssl', 'cpc', 'mae', 'bert', 'gpt', 'vit'];
 
 function containsAny(text: string, keywords: string[]): boolean {
   return keywords.some((keyword) => text.includes(keyword));
@@ -171,11 +232,20 @@ export function inferResearchTopic(input: ResearchTopicInput): ResearchTopic {
     STATE_SPACE_TOKENS.some((token) => tokenSet.has(token));
   const hasCSI = containsAny(haystack, CSI_DOMAIN_KEYWORDS);
   const hasQuantization = containsAny(haystack, QUANTIZATION_KEYWORDS);
+  const hasRepresentationTag =
+    haystack.includes('representation_learning') ||
+    (tokenSet.has('representation') && tokenSet.has('learning'));
+  const hasRepresentation =
+    hasRepresentationTag ||
+    containsAny(haystack, REPRESENTATION_KEYWORDS) ||
+    REPRESENTATION_TOKENS.some((token) => tokenSet.has(token));
 
   if (hasStateSpace) return 'state_space';
   if (hasCSI && hasQuantization) return 'csi_quantization';
   if (hasQuantization) return 'general_quantization';
   if (hasCSI) return 'csi_architecture';
+  if (category === 'representation_learning') return 'representation_learning';
+  if (hasRepresentation) return 'representation_learning';
 
   if (category === 'quantization') return 'general_quantization';
   if (
@@ -188,4 +258,18 @@ export function inferResearchTopic(input: ResearchTopicInput): ResearchTopic {
   }
 
   return 'other';
+}
+
+export function getPaperCategoryLabel(input: ResearchTopicInput): string {
+  const category = (input.category ?? '').toLowerCase();
+  if (category === 'representation_learning') return CATEGORY_LABELS.representation_learning;
+
+  if (category === 'other') {
+    const topic = inferResearchTopic(input);
+    if (topic === 'representation_learning') {
+      return CATEGORY_LABELS.representation_learning;
+    }
+  }
+
+  return CATEGORY_LABELS[category] ?? input.category ?? CATEGORY_LABELS.other;
 }

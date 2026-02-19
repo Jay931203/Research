@@ -17,9 +17,9 @@ const jetbrainsMono = JetBrains_Mono({
 });
 
 export const metadata: Metadata = {
-  title: 'CSI Research Graph',
+  title: 'Research Graph',
   description:
-    'CSI AutoEncoder 관련 논문의 핵심을 빠르게 리마인드하고, 연계 관계를 시각적으로 탐색하는 연구 워크스페이스',
+    '연구 논문의 핵심을 빠르게 리마인드하고, 연계 관계를 시각적으로 탐색하는 학습 워크스페이스',
 };
 
 export default function RootLayout({
@@ -36,4 +36,3 @@ export default function RootLayout({
     </html>
   );
 }
-

@@ -4,6 +4,8 @@ import { memo } from 'react';
 import { Handle, Position, type NodeProps } from 'reactflow';
 import type { PaperNodeData } from '@/types';
 import {
+  colorWithAlpha,
+  getFamiliarityBackgroundIntensity,
   FAMILIARITY_COLORS,
   FAMILIARITY_LABELS,
   RESEARCH_TOPIC_LABELS,
@@ -22,6 +24,8 @@ function CustomNodeComponent({ data, selected }: NodeProps<PaperNodeData>) {
     ? FAMILIARITY_LABELS[familiarity_level]
     : FAMILIARITY_LABELS.not_started;
   const familiarityOpacity = getFamiliarityOpacity(familiarity_level);
+  const familiarityBackgroundIntensity = getFamiliarityBackgroundIntensity(familiarity_level);
+  const emphasizedBackground = colorWithAlpha(familiarityColor, familiarityBackgroundIntensity);
   const researchTopic = inferResearchTopic(paper);
   const researchTopicLabel = RESEARCH_TOPIC_LABELS[researchTopic];
 
@@ -39,6 +43,12 @@ function CustomNodeComponent({ data, selected }: NodeProps<PaperNodeData>) {
       style={{
         borderColor: paper.color_hex,
         opacity: selected ? 1 : apply_familiarity_opacity ? familiarityOpacity : 1,
+        backgroundColor:
+          apply_familiarity_opacity && !selected ? emphasizedBackground : undefined,
+        boxShadow:
+          apply_familiarity_opacity && !selected
+            ? `0 8px 22px ${colorWithAlpha(familiarityColor, 0.18)}`
+            : undefined,
       }}
     >
       {/* 상단 핸들 (입력) */}

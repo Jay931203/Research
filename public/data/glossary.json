@@ -3,62 +3,87 @@
     "id": "alternating-optimization",
     "name": "Alternating Optimization",
     "aliases": [
-      "교대 최적화",
-      "블록 좌표 최적화",
       "AO"
     ],
     "category": "technique",
-    "description": "여러 변수 블록을 동시에 풀기 어려울 때, 한 블록을 고정하고 다른 블록을 번갈아 최적화하는 방식이다. 각 단계의 부분문제가 상대적으로 쉬워 구현이 단순하고 안정적이며, 양자화-코드북-인코더/디코더처럼 결합된 시스템에서 자주 사용된다. 다만 전체 전역해 보장보다는 지역해 수렴 해석이 일반적이므로, 초기값과 갱신 스케줄이 성능을 크게 좌우한다.",
+    "description": "교대 최적화는 결합된 비선형 목적함수를 한 번에 풀기 어려울 때 변수 집합을 나눠 번갈아 갱신하는 절차다. 각 단계가 조건부 최적화가 되어 계산 복잡도와 메모리 부담을 줄이기 쉽고 구현도 단순하다. 다만 초기값·갱신 순서에 따라 다른 국소해로 수렴할 수 있어 수렴 기준과 재시작 전략이 중요하다.",
     "related_paper_titles": [
       "Quantization Design for Deep Learning-Based CSI Feedback",
       "Quantization of Deep Neural Networks for Accurate CSI Feedback",
       "Vector Quantized CSI Feedback with Learned Codebook",
       "Deep Learning-Based CSI Feedback with Variable Length Codewords for Adaptive FDD Massive MIMO"
-    ]
+    ],
+    "hierarchy": [
+      "Optimization",
+      "Block Coordinate Methods",
+      "Alternating Optimization"
+    ],
+    "study_classification": {
+      "optimization": [
+        "Alternating Training",
+        "Block Coordinate Descent"
+      ],
+      "learning_flow": [
+        "Training Loop Design"
+      ]
+    },
+    "term_set": "csi_quantization",
+    "details_markdown": "### 정의\n- 결합 문제를 변수 블록으로 나눠 한 블록씩 고정/갱신하며 반복한다.\n\n### 핵심 수식\n$$x^{(t+1)} = \\arg\\min_x L(x, y^{(t)})$$\n$$y^{(t+1)} = \\arg\\min_y L(x^{(t+1)}, y)$$\n\n### 변수 해석\n- $x,y$: 교대로 최적화할 변수 블록\n- $t$: 반복 인덱스, $L$: 목적함수\n\n### 실무 체크\n- 초기값 다중 시드로 실행해 국소해 민감도 확인\n- 종료 조건은 $\\Delta L$과 최대 반복 수를 함께 둔다"
   },
   {
     "id": "angle-delay-domain",
     "name": "Angle-Delay Domain",
     "aliases": [
-      "각도-지연 도메인",
       "Angular-Delay"
     ],
     "category": "domain",
-    "description": "공간-주파수 도메인의 CSI 행렬에 2D DFT를 적용하여, 안테나 축은 각도(angle), 부반송파 축은 지연(delay)으로 변환한 표현이다. 실제 무선 채널은 소수의 산란 경로로 구성되므로, 이 도메인에서 CSI는 근사 희소(approximately sparse)한 특성을 보인다. CsiNet 이래 대부분의 CSI 피드백 연구가 이 도메인을 입력 표현으로 채택하여 압축 효율을 극대화한다.",
+    "description": "각도-지연 도메인은 안테나 축(각도)과 주파수 축(지연)으로 채널을 변환해 희소 구조를 드러내는 표현이다. 다중경로가 적은 성분에 집중되므로 압축, 피드백, 노이즈 제거에 유리하며 CSI 학습 모델의 입력/타깃으로 자주 사용된다. 격자 해상도와 윈도잉 선택이 누설과 복원 성능을 크게 좌우한다.",
     "related_paper_titles": [
       "Deep Learning for Massive MIMO CSI Feedback (CsiNet)",
       "CRNet: A Deep-Learning Framework for CSI Feedback in Massive MIMO",
       "ACRNet: Aggregation Cross-Domain Network for CSI Feedback in Massive MIMO",
       "TransNet: Full Attention Network for CSI Feedback in FDD Massive MIMO",
       "Deep Learning Based CSI Feedback Approach for Time-Varying Massive MIMO Channels"
-    ]
+    ],
+    "hierarchy": [
+      "Domain",
+      "Problem Setup"
+    ],
+    "study_classification": {},
+    "term_set": "csi_core",
+    "details_markdown": "### 정의\n- 안테나-주파수 채널을 각도-지연 축으로 변환해 희소 구조를 노출한다.\n\n### 핵심 수식\n$$H_{ad} = F_a H F_d^H$$\n$$S = ||H_{ad}||_0$$\n\n### 변수 해석\n- $H$: 원 채널 행렬, $H_{ad}$: 각도-지연 표현\n- $F_a,F_d$: 각도/지연 변환 행렬, $S$: 희소도\n\n### 실무 체크\n- 격자 해상도 부족 시 경로 분리력이 떨어진다\n- 윈도잉/패딩을 조정해 스펙트럼 누설을 줄인다"
   },
   {
     "id": "attention",
     "name": "Attention",
     "aliases": [
-      "어텐션",
       "Self-Attention"
     ],
     "category": "technique",
-    "description": "입력 특징맵의 각 위치가 다른 위치와의 관계를 가중합으로 계산하여 전역 문맥을 포착하는 메커니즘이다. CSI 피드백에서는 채널의 비국소적(non-local) 상관관계를 포착해 압축 효율과 복원 정밀도를 높이는 데 활용된다. Self-Attention, Channel Attention, Spatial Attention 등 다양한 변형이 각 네트워크에 맞게 적용되어왔다.",
+    "description": "어텐션은 입력 토큰 간 중요도를 학습해 필요한 정보에 가중치를 집중시키는 연산이다. Query-Key 유사도로 확률 가중치를 만들고 Value를 합성해 문맥 표현을 얻는다. 전역 의존성 포착에 강하지만 길이가 길수록 계산량이 커지므로 축소 어텐션, 마스킹, 저랭크 근사 같은 최적화가 실무에서 함께 쓰인다.",
     "related_paper_titles": [
       "TransNet: Full Attention Network for CSI Feedback in FDD Massive MIMO",
       "ACRNet: Aggregation Cross-Domain Network for CSI Feedback in Massive MIMO",
       "AiANet: Attention-Infused Autoencoder for Massive MIMO CSI Compression",
       "Attention Mechanism-Based CSI Feedback Network for Massive MIMO Systems",
       "SLATE: SwinLSTM Autoencoder for Temporal-Spatial-Frequency CSI Compression"
-    ]
+    ],
+    "hierarchy": [
+      "Technique",
+      "Method"
+    ],
+    "study_classification": {},
+    "term_set": "csi_core",
+    "details_markdown": "### 정의\n- Query-Key 유사도로 중요도를 계산해 Value를 가중 합성하는 메커니즘이다.\n\n### 핵심 수식\n$$A = softmax\\left(\\frac{QK^T}{\\sqrt{d_k}}\\right),\\quad Y = AV$$\n\n### 변수 해석\n- $Q,K,V$: 질의/키/값 행렬\n- $d_k$: 키 차원, $A$: 어텐션 가중치\n\n### 실무 체크\n- 긴 시퀀스에서는 메모리 사용량이 $O(n^2)$로 증가\n- 마스킹, 저랭크 근사, 윈도우 어텐션을 함께 검토"
   },
   {
     "id": "autoencoder",
     "name": "Autoencoder",
     "aliases": [
-      "AE",
-      "오토인코더"
+      "AE"
     ],
     "category": "architecture",
-    "description": "입력 데이터를 저차원 잠재 표현으로 압축(인코더)한 뒤 원본을 복원(디코더)하는 비지도 학습 신경망 구조이다. CSI 피드백 분야에서는 UE 측 인코더가 채널 행렬을 압축하고, BS 측 디코더가 이를 복원하는 비대칭 오토인코더가 표준 패러다임이 되었다. CsiNet이 이 구조를 처음 도입한 이후 대부분의 후속 연구가 동일한 인코더-디코더 프레임워크를 기반으로 발전하였다.",
+    "description": "오토인코더는 입력을 저차 잠재벡터로 압축한 뒤 다시 복원하도록 학습하는 신경망 구조다. 인코더는 핵심 정보만 남기고 디코더는 재구성 오차를 최소화하도록 파라미터를 조정한다. 잡음 제거, 이상탐지, CSI 압축에 널리 쓰이며 잠재 차원·정규화·손실 가중치 설정이 성능과 압축률 균형을 결정한다.",
     "related_paper_titles": [
       "Deep Learning for Massive MIMO CSI Feedback (CsiNet)",
       "CsiNet-LSTM: A Deep Learning Architecture for Compressive CSI Estimation and Feedback in FDD Massive MIMO",
@@ -66,434 +91,814 @@
       "Lightweight and Effective CSI Feedback for Massive MIMO Systems (CLNet)",
       "ACRNet: Aggregation Cross-Domain Network for CSI Feedback in Massive MIMO",
       "ENet: Efficient CSI Feedback for Massive MIMO Communications"
-    ]
+    ],
+    "hierarchy": [
+      "Architecture",
+      "Model Design"
+    ],
+    "study_classification": {},
+    "term_set": "csi_core",
+    "details_markdown": "### 정의\n- 인코더가 입력을 잠재벡터로 압축하고 디코더가 이를 복원하도록 학습한다.\n\n### 핵심 수식\n$$z = f_{enc}(x),\\quad \\hat{x} = f_{dec}(z)$$\n$$L = ||x-\\hat{x}||_2^2 + \\lambda R(z)$$\n\n### 변수 해석\n- $x$: 입력, $z$: 잠재벡터, $\\hat{x}$: 복원 결과\n- $R(z)$: 정규화 항, $\\lambda$: 가중치\n\n### 실무 체크\n- 잠재 차원이 너무 작으면 정보 손실 급증\n- 재구성 손실과 정규화 강도의 균형을 검증"
   },
   {
     "id": "batch-normalization",
     "name": "Batch Normalization",
     "aliases": [
-      "BN",
-      "배치 정규화"
+      "BN"
     ],
     "category": "training",
-    "description": "미니배치 단위로 각 층의 입력을 정규화(평균 0, 분산 1)한 후, 학습 가능한 스케일과 시프트 파라미터를 적용하는 기법이다. 내부 공변량 변화(internal covariate shift)를 줄여 학습을 가속하고, 더 높은 학습률 사용을 가능케 하며, 정규화 효과도 부가적으로 제공한다. CSI 피드백의 CNN 기반 네트워크에서는 합성곱 층 직후에 거의 표준적으로 적용된다.",
+    "description": "배치 정규화는 미니배치 평균·분산으로 활성값을 표준화해 학습 안정성과 수렴 속도를 높이는 기법이다. 스케일·시프트 파라미터를 함께 학습해 표현력을 유지하며 깊은 네트워크의 그래디언트 흐름을 개선한다. 배치가 매우 작거나 분산 학습 환경에서는 통계 추정 오차가 커져 대안 정규화와 병행 검토가 필요하다.",
     "related_paper_titles": [
       "Deep Learning for Massive MIMO CSI Feedback (CsiNet)",
       "CRNet: A Deep-Learning Framework for CSI Feedback in Massive MIMO",
       "Lightweight and Effective CSI Feedback for Massive MIMO Systems (CLNet)",
       "ACRNet: Aggregation Cross-Domain Network for CSI Feedback in Massive MIMO"
-    ]
+    ],
+    "hierarchy": [
+      "Training",
+      "Optimization"
+    ],
+    "study_classification": {},
+    "term_set": "optimization_foundation",
+    "details_markdown": "### 정의\n- 미니배치 통계로 활성값을 표준화한 뒤 학습 가능한 스케일/시프트를 적용한다.\n\n### 핵심 수식\n$$\\hat{x} = \\frac{x-\\mu_B}{\\sqrt{\\sigma_B^2+\\epsilon}}$$\n$$y = \\gamma \\hat{x} + \\beta$$\n\n### 변수 해석\n- $\\mu_B,\\sigma_B^2$: 배치 평균/분산\n- $\\gamma,\\beta$: 학습되는 재조정 파라미터\n\n### 실무 체크\n- 배치가 작으면 통계가 불안정해 성능 변동 가능\n- 학습/추론 모드의 통계 사용 차이를 반드시 확인"
   },
   {
     "id": "bit-allocation-optimization",
     "name": "Bit Allocation Optimization",
     "aliases": [
-      "비트 할당 최적화",
-      "적응 비트 할당",
       "Bit Reallocation"
     ],
     "category": "technique",
-    "description": "고정된 총 비트 예산 아래에서 차원/채널/레이어별 비트폭을 다르게 배분해 전체 왜곡을 최소화하는 문제다. 핵심은 중요도가 높은 성분에 더 많은 비트를 주고, 민감도가 낮은 성분에서 비트를 회수하는 것이다. 균일 비트폭 대비 같은 전송량에서 더 낮은 NMSE를 달성할 수 있어 CSI 압축과 양자화에서 효과가 크다.",
+    "description": "비트 할당 최적화는 제한된 총 피드백/부호화 비트 예산에서 서브채널·블록별 비트를 어떻게 나눌지 결정하는 문제다. 목표는 총 왜곡 최소화 또는 성능 최대화이며, 중요 성분에 더 많은 비트를 배정해 효율을 높인다. 정수 제약과 지연 제약이 함께 붙는 경우가 많아 라그랑주 완화나 동적계획이 실무적으로 사용된다.",
     "related_paper_titles": [
       "Quantization Design for Deep Learning-Based CSI Feedback",
       "Quantization of Deep Neural Networks for Accurate CSI Feedback",
       "Deep Learning-Based CSI Feedback with Variable Length Codewords for Adaptive FDD Massive MIMO",
       "Vector Quantized CSI Feedback with Learned Codebook"
-    ]
+    ],
+    "hierarchy": [
+      "Quantization",
+      "Bit Allocation",
+      "Integer Bit Optimization"
+    ],
+    "study_classification": {
+      "optimization": [
+        "Integer Bit Allocation",
+        "Greedy Reallocation"
+      ],
+      "quantization_module": [
+        "Bit-width Scheduler"
+      ],
+      "learning_flow": [
+        "Quantizer Design"
+      ]
+    },
+    "term_set": "csi_quantization",
+    "details_markdown": "### 정의\n- 총 비트 예산 아래에서 각 성분의 비트 수를 배분해 전체 왜곡을 최소화한다.\n\n### 핵심 수식\n$$\\min_{\\{b_i\\}} \\sum_i D_i(b_i)\\quad s.t.\\ \\sum_i b_i \\le B$$\n$$D_i'(b_i^*) \\approx -\\lambda$$\n\n### 변수 해석\n- $b_i$: $i$번째 성분 할당 비트, $B$: 총 예산\n- $D_i$: 비트-왜곡 함수, $\\lambda$: 라그랑주 승수\n\n### 실무 체크\n- 정수 제약 때문에 연속해를 반올림 후 재보정 필요\n- 중요도 추정 오차가 크면 할당 이득이 사라질 수 있음"
   },
   {
     "id": "block-reconstruction",
     "name": "Block Reconstruction",
     "aliases": [
-      "BRECQ",
-      "블록 재구성"
+      "BRECQ"
     ],
     "category": "technique",
-    "description": "레이어보다 큰 residual block 단위로 양자화 오차를 보정하는 PTQ 기법이다. layer-wise보다 cross-layer dependency를 더 반영하면서 network-wise보다 일반화 불안정을 줄인다.",
+    "description": "블록 재구성은 신호를 여러 블록으로 분할해 개별 복원 후 결합하는 방식이다. 메모리 사용량을 줄이고 병렬 처리가 쉬워 대형 텐서 복원에 유리하다. 반면 블록 경계 불연속과 누적 오차가 품질을 떨어뜨릴 수 있어 오버랩, 경계 윈도, 후처리 결합 규칙을 함께 설계해야 안정적인 전체 복원이 가능하다.",
     "related_paper_titles": [
       "BRECQ: Pushing the Limit of Post-Training Quantization by Block Reconstruction"
-    ]
+    ],
+    "hierarchy": [
+      "Technique",
+      "Method"
+    ],
+    "study_classification": {},
+    "term_set": "csi_quantization",
+    "details_markdown": "### 정의\n- 입력을 블록으로 나눠 각 블록을 복원하고 결합해 전체 신호를 재구성한다.\n\n### 핵심 수식\n$$x = [x_1,\\dots,x_K],\\quad \\hat{x}_k = g_\\theta(z_k)$$\n$$\\hat{x} = A(\\hat{x}_1,\\dots,\\hat{x}_K)$$\n\n### 변수 해석\n- $x_k$: 분할 블록, $\\hat{x}_k$: 블록 복원값\n- $A(\\cdot)$: 블록 병합 연산자\n\n### 실무 체크\n- 경계 아티팩트 완화를 위해 오버랩/윈도 적용\n- 블록별 스케일 차이를 맞추는 정규화가 중요"
   },
   {
     "id": "channel-attention-se",
     "name": "Channel Attention (SE)",
     "aliases": [
       "SE Block",
-      "Squeeze-and-Excitation",
-      "채널 어텐션"
+      "Squeeze-and-Excitation"
     ],
     "category": "technique",
-    "description": "Squeeze-and-Excitation 구조를 통해 각 채널(특징맵)의 중요도를 학습하고, 채널별 가중치를 재조정하는 기법이다. 글로벌 평균 풀링으로 채널 통계를 요약(Squeeze)한 후, FC-ReLU-FC-Sigmoid로 채널 게이트를 생성(Excitation)하여 유용한 채널을 강조한다. CSI 피드백 네트워크에서는 특히 디코더 단의 RefineNet 블록에 삽입되어 복원 품질 향상에 기여한다.",
+    "description": "SE 기반 채널 어텐션은 특징맵의 채널별 중요도를 학습해 유의미한 채널을 강조하고 불필요한 채널을 억제한다. 전역 평균 풀링으로 채널 요약 벡터를 만든 뒤 작은 MLP와 시그모이드로 스케일을 산출해 재가중한다. 계산 오버헤드가 작아 CNN 기반 CSI 복원/압축 모델에서 성능 대비 비용 효율이 높다.",
     "related_paper_titles": [
       "ACRNet: Aggregation Cross-Domain Network for CSI Feedback in Massive MIMO",
       "CRNet: A Deep-Learning Framework for CSI Feedback in Massive MIMO",
       "Lightweight and Effective CSI Feedback for Massive MIMO Systems (CLNet)"
-    ]
+    ],
+    "hierarchy": [
+      "Technique",
+      "Method"
+    ],
+    "study_classification": {},
+    "term_set": "csi_core",
+    "details_markdown": "### 정의\n- SE 모듈로 채널 통계를 요약해 채널별 재가중치를 학습하는 어텐션이다.\n\n### 핵심 수식\n$$s_c = \\frac{1}{HW}\\sum_{h=1}^{H}\\sum_{w=1}^{W} U_{c,h,w}$$\n$$a = sigmoid(W_2\\,ReLU(W_1 s)),\\quad \\tilde{U}_{c,h,w}=a_c U_{c,h,w}$$\n\n### 변수 해석\n- $U$: 입력 특징맵, $s$: 채널 요약 벡터\n- $a_c$: 채널 게이트, $\\tilde{U}$: 재가중 결과\n\n### 실무 체크\n- 축소 비율 $r$가 너무 크면 표현력이 감소\n- 경량 모델에서는 SE 위치(초기/후기 블록) 민감도 큼"
   },
   {
     "id": "clipped-mu-law-quantization",
-    "name": "Clipped ?-law Quantization",
+    "name": "Clipped mu-law Quantization",
     "aliases": [
-      "??? ?-law ???",
-      "clipped mu-law"
+      "Clipped mu-law",
+      "mu-law clipping"
     ],
     "category": "technique",
-    "description": "?-law ?? ? ??? clipping? ??? ?? ??? ??? ??? ? ??? ???? ??? ??? ????.",
+    "description": "클리핑된 μ-law 양자화는 입력을 임계값으로 먼저 제한한 뒤 로그 압신으로 작은 진폭 해상도를 높여 양자화하는 방법이다. 큰 값의 영향과 이상치를 줄여 고정 비트수에서 평균 왜곡을 낮출 수 있다. 클리핑 임계값과 μ 선택이 핵심이며, 역변환 바이어스와 포화 구간 손실을 함께 점검해야 한다.",
     "related_paper_titles": [
       "Vector Quantization for Deep-Learning-Based CSI Feedback with Shape-Gain Decomposition"
-    ]
+    ],
+    "hierarchy": [
+      "Quantization",
+      "Companding",
+      "mu-law + Clipping"
+    ],
+    "study_classification": {
+      "optimization": [
+        "Rate-Distortion Tuning",
+        "Nonlinear Mapping"
+      ],
+      "quantization_module": [
+        "Companding",
+        "Scalar Quantizer",
+        "Range Clipping"
+      ],
+      "learning_flow": [
+        "Preprocessing",
+        "Quantizer Design"
+      ]
+    },
+    "details_markdown": "### 정의\n- 입력을 클리핑 후 $\\mu$-law 압신으로 비선형 변환해 양자화 효율을 높인다.\n\n### 핵심 수식\n$$x_c = clip(x,-T,T)$$\n$$y = sign(x_c)\\frac{\\ln(1+\\mu |x_c|/T)}{\\ln(1+\\mu)}$$\n$$q = Q(y),\\quad \\hat{x}=f_{\\mu}^{-1}(q)$$\n\n### 변수 해석\n- $T$: 클리핑 임계값, $\\mu$: 압신 강도\n- $Q(\\cdot)$: 양자화기, $\\hat{x}$: 역변환 복원값\n\n### 실무 체크\n- $T$가 낮으면 포화 왜곡, 높으면 해상도 이점 감소\n- 역변환 후 바이어스 보정을 데이터셋별로 점검",
+    "term_set": "csi_quantization"
   },
   {
     "id": "codebook",
     "name": "Codebook",
     "aliases": [
-      "???",
+      "Codebook",
       "Learned Codebook",
       "Codeword Set"
     ],
     "category": "technique",
-    "description": "?? latent ??? ?? ???? ??? ?? ???? ????. ??? ??? ?? ??? ??? ?? ??, ??? ??, ??? ?? ??? ?? ??? ??.",
+    "description": "코드북은 연속 잠재벡터를 유한한 대표 벡터 집합으로 치환하기 위한 사전이다. 인코더 출력은 가장 가까운 코드워드 인덱스로 매핑되어 전송/저장 효율을 얻고, 디코더는 해당 코드워드로 복원한다. 코드북 크기와 초기화, 업데이트 방식이 재구성 품질과 비트율, 학습 안정성에 직접적인 영향을 준다.",
     "related_paper_titles": [
       "Vector Quantized CSI Feedback with Learned Codebook",
       "Neural Discrete Representation Learning (VQ-VAE)",
       "Finite Scalar Quantization: VQ-VAE Made Simple (FSQ)",
       "Vector Quantization for Deep-Learning-Based CSI Feedback with Shape-Gain Decomposition",
       "Precoding-Oriented CSI Feedback Design with Mutual Information Regularized VQ-VAE"
-    ]
+    ],
+    "hierarchy": [
+      "Quantization",
+      "Codebook Design",
+      "Learned Codebook"
+    ],
+    "study_classification": {
+      "optimization": [
+        "Codebook Update",
+        "Centroid Refinement"
+      ],
+      "quantization_module": [
+        "Codebook",
+        "Nearest Neighbor Assignment"
+      ],
+      "learning_flow": [
+        "Quantizer Design",
+        "Training Stabilization"
+      ]
+    },
+    "term_set": "csi_quantization",
+    "details_markdown": "### 정의\n- 연속 표현을 유한한 코드워드 집합의 인덱스로 치환하는 이산 사전이다.\n\n### 핵심 수식\n$$E = \\{e_k\\}_{k=1}^{K}$$\n$$k^* = \\arg\\min_k ||z-e_k||_2^2,\\quad \\hat{z}=e_{k^*}$$\n\n### 변수 해석\n- $E$: 코드북, $K$: 코드워드 개수\n- $z$: 인코더 출력, $\\hat{z}$: 양자화 벡터\n\n### 실무 체크\n- 코드북이 작으면 왜곡 증가, 크면 탐색/학습 비용 증가\n- EMA 갱신 또는 k-means 초기화로 안정성을 높임"
   },
   {
     "id": "codebook-collapse",
     "name": "Codebook Collapse",
     "aliases": [
-      "??? ??",
+      "Codebook Collapse",
       "Codeword Under-Utilization"
     ],
     "category": "training",
-    "description": "?? ????? ?? ???? ???? ?? ???? ?? ????. ??? ?? ?? ??? ???? ?? ??? ??? ? ??.",
+    "description": "코드북 붕괴는 소수 코드워드만 반복 사용되고 다수 항목이 거의 선택되지 않는 현상이다. 표현 다양성이 급감해 재구성 성능과 일반화가 악화되며, 실제 비트 효율도 기대보다 낮아진다. 사용 빈도 엔트로피를 모니터링하고 온도 조절, 사용량 정규화, 재초기화 정책으로 코드 사용 균형을 유지해야 한다.",
     "related_paper_titles": [
       "Precoding-Oriented CSI Feedback Design with Mutual Information Regularized VQ-VAE",
       "Vector Quantized CSI Feedback with Learned Codebook",
       "Vector Quantization for Deep-Learning-Based CSI Feedback with Shape-Gain Decomposition"
-    ]
+    ],
+    "hierarchy": [
+      "Quantization",
+      "Codebook Training",
+      "Failure Modes"
+    ],
+    "study_classification": {
+      "optimization": [
+        "Usage Regularization",
+        "Entropy Balancing"
+      ],
+      "quantization_module": [
+        "Codebook Usage Control"
+      ],
+      "learning_flow": [
+        "Training Stabilization"
+      ]
+    },
+    "term_set": "csi_quantization",
+    "details_markdown": "### 정의\n- 훈련 중 코드 사용이 소수 항목에 편중되어 표현 다양성이 줄어든 상태다.\n\n### 핵심 수식\n$$p_k = \\frac{n_k}{\\sum_j n_j}$$\n$$H = -\\sum_{k=1}^{K} p_k\\log p_k,\\quad K_{eff}=e^H$$\n\n### 변수 해석\n- $n_k$: 코드 $k$ 선택 횟수, $p_k$: 사용 확률\n- $H$: 사용 엔트로피, $K_{eff}$: 유효 코드 수\n\n### 실무 체크\n- 낮은 $K_{eff}$가 지속되면 재초기화/온도 조절 검토\n- 사용량 균형 정규화 항을 손실에 추가할 수 있음"
   },
   {
     "id": "commitment-loss",
     "name": "Commitment Loss",
     "aliases": [
-      "???? ??",
+      "Commitment Loss",
       "VQ Commitment Term"
     ],
     "category": "training",
-    "description": "??? ??? ??? ???? ??? ???? ???? VQ ?? ?????. ??? ?? ???? ??? ??? ??? ????.",
+    "description": "커밋먼트 손실은 인코더 출력이 선택된 코드워드 주변에 머물도록 유도해 벡터 양자화 학습을 안정화하는 항이다. 이 항이 약하면 인코더 출력이 코드북에서 멀어져 양자화 오차가 커지고, 너무 강하면 표현력이 제한된다. 재구성 손실·코드북 손실과의 가중치 균형을 맞추는 것이 핵심 튜닝 포인트다.",
     "related_paper_titles": [
       "Precoding-Oriented CSI Feedback Design with Mutual Information Regularized VQ-VAE",
       "Vector Quantized CSI Feedback with Learned Codebook",
       "Vector Quantization for Deep-Learning-Based CSI Feedback with Shape-Gain Decomposition"
-    ]
+    ],
+    "hierarchy": [
+      "Quantization",
+      "VQ Training",
+      "Auxiliary Loss"
+    ],
+    "study_classification": {
+      "optimization": [
+        "Loss Weight Tuning"
+      ],
+      "quantization_module": [
+        "Commitment Penalty"
+      ],
+      "learning_flow": [
+        "Training Stabilization"
+      ]
+    },
+    "term_set": "csi_quantization",
+    "details_markdown": "### 정의\n- 인코더 출력이 선택 코드워드 근처에 머물도록 강제하는 VQ 계열 손실 항이다.\n\n### 핵심 수식\n$$L_{commit}=\\beta ||z_e(x)-sg(e_{k^*})||_2^2$$\n$$L_{vq}=||sg(z_e)-e_{k^*}||_2^2 + L_{commit}$$\n\n### 변수 해석\n- $sg(\\cdot)$: stop-gradient 연산\n- $\\beta$: 커밋먼트 강도, $z_e(x)$: 인코더 출력\n\n### 실무 체크\n- $\\beta$가 작으면 코드북 추종 약화, 크면 과도 제약\n- 재구성 손실 대비 비율을 로그로 모니터링"
   },
   {
     "id": "compression-ratio",
     "name": "Compression Ratio",
     "aliases": [
-      "압축비",
-      "γ",
       "CR"
     ],
     "category": "metric",
-    "description": "원본 CSI 차원(N_t × N_c)과 피드백 코드워드 차원(M)의 비율(γ = N_t·N_c / M)로, 피드백 오버헤드를 정량화하는 핵심 설계 파라미터이다. 압축비가 높을수록 전송 비트가 줄어 업링크 부담이 감소하지만, 정보 손실이 커져 복원 성능이 하락하는 트레이드오프가 존재한다. 일반적으로 1/4, 1/8, 1/16, 1/32, 1/64 등의 비율에서 성능을 비교 평가한다.",
+    "description": "압축비는 원본 표현 대비 압축 표현이 얼마나 작은지 나타내는 핵심 지표다. 일반적으로 원본 비트 수를 압축 후 비트 수로 나눈 값으로 정의하며 값이 클수록 더 강한 압축을 의미한다. 다만 압축비만 높아도 왜곡이 커지면 실효 성능이 낮아지므로 NMSE, BER, 다운스트림 정확도와 함께 해석해야 한다.",
     "related_paper_titles": [
       "Deep Learning for Massive MIMO CSI Feedback (CsiNet)",
       "CRNet: A Deep-Learning Framework for CSI Feedback in Massive MIMO",
       "Lightweight and Effective CSI Feedback for Massive MIMO Systems (CLNet)",
       "ENet: Efficient CSI Feedback for Massive MIMO Communications",
       "Deep Learning-Based CSI Feedback with Variable Length Codewords for Adaptive FDD Massive MIMO"
-    ]
+    ],
+    "hierarchy": [
+      "Evaluation",
+      "Metric"
+    ],
+    "study_classification": {},
+    "term_set": "csi_core",
+    "details_markdown": "### 정의\n- 원본 대비 압축 표현의 크기 감소 정도를 나타내는 비율 지표다.\n\n### 핵심 수식\n$$CR = \\frac{B_{orig}}{B_{comp}}$$\n$$B_{comp}=N_{lat}\\cdot b_{idx}$$\n\n### 변수 해석\n- $B_{orig}$: 원본 총 비트, $B_{comp}$: 압축 총 비트\n- $N_{lat}$: 잠재 길이, $b_{idx}$: 인덱스 비트폭\n\n### 실무 체크\n- 같은 CR이라도 왜곡 지표(NMSE/BER) 함께 비교\n- 헤더/패딩 등 부가 비트 포함 여부를 명확히 정의"
   },
   {
     "id": "depthwise-separable-convolution",
     "name": "Depthwise Separable Convolution",
     "aliases": [
-      "DSC",
-      "깊이별 분리 합성곱"
+      "DSC"
     ],
     "category": "technique",
-    "description": "표준 합성곱을 채널별 공간 합성곱(depthwise)과 1×1 채널 간 합성곱(pointwise)으로 분리하여 파라미터 수와 연산량을 대폭 줄이는 기법이다. MobileNet에서 대중화된 이 기법은 UE 측 인코더처럼 연산 자원이 제한된 환경에서 경량 모델을 설계하는 데 핵심적으로 활용된다. CSI 피드백 분야에서도 경량화를 목표로 하는 여러 네트워크가 이 구조를 채택하였다.",
+    "description": "깊이별 분리 합성곱은 공간 필터링(depthwise)과 채널 결합(pointwise)을 분리해 계산량을 줄이는 구조다. 표준 합성곱 대비 파라미터와 FLOPs를 크게 절감해 경량 모델에 적합하다. 대신 채널 상호작용이 약해질 수 있어 확장 채널 비율, 잔차 연결, 주의 모듈 결합으로 표현력 저하를 보완하는 설계가 자주 쓰인다.",
     "related_paper_titles": [
       "DS-NLCsiNet: Exploiting Non-Local Neural Networks for Massive MIMO CSI Feedback",
       "ShuffleCsiNet: Lightweight CSI Feedback Network Based on ShuffleNet Architecture"
-    ]
+    ],
+    "hierarchy": [
+      "Technique",
+      "Method"
+    ],
+    "study_classification": {},
+    "term_set": "csi_core",
+    "details_markdown": "### 정의\n- 공간 합성곱과 채널 결합을 분리해 연산량을 줄이는 합성곱 분해 방식이다.\n\n### 핵심 수식\n$$C_{std}=k^2MNHW$$\n$$C_{sep}=(k^2M+MN)HW$$\n$$speedup \\approx C_{std}/C_{sep}$$\n\n### 변수 해석\n- $k$: 커널 크기, $M,N$: 입력/출력 채널\n- $H,W$: 특징맵 크기, $C$: 연산량 근사\n\n### 실무 체크\n- 채널 수가 작으면 이론 속도 향상이 제한될 수 있음\n- pointwise 병목을 줄이려면 채널 폭 설계를 함께 조정"
   },
   {
     "id": "diffusion-model",
     "name": "Diffusion Model",
     "aliases": [
-      "확산 모델",
       "Denoising Diffusion"
     ],
     "category": "architecture",
-    "description": "데이터에 점진적으로 가우시안 노이즈를 추가하는 순방향 과정과, 노이즈를 제거하며 원본을 복원하는 역방향 과정을 학습하는 생성 모델이다. GAN 대비 학습 안정성이 뛰어나고 다양성 높은 샘플을 생성할 수 있어 이미지 생성 분야에서 주목받았다. CSI 피드백에서는 압축된 코드워드로부터 채널을 복원할 때 디노이징 과정을 활용하여 복원 품질을 향상시키는 연구가 진행되고 있다.",
+    "description": "확산 모델은 데이터에 점진적으로 잡음을 더하는 정방향 과정과 이를 역으로 제거하는 생성 과정을 학습하는 확률 생성 모델이다. 학습은 주로 잡음 예측 손실로 수행되며 고품질 샘플 생성에 강점을 보인다. 다만 샘플링 단계가 길어 추론 비용이 크므로 스텝 축소, distillation, 가이던스 조절이 실무 성능을 좌우한다.",
     "related_paper_titles": [
       "Generative Diffusion Model-Enhanced CSI Feedback",
       "RD-JSCC: Residual Diffusion for Variable-Rate Joint Source-Channel Coding of MIMO CSI"
-    ]
+    ],
+    "hierarchy": [
+      "Architecture",
+      "Model Design"
+    ],
+    "study_classification": {},
+    "term_set": "csi_core",
+    "details_markdown": "### 정의\n- 노이즈 주입 정방향 과정과 복원 역과정을 학습해 데이터 분포를 생성한다.\n\n### 핵심 수식\n$$q(x_t|x_{t-1})=\\mathcal{N}(\\sqrt{1-\\beta_t}x_{t-1},\\beta_t I)$$\n$$L=E_{t,x_0,\\epsilon}[||\\epsilon-\\epsilon_\\theta(x_t,t)||_2^2]$$\n\n### 변수 해석\n- $\\beta_t$: 시점별 노이즈 스케줄\n- $\\epsilon_\\theta$: 모델의 노이즈 예측기\n\n### 실무 체크\n- 스케줄 선택이 샘플 품질과 수렴 속도에 큰 영향\n- 추론 스텝 축소 시 품질 저하를 별도 검증"
   },
   {
     "id": "dyadic-quantization",
     "name": "Dyadic Quantization",
     "aliases": [
-      "Dyadic Scaling",
-      "2의 거듭제곱 스케일 양자화"
+      "Dyadic Scaling"
     ],
     "category": "technique",
-    "description": "재스케일 계수를 b/2^c 형태로 제한해 정수 곱셈과 비트 시프트만으로 스케일링을 수행하는 방식이다. integer-only 추론에서 division과 float 연산 비용을 줄이는 데 효과적이다.",
+    "description": "dyadic 양자화는 양자화 간격을 2의 거듭제곱으로 제한해 곱셈을 시프트 연산으로 대체할 수 있게 하는 기법이다. 하드웨어 구현이 단순하고 지연·전력 측면에서 유리해 온디바이스 추론에 적합하다. 대신 단계 폭 제약으로 미세한 값 표현력이 줄 수 있어 스케일 선택과 보정 오차 관리가 중요하다.",
     "related_paper_titles": [
       "HAWQ-V3: Dyadic Neural Network Quantization"
-    ]
+    ],
+    "hierarchy": [
+      "Technique",
+      "Method"
+    ],
+    "study_classification": {},
+    "term_set": "csi_quantization",
+    "details_markdown": "### 정의\n- 양자화 간격을 2의 거듭제곱으로 고정해 시프트 기반 구현을 가능하게 한다.\n\n### 핵심 수식\n$$\\Delta = 2^{-s}$$\n$$q = round(x/\\Delta)\\Delta = 2^{-s}round(2^s x)$$\n$$|x-q|\\le \\Delta/2$$\n\n### 변수 해석\n- $s$: 스케일 지수, $\\Delta$: 양자화 스텝\n- $q$: 양자화 결과, $|x-q|$: 양자화 오차\n\n### 실무 체크\n- 레이어별 $s$를 다르게 두면 정확도 손실 완화 가능\n- 클리핑 범위와 함께 튜닝해야 오버플로를 방지"
   },
   {
     "id": "federated-learning",
     "name": "Federated Learning",
     "aliases": [
-      "연합 학습",
       "FL"
     ],
     "category": "training",
-    "description": "여러 클라이언트(기기)가 로컬 데이터를 공유하지 않고 각자 모델을 학습한 후, 모델 파라미터(또는 기울기)만 중앙 서버에 전송하여 글로벌 모델을 집계하는 분산 학습 프레임워크이다. 데이터 프라이버시를 보호하면서도 다양한 환경의 데이터를 활용할 수 있는 장점이 있다. CSI 피드백에서는 다수 기지국의 채널 데이터를 직접 모으지 않고도 범용적인 CSI 피드백 모델을 학습할 수 있는 방법으로 활용된다.",
+    "description": "연합학습은 원시 데이터를 중앙으로 모으지 않고 각 클라이언트에서 로컬 학습 후 모델 업데이트만 집계하는 분산 학습 방식이다. 개인정보 보호와 데이터 주권 측면에서 장점이 크지만, 비IID 데이터·통신 지연·클라이언트 이탈로 수렴이 불안정해질 수 있다. 집계 가중치, 참여율, 보안 집계 설계를 함께 최적화해야 한다.",
     "related_paper_titles": [
       "CSI-GPT: Integrating Generative Pre-Trained Transformer with Federated-Tuning for Channel Estimation in Massive MIMO"
-    ]
+    ],
+    "hierarchy": [
+      "Training",
+      "Optimization"
+    ],
+    "study_classification": {},
+    "term_set": "optimization_foundation",
+    "details_markdown": "### 정의\n- 각 참여자가 로컬 데이터로 학습한 모델을 중앙에서 가중 평균해 갱신한다.\n\n### 핵심 수식\n$$w_k^{(t+1)} = w^{(t)} - \\eta \\nabla F_k(w^{(t)})$$\n$$w^{(t+1)}=\\sum_{k=1}^{K}\\frac{n_k}{n}w_k^{(t+1)}$$\n\n### 변수 해석\n- $w_k$: 클라이언트 $k$의 로컬 모델\n- $n_k$: 로컬 샘플 수, $n=\\sum_k n_k$\n\n### 실무 체크\n- 비IID 환경에서 클라이언트 드리프트 보정 기법 필요\n- 통신 라운드 수와 참여율 제약을 함께 설계"
   },
   {
     "id": "fixed-length-feedback",
     "name": "Fixed-Length Feedback",
     "aliases": [
-      "?? ?? ???",
-      "Fixed-Rate Feedback"
+      "Fixed-Length Feedback",
+      "Fixed-Length Codeword"
     ],
     "category": "domain",
-    "description": "UE? ? ???? ?? ??? ?? ?? CSI ??? ????? ????. ?? ???? ?? ???? ?? ?? ????? ????.",
+    "description": "고정 길이 피드백은 채널 상태나 프레임 조건과 무관하게 항상 동일한 비트 길이로 CSI를 보고하는 방식이다. 프로토콜 설계와 버퍼 관리가 단순하고 지연 예측이 쉬운 장점이 있다. 반면 채널 난이도 변화에 적응하지 못해 자원 낭비 또는 성능 저하가 생길 수 있어 코드북/모델을 고정 예산에 맞춰 정밀 튜닝해야 한다.",
     "related_paper_titles": [
       "Precoding-Oriented CSI Feedback Design with Mutual Information Regularized VQ-VAE"
-    ]
+    ],
+    "hierarchy": [
+      "Feedback Design",
+      "Transmission Format",
+      "Fixed Length"
+    ],
+    "study_classification": {
+      "optimization": [
+        "Rate Budgeting"
+      ],
+      "quantization_module": [
+        "Bitstream Framing"
+      ],
+      "learning_flow": [
+        "System Constraint Definition"
+      ]
+    },
+    "term_set": "csi_quantization",
+    "details_markdown": "### 정의\n- 모든 피드백 프레임에서 동일한 비트 길이로 CSI를 전송하는 규격화 방식이다.\n\n### 핵심 수식\n$$b_i = B\\ \\forall i$$\n$$R_{fb}=\\frac{B}{T_{fb}},\\quad D(B)=E[d(H,\\hat{H}(B))]$$\n\n### 변수 해석\n- $B$: 고정 피드백 비트, $T_{fb}$: 피드백 주기\n- $D(B)$: 고정 예산에서의 평균 왜곡\n\n### 실무 체크\n- 채널 난이도 변화가 큰 환경에서 비효율이 커질 수 있음\n- 고정 $B$ 기준 코드북/모델을 오프라인 최적화"
   },
   {
     "id": "gaussian-kernel-relaxation",
     "name": "Gaussian Kernel Relaxation",
     "aliases": [
-      "???? ?? ??",
-      "Indicator Relaxation"
+      "Gaussian Kernel Relaxation",
+      "Soft Assignment Relaxation"
     ],
     "category": "technique",
-    "description": "????? indicator ?? ?? Gaussian kernel? ??? ???? ????? ??? ????. MI ?? ?? ??? ?? ? ????.",
+    "description": "가우시안 커널 완화는 이산 선택 문제를 거리 기반 소프트 가중치로 근사해 미분 가능하게 만드는 기법이다. 코드워드 선택이나 클러스터 할당을 연속 확률로 바꿔 역전파를 안정화하며 초기 학습 수렴을 돕는다. 커널 폭이 너무 크면 과도 평활화, 너무 작으면 거의 하드 할당이 되어 그래디언트 이점이 줄어든다.",
     "related_paper_titles": [
       "Precoding-Oriented CSI Feedback Design with Mutual Information Regularized VQ-VAE"
-    ]
+    ],
+    "hierarchy": [
+      "Quantization",
+      "Assignment Relaxation",
+      "Soft-to-Hard"
+    ],
+    "study_classification": {
+      "optimization": [
+        "Annealing",
+        "Differentiable Relaxation"
+      ],
+      "quantization_module": [
+        "Soft Assignment"
+      ],
+      "learning_flow": [
+        "Training Stabilization"
+      ]
+    },
+    "term_set": "csi_quantization",
+    "details_markdown": "### 정의\n- 이산 선택을 가우시안 거리 기반 소프트 확률로 완화해 미분 가능하게 만든다.\n\n### 핵심 수식\n$$p_k(z)=\\frac{\\exp(-||z-c_k||_2^2/(2\\sigma^2))}{\\sum_j \\exp(-||z-c_j||_2^2/(2\\sigma^2))}$$\n$$\\tilde{z}=\\sum_{k=1}^{K} p_k(z)c_k$$\n$$\\sigma\\to0\\Rightarrow p_k(z)\\text{ is hard-like}$$\n\n### 변수 해석\n- $c_k$: 기준점(코드워드), $p_k$: 소프트 할당 확률\n- $\\sigma$: 커널 폭, $\\tilde{z}$: 완화된 표현\n\n### 실무 체크\n- 학습 초기에 큰 $\\sigma$, 후기에 감소시키는 annealing 유효\n- 수치 안정성을 위해 로그-합-지수 형태 구현 권장"
   },
   {
     "id": "grassmannian-codebook",
     "name": "Grassmannian Codebook",
     "aliases": [
-      "Grassmannian",
-      "???? ???",
-      "Line Packing Codebook"
+      "Grassmannian Codebook",
+      "Grassmannian Packing"
     ],
     "category": "technique",
-    "description": "???? ?? ??(Shape)? ???? ?, ???? ? ?? ???? ?? ????? ??? ?????. shape quantization?? ??? ??? ? ????.",
+    "description": "그래스만 코드북은 부분공간(기저 행렬) 자체를 코드워드로 두고, 부분공간 간 거리(예: chordal distance)로 양자화하는 방식이다. 빔포밍·MIMO 피드백처럼 위상/스케일보다 방향 부분공간이 중요한 문제에 적합하다. 코드북 설계 시 최소 거리 최대화와 탐색 복잡도 사이의 균형이 성능을 결정한다.",
     "related_paper_titles": [
       "Vector Quantization for Deep-Learning-Based CSI Feedback with Shape-Gain Decomposition"
-    ]
+    ],
+    "hierarchy": [
+      "Codebook Design",
+      "Geometric Codebook",
+      "Grassmannian"
+    ],
+    "study_classification": {
+      "optimization": [
+        "Manifold Packing",
+        "Distance Maximization"
+      ],
+      "quantization_module": [
+        "Directional Codebook"
+      ],
+      "learning_flow": [
+        "System Constraint Definition"
+      ]
+    },
+    "term_set": "csi_quantization",
+    "details_markdown": "### 정의\n- 부분공간을 코드워드로 두고 부분공간 거리로 양자화하는 Grassmann 다양체 코드북이다.\n\n### 핵심 수식\n$$\\mathcal{C}=\\{U_k\\in\\mathbb{C}^{N\\times r}:U_k^H U_k=I\\}$$\n$$k^*=\\arg\\min_k d_c^2(U,U_k)$$\n$$d_c^2(U,V)=r-||U^H V||_F^2$$\n\n### 변수 해석\n- $U,U_k$: $r$차원 부분공간 기저\n- $d_c^2$: chordal distance, $\\mathcal{C}$: 코드북 집합\n\n### 실무 체크\n- 코드북 설계 목표는 최소 코드 간 거리 최대화\n- 탐색 비용 절감을 위해 계층 탐색/근사 최근접을 사용"
   },
   {
     "id": "hessian-aware-quantization",
     "name": "Hessian-Aware Quantization",
     "aliases": [
-      "HAWQ",
-      "헤시안 기반 양자화"
+      "HAWQ"
     ],
     "category": "technique",
-    "description": "양자화 성능 저하를 2차 곡률 정보인 헤시안으로 추정해 민감한 레이어에는 높은 비트폭, 덜 민감한 레이어에는 낮은 비트폭을 배정하는 방법이다.",
+    "description": "헤시안 인지 양자화는 각 가중치가 손실에 미치는 2차 민감도(곡률)를 추정해 비트폭을 차등 배정하는 방법이다. 같은 압축률에서도 손실 증가를 더 잘 억제해 정확도 하락을 줄이고, 대각·블록 헤시안 근사로 계산량을 관리하면서 메모리와 지연을 동시에 낮출 수 있다. 특히 대규모 트랜스포머 후처리 양자화에서 효과가 크다.",
     "related_paper_titles": [
       "HAWQ-V3: Dyadic Neural Network Quantization",
       "BRECQ: Pushing the Limit of Post-Training Quantization by Block Reconstruction"
-    ]
+    ],
+    "hierarchy": [
+      "Quantization",
+      "Sensitivity-aware",
+      "Hessian-aware"
+    ],
+    "study_classification": {
+      "optimization": [
+        "Second-order Sensitivity"
+      ],
+      "quantization_module": [
+        "Layer-wise Bit Allocation"
+      ],
+      "learning_flow": [
+        "Quantizer Design"
+      ]
+    },
+    "term_set": "csi_quantization",
+    "details_markdown": "### 정의\n헤시안(2차 곡률) 정보를 이용해 양자화 오차가 손실을 얼마나 키우는지 추정하고, 민감한 파라미터에 더 많은 비트를 배정한다.\n### 핵심 수식\n$$ΔL ≈ 0.5 Σ_i h_i (w_i-w_i^q)^2$$\n$$min_{b_i} Σ_i h_i e_i(b_i), Σ_i b_i ≤ B$$\n### 변수 해석\nh_i: 곡률(민감도), w_i^q: 양자화 가중치, e_i(b_i): b_i비트 오차, B: 전체 비트 예산.\n### 실무 체크\n대각/블록 헤시안 근사 선택, 이상치 채널 분리, 지원 비트폭(INT4/INT8) 제약을 함께 반영한다."
   },
   {
     "id": "kkt-conditions",
     "name": "KKT Conditions",
     "aliases": [
-      "KKT 조건",
-      "Karush-Kuhn-Tucker 조건"
+      "KKT Conditions"
     ],
     "category": "technique",
-    "description": "제약 최적화의 정지 조건으로, stationarity·primal feasibility·dual feasibility·complementary slackness를 포함한다. 연속 완화 문제에서 해의 타당성을 점검하거나 라그랑주 승수 업데이트의 기준으로 자주 쓰인다. CSI 비트 할당처럼 원래는 정수 제약인 문제에서도, 연속 근사 해석을 통해 알고리즘 설계 직관을 제공한다.",
+    "description": "Karush-Kuhn-Tucker(KKT) 조건은 제약 최적화 해의 필요조건(볼록 문제에선 충분조건)을 정리한 체계다. 정지성, 원문제/쌍대 타당성, 상보성으로 구성되며 제약의 활성 여부를 판별해 라그랑주 승수 해석과 알고리즘 수렴 판단의 기준을 제공한다. 실무에서는 슬레이터 조건 확인이 해석 신뢰도를 크게 높인다.",
     "related_paper_titles": [
       "Quantization Design for Deep Learning-Based CSI Feedback",
       "Quantization of Deep Neural Networks for Accurate CSI Feedback",
       "Deep Learning-Based CSI Feedback with Variable Length Codewords for Adaptive FDD Massive MIMO"
-    ]
+    ],
+    "hierarchy": [
+      "Technique",
+      "Method"
+    ],
+    "study_classification": {},
+    "term_set": "csi_quantization",
+    "details_markdown": "### 정의\n제약 최적화 문제에서 최적해가 만족해야 하는 미분·제약·승수 조건의 집합이다.\n### 핵심 수식\n$$∇f(x^*) + Σ_i λ_i ∇g_i(x^*) + Σ_j ν_j ∇h_j(x^*) = 0$$\n$$g_i(x^*) ≤ 0,\\ h_j(x^*) = 0,\\ λ_i ≥ 0$$\n$$λ_i g_i(x^*) = 0$$\n### 변수 해석\nf: 목적함수, g_i/h_j: 부등식·등식 제약, λ_i/ν_j: 라그랑주 승수.\n### 실무 체크\n비볼록 문제에선 필요조건만 보장되므로 로컬해 검증과 다중 초기화가 필요하다."
   },
   {
     "id": "knowledge-distillation",
     "name": "Knowledge Distillation",
     "aliases": [
-      "지식 증류",
       "KD"
     ],
     "category": "training",
-    "description": "크고 성능이 좋은 교사(teacher) 모델의 출력 분포나 중간 표현을 작은 학생(student) 모델이 모방하도록 학습시켜, 경량 모델에서도 높은 성능을 달성하는 모델 압축 기법이다. 소프트 레이블(soft label)을 통해 교사 모델의 암묵적 지식을 전달하며, 온도(temperature) 파라미터로 분포의 평활도를 조절한다. CSI 피드백에서는 UE 측 인코더의 경량화에 활용되어 모바일 기기의 연산 제약을 완화한다.",
+    "description": "지식 증류는 큰 교사 모델의 예측 분포를 작은 학생 모델이 모사하도록 학습해, 파라미터를 줄이면서 일반화 성능을 유지하는 압축 기법이다. 정답 라벨 손실과 소프트 타깃 KL 손실을 함께 최적화하며, 온도와 가중치 설정이 정확도·안정성·추론비용의 균형을 좌우한다. 모바일·엣지 배포에서 특히 자주 채택된다.",
     "related_paper_titles": [
       "Knowledge Distillation-Based DNN for CSI Feedback in Massive MIMO Systems"
-    ]
+    ],
+    "hierarchy": [
+      "Training",
+      "Optimization"
+    ],
+    "study_classification": {},
+    "term_set": "optimization_foundation",
+    "details_markdown": "### 정의\n교사(Teacher)의 로그릿/확률분포를 학생(Student)이 학습해 경량 모델 성능을 높이는 방법이다.\n### 핵심 수식\n$$p_t^T = softmax(z_t/T),\\ p_s^T = softmax(z_s/T)$$\n$$L = α T^2 KL(p_t^T || p_s^T) + (1-α) CE(y,p_s)$$\n### 변수 해석\nT: 온도, α: 증류 손실 가중치, z_t/z_s: 교사·학생 로그릿.\n### 실무 체크\n교사 정확도와 데이터 품질이 상한을 정하며, T·α는 검증셋 기반으로 함께 튜닝한다."
   },
   {
     "id": "lagrangian-relaxation",
     "name": "Lagrangian Relaxation",
     "aliases": [
-      "라그랑주 이완",
-      "라그랑주 완화",
       "Lagrange Multiplier"
     ],
     "category": "technique",
-    "description": "직접 풀기 어려운 제약 최적화 문제를 목적함수 + 제약 페널티 형태로 바꾸는 방법이다. 비트 합 제약처럼 등식/부등식 제약이 있을 때 λ를 도입해 unconstrained 형태로 변환하면 학습 기반 최적화와 결합하기 쉬워진다. 실제 구현에서는 λ 스케줄, 페널티 강도, primal/dual 갱신 균형이 수렴성과 성능을 좌우한다.",
+    "description": "라그랑지안 완화는 직접 다루기 어려운 제약을 목적함수로 옮겨 벌점 형태로 푸는 방법이다. 원문제를 정확히 풀기 힘든 조합최적화에서 특히 유용하며, 쌍대문제를 통해 경계값을 얻어 탐색 공간을 줄이고 승수 업데이트로 근사해를 반복 개선한다. 품질 보장 가능한 하한/상한을 준다는 점이 강점이다.",
     "related_paper_titles": [
       "Quantization Design for Deep Learning-Based CSI Feedback",
       "Quantization of Deep Neural Networks for Accurate CSI Feedback",
       "Deep Learning-Based CSI Feedback with Variable Length Codewords for Adaptive FDD Massive MIMO"
-    ]
+    ],
+    "hierarchy": [
+      "Optimization",
+      "Constrained Optimization",
+      "Lagrangian Relaxation"
+    ],
+    "study_classification": {
+      "optimization": [
+        "Constrained Optimization",
+        "Dual Variable Tuning"
+      ],
+      "learning_flow": [
+        "Objective Design"
+      ]
+    },
+    "term_set": "csi_quantization",
+    "details_markdown": "### 정의\n제약을 승수와 함께 목적함수에 흡수해 더 풀기 쉬운 형태로 바꾸는 최적화 기법이다.\n### 핵심 수식\n$$L(x,λ) = f(x) + Σ_i λ_i g_i(x),\\ λ_i ≥ 0$$\n$$max_{λ≥0} min_x L(x,λ)$$\n### 변수 해석\nx: 의사결정변수, g_i(x): 제약 위반량, λ_i: 위반에 대한 벌점 계수.\n### 실무 체크\n서브그래디언트 승수 업데이트의 스텝 크기가 수렴 속도와 해 품질을 크게 좌우한다."
   },
   {
     "id": "lstm",
     "name": "LSTM",
     "aliases": [
-      "Long Short-Term Memory",
-      "장단기 기억"
+      "Long Short-Term Memory"
     ],
     "category": "architecture",
-    "description": "장기 의존성 학습을 위해 forget gate, input gate, output gate로 구성된 셀 구조를 가진 순환 신경망(RNN)의 변형이다. 게이트 메커니즘을 통해 기울기 소실 문제를 완화하며, 시계열 데이터에서 과거 정보를 선택적으로 유지·삭제할 수 있다. CSI 피드백에서는 시간적으로 연속된 채널 프레임 간의 상관관계를 활용하여 압축 효율을 높이는 데 사용된다.",
+    "description": "LSTM은 순환신경망의 장기 의존성 문제를 해결하기 위해 셀 상태와 게이트를 도입한 구조다. 입력·망각·출력 게이트가 정보 유입과 보존을 조절해 기울기 소실을 완화하며, 시계열 예측·음성·언어 모델링처럼 긴 문맥이 필요한 작업에서 안정적인 학습을 제공한다. 최근에는 Attention과 결합한 하이브리드 구조로도 널리 쓰인다.",
     "related_paper_titles": [
       "CsiNet-LSTM: A Deep Learning Architecture for Compressive CSI Estimation and Feedback in FDD Massive MIMO",
       "SLATE: SwinLSTM Autoencoder for Temporal-Spatial-Frequency CSI Compression"
-    ]
+    ],
+    "hierarchy": [
+      "Architecture",
+      "Model Design"
+    ],
+    "study_classification": {},
+    "term_set": "csi_core",
+    "details_markdown": "### 정의\n기억 셀 c_t를 중심으로 정보 보존·갱신을 게이트로 제어하는 순환 신경망이다.\n### 핵심 수식\n$$i_t=σ(W_i x_t+U_i h_{t-1}+b_i),\\ f_t=σ(W_f x_t+U_f h_{t-1}+b_f)$$\n$$g_t=tanh(W_c x_t+U_c h_{t-1}+b_c),\\ c_t=f_t⊙c_{t-1}+i_t⊙g_t$$\n$$o_t=σ(W_o x_t+U_o h_{t-1}+b_o),\\ h_t=o_t⊙tanh(c_t)$$\n### 변수 해석\ni,f,o: 입력/망각/출력 게이트, c_t: 셀 상태, h_t: 은닉 상태.\n### 실무 체크\n긴 시퀀스는 gradient clipping, layer norm, truncated BPTT로 학습 안정성을 확보한다."
   },
   {
     "id": "mi-regularization",
     "name": "Mutual Information Regularization",
     "aliases": [
-      "MI ???",
-      "??? ???"
+      "MI Regularization",
+      "Mutual Information Regularization"
     ],
     "category": "training",
-    "description": "?? ??? MI ?? ?? ??? ??? ???? ???? ???? ??? ????. VQ ????? ???? ?? ?? ??? ?? ???.",
+    "description": "MI 정규화는 표현과 입력·레이블 사이 상호정보량을 제어해 모델이 필요한 정보만 유지하도록 유도하는 기법이다. 과적합 완화와 강건성 향상에 자주 쓰이며, 정보병목 관점에서 잡음에 민감한 요인을 억제하고 다운스트림에 유효한 특징을 강화한다. 실제 구현은 MINE·대조학습 기반 근사로 계산 가능하게 만든다.",
     "related_paper_titles": [
       "Precoding-Oriented CSI Feedback Design with Mutual Information Regularized VQ-VAE"
-    ]
+    ],
+    "hierarchy": [
+      "Training",
+      "Regularization",
+      "Information-theoretic"
+    ],
+    "study_classification": {
+      "optimization": [
+        "Information Bottleneck Control"
+      ],
+      "quantization_module": [
+        "Codebook Utilization Regularizer"
+      ],
+      "learning_flow": [
+        "Training Stabilization"
+      ]
+    },
+    "term_set": "csi_quantization",
+    "details_markdown": "### 정의\n목표와 무관한 정보는 줄이고 유의미한 정보는 늘리도록 MI 항을 손실함수에 추가한다.\n### 핵심 수식\n$$I(X;Z)=E_{p(x,z)}[log(p(x,z)/(p(x)p(z)))]$$\n$$L_{total}=L_{task}+β I(X;Z)-γ I(Z;Y)$$\n### 변수 해석\nX: 입력, Z: 잠재표현, Y: 목표, β/γ: 정보 억제·강조 강도.\n### 실무 체크\nMI 추정 분산이 커질 수 있어 배치 크기, moving average, 안정화 항을 함께 튜닝한다."
   },
   {
     "id": "mixed-precision-quantization",
     "name": "Mixed-Precision Quantization",
     "aliases": [
-      "혼합 정밀도 양자화",
       "INT4/INT8"
     ],
     "category": "technique",
-    "description": "레이어마다 다른 비트폭을 할당해 같은 자원 예산에서 정확도와 지연시간의 균형을 개선하는 양자화 전략이다.",
+    "description": "혼합 정밀도 양자화는 레이어·채널별 민감도 차이를 반영해 서로 다른 비트폭을 배정하는 압축 전략이다. 동일 평균 비트에서도 중요한 구간에 정밀도를 남겨 정확도 손실을 줄일 수 있고, 하드웨어 비용 모델과 함께 최적화하면 메모리·지연·전력 목표를 동시에 맞추기 쉽다. 자동 비트할당은 latency lookup table과 결합해 구현한다.",
     "related_paper_titles": [
       "HAWQ-V3: Dyadic Neural Network Quantization",
       "BRECQ: Pushing the Limit of Post-Training Quantization by Block Reconstruction"
-    ]
+    ],
+    "hierarchy": [
+      "Quantization",
+      "Bit-width Design",
+      "Mixed Precision"
+    ],
+    "study_classification": {
+      "optimization": [
+        "Bit-width Search",
+        "Hardware-aware Trade-off"
+      ],
+      "quantization_module": [
+        "Mixed-bit Quantizer"
+      ],
+      "learning_flow": [
+        "Quantizer Design"
+      ]
+    },
+    "term_set": "csi_quantization",
+    "details_markdown": "### 정의\n모든 층을 동일 비트로 양자화하지 않고, 중요도에 따라 비트폭을 다르게 설정한다.\n### 핵심 수식\n$$min_{b_l} Σ_l Δ_l(b_l),\\ Σ_l c_l(b_l) ≤ C$$\n$$w_l^q = Q(w_l; b_l)$$\n### 변수 해석\nb_l: l층 비트폭, Δ_l: 정확도 손실 추정, c_l: 메모리/지연 비용, C: 총 예산.\n### 실무 체크\n연산자별 지원 비트와 커널 구현 가능 여부를 먼저 확인하지 않으면 실제 가속 이득이 사라진다."
   },
   {
     "id": "monotone-convergence-theorem",
     "name": "Monotone Convergence Theorem",
     "aliases": [
-      "단조수렴정리",
-      "단조 수렴 정리",
       "MCT"
     ],
     "category": "technique",
-    "description": "반복 최적화에서 목적함수 수열 J_t가 단조(비증가 또는 비감소)이고 하한/상한을 가지면 수렴한다는 정리다. 실무적으로는 매 반복에서 목적값이 나빠지지 않도록 업데이트 규칙을 설계하고, 목적값이 바닥값(예: 0) 아래로 내려갈 수 없음을 이용해 수렴을 보장한다. 비트 할당 문제처럼 정수 제약과 유한 feasible set이 있는 경우에는 수렴과 함께 유한 단계 종료 해석이 가능하다.",
+    "description": "단조수렴정리는 음이 아닌 함수열이 점wise로 단조 증가해 극한 함수에 수렴할 때, 적분과 극한의 교환이 가능함을 보장한다. 확률·정보이론에서 기대값 교환 정당화에 자주 쓰이며, 근사 수열을 통한 엄밀한 증명의 핵심 도구다. 적용 전 비음성 조건과 단조성 가정이 성립하는지 점검해야 한다.",
     "related_paper_titles": [
       "Quantization Design for Deep Learning-Based CSI Feedback",
       "Quantization of Deep Neural Networks for Accurate CSI Feedback",
       "Deep Learning-Based CSI Feedback with Variable Length Codewords for Adaptive FDD Massive MIMO"
-    ]
+    ],
+    "hierarchy": [
+      "Optimization",
+      "Convergence Analysis",
+      "Monotone Convergence"
+    ],
+    "study_classification": {
+      "optimization": [
+        "Convergence Analysis"
+      ],
+      "learning_flow": [
+        "Theoretical Validation"
+      ]
+    },
+    "term_set": "csi_quantization",
+    "details_markdown": "### 정의\n증가하는 비음성 함수열의 극한에 대해 적분과 극한 연산을 바꿔도 되는 정리다.\n### 핵심 수식\n$$0 ≤ f_n(x) ↑ f(x) ⇒ lim_{n→∞} ∫ f_n dμ = ∫ f dμ$$\n$$Σ_{k=1}^{∞} a_k = lim_{n→∞} Σ_{k=1}^{n} a_k,\\ a_k ≥ 0$$\n### 변수 해석\nf_n: 단조 증가 함수열, f: 극한 함수, μ: 측도, a_k: 비음수 항.\n### 실무 체크\n지배수렴정리와 혼동하지 말고, 음수 항이 섞인 경우는 직접 적용하지 않는다."
   },
   {
     "id": "mu-law-companding",
     "name": "mu-law Companding",
     "aliases": [
       "mu-law",
-      "mu-law 양자화"
+      "mu-law quantization"
     ],
     "category": "technique",
-    "description": "신호를 비선형 변환해 0 근처 구간에 더 촘촘한 양자화 레벨을 배치하는 companding 기법이다. zero-centered 코드워드 분포에서 양자화 왜곡을 줄이는 데 유리하다.",
+    "description": "μ-law 컴팬딩은 작은 진폭 신호를 더 세밀하게, 큰 진폭은 거칠게 표현하도록 비선형 압축 후 양자화하는 기법이다. 음성 코딩에서 낮은 비트율에서도 주관 음질을 개선하며, 복원 시 역함수로 동적 범위를 되돌린다. ITU-T G.711에서 대표적으로 사용되고, 입력 정규화와 μ 값이 왜곡-잡음 균형을 좌우한다.",
     "related_paper_titles": [
       "Quantization Adaptor for Bit-Level Deep Learning-Based Massive MIMO CSI Feedback",
       "Quantization of Deep Neural Networks for Accurate CSI Feedback"
-    ]
+    ],
+    "hierarchy": [
+      "Quantization",
+      "Companding",
+      "mu-law"
+    ],
+    "study_classification": {
+      "optimization": [
+        "Nonlinear Preprocessing"
+      ],
+      "quantization_module": [
+        "Companding"
+      ],
+      "learning_flow": [
+        "Preprocessing"
+      ]
+    },
+    "details_markdown": "### 정의\n양자화 전 진폭을 로그 형태로 압축해 저진폭 구간 해상도를 높이는 비선형 전처리다.\n### 핵심 수식\n$$y = sgn(x) · ln(1+μ|x|/X_{max}) / ln(1+μ)$$\n$$x̂ = sgn(y) · (X_{max}/μ) · ((1+μ)^{|y|}-1)$$\n### 변수 해석\nμ: 압축 강도, X_max: 정규화 최대 진폭, y: 압축 도메인 값.\n### 실무 체크\n입력 클리핑과 스케일 정합이 중요하며, 시스템 표준(예: G.711) 파라미터와 맞춰야 한다.",
+    "term_set": "csi_quantization"
   },
   {
     "id": "multi-head-self-attention",
     "name": "Multi-Head Self-Attention",
     "aliases": [
-      "MHSA",
-      "멀티헤드 셀프 어텐션"
+      "MHSA"
     ],
     "category": "technique",
-    "description": "Self-Attention을 여러 개의 독립적인 헤드로 분할하여 병렬로 수행한 뒤 결과를 결합하는 기법이다. 각 헤드가 서로 다른 부분공간에서 표현을 학습하므로, 단일 어텐션보다 다양한 패턴의 의존성을 동시에 포착할 수 있다. Transformer 기반 CSI 피드백 구조에서 핵심 연산 블록으로 사용된다.",
+    "description": "멀티헤드 셀프어텐션은 동일 입력에서 여러 투영 공간의 주의 분포를 병렬로 계산해 다양한 관계를 동시에 포착한다. 각 헤드는 서로 다른 의존성 패턴을 학습하고 결합 후 선형 변환으로 표현력을 확장한다. Transformer의 핵심 연산이며, 헤드 수와 차원 분할이 성능·메모리·지연 트레이드오프를 결정한다.",
     "related_paper_titles": [
       "TransNet: Full Attention Network for CSI Feedback in FDD Massive MIMO",
       "CSI-GPT: Integrating Generative Pre-Trained Transformer with Federated-Tuning for Channel Estimation in Massive MIMO"
-    ]
+    ],
+    "hierarchy": [
+      "Technique",
+      "Method"
+    ],
+    "study_classification": {},
+    "term_set": "csi_core",
+    "details_markdown": "### 정의\n입력 자체를 Query/Key/Value로 사용해 토큰 간 상호작용을 여러 헤드에서 병렬 추정한다.\n### 핵심 수식\n$$head_i = softmax((QW_i^Q (KW_i^K)^T)/d_k^{1/2}) VW_i^V$$\n$$MHA(Q,K,V)=Concat(head_1,...,head_h)W^O$$\n### 변수 해석\nQ,K,V: 입력 투영, h: 헤드 수, d_k: 키 차원, W^O: 출력 결합 행렬.\n### 실무 체크\n긴 시퀀스는 O(n^2) 비용이 커지므로 flash attention, windowing, kv-cache를 검토한다."
   },
   {
     "id": "multi-rate-codebook-design",
     "name": "Multi-Rate Codebook Design",
     "aliases": [
-      "?? ??? ??? ??",
-      "Adaptive Rate Codebook"
+      "Multi-Rate Codebook Design",
+      "Hierarchical Codebook"
     ],
     "category": "technique",
-    "description": "?? ?? ??? ?? ???? ????? ???? ?? ??/???? ????. ?? ??? ??? ??? ?? ???? ???.",
+    "description": "다중율 코드북 설계는 피드백 비트 수가 가변적인 환경에서 품질 저하를 최소화하도록 코드워드를 계층적으로 구성하는 방법이다. 저율에서는 거친 방향 정보를, 고율에서는 세밀 보정을 제공해 링크 적응에 유연하게 대응한다. 표준 코드북과 호환성을 유지하면 통합 비용을 줄이고 CSI 피드백 효율을 높일 수 있다.",
     "related_paper_titles": [
       "Vector Quantization for Deep-Learning-Based CSI Feedback with Shape-Gain Decomposition"
-    ]
+    ],
+    "hierarchy": [
+      "Codebook Design",
+      "Adaptive Rate",
+      "Multi-rate"
+    ],
+    "study_classification": {
+      "optimization": [
+        "Rate Adaptation"
+      ],
+      "quantization_module": [
+        "Hierarchical Codebook"
+      ],
+      "learning_flow": [
+        "System Constraint Definition",
+        "Quantizer Design"
+      ]
+    },
+    "term_set": "csi_quantization",
+    "details_markdown": "### 정의\n비트 예산 R에 따라 서로 다른 크기 코드북 C_r를 사용해 채널/프리코더를 양자화한다.\n### 핵심 수식\n$$i_r^* = argmax_{i∈C_r} |h^H c_i|^2$$\n$$D(R)=E[||h-h^q(R)||_2^2],\\ R=log_2|C_r|$$\n### 변수 해석\nh: 채널(또는 목표 벡터), c_i: 코드워드, D(R): 왜곡-율 함수.\n### 실무 체크\n각 rate 간 인덱스 매핑을 일관되게 설계해야 상향/하향 rate 전환 시 오버헤드가 작다."
   },
   {
     "id": "mutual-information",
     "name": "Mutual Information (MI)",
     "aliases": [
-      "MI",
-      "?????"
+      "Mutual Information",
+      "MI"
     ],
     "category": "metric",
-    "description": "? ???? ??? ?? ???? ???? ???. ???? ??? ?? ??? ???? ??? ??? ???? ? ???? ??? ??? ? ??.",
+    "description": "상호정보량은 두 확률변수가 공유하는 정보의 양을 나타내는 척도다. 한 변수를 알 때 다른 변수의 불확실성이 얼마나 줄어드는지 측정하며, 특징 선택·표현학습·통신 용량 해석에서 핵심 지표로 쓰인다. 0이면 독립이고 값이 클수록 의존성이 강하며, 연속형에선 밀도 추정 편향 관리가 중요하다.",
     "related_paper_titles": [
       "Precoding-Oriented CSI Feedback Design with Mutual Information Regularized VQ-VAE"
-    ]
+    ],
+    "hierarchy": [
+      "Information Theory",
+      "Metric",
+      "Mutual Information"
+    ],
+    "study_classification": {
+      "optimization": [
+        "Information-theoretic Objective"
+      ],
+      "learning_flow": [
+        "Objective Design",
+        "Evaluation"
+      ]
+    },
+    "term_set": "csi_quantization",
+    "details_markdown": "### 정의\n두 변수 간 통계적 의존성을 엔트로피 차이로 측정하는 정보이론 지표다.\n### 핵심 수식\n$$I(X;Y)=Σ_{x,y} p(x,y) log(p(x,y)/(p(x)p(y)))$$\n$$I(X;Y)=H(X)-H(X|Y)=H(Y)-H(Y|X)$$\n### 변수 해석\np(x,y): 결합분포, H(·): 엔트로피, H(·|·): 조건부 엔트로피.\n### 실무 체크\n샘플 수가 적으면 MI 추정 편향이 커져 과대평가되므로 kNN/변분 추정의 보정 전략이 필요하다."
   },
   {
     "id": "nested-codebook",
     "name": "Nested Codebook",
     "aliases": [
-      "?? ???",
-      "?? ???"
+      "Nested Codebook",
+      "Hierarchical Codebook"
     ],
     "category": "technique",
-    "description": "? ???? ? ???? ????? ????? ??? ?? ?????? ??? ??????? ???? ?? ????.",
+    "description": "중첩 코드북은 저해상도 코드북을 고해상도 코드북의 부분집합으로 포함시키는 계층형 구조다. 단계적 피드백과 점진적 정밀화에 유리해 가용 비트에 맞춰 해상도를 자연스럽게 확장할 수 있고, 기존 인덱스 재사용으로 시그널링 오버헤드를 줄인다. 점진 전송·재전송 시에도 운영 유연성이 높다.",
     "related_paper_titles": [
       "Vector Quantization for Deep-Learning-Based CSI Feedback with Shape-Gain Decomposition"
-    ]
+    ],
+    "hierarchy": [
+      "Codebook Design",
+      "Hierarchical Structure",
+      "Nested Codebook"
+    ],
+    "study_classification": {
+      "optimization": [
+        "Coarse-to-Fine Search"
+      ],
+      "quantization_module": [
+        "Hierarchical/Nested Codebook"
+      ],
+      "learning_flow": [
+        "Quantizer Design"
+      ]
+    },
+    "term_set": "csi_quantization",
+    "details_markdown": "### 정의\ncoarse-to-fine 방식으로 코드워드를 계층화해 적은 비트에서 많은 비트로 정밀도를 누적한다.\n### 핵심 수식\n$$C_1 ⊂ C_2 ⊂ ... ⊂ C_L$$\n$$h^q = c_{i_0}^{(0)} + Σ_{ℓ=1}^{L} c_{i_ℓ}^{(ℓ)}$$\n### 변수 해석\nC_ℓ: ℓ단계 코드북, i_ℓ: 단계별 인덱스, c_{i_ℓ}^{(ℓ)}: 보정 코드워드.\n### 실무 체크\n단계 간 독립성보다 누적 왜곡 최소화를 우선 설계해야 실제 피드백 이득이 커진다."
   },
   {
     "id": "nmse",
     "name": "NMSE",
     "aliases": [
-      "Normalized MSE",
-      "정규화 평균제곱오차"
+      "Normalized MSE"
     ],
     "category": "metric",
-    "description": "복원된 CSI와 원본 CSI 간의 오차를 원본 에너지로 정규화한 지표로, 채널 세기에 무관하게 공정한 성능 비교가 가능하다. 값이 작을수록 복원 품질이 높으며, dB 스케일로 표기할 때 음의 값이 클수록 우수하다. CSI 피드백 논문에서 사실상 모든 연구가 주요 평가 지표로 NMSE를 사용한다.",
+    "description": "NMSE는 추정 오차 전력을 원 신호 전력으로 정규화한 지표로, 스케일 차이가 큰 실험 간 성능 비교에 적합하다. 값이 작을수록 재구성 품질이 높고 보통 dB와 함께 보고한다. CSI 복원·압축·회귀 문제에서 절대 MSE보다 해석이 직관적이며, 다중 시나리오 벤치마크에서 특히 유용하다.",
     "related_paper_titles": [
       "Quantization Design for Deep Learning-Based CSI Feedback",
       "Deep Learning for Massive MIMO CSI Feedback (CsiNet)",
@@ -504,163 +909,284 @@
       "ACRNet: Aggregation Cross-Domain Network for CSI Feedback in Massive MIMO",
       "ENet: Efficient CSI Feedback for Massive MIMO Communications",
       "Quantization of Deep Neural Networks for Accurate CSI Feedback"
-    ]
+    ],
+    "hierarchy": [
+      "Evaluation",
+      "Metric"
+    ],
+    "study_classification": {},
+    "term_set": "csi_quantization",
+    "details_markdown": "### 정의\n오차 크기를 원신호 크기로 나눠 상대적 재구성 성능을 평가하는 지표다.\n### 핵심 수식\n$$NMSE = E[||x-x^q||_2^2] / E[||x||_2^2]$$\n$$NMSE_{dB}=10 log_{10}(NMSE)$$\n### 변수 해석\nx: 원신호, x^q: 추정/복원 신호, E[·]: 평균 연산.\n### 실무 체크\n배치별 전력 편차가 큰 데이터는 샘플별 NMSE 후 평균하는지, 통합 비율을 쓰는지 명시한다."
   },
   {
     "id": "positional-encoding",
     "name": "Positional Encoding",
     "aliases": [
-      "위치 인코딩",
       "PE"
     ],
     "category": "technique",
-    "description": "Transformer 구조가 입력 토큰의 순서 정보를 인식할 수 있도록, 각 위치에 고유한 벡터를 더하거나 학습하는 기법이다. 사인·코사인 함수 기반의 고정 인코딩과 학습 가능한 인코딩이 대표적이며, 위치 정보 없이는 Self-Attention이 순서에 무관한 집합 연산이 된다. CSI 피드백에서는 채널 행렬의 공간·주파수 축 위치 정보를 Transformer에 주입하는 데 활용된다.",
+    "description": "위치 인코딩은 순서 정보가 없는 어텐션 구조에 토큰 위치를 주입하는 방법이다. 사인·코사인 기반 고정식은 파라미터 증가 없이 거리 단서를 제공해 길이 외삽에 강하고, 학습형 방식은 데이터 분포 적응성이 높다. 긴 시퀀스에선 상대위치·회전형 변형으로 대체되기도 하며 성능 차이가 크게 난다.",
     "related_paper_titles": [
       "TransNet: Full Attention Network for CSI Feedback in FDD Massive MIMO",
       "CSI-GPT: Integrating Generative Pre-Trained Transformer with Federated-Tuning for Channel Estimation in Massive MIMO"
-    ]
+    ],
+    "hierarchy": [
+      "Technique",
+      "Method"
+    ],
+    "study_classification": {},
+    "term_set": "csi_core",
+    "details_markdown": "### 정의\n토큰 순서를 벡터 표현에 합성해 self-attention이 위치 정보를 활용하도록 만든다.\n### 핵심 수식\n$$PE(pos,2i)=sin(pos / 10000^{2i/d})$$\n$$PE(pos,2i+1)=cos(pos / 10000^{2i/d})$$\n### 변수 해석\npos: 위치 인덱스, i: 차원 인덱스, d: 임베딩 차원.\n### 실무 체크\n학습 길이보다 긴 입력이 중요하면 고정식/상대위치 계열을 우선 검토한다."
   },
   {
     "id": "post-training-quantization",
     "name": "Post-Training Quantization (PTQ)",
     "aliases": [
-      "PTQ",
-      "사후 학습 양자화"
+      "PTQ"
     ],
     "category": "training",
-    "description": "학습이 끝난 모델을 재학습 없이, 또는 소량 calibration만으로 양자화하는 방법이다. 배포 속도와 비용에 유리하지만 저비트에서 정확도 유지가 어려워 고도 보정 기법이 필요하다.",
+    "description": "사후학습 양자화(PTQ)는 학습이 끝난 모델을 재학습 없이 정수 비트폭으로 변환하는 배포 최적화 기법이다. 소량의 보정 데이터로 스케일·제로포인트를 추정해 빠르게 적용할 수 있어 엔지니어링 비용이 낮다. 정확도 민감 모델은 이상치 처리, bias correction, 채널별 보정을 함께 써야 안정적이다.",
     "related_paper_titles": [
       "BRECQ: Pushing the Limit of Post-Training Quantization by Block Reconstruction",
       "GPTQ: Accurate Post-Training Quantization for Generative Pre-trained Transformers"
-    ]
+    ],
+    "hierarchy": [
+      "Quantization",
+      "Post-training",
+      "PTQ"
+    ],
+    "study_classification": {
+      "optimization": [
+        "Calibration-based Optimization"
+      ],
+      "quantization_module": [
+        "PTQ Pipeline"
+      ],
+      "learning_flow": [
+        "Deployment Optimization"
+      ]
+    },
+    "term_set": "csi_quantization",
+    "details_markdown": "### 정의\n학습 완료 모델을 calibration만으로 INT 연산 친화 형태로 변환하는 경량 배포 절차다.\n### 핵심 수식\n$$q = clip(round(x/s)+z,\\ q_{min},q_{max})$$\n$$x^q = s(q-z)$$\n### 변수 해석\ns: 스케일, z: zero-point, q_{min}/q_{max}: 정수 표현 범위.\n### 실무 체크\n활성값 분포가 비대칭이면 per-channel/per-tensor 선택과 calibration 표본 대표성이 핵심이다."
   },
   {
     "id": "precoding-oriented-csi-feedback",
     "name": "Precoding-Oriented CSI Feedback",
     "aliases": [
-      "???? ?? CSI ???",
-      "Goal-Oriented CSI Feedback"
+      "Precoding-Oriented CSI Feedback",
+      "Downlink-rate-oriented CSI"
     ],
     "category": "domain",
-    "description": "CSI ???? ???? ?? downlink precoding ??(?: ? achievable rate)? ?? ??? ?? CSI ??? ?? ????.",
+    "description": "프리코딩 지향 CSI 피드백은 채널 자체의 완전 복원보다 전송률·빔포밍 이득을 최대화하는 프리코더 선택에 초점을 맞춘다. 제한된 피드백 비트에서 시스템 목표와 직접 연결된 정보를 우선 전달해 링크 효율을 높이며, 코드북 기반 MIMO에서 실용성이 크다. 동일 오버헤드로 체감 스루풋 개선을 노릴 수 있다.",
     "related_paper_titles": [
       "Precoding-Oriented CSI Feedback Design with Mutual Information Regularized VQ-VAE"
-    ]
+    ],
+    "hierarchy": [
+      "Domain",
+      "System Objective",
+      "Precoding-aware"
+    ],
+    "study_classification": {
+      "optimization": [
+        "Task-aligned Objective"
+      ],
+      "learning_flow": [
+        "Objective Design",
+        "System Constraint Definition"
+      ]
+    },
+    "term_set": "csi_quantization",
+    "details_markdown": "### 정의\nCSI를 압축할 때 채널 추정 오차 최소화보다 precoder 선택 성능을 직접 최적화한다.\n### 핵심 수식\n$$i^* = argmax_{i∈F} log_2 det(I + (ρ/N_s) H f_i f_i^H H^H)$$\n$$f_{sel}=f_{i^*}$$\n### 변수 해석\nH: 채널 행렬, F: 프리코더 코드북, ρ: SNR, N_s: 스트림 수.\n### 실무 체크\n목표 지표(throughput/BLER)를 명확히 두고 코드북 메트릭을 시스템 KPI와 일치시켜야 한다."
   },
   {
     "id": "pruning",
     "name": "Pruning",
     "aliases": [
-      "프루닝",
-      "가지치기",
       "Network Pruning"
     ],
     "category": "training",
-    "description": "신경망에서 중요도가 낮은 가중치, 뉴런, 또는 필터를 제거하여 모델 크기와 연산량을 줄이는 경량화 기법이다. 비구조적 프루닝(개별 가중치 제거)과 구조적 프루닝(필터/채널 단위 제거)으로 나뉘며, 후자가 실제 하드웨어 가속에 더 유리하다. CSI 피드백에서는 특히 UE 측 인코더의 모델 크기를 줄여 제한된 모바일 환경에 배포 가능하게 만드는 데 활용된다.",
+    "description": "프루닝은 영향이 작은 가중치·채널·헤드를 제거해 모델을 경량화하는 기법이다. 비정형 프루닝은 높은 압축률에 유리하고, 구조적 프루닝은 실제 하드웨어 가속 효과가 크다. 보통 제거 후 미세조정으로 성능을 회복하며, 프루닝 스케줄과 재학습 에폭 수가 최종 정확도와 속도를 크게 좌우한다.",
     "related_paper_titles": [
       "Pruning Deep Neural Networks for Efficient CSI Feedback"
-    ]
+    ],
+    "hierarchy": [
+      "Training",
+      "Optimization"
+    ],
+    "study_classification": {},
+    "term_set": "optimization_foundation",
+    "details_markdown": "### 정의\n불필요한 파라미터를 마스크 처리해 연산량과 메모리 사용을 줄이는 모델 압축 방법이다.\n### 핵심 수식\n$$w' = m ⊙ w,\\ m∈{0,1}^n$$\n$$min_{w,m} L(w⊙m)+λ||m||_0$$\n### 변수 해석\nm: 보존/제거 마스크, λ: 희소성 강도, ||m||_0: 남은 연결 수.\n### 실무 체크\n목표 장치가 희소 연산을 실제로 가속하는지 확인하고, 구조적 프루닝 우선 여부를 결정한다."
   },
   {
     "id": "qsnr",
     "name": "QSNR",
     "aliases": [
-      "Quantization Signal-to-Noise Ratio",
-      "양자화 신호대잡음비"
+      "Quantization Signal-to-Noise Ratio"
     ],
     "category": "metric",
-    "description": "양자화 전후 신호 에너지 비율로 양자화 왜곡을 측정하는 지표다. 값이 높을수록 양자화 오차가 작다.",
+    "description": "QSNR은 양자화로 발생한 잡음 대비 원신호 전력 비를 dB로 나타낸 지표다. 값이 높을수록 양자화 왜곡이 작아 품질이 좋고, 비트 수 변화에 따른 품질 추세를 빠르게 비교하기 좋다. 이상적 균일 양자화에선 비트 1 증가당 약 6 dB 개선 근사가 널리 쓰이지만, 신호 분포에 따라 오차가 커질 수 있다.",
     "related_paper_titles": [
       "Quantization Adaptor for Bit-Level Deep Learning-Based Massive MIMO CSI Feedback"
-    ]
+    ],
+    "hierarchy": [
+      "Evaluation",
+      "Metric"
+    ],
+    "study_classification": {},
+    "term_set": "csi_quantization",
+    "details_markdown": "### 정의\n양자화 오차 전력 대비 신호 전력의 비율로 양자화 품질을 정량화한다.\n### 핵심 수식\n$$QSNR = 10 log_{10}(P_{signal}/P_{q-error})$$\n$$QSNR_{ideal} ≈ 6.02B + 1.76$$\n### 변수 해석\nP_signal: 원신호 평균 전력, P_q-error: 양자화 오차 전력, B: 비트 수.\n### 실무 체크\n클리핑이 있거나 비정규 분포 입력이면 이론식보다 실측 QSNR과 청감/과업 성능을 함께 본다."
   },
   {
     "id": "quantization-aware-training",
     "name": "Quantization-Aware Training (QAT)",
     "aliases": [
-      "양자화 인식 학습",
       "QAT"
     ],
     "category": "training",
-    "description": "학습 과정에서 양자화에 의한 정밀도 손실을 시뮬레이션하여, 추론 시 저비트 양자화를 적용해도 성능 저하가 최소화되도록 모델을 훈련하는 기법이다. 순전파 시 가중치나 활성값을 양자화하고, 역전파 시 STE 등의 근사 기울기를 사용한다. CSI 피드백에서는 코드워드를 유한 비트로 전송해야 하므로, QAT를 통해 양자화 오차를 학습 단계에서 보상하는 것이 중요하다.",
+    "description": "양자화 인지 학습(QAT)은 학습 중 가짜 양자화를 삽입해 배포 시 정수 연산 환경을 미리 모사하는 방법이다. PTQ보다 정확도 보존이 유리하고 저비트(INT4/INT8)에서 특히 효과가 크다. 직선통과추정기(STE)로 역전파를 근사하며, 스케일 학습·캘리브레이션·훈련 안정화 전략이 최종 품질을 좌우한다.",
     "related_paper_titles": [
       "Quantization Design for Deep Learning-Based CSI Feedback",
       "Quantization of Deep Neural Networks for Accurate CSI Feedback",
       "Binarized Neural Network for CSI Feedback in Massive MIMO Systems (BCsiNet)",
       "Binarized Aggregated Network With Quantization: Flexible Deep Learning Deployment for CSI Feedback in Massive MIMO Systems",
       "Quantization Adaptor for Bit-Level Deep Learning-Based Massive MIMO CSI Feedback"
-    ]
+    ],
+    "hierarchy": [
+      "Quantization",
+      "Training-time Quantization",
+      "QAT"
+    ],
+    "study_classification": {
+      "optimization": [
+        "Joint Train-and-Quantize"
+      ],
+      "quantization_module": [
+        "Fake Quantization",
+        "QAT"
+      ],
+      "learning_flow": [
+        "Training Loop Design"
+      ]
+    },
+    "term_set": "csi_quantization",
+    "details_markdown": "### 정의\nforward에서 양자화 효과를 반영하고 backward는 근사 미분을 사용해 학습하는 정수 배포 친화 학습법이다.\n### 핵심 수식\n$$x^q = s(clip(round(x/s)+z,\\ q_{min},q_{max})-z)$$\n$$∂x^q/∂x ≈ 1,\\ x∈[x_{min},x_{max}]$$\n### 변수 해석\ns/z: 양자화 파라미터, clip 범위: 정수 표현 구간, STE: 미분 근사 방식.\n### 실무 체크\n학습 후 바로 배포 검증(INT 커널)까지 수행해 fake-quant와 실제 런타임 간 불일치를 확인한다."
   },
   {
     "id": "rate-distortion-optimization",
     "name": "Rate-Distortion Optimization",
     "aliases": [
-      "율-왜곡 최적화",
-      "R-D 최적화",
       "RDO"
     ],
     "category": "technique",
-    "description": "전송 비트율(rate)과 복원 오차(distortion)를 동시에 고려해 최적점을 찾는 프레임워크다. 일반적으로 D + λR 형태의 목적함수를 사용해 품질과 전송 비용의 균형을 맞춘다. λ가 크면 비트 절약 쪽, 작으면 복원 품질 쪽으로 해가 이동한다. CSI 피드백에서는 제한된 업링크 비트 예산에서 NMSE를 최소화하기 위한 핵심 관점이다.",
+    "description": "율-왜곡 최적화는 제한된 비트 예산에서 재구성 왜곡을 최소화하거나, 허용 왜곡 내 전송률을 최소화하는 설계 원칙이다. 압축·양자화·부호화 결정을 라그랑주 형태로 통합해 모듈 간 트레이드오프를 정량화할 수 있으며, 실제 시스템에서는 \\(\\lambda\\) 선택이 품질과 비트 사용량을 사실상 결정한다.",
     "related_paper_titles": [
       "Quantization Design for Deep Learning-Based CSI Feedback",
       "Quantization of Deep Neural Networks for Accurate CSI Feedback",
       "Deep Learning-Based CSI Feedback with Variable Length Codewords for Adaptive FDD Massive MIMO",
       "Vector Quantized CSI Feedback with Learned Codebook"
-    ]
+    ],
+    "hierarchy": [
+      "Optimization",
+      "Information-theoretic",
+      "Rate-Distortion"
+    ],
+    "study_classification": {
+      "optimization": [
+        "Rate-Distortion Trade-off"
+      ],
+      "quantization_module": [
+        "Bit Allocation Objective"
+      ],
+      "learning_flow": [
+        "Objective Design"
+      ]
+    },
+    "term_set": "csi_quantization",
+    "details_markdown": "### 정의\n- 압축 품질과 전송 비트 수를 동시에 고려해 최적 동작점을 찾는 최적화 프레임워크다.\n\n### 핵심 수식\n$$\\min_{q} D(q)+\\lambda R(q)$$\n$$\\lambda=-\\frac{\\partial D}{\\partial R}$$\n\n### 변수 해석\n- $R$: rate(비트율), $D$: distortion(왜곡)\n- $q$: 양자화/부호화 의사결정, $\\lambda$: 트레이드오프 계수\n\n### 실무 체크\n- 서비스별 허용 왜곡 기준을 먼저 고정한 뒤 $\\lambda$를 탐색\n- 평가 시 헤더/패딩 등 실제 오버헤더 포함 기준을 통일"
   },
   {
     "id": "refinenet",
     "name": "RefineNet",
     "aliases": [
-      "리파인넷",
       "Refinement Network"
     ],
     "category": "architecture",
-    "description": "디코더의 초기 복원(coarse reconstruction) 결과를 잔차 학습 블록을 통해 반복적으로 보정하여 최종 복원 품질을 높이는 후처리 네트워크이다. CsiNet에서 처음 제안되었으며, 복수의 ResBlock을 캐스케이드하여 점진적으로 세부 정보를 복원한다. 이후 CRNet 등에서 채널 어텐션과 결합한 개선된 RefineNet 구조로 발전하였다.",
+    "description": "RefineNet은 1차 복원 결과를 그대로 끝내지 않고, 보정 블록을 여러 단계 적용해 세부 오차를 반복적으로 줄이는 구조다. 전역 문맥과 국소 디테일을 결합해 경계·텍스처를 개선하며, 초기 추정이 거칠어도 후속 단계에서 안정적으로 품질을 끌어올리기 쉽다. 복원형 네트워크의 후단 개선기로 자주 쓰인다.",
     "related_paper_titles": [
       "Deep Learning for Massive MIMO CSI Feedback (CsiNet)",
       "CRNet: A Deep-Learning Framework for CSI Feedback in Massive MIMO"
-    ]
+    ],
+    "hierarchy": [
+      "Architecture",
+      "Model Design"
+    ],
+    "study_classification": {},
+    "term_set": "csi_core",
+    "details_markdown": "### 정의\n- 거친 초기 추정값을 단계적으로 보정해 최종 복원 품질을 높이는 정제 네트워크다.\n\n### 핵심 수식\n$$x^{(0)}=x_{coarse},\\quad x^{(t+1)}=x^{(t)}+F_t(x^{(t)},c_t)$$\n$$L=\\|y-x^{(T)}\\|_1$$\n\n### 변수 해석\n- $x^{(t)}$: $t$단계 정제 결과, $F_t$: 정제 블록\n- $c_t$: 스킵/문맥 특징, $y$: 정답 신호\n\n### 실무 체크\n- 단계 수 $T$ 증가에 따른 이득 대비 지연을 함께 측정\n- 초기 복원기와 정제기의 손실 가중치를 분리 튜닝"
   },
   {
     "id": "residual-learning",
     "name": "Residual Learning",
     "aliases": [
-      "잔차 학습",
       "Skip Connection",
       "ResBlock"
     ],
     "category": "technique",
-    "description": "네트워크가 입력 자체 대신 입력과 출력의 차이(잔차)를 학습하도록 설계하여, 깊은 네트워크에서의 기울기 소실 문제를 완화하고 학습을 안정화하는 기법이다. Skip Connection을 통해 입력을 출력에 직접 더하는 구조로 구현되며, ResNet에서 최초로 제안되었다. CSI 피드백 분야에서는 디코더의 RefineNet 블록이 잔차 학습을 통해 복원된 CSI를 점진적으로 보정하는 핵심 전략으로 사용된다.",
+    "description": "잔차 학습은 목표를 직접 예측하는 대신 입력과 목표의 차이(잔차)를 학습해 최적화를 단순화하는 방식이다. 항등 경로가 남아 그래디언트 흐름이 좋아지고 깊은 네트워크에서도 수렴이 안정적이다. 입력과 출력이 유사한 노이즈 제거, 복원, 채널 추정 문제에서 특히 빠른 학습과 성능 이득을 보인다.",
     "related_paper_titles": [
       "CRNet: A Deep-Learning Framework for CSI Feedback in Massive MIMO",
       "Deep Learning for Massive MIMO CSI Feedback (CsiNet)",
       "ACRNet: Aggregation Cross-Domain Network for CSI Feedback in Massive MIMO"
-    ]
+    ],
+    "hierarchy": [
+      "Technique",
+      "Method"
+    ],
+    "study_classification": {},
+    "term_set": "csi_core",
+    "details_markdown": "### 정의\n- 네트워크가 전체 매핑이 아닌 잔차 성분을 예측하도록 설계하는 학습 방식이다.\n\n### 핵심 수식\n$$y=x+F_\\theta(x)$$\n$$L=\\|(y_{gt}-x)-F_\\theta(x)\\|_2^2$$\n\n### 변수 해석\n- $x$: 입력, $y_{gt}$: 목표 출력\n- $F_\\theta$: 잔차 예측 함수, $y$: 최종 출력\n\n### 실무 체크\n- 입력/출력 스케일이 유사할 때 잔차 학습 이점이 커짐\n- skip 경로 차원 불일치 시 projection 연산을 명시"
   },
   {
     "id": "shape-gain-decomposition",
     "name": "Shape-Gain Decomposition",
     "aliases": [
       "Shape-Gain",
-      "??-?? ??"
+      "Shape-Gain Decomposition"
     ],
     "category": "technique",
-    "description": "latent ??? ??(gain)? ??(shape)?? ??? ?? ?? ????? ???? ????. ???? ???? ??? ??/???? ? ??? ??.",
+    "description": "Shape-Gain 분해는 벡터를 크기(gain)와 방향(shape)으로 분리해 각각 독립적으로 부호화하는 기법이다. 에너지 정보와 구조 정보를 나눠 다루면 비트 할당을 유연하게 조정할 수 있어 동일 예산에서 왜곡을 줄이기 쉽다. 통신 피드백·벡터 양자화에서 복잡도 대비 성능 효율이 높은 고전적 접근이다.",
     "related_paper_titles": [
       "Vector Quantization for Deep-Learning-Based CSI Feedback with Shape-Gain Decomposition"
-    ]
+    ],
+    "hierarchy": [
+      "Quantization",
+      "Vector Decomposition",
+      "Shape-Gain"
+    ],
+    "study_classification": {
+      "optimization": [
+        "Component-wise Distortion Control"
+      ],
+      "quantization_module": [
+        "Gain Quantizer",
+        "Shape Quantizer"
+      ],
+      "learning_flow": [
+        "Quantizer Design"
+      ]
+    },
+    "term_set": "csi_quantization",
+    "details_markdown": "### 정의\n- 벡터를 노름과 단위방향으로 분해해 서로 다른 정밀도로 표현하는 방식이다.\n\n### 핵심 수식\n$$g=\\|x\\|_2,\\quad s=\\frac{x}{\\|x\\|_2},\\quad x=g\\,s$$\n$$R_{tot}=R_g+R_s$$\n\n### 변수 해석\n- $g$: gain(크기), $s$: shape(단위 방향)\n- $R_g,R_s$: 크기/방향 부호화 비트율\n\n### 실무 체크\n- 저 SNR 환경에서는 gain 비트 비중을 높이는 편이 유리\n- shape 양자화는 코드북 각도 분해능을 우선 점검"
   },
   {
     "id": "straight-through-estimator",
     "name": "Straight-Through Estimator (STE)",
     "aliases": [
-      "STE",
-      "?? ?? ???",
-      "?? ?? ?????"
+      "Straight-Through Estimator",
+      "STE"
     ],
     "category": "training",
-    "description": "??? ??(?: ???)?? forward? ?? ??? ??? ??, backward? ?? ???? ??? ?????? ???? ????. VQ ?? CSI ????? end-to-end ??? ???? ??? ?? ???.",
+    "description": "Straight-Through Estimator(STE)는 round, argmin 같은 비미분 연산을 포함한 모델을 역전파로 학습하기 위해 역방향 기울기를 근사 대체하는 방법이다. 전방향은 실제 이산화 연산을 유지하면서도 학습 가능성을 확보해 양자화·이산 잠재모델에서 널리 사용된다. 다만 gradient 편향이 있어 안정화 기법이 중요하다.",
     "related_paper_titles": [
       "Quantization Design for Deep Learning-Based CSI Feedback",
       "Binarized Neural Network for CSI Feedback in Massive MIMO Systems (BCsiNet)",
@@ -669,37 +1195,325 @@
       "Precoding-Oriented CSI Feedback Design with Mutual Information Regularized VQ-VAE",
       "Vector Quantized CSI Feedback with Learned Codebook",
       "Vector Quantization for Deep-Learning-Based CSI Feedback with Shape-Gain Decomposition"
-    ]
+    ],
+    "hierarchy": [
+      "Training",
+      "Non-differentiable Operator Learning",
+      "STE"
+    ],
+    "study_classification": {
+      "optimization": [
+        "Gradient Approximation"
+      ],
+      "quantization_module": [
+        "Quantizer Backprop"
+      ],
+      "learning_flow": [
+        "Training Stabilization",
+        "Training Loop Design"
+      ]
+    },
+    "term_set": "csi_quantization",
+    "details_markdown": "### 정의\n- 비미분 이산 연산의 역전파를 근사 기울기로 우회하는 학습 트릭이다.\n\n### 핵심 수식\n$$z_q=round(z)$$\n$$\\frac{\\partial L}{\\partial z}\\approx\\frac{\\partial L}{\\partial z_q}$$\n\n### 변수 해석\n- $z$: 연속 입력, $z_q$: 이산화 출력\n- $L$: 학습 손실, 우변은 대체 gradient\n\n### 실무 체크\n- 큰 학습률에서 불안정해지기 쉬워 gradient clipping 권장\n- forward 연산과 backward 근사 규칙을 코드로 명확히 분리"
   },
   {
     "id": "transformer",
     "name": "Transformer",
     "aliases": [
-      "트랜스포머"
+      "Transformer"
     ],
     "category": "architecture",
-    "description": "Self-Attention 메커니즘을 핵심으로 하여, 순환 구조 없이 입력 시퀀스의 전역 의존성을 병렬로 포착하는 신경망 구조이다. 원래 자연어 처리를 위해 제안되었으나, 비전 트랜스포머(ViT) 이후 다양한 도메인으로 확산되었다. CSI 피드백에서는 채널 행렬을 패치 또는 토큰 시퀀스로 변환하여 Transformer에 입력함으로써, CNN 대비 더 넓은 수용 영역과 유연한 표현 학습을 가능케 한다.",
+    "description": "트랜스포머는 순환 구조 없이 자기어텐션으로 토큰 간 상호작용을 모델링하는 시퀀스 아키텍처다. 긴 거리 의존성을 병렬 처리해 표현력이 높고 언어·비전·멀티모달의 표준 백본으로 자리잡았다. 시퀀스 길이가 늘면 연산과 메모리가 급증하므로 마스킹, 희소화, 캐시 전략이 실무 성능의 핵심이다.",
     "related_paper_titles": [
       "TransNet: Full Attention Network for CSI Feedback in FDD Massive MIMO",
       "CSI-GPT: Integrating Generative Pre-Trained Transformer with Federated-Tuning for Channel Estimation in Massive MIMO",
       "WiFo-CF: Wireless Foundation Model for CSI Feedback"
-    ]
+    ],
+    "hierarchy": [
+      "Architecture",
+      "Model Design"
+    ],
+    "study_classification": {},
+    "term_set": "csi_core",
+    "details_markdown": "### 정의\n- self-attention과 feed-forward 블록을 적층해 시퀀스 표현을 학습하는 구조다.\n\n### 핵심 수식\n$$\\mathrm{Attn}(Q,K,V)=softmax\\left(\\frac{QK^T}{\\sqrt{d_k}}\\right)V$$\n$$\\mathrm{FFN}(h)=W_2\\sigma(W_1h+b_1)+b_2$$\n\n### 변수 해석\n- $Q,K,V$: query/key/value 행렬\n- $d_k$: key 차원, $h$: 토큰 은닉벡터\n\n### 실무 체크\n- 긴 입력에서는 attention 메모리 사용량을 먼저 산정\n- pre-norm/post-norm 선택이 수렴 안정성에 영향"
   },
   {
     "id": "vector-quantization",
     "name": "Vector Quantization",
     "aliases": [
-      "VQ",
-      "?? ???"
+      "Vector Quantization",
+      "VQ"
     ],
     "category": "technique",
-    "description": "latent ??? ???? ?? ??? ????? ??? ???? ???? ??? ????. ?? ???? scalar quantization?? ????? ? ? ??? ? ??.",
+    "description": "벡터 양자화는 연속 잠재벡터를 코드북의 최근접 코드워드 인덱스로 치환해 이산 표현으로 바꾸는 기법이다. 스칼라 양자화보다 상관구조를 보존해 같은 비트에서 왜곡을 줄이기 쉽다. 다만 코드북 학습 안정성, 최근접 탐색 비용, 코드 사용 불균형 문제를 함께 관리해야 실제 압축 효율이 나온다.",
     "related_paper_titles": [
       "Neural Discrete Representation Learning (VQ-VAE)",
       "Vector Quantized CSI Feedback with Learned Codebook",
       "Finite Scalar Quantization: VQ-VAE Made Simple (FSQ)",
       "Vector Quantization for Deep-Learning-Based CSI Feedback with Shape-Gain Decomposition",
       "Precoding-Oriented CSI Feedback Design with Mutual Information Regularized VQ-VAE"
-    ]
+    ],
+    "hierarchy": [
+      "Quantization",
+      "Vector Quantization",
+      "Codebook-based Discretization"
+    ],
+    "study_classification": {
+      "optimization": [
+        "Nearest Neighbor Search",
+        "Codebook Learning"
+      ],
+      "quantization_module": [
+        "Vector Quantizer",
+        "Codebook"
+      ],
+      "learning_flow": [
+        "Quantizer Design"
+      ]
+    },
+    "term_set": "csi_quantization",
+    "details_markdown": "### 정의\n- 연속 벡터를 유한 코드워드 집합의 인덱스로 매핑하는 이산화 방법이다.\n\n### 핵심 수식\n$$k^*=\\arg\\min_k\\|z-e_k\\|_2^2,\\quad \\hat z=e_{k^*}$$\n$$L=L_{rec}+\\|sg(z)-e_{k^*}\\|_2^2+\\beta\\|z-sg(e_{k^*})\\|_2^2$$\n\n### 변수 해석\n- $e_k$: 코드북의 $k$번째 코드워드\n- $z$: 인코더 출력, $\\hat z$: 양자화 벡터\n\n### 실무 체크\n- 코드북 크기 증가 시 탐색 지연과 성능 이득을 같이 비교\n- 사용 빈도 모니터링으로 collapse 조기 탐지"
+  },
+  {
+    "id": "self-supervised-learning",
+    "name": "Self-Supervised Learning",
+    "aliases": [
+      "SSL"
+    ],
+    "category": "training",
+    "term_set": "representation_learning",
+    "description": "자기지도학습은 수동 라벨 없이 데이터 내부 구조로 학습 신호를 만들어 표현을 사전학습하는 접근이다. 대조, 복원, 예측 과제로 일반화 가능한 특징을 얻고, 소량 라벨 미세조정에서도 강한 성능을 보인다. 프리텍스트 과제와 증강 정책 선택이 다운스트림 전이 성능을 크게 좌우한다.",
+    "related_paper_titles": [
+      "Representation Learning with Contrastive Predictive Coding",
+      "Bootstrap Your Own Latent: A New Approach to Self-Supervised Learning",
+      "Masked Autoencoders Are Scalable Vision Learners"
+    ],
+    "hierarchy": [
+      "Representation Learning",
+      "Self-Supervised Learning"
+    ],
+    "study_classification": {},
+    "details_markdown": "### 정의\n- 라벨 없이 프리텍스트 목표를 통해 표현을 학습한 뒤 다운스트림에 전이하는 학습 패러다임이다.\n\n### 핵심 수식\n$$\\theta^*=\\arg\\min_\\theta\\mathbb{E}_{x,t_1,t_2}\\left[\\ell\\big(f_\\theta(t_1(x)),f_\\theta(t_2(x))\\big)\\right]$$\n$$w^*=\\arg\\min_w\\mathbb{E}_{(x,y)}\\ell\\big(g_w(f_{\\theta^*}(x)),y\\big)$$\n\n### 변수 해석\n- $t_1,t_2$: 데이터 증강 연산\n- $f_\\theta$: 표현 인코더, $g_w$: 다운스트림 헤드\n\n### 실무 체크\n- 프리텍스트 성능보다 전이 성능 지표를 우선 모니터링\n- 도메인별 증강 강도 과다 시 정보 손실 위험"
+  },
+  {
+    "id": "contrastive-learning",
+    "name": "Contrastive Learning",
+    "aliases": [
+      "Contrastive Learning"
+    ],
+    "category": "technique",
+    "term_set": "contrastive_ssl",
+    "description": "대조학습은 같은 샘플의 서로 다른 뷰를 가깝게, 다른 샘플은 멀게 배치하도록 임베딩 공간을 학습하는 방법이다. 라벨 없이도 판별력 높은 표현을 얻어 비전·신호·추천 등 다양한 영역에서 널리 쓰인다. 배치 크기, 음성 샘플의 다양성, 온도 파라미터가 수렴 안정성과 최종 성능의 핵심 레버다.",
+    "related_paper_titles": [
+      "A Simple Framework for Contrastive Learning of Visual Representations",
+      "Momentum Contrast for Unsupervised Visual Representation Learning"
+    ],
+    "hierarchy": [
+      "Representation Learning",
+      "Contrastive SSL"
+    ],
+    "study_classification": {},
+    "details_markdown": "### 정의\n- 양성 쌍은 당기고 음성 쌍은 밀어내는 목표로 표현 공간을 구성하는 학습 방식이다.\n\n### 핵심 수식\n$$\\mathcal{L}_i=-\\log\\frac{\\exp(\\mathrm{sim}(z_i,z_i^+)/\\tau)}{\\exp(\\mathrm{sim}(z_i,z_i^+)/\\tau)+\\sum_{j\\in\\mathcal N_i}\\exp(\\mathrm{sim}(z_i,z_j)/\\tau)}$$\n\n### 변수 해석\n- $z_i^+$: $i$의 양성 뷰 임베딩, $\\mathcal N_i$: 음성 집합\n- $\\mathrm{sim}(\\cdot)$: 유사도, $\\tau$: 온도\n\n### 실무 체크\n- 배치가 작으면 음성 다양성 부족으로 표현 붕괴 위험\n- 강한 증강은 불변성 향상과 정보 손실 사이 균형 필요"
+  },
+  {
+    "id": "infonce",
+    "name": "InfoNCE",
+    "aliases": [
+      "NCE Loss"
+    ],
+    "category": "metric",
+    "term_set": "contrastive_ssl",
+    "description": "InfoNCE는 대조학습에서 양성 쌍 점수의 상대 확률을 최대화하고 음성 쌍을 낮추는 대표 목적함수다. 상호정보량 하한과 연결되어 해석이 명확하며 SimCLR, MoCo 계열의 기본 손실로 자리잡았다. 온도와 음성 샘플 수가 gradient 분포를 크게 바꾸므로 두 요소를 함께 조정해야 안정적이다.",
+    "related_paper_titles": [
+      "Representation Learning with Contrastive Predictive Coding",
+      "A Simple Framework for Contrastive Learning of Visual Representations",
+      "Momentum Contrast for Unsupervised Visual Representation Learning"
+    ],
+    "hierarchy": [
+      "Representation Learning",
+      "Contrastive SSL",
+      "Objective"
+    ],
+    "study_classification": {},
+    "details_markdown": "### 정의\n- 양성 대비 음성의 정규화된 점수 비를 최대화하는 대조 손실 함수다.\n\n### 핵심 수식\n$$\\mathcal{L}_{\\mathrm{InfoNCE}}=-\\mathbb{E}\\left[\\log\\frac{\\exp(s(q,k^+)/\\tau)}{\\exp(s(q,k^+)/\\tau)+\\sum_{k^-}\\exp(s(q,k^-)/\\tau)}\\right]$$\n$$I(X;Y)\\ge \\log N-\\mathcal{L}_{\\mathrm{InfoNCE}}$$\n\n### 변수 해석\n- $q$: query, $k^+$: 양성 key, $k^-$: 음성 key\n- $s(\\cdot)$: 유사도 함수, $N$: 비교 샘플 수\n\n### 실무 체크\n- 음성 수가 적으면 분별력이 약해져 과적합 가능\n- $\\tau$를 낮출수록 gradient가 날카로워져 불안정할 수 있음"
+  },
+  {
+    "id": "momentum-encoder",
+    "name": "Momentum Encoder",
+    "aliases": [
+      "EMA Teacher"
+    ],
+    "category": "architecture",
+    "term_set": "contrastive_ssl",
+    "description": "모멘텀 인코더는 온라인 인코더 파라미터를 지수이동평균으로 천천히 추적해 키 표현을 안정화하는 장치다. 빠르게 변하는 쿼리 인코더와 분리된 목표를 제공해 대조학습 붕괴를 줄이고 메모리 큐 활용을 가능하게 한다. 모멘텀 계수 \\(m\\)이 높을수록 안정하지만 새 패턴 반영 속도는 느려진다.",
+    "related_paper_titles": [
+      "Momentum Contrast for Unsupervised Visual Representation Learning",
+      "Bootstrap Your Own Latent: A New Approach to Self-Supervised Learning",
+      "Emerging Properties in Self-Supervised Vision Transformers"
+    ],
+    "hierarchy": [
+      "Representation Learning",
+      "Teacher-Student"
+    ],
+    "study_classification": {},
+    "details_markdown": "### 정의\n- 온라인 인코더의 EMA 복사본을 별도 인코더로 유지해 학습 타깃을 안정화한다.\n\n### 핵심 수식\n$$\\theta_m\\leftarrow m\\theta_m+(1-m)\\theta_q$$\n$$q=f_{\\theta_q}(x_q),\\quad k=f_{\\theta_m}(x_k)$$\n\n### 변수 해석\n- $\\theta_q$: 온라인 인코더 파라미터\n- $\\theta_m$: 모멘텀 인코더 파라미터, $m$: 모멘텀 계수\n\n### 실무 체크\n- 초반 학습에서 $m$을 너무 크게 두면 적응이 느려질 수 있음\n- 배치 정규화 통계 동기화 여부를 구현에서 명확히 관리"
+  },
+  {
+    "id": "stop-gradient",
+    "name": "Stop-Gradient",
+    "aliases": [
+      "sg"
+    ],
+    "category": "training",
+    "term_set": "contrastive_ssl",
+    "description": "stop-gradient는 전방향 값은 그대로 전달하되 해당 경로로의 역전파를 차단하는 연산이다. 교사-학생 분리, 목표 네트워크 고정, VQ 손실 분리처럼 상호 업데이트로 생기는 불안정을 줄이는 데 핵심이다. 차단 위치를 잘못 두면 유효 학습 신호가 사라질 수 있어 계산 그래프 단위 검증이 필요하다.",
+    "related_paper_titles": [
+      "Bootstrap Your Own Latent: A New Approach to Self-Supervised Learning",
+      "Exploring Simple Siamese Representation Learning"
+    ],
+    "hierarchy": [
+      "Representation Learning",
+      "Optimization Tricks"
+    ],
+    "study_classification": {},
+    "details_markdown": "### 정의\n- forward는 항등, backward는 미분 0으로 처리해 gradient 흐름을 끊는 연산자다.\n\n### 핵심 수식\n$$sg(x)=x,\\quad \\frac{\\partial sg(x)}{\\partial x}=0$$\n$$L=\\|z_s-sg(z_t)\\|_2^2$$\n\n### 변수 해석\n- $sg(\\cdot)$: stop-gradient 연산\n- $z_s,z_t$: 학생/교사 표현 벡터\n\n### 실무 체크\n- 프레임워크별 detach 구현 차이로 버그가 자주 발생\n- 의도한 경로만 차단되는지 gradient hook으로 확인"
+  },
+  {
+    "id": "swav",
+    "name": "SwAV",
+    "aliases": [
+      "Swapped Assignments"
+    ],
+    "category": "technique",
+    "term_set": "contrastive_ssl",
+    "description": "SwAV(Swapping Assignments between Views)는 서로 다른 뷰의 클러스터 할당을 교차 예측하도록 학습하는 자기지도 기법이다. 명시적 음성 샘플 없이도 온라인 군집과 대조 신호를 결합해 강한 표현을 만든다. 프로토타입 수, 큐 길이, Sinkhorn 정규화 강도가 붕괴 방지와 수렴 품질을 크게 좌우한다.",
+    "related_paper_titles": [
+      "Unsupervised Learning of Visual Features by Contrasting Cluster Assignments"
+    ],
+    "hierarchy": [
+      "Representation Learning",
+      "Contrastive SSL",
+      "Clustering"
+    ],
+    "study_classification": {},
+    "details_markdown": "### 정의\n- 각 뷰의 임베딩을 프로토타입에 소프트 할당하고, 다른 뷰의 할당을 맞추도록 학습한다.\n\n### 핵심 수식\n$$q_t=\\mathrm{Sinkhorn}\\left(\\exp(Cz_t/\\epsilon)\\right)$$\n$$p_s=softmax(Cz_s/\\tau),\\quad \\mathcal{L}_{swap}=-\\sum_{t\\ne s} q_t^T\\log p_s$$\n\n### 변수 해석\n- $C$: 프로토타입 행렬, $z_t$: 뷰 $t$ 임베딩\n- $q_t$: 균형 할당, $p_s$: 예측 분포\n\n### 실무 체크\n- 프로토타입 수가 너무 적으면 표현 다양성이 떨어짐\n- queue 사용 시 오래된 특징 비율을 제한해 드리프트 완화"
+  },
+  {
+    "id": "sinkhorn-knopp",
+    "name": "Sinkhorn-Knopp",
+    "aliases": [
+      "Sinkhorn Iteration"
+    ],
+    "category": "technique",
+    "term_set": "optimization_foundation",
+    "description": "Sinkhorn-Knopp는 양의 행렬을 반복적 행·열 정규화로 이중확률 행렬에 가깝게 만드는 알고리즘이다. 엔트로피 정규화 최적수송의 효율적 근사 해법으로 널리 쓰이며, SwAV의 균형 할당 계산에서도 핵심 구성요소다. 반복 횟수와 수치 안정화 설정이 속도·정확도·안정성을 동시에 결정한다.",
+    "related_paper_titles": [
+      "Concerning Nonnegative Matrices and Doubly Stochastic Matrices",
+      "Unsupervised Learning of Visual Features by Contrasting Cluster Assignments"
+    ],
+    "hierarchy": [
+      "Optimization",
+      "Matrix Scaling"
+    ],
+    "study_classification": {},
+    "details_markdown": "### 정의\n- 커널 행렬을 행/열 제약에 맞게 교대로 스케일링해 수송계획을 구하는 반복 알고리즘이다.\n\n### 핵심 수식\n$$u\\leftarrow a\\oslash(Kv),\\quad v\\leftarrow b\\oslash(K^Tu)$$\n$$P=\\mathrm{diag}(u)K\\mathrm{diag}(v)$$\n\n### 변수 해석\n- $K$: 양의 커널 행렬, $a,b$: 목표 주변분포\n- $u,v$: 스케일 벡터, $P$: 근사 수송 행렬\n\n### 실무 체크\n- $\\epsilon$이 작을수록 해는 날카롭지만 수치 불안정 증가\n- 로그-도메인 구현으로 underflow/overflow를 완화"
+  },
+  {
+    "id": "optimal-transport",
+    "name": "Optimal Transport",
+    "aliases": [
+      "OT"
+    ],
+    "category": "metric",
+    "term_set": "optimization_foundation",
+    "description": "최적수송은 한 분포의 질량을 다른 분포로 옮길 때 총 이동비용을 최소화하는 문제다. 단순 점대점 손실보다 분포 구조를 반영해 도메인 정렬, 생성모델, 군집 정합에 강점이 있다. 정확 해법은 계산량이 커 실무에서는 엔트로피 정규화와 Sinkhorn 근사를 주로 사용한다.",
+    "related_paper_titles": [
+      "Sinkhorn Distances: Lightspeed Computation of Optimal Transport",
+      "Unsupervised Learning of Visual Features by Contrasting Cluster Assignments"
+    ],
+    "hierarchy": [
+      "Optimization",
+      "Distribution Matching"
+    ],
+    "study_classification": {},
+    "details_markdown": "### 정의\n- 두 확률분포 사이 질량 이동 비용의 최소값을 거리로 정의하는 최적화 프레임워크다.\n\n### 핵심 수식\n$$\\min_{P\\in U(a,b)}\\langle C,P\\rangle$$\n$$U(a,b)=\\{P\\ge0\\mid P\\mathbf{1}=a,\\ P^T\\mathbf{1}=b\\}$$\n$$\\min_P\\langle C,P\\rangle+\\epsilon\\sum_{ij}P_{ij}(\\log P_{ij}-1)$$\n\n### 변수 해석\n- $C$: 비용 행렬, $P$: 수송 계획\n- $a,b$: 소스/타깃 주변분포, $\\epsilon$: 정규화 강도\n\n### 실무 체크\n- 비용 행렬 스케일이 크면 정규화 항 영향이 약화됨\n- 대규모 문제는 미니배치 OT 근사의 편향을 점검"
+  },
+  {
+    "id": "masked-language-modeling",
+    "name": "Masked Language Modeling",
+    "aliases": [
+      "MLM"
+    ],
+    "category": "training",
+    "term_set": "reconstruction_ssl",
+    "description": "마스크드 언어모델링(MLM)은 문장 일부 토큰을 가리고 주변 문맥으로 원래 토큰을 복원하도록 학습하는 사전학습 과제다. 양방향 문맥을 동시에 활용해 문법·의미 표현을 풍부하게 학습할 수 있어 BERT 계열의 핵심 기반이 된다. 마스킹 비율과 치환 정책이 난이도와 전이 성능을 크게 바꾼다.",
+    "related_paper_titles": [
+      "BERT: Pre-training of Deep Bidirectional Transformers for Language Understanding"
+    ],
+    "hierarchy": [
+      "Representation Learning",
+      "Reconstruction SSL"
+    ],
+    "study_classification": {},
+    "details_markdown": "### 정의\n- 입력 토큰의 일부를 숨기고, 가려진 위치의 정답 토큰을 예측하게 하는 자기지도 과제다.\n\n### 핵심 수식\n$$\\mathcal{L}_{MLM}=-\\sum_{i\\in M}\\log p_\\theta(x_i\\mid x_{\\setminus M})$$\n\n### 변수 해석\n- $M$: 마스크된 인덱스 집합\n- $x_{\\setminus M}$: 관측 토큰, $x_i$: 복원 대상 토큰\n\n### 실무 체크\n- 과도한 마스킹은 문맥 단서 부족으로 학습 불안정 유발\n- 서브워드 토크나이저에 따라 마스킹 단위를 일관되게 유지"
+  },
+  {
+    "id": "masked-autoencoding",
+    "name": "Masked Autoencoding",
+    "aliases": [
+      "MAE pretraining"
+    ],
+    "category": "training",
+    "term_set": "reconstruction_ssl",
+    "description": "마스크드 오토인코딩(MAE)은 입력의 큰 비율을 가린 뒤 보이는 부분만 인코딩하고 가린 부분을 복원하도록 학습하는 자기지도 방식이다. 비전에서 높은 마스킹 비율에서도 의미적 표현을 효율적으로 학습하며 계산 비용이 낮다. 마스크 비율, 디코더 크기, 복원 타깃 정의가 전이 성능의 핵심이다.",
+    "related_paper_titles": [
+      "Masked Autoencoders Are Scalable Vision Learners"
+    ],
+    "hierarchy": [
+      "Representation Learning",
+      "Reconstruction SSL"
+    ],
+    "study_classification": {},
+    "details_markdown": "### 정의\n- 부분 관측 입력으로 잠재표현을 만들고, 은닉된 부분을 재구성하는 복원형 사전학습 기법이다.\n\n### 핵심 수식\n$$z=Enc(x_{\\setminus M}),\\quad \\hat{x}_M=Dec(z,M)$$\n$$\\mathcal{L}_{MAE}=\\|x_M-\\hat{x}_M\\|_2^2$$\n\n### 변수 해석\n- $M$: 마스크 위치 집합\n- $x_{\\setminus M}$: 보이는 토큰/패치, $x_M$: 복원 대상\n\n### 실무 체크\n- 마스크 비율이 낮으면 프리텍스트 난이도가 부족할 수 있음\n- 픽셀/특징 타깃 중 다운스트림 목적에 맞춰 선택"
+  },
+  {
+    "id": "autoregressive-pretraining",
+    "name": "Autoregressive Pretraining",
+    "aliases": [
+      "causal LM"
+    ],
+    "category": "training",
+    "term_set": "transformer_pretraining",
+    "description": "자가회귀 사전학습은 시퀀스를 순차 분해해 이전 토큰 조건부로 다음 토큰 확률을 예측하도록 학습하는 방식이다. 확률 모델 해석이 명확하고 생성 일관성이 좋아 대규모 언어모델의 기본 패러다임으로 쓰인다. 추론은 순차 생성 특성상 지연이 커서 캐시와 디코딩 최적화가 실무 핵심이다.",
+    "related_paper_titles": [
+      "Improving Language Understanding by Generative Pre-Training"
+    ],
+    "hierarchy": [
+      "Representation Learning",
+      "Transformer Pretraining"
+    ],
+    "study_classification": {},
+    "details_markdown": "### 정의\n- 시퀀스의 결합확률을 조건부 확률의 곱으로 분해해 next-token 예측으로 학습한다.\n\n### 핵심 수식\n$$p(x_{1:T})=\\prod_{t=1}^{T}p(x_t\\mid x_{<t})$$\n$$\\mathcal{L}_{AR}=-\\sum_{t=1}^{T}\\log p_\\theta(x_t\\mid x_{<t})$$\n\n### 변수 해석\n- $x_{<t}$: 시점 $t$ 이전 토큰들\n- $p_\\theta$: 모델 조건부 확률 분포\n\n### 실무 체크\n- 길이 증가 시 KV-cache 메모리 사용량이 병목이 되기 쉬움\n- 학습 시 teacher forcing과 추론 노출 편향 차이를 점검"
+  },
+  {
+    "id": "vision-transformer",
+    "name": "Vision Transformer",
+    "aliases": [
+      "ViT"
+    ],
+    "category": "architecture",
+    "term_set": "transformer_pretraining",
+    "description": "Vision Transformer(ViT)는 이미지를 패치 시퀀스로 바꿔 트랜스포머 인코더로 처리하는 비전 모델이다. CNN의 강한 국소 귀납편향 대신 대규모 데이터와 사전학습으로 전역 관계를 학습한다. 패치 크기와 토큰 수가 정확도·연산량을 동시에 결정하며, 위치 임베딩과 증강 전략이 성능에 큰 영향을 준다.",
+    "related_paper_titles": [
+      "An Image is Worth 16x16 Words: Transformers for Image Recognition at Scale",
+      "Masked Autoencoders Are Scalable Vision Learners",
+      "Emerging Properties in Self-Supervised Vision Transformers"
+    ],
+    "hierarchy": [
+      "Architecture",
+      "Transformer Family"
+    ],
+    "study_classification": {},
+    "details_markdown": "### 정의\n- 이미지를 고정 크기 패치 토큰으로 변환해 self-attention으로 시각 표현을 학습하는 구조다.\n\n### 핵심 수식\n$$z_0=[x_{cls};x_p^1E;\\dots;x_p^N E]+E_{pos}$$\n$$z_\\ell=\\mathrm{TransformerBlock}_\\ell(z_{\\ell-1}),\\quad \\hat y=Head(z_L^{cls})$$\n\n### 변수 해석\n- $x_p^i$: $i$번째 패치, $E$: 패치 임베딩 행렬\n- $E_{pos}$: 위치 임베딩, $z_L^{cls}$: 최종 CLS 토큰\n\n### 실무 체크\n- 패치 크기를 줄이면 정확도는 오르지만 비용이 크게 증가\n- 입력 해상도 변경 시 위치 임베딩 보간 방식을 검증"
   }
 ]

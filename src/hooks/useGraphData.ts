@@ -52,6 +52,7 @@ function toPaperNodes(
           | 'quantization'
           | 'transformer'
           | 'cnn'
+          | 'representation_learning'
           | 'other',
       },
       familiarity_level: paper.familiarity_level,

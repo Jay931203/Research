@@ -11,6 +11,8 @@ import { SkeletonCard, SkeletonBlock } from '@/components/common/Skeleton';
 import { usePapersWithNotes } from '@/hooks/useNotes';
 import { useRelationships } from '@/hooks/useRelationships';
 import { countRecentPapers } from '@/lib/papers/insights';
+import { getPaperCategoryLabel } from '@/lib/visualization/graphUtils';
+import { useAppStore } from '@/store/useAppStore';
 
 const MindMap = dynamic(() => import('@/components/visualization/MindMap'), {
   ssr: false,
@@ -34,9 +36,32 @@ export default function DashboardPage() {
   const router = useRouter();
   const { papers, isLoading: papersLoading } = usePapersWithNotes();
   const { relationships, isLoading: relationshipsLoading } = useRelationships();
+  const sidebarVisiblePaperIds = useAppStore((state) => state.sidebarVisiblePaperIds);
 
   const [isMapFullscreen, setIsMapFullscreen] = useState(false);
   const [isFavoritesModalOpen, setIsFavoritesModalOpen] = useState(false);
+
+  const visiblePaperIdSet = useMemo(
+    () => (sidebarVisiblePaperIds ? new Set(sidebarVisiblePaperIds) : null),
+    [sidebarVisiblePaperIds]
+  );
+
+  const mapPapers = useMemo(
+    () => (visiblePaperIdSet ? papers.filter((paper) => visiblePaperIdSet.has(paper.id)) : papers),
+    [papers, visiblePaperIdSet]
+  );
+
+  const mapRelationships = useMemo(
+    () =>
+      visiblePaperIdSet
+        ? relationships.filter(
+            (relationship) =>
+              visiblePaperIdSet.has(relationship.from_paper_id) &&
+              visiblePaperIdSet.has(relationship.to_paper_id)
+          )
+        : relationships,
+    [relationships, visiblePaperIdSet]
+  );
 
   useEffect(() => {
     document.body.style.overflow = isMapFullscreen ? 'hidden' : '';
@@ -191,7 +216,11 @@ export default function DashboardPage() {
                 </div>
               </div>
               <div style={{ height: 'calc(100vh - 180px)', minHeight: '560px' }}>
-                <MindMap papers={papers} relationships={relationships} onNodeClick={handleNodeClick} />
+                <MindMap
+                  papers={mapPapers}
+                  relationships={mapRelationships}
+                  onNodeClick={handleNodeClick}
+                />
               </div>
             </div>
           </div>
@@ -210,7 +239,11 @@ export default function DashboardPage() {
               </button>
             </div>
             <div className="h-[calc(100%-48px)]">
-              <MindMap papers={papers} relationships={relationships} onNodeClick={handleNodeClick} />
+              <MindMap
+                papers={mapPapers}
+                relationships={mapRelationships}
+                onNodeClick={handleNodeClick}
+              />
             </div>
           </div>
         )}
@@ -261,7 +294,7 @@ export default function DashboardPage() {
                           style={{ backgroundColor: paper.color_hex }}
                         />
                         <span className="text-xs font-semibold text-gray-500 dark:text-gray-400">
-                          {paper.year} · {paper.category}
+                          {paper.year} · {getPaperCategoryLabel(paper)}
                         </span>
                       </div>
                       <p className="line-clamp-2 text-sm font-semibold text-gray-900 dark:text-gray-100">

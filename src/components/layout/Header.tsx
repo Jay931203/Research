@@ -28,24 +28,27 @@ interface HeaderProps {
 }
 
 export default function Header({ onSearchClick }: HeaderProps = {}) {
-  const [showExportMenu, setShowExportMenu] = useState(false);
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
-  const exportRef = useRef<HTMLDivElement>(null);
+  const [showExportMenu, setShowExportMenu] = useState(false);
+  const exportRef = useRef<HTMLDivElement | null>(null);
   const pathname = usePathname();
-
   const { papers } = usePapersWithNotes();
   const { relationships } = useRelationships();
 
   useEffect(() => {
+    if (!showExportMenu) return;
+
     const handleOutsideClick = (event: MouseEvent) => {
-      if (!exportRef.current) return;
-      if (exportRef.current.contains(event.target as Node)) return;
+      const target = event.target as Node | null;
+      if (target && exportRef.current?.contains(target)) return;
       setShowExportMenu(false);
     };
 
     document.addEventListener('mousedown', handleOutsideClick);
-    return () => document.removeEventListener('mousedown', handleOutsideClick);
-  }, []);
+    return () => {
+      document.removeEventListener('mousedown', handleOutsideClick);
+    };
+  }, [showExportMenu]);
 
   return (
     <header className="sticky top-0 z-50 w-full border-b bg-white/95 backdrop-blur supports-[backdrop-filter]:bg-white/70 dark:border-gray-700 dark:bg-gray-900/95 dark:supports-[backdrop-filter]:bg-gray-900/70">
@@ -53,9 +56,9 @@ export default function Header({ onSearchClick }: HeaderProps = {}) {
         <Link href="/" className="flex items-center gap-2 transition hover:opacity-85">
           <BookOpen className="h-6 w-6 text-blue-600" />
           <div className="flex flex-col">
-            <p className="text-lg font-bold leading-tight">CSI Research Graph</p>
+            <p className="text-lg font-bold leading-tight">Research Graph</p>
             <p className="text-[11px] text-gray-500 dark:text-gray-400">
-              논문 핵심 리마인드 & 관계 탐색
+              논문 학습 맵 & 관계 탐색
             </p>
           </div>
         </Link>
@@ -69,7 +72,7 @@ export default function Header({ onSearchClick }: HeaderProps = {}) {
         </button>
 
         <nav className="hidden items-center gap-2 md:flex">
-          <HeaderLink href="/dashboard" active={pathname === '/dashboard'}>대시보드</HeaderLink>
+          <HeaderLink href="/dashboard" active={pathname === '/dashboard' || pathname.startsWith('/paper/')}>대시보드</HeaderLink>
           <HeaderLink href="/glossary" active={pathname === '/glossary'}>용어집</HeaderLink>
           <HeaderLink href="/import" active={pathname === '/import'}>데이터 관리</HeaderLink>
 
@@ -139,7 +142,7 @@ export default function Header({ onSearchClick }: HeaderProps = {}) {
       {mobileMenuOpen && (
         <div className="border-t border-gray-200 bg-white px-3 py-2 dark:border-gray-700 dark:bg-gray-900 md:hidden">
           <div className="flex flex-col gap-1">
-            <MobileHeaderLink href="/dashboard" onClick={() => setMobileMenuOpen(false)} active={pathname === '/dashboard'}>
+            <MobileHeaderLink href="/dashboard" onClick={() => setMobileMenuOpen(false)} active={pathname === '/dashboard' || pathname.startsWith('/paper/')}>
               대시보드
             </MobileHeaderLink>
             <MobileHeaderLink href="/glossary" onClick={() => setMobileMenuOpen(false)} active={pathname === '/glossary'}>
@@ -244,4 +247,3 @@ function ThemeToggle() {
     </button>
   );
 }
-

@@ -1,11 +1,11 @@
 // User Note 관련 타입 정의
 
 export type FamiliarityLevel =
-  | 'not_started'  // 아직 읽지 않음
-  | 'difficult'    // 어려움
-  | 'moderate'     // 보통
-  | 'familiar'     // 익숙함
-  | 'expert';      // 전문가 수준
+  | 'not_started'  // 별 0개
+  | 'difficult'    // 별 1개
+  | 'moderate'     // 별 2개
+  | 'familiar'     // 별 3개
+  | 'expert';      // 레거시 값(내부적으로 별 3개로 취급)
 
 export interface UserNote {
   id: string;

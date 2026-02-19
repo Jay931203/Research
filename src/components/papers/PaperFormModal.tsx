@@ -33,6 +33,7 @@ const CATEGORIES: { value: PaperCategory; label: string }[] = [
   { value: 'quantization', label: 'Quantization' },
   { value: 'transformer', label: 'Transformer' },
   { value: 'cnn', label: 'CNN' },
+  { value: 'representation_learning', label: 'Representation Learning' },
   { value: 'other', label: 'Other' },
 ];
 
@@ -63,9 +64,16 @@ export default function PaperFormModal({
 
   const [form, setForm] = useState<PaperFormData>(() => {
     if (editData) {
+      const normalizedCategory =
+        editData.category === 'other' &&
+        editData.tags?.includes('representation_learning')
+          ? 'representation_learning'
+          : editData.category;
+
       return {
         ...emptyForm,
         ...editData,
+        category: (normalizedCategory ?? emptyForm.category) as PaperCategory,
         authors: editData.authors?.length ? editData.authors : [''],
         key_contributions: editData.key_contributions?.length ? editData.key_contributions : [''],
         algorithms: editData.algorithms?.length ? editData.algorithms : [''],

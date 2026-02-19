@@ -1,61 +1,86 @@
 'use client';
 
 import Link from 'next/link';
-import { useMemo } from 'react';
+import { useCallback, useMemo, useState } from 'react';
+import { useRouter } from 'next/navigation';
 import { usePapersWithNotes } from '@/hooks/useNotes';
+import { filterPapersBySearchFilters, type PaperSearchFilters } from '@/lib/papers/filtering';
+import { upsertNote } from '@/lib/supabase/notes';
+import { useToastStore } from '@/store/useToastStore';
+import type { FamiliarityLevel, PaperWithNote } from '@/types';
 import PaperCard from './PaperCard';
-import { useAppStore } from '@/store/useAppStore';
 
 interface PaperListProps {
-  filters: {
-    searchText: string;
-    categories: string[];
-    yearRange: [number, number];
-    familiarityLevels: string[];
-  };
+  filters: PaperSearchFilters;
 }
 
 export default function PaperList({ filters }: PaperListProps) {
-  const { papers, isLoading, isError } = usePapersWithNotes();
-  const { selectedPaperId, openPaperDetail } = useAppStore();
+  const { papers, isLoading, isError, refresh } = usePapersWithNotes();
+  const router = useRouter();
+  const addToast = useToastStore((state) => state.addToast);
+  const [savingByPaperId, setSavingByPaperId] = useState<Record<string, boolean>>({});
 
-  const filteredPapers = useMemo(() => {
-    let result = papers;
+  const handleQuickSave = useCallback(
+    async (paperId: string, patch: Record<string, unknown>, successMessage: string) => {
+      if (savingByPaperId[paperId]) return;
+      setSavingByPaperId((prev) => ({ ...prev, [paperId]: true }));
 
-    if (filters.searchText.trim()) {
-      const query = filters.searchText.toLowerCase().trim();
-      result = result.filter((paper) => {
-        return (
-          paper.title.toLowerCase().includes(query) ||
-          paper.authors.some((author) => author.toLowerCase().includes(query)) ||
-          paper.tags?.some((tag) => tag.toLowerCase().includes(query))
-        );
-      });
-    }
+      try {
+        await upsertNote(paperId, patch);
 
-    if (filters.categories.length) {
-      result = result.filter((paper) => filters.categories.includes(paper.category));
-    }
+        try {
+          await Promise.resolve(refresh());
+        } catch (refreshError) {
+          console.warn('Quick save succeeded but refresh failed:', refreshError);
+        }
 
-    result = result.filter(
-      (paper) => paper.year >= filters.yearRange[0] && paper.year <= filters.yearRange[1]
-    );
+        addToast('success', successMessage);
+      } catch (error) {
+        console.error('Quick save error:', error);
+        addToast('error', '저장 실패, 다시 시도해주세요');
+      } finally {
+        setSavingByPaperId((prev) => {
+          const next = { ...prev };
+          delete next[paperId];
+          return next;
+        });
+      }
+    },
+    [addToast, refresh, savingByPaperId]
+  );
 
-    if (filters.familiarityLevels.length) {
-      result = result.filter((paper) => {
-        const level = paper.familiarity_level ?? 'not_started';
-        return filters.familiarityLevels.includes(level);
-      });
-    }
+  const handleFavoriteToggle = useCallback(
+    async (paper: PaperWithNote) => {
+      await handleQuickSave(paper.id, { is_favorite: !paper.is_favorite }, '즐겨찾기를 저장했습니다');
+    },
+    [handleQuickSave]
+  );
 
-    return [...result].sort((a, b) => b.year - a.year);
-  }, [papers, filters]);
+  const handleFamiliarityChange = useCallback(
+    async (paper: PaperWithNote, level: FamiliarityLevel) => {
+      await handleQuickSave(
+        paper.id,
+        {
+          familiarity_level: level,
+          last_read_at: new Date().toISOString(),
+        },
+        '익숙도 변경을 저장했습니다'
+      );
+    },
+    [handleQuickSave]
+  );
+
+  const filteredPapers = useMemo(
+    () =>
+      [...filterPapersBySearchFilters(papers, filters)].sort((a, b) => b.year - a.year),
+    [papers, filters]
+  );
 
   if (isLoading) {
     return (
       <div className="p-4 text-center text-gray-500">
         <div className="mx-auto mb-2 h-6 w-6 animate-spin rounded-full border-2 border-blue-500 border-t-transparent" />
-        <p className="text-sm">논문 목록 로딩 중...</p>
+        <p className="text-sm">논문 목록을 불러오는 중입니다...</p>
       </div>
     );
   }
@@ -64,7 +89,7 @@ export default function PaperList({ filters }: PaperListProps) {
     return (
       <div className="p-4 text-center text-red-500">
         <p className="text-sm">논문 데이터를 불러오지 못했습니다.</p>
-        <p className="mt-1 text-xs">Supabase 연결 상태를 확인해주세요.</p>
+        <p className="mt-1 text-xs">Supabase 연결 상태를 확인해 주세요.</p>
       </div>
     );
   }
@@ -78,10 +103,10 @@ export default function PaperList({ filters }: PaperListProps) {
             <Link href="/import" className="text-blue-600 hover:underline">
               Import 페이지
             </Link>{' '}
-            에서 데이터를 먼저 불러오세요.
+            에서 데이터를 먼저 불러와 주세요.
           </p>
         ) : (
-          <p className="mt-1 text-xs">필터 조건을 조정해보세요.</p>
+          <p className="mt-1 text-xs">필터 조건을 조정해 보세요.</p>
         )}
       </div>
     );
@@ -94,11 +119,12 @@ export default function PaperList({ filters }: PaperListProps) {
         <PaperCard
           key={paper.id}
           paper={paper}
-          isSelected={selectedPaperId === paper.id}
-          onClick={() => openPaperDetail(paper.id)}
+          onClick={() => router.push(`/paper/${paper.id}`)}
+          onFavoriteToggle={handleFavoriteToggle}
+          onFamiliarityChange={handleFamiliarityChange}
+          isSaving={!!savingByPaperId[paper.id]}
         />
       ))}
     </div>
   );
 }
-

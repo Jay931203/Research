@@ -4,6 +4,7 @@ import type { FamiliarityLevel } from '@/types';
 import {
   FAMILIARITY_COLORS,
   FAMILIARITY_LABELS,
+  FAMILIARITY_SELECTABLE_LEVELS,
 } from '@/lib/visualization/graphUtils';
 
 interface FamiliaritySelectorProps {
@@ -12,23 +13,19 @@ interface FamiliaritySelectorProps {
   disabled?: boolean;
 }
 
-const LEVELS: FamiliarityLevel[] = [
-  'not_started',
-  'difficult',
-  'moderate',
-  'familiar',
-  'expert',
-];
+const LEVELS: FamiliarityLevel[] = FAMILIARITY_SELECTABLE_LEVELS;
 
 export default function FamiliaritySelector({
   value,
   onChange,
   disabled = false,
 }: FamiliaritySelectorProps) {
+  const normalizedValue: FamiliarityLevel = value === 'expert' ? 'familiar' : value;
+
   return (
     <div className="flex flex-wrap gap-2">
       {LEVELS.map((level) => {
-        const isSelected = value === level;
+        const isSelected = normalizedValue === level;
         const color = FAMILIARITY_COLORS[level];
         const label = FAMILIARITY_LABELS[level];
 

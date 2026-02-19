@@ -1,5 +1,5 @@
 import type { PaperRelationship, PaperWithNote } from '@/types';
-import { FAMILIARITY_LABELS } from '@/lib/visualization/graphUtils';
+import { FAMILIARITY_LABELS, getPaperCategoryLabel } from '@/lib/visualization/graphUtils';
 
 const RELATIONSHIP_LABELS: Record<string, string> = {
   extends: '확장',
@@ -37,7 +37,7 @@ export function exportSinglePaperToMarkdown(paper: PaperWithNote): string {
   lines.push('');
   lines.push(`**저자**: ${paper.authors.join(', ')}`);
   if (paper.venue) lines.push(`**학회/저널**: ${paper.venue}`);
-  lines.push(`**카테고리**: ${paper.category}`);
+  lines.push(`**카테고리**: ${getPaperCategoryLabel(paper)}`);
   lines.push(
     `**이해도**: ${FAMILIARITY_LABELS[paper.familiarity_level ?? 'not_started']}`
   );
@@ -103,7 +103,7 @@ export function exportToMarkdown(
   const sortedPapers = [...papers].sort((a, b) => a.year - b.year);
   const paperMap = new Map(papers.map((paper) => [paper.id, paper.title]));
 
-  lines.push('# CSI Research Notes');
+  lines.push('# Research Graph Notes');
   lines.push('');
   lines.push(`> Export Date: ${dateStamp()}`);
   lines.push(`> Papers: ${papers.length}, Relationships: ${relationships.length}`);
@@ -134,7 +134,7 @@ export function exportToMarkdown(
   }
 
   const markdown = lines.join('\n');
-  downloadFile(markdown, `csi-research-notes-${dateStamp()}.md`, 'text/markdown;charset=utf-8');
+  downloadFile(markdown, `research-graph-notes-${dateStamp()}.md`, 'text/markdown;charset=utf-8');
 }
 
 export function exportToJSON(
@@ -147,6 +147,5 @@ export function exportToJSON(
     relationships,
   };
   const json = JSON.stringify(payload, null, 2);
-  downloadFile(json, `csi-research-export-${dateStamp()}.json`, 'application/json;charset=utf-8');
+  downloadFile(json, `research-graph-export-${dateStamp()}.json`, 'application/json;charset=utf-8');
 }
-

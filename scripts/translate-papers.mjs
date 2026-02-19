@@ -23,7 +23,7 @@ const titleMap = {
   "Attention Mechanism-Based CSI Feedback Network for Massive MIMO Systems": "Massive MIMO 시스템을 위한 어텐션 메커니즘 기반 CSI 피드백 네트워크",
   "CSI-GPT: Integrating Generative Pre-Trained Transformer with Federated Learning for CSI Feedback": "CSI-GPT: CSI 피드백을 위한 생성형 사전학습 트랜스포머와 연합학습 통합",
   "Deep Learning-Based CSI Feedback with Variable Length Codewords for Adaptive MIMO": "적응형 MIMO를 위한 가변 길이 코드워드 딥러닝 기반 CSI 피드백",
-  "Lightweight CSI Feedback via Mixed-Precision Quantization": "혼합 정밀도 양자화를 통한 경량 CSI 피드백",
+  "Binarized Aggregated Network With Quantization: Flexible Deep Learning Deployment for CSI Feedback in Massive MIMO Systems": "양자화 결합 이진 집계 네트워크 기반 CSI 피드백",
   "Pruning Deep Neural Networks for Efficient CSI Feedback": "효율적 CSI 피드백을 위한 심층 신경망 가지치기",
   "Adaptive Bit Allocation for Deep Learning-Based CSI Feedback": "딥러닝 기반 CSI 피드백을 위한 적응적 비트 할당",
   "ShuffleCsiNet: Lightweight CSI Feedback Network Based on ShuffleNet Architecture": "ShuffleCsiNet: ShuffleNet 아키텍처 기반 경량 CSI 피드백 네트워크",
@@ -170,7 +170,7 @@ const archMap = {
   "Deep Learning-Based CSI Feedback with Variable Length Codewords for Adaptive MIMO":
     "점진적 인코딩(Progressive Encoding) 기반의 가변 레이트 CSI 피드백 아키텍처이다. 인코더가 CSI를 여러 단계로 나누어 점진적으로 인코딩하며, 채널 상태에 따라 전송할 코드워드 길이를 적응적으로 선택한다. 각 단계의 인코딩은 이전 단계의 복원 잔차를 입력으로 받아 점진적으로 정밀도를 높인다. 고정 레이트 방식 대비 채널 적응성이 뛰어나다.",
 
-  "Lightweight CSI Feedback via Mixed-Precision Quantization":
+  "Binarized Aggregated Network With Quantization: Flexible Deep Learning Deployment for CSI Feedback in Massive MIMO Systems":
     "혼합 정밀도 양자화 프레임워크로, 네트워크의 각 레이어에 서로 다른 비트폭을 할당한다. 레이어 민감도 분석을 통해 출력 변화에 민감한 레이어에는 높은 정밀도를, 둔감한 레이어에는 낮은 정밀도를 부여한다. 전체 모델 크기 제약 하에서 최적의 비트 할당을 탐색하는 최적화 문제로 정식화되어 있다. 균일 양자화 대비 같은 모델 크기에서 더 낮은 NMSE를 달성한다.",
 
   "Pruning Deep Neural Networks for Efficient CSI Feedback":

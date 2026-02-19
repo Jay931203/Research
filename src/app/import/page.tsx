@@ -4,6 +4,7 @@ import { useState } from 'react';
 import { createPaper, getAllPapers } from '@/lib/supabase/papers';
 import { createRelationship } from '@/lib/supabase/relationships';
 import type { PaperInsert, RelationshipInsert, RelationshipType } from '@/types';
+import Header from '@/components/layout/Header';
 
 interface ImportPaper {
   title: string;
@@ -22,6 +23,7 @@ interface ImportPaper {
     | 'quantization'
     | 'transformer'
     | 'cnn'
+    | 'representation_learning'
     | 'other';
   tags?: string[];
   pdf_url?: string | null;
@@ -223,11 +225,12 @@ export default function ImportPage() {
   };
 
   return (
-    <div className="min-h-screen p-8">
-      <div className="mx-auto max-w-4xl">
-        <h1 className="mb-6 text-3xl font-bold">초기 데이터 Import</h1>
+    <div className="min-h-screen bg-gray-50 dark:bg-gray-950">
+      <Header />
+      <div className="mx-auto max-w-4xl p-8">
+        <h1 className="mb-6 text-3xl font-bold text-gray-900 dark:text-gray-100">초기 데이터 Import</h1>
 
-        <div className="mb-6 rounded-lg bg-white p-6 shadow-lg dark:bg-gray-800">
+        <div className="mb-6 rounded-xl bg-white p-6 shadow-sm dark:bg-gray-900 dark:shadow-none dark:ring-1 dark:ring-gray-800">
           <p className="mb-4 text-gray-600 dark:text-gray-300">
             <code>public/data/initial-papers.json</code> 파일을 DB에 병합합니다.
             이미 있는 논문/관계는 자동으로 건너뜁니다.
