@@ -6,6 +6,7 @@ import ReactFlow, {
   BackgroundVariant,
   MiniMap,
   ReactFlowProvider,
+  useReactFlow,
   type Node,
   type NodeMouseHandler,
   useEdgesState,
@@ -18,17 +19,25 @@ import {
   Network,
   Search,
   SlidersHorizontal,
+  Star,
   X,
 } from 'lucide-react';
 import 'reactflow/dist/style.css';
 
 import type {
+  FamiliarityLevel,
   PaperNodeData,
   PaperRelationship,
   PaperWithNote,
   RelationshipType,
 } from '@/types';
-import { RELATIONSHIP_STYLES } from '@/lib/visualization/graphUtils';
+import {
+  RELATIONSHIP_STYLES,
+  getFamiliarityStarScore,
+  RESEARCH_TOPIC_LABELS,
+  RESEARCH_TOPIC_ORDER,
+  inferResearchTopic,
+} from '@/lib/visualization/graphUtils';
 import { useGraphData } from '@/hooks/useGraphData';
 import {
   buildBridgeRecommendations,
@@ -48,10 +57,36 @@ interface MindMapProps {
 
 type SurfaceMode = 'list' | 'graph';
 type GraphViewMode = 'overview' | 'focus' | 'timeline';
-type LayerMode = 'year' | 'category';
+type LayerMode = 'year' | 'year_topic' | 'category';
 
 const CORE_REL_TYPES: RelationshipType[] = ['extends', 'builds_on', 'inspired_by'];
 const ALL_REL_TYPES = Object.keys(RELATIONSHIP_STYLES) as RelationshipType[];
+const FAMILIARITY_STAR_OPTIONS = [0, 1, 2, 3] as const;
+const IMPORTANCE_OPTIONS = [1, 2, 3, 4, 5] as const;
+const MINDMAP_FILTERS_STORAGE_KEY = 'dashboard-mindmap-filters-v1';
+const MINDMAP_FILTERS_PINNED_STORAGE_KEY = 'dashboard-mindmap-filters-pinned-v1';
+
+interface MindMapFilterPayload {
+  surfaceMode: SurfaceMode;
+  viewMode: GraphViewMode;
+  direction: 'TB' | 'LR';
+  layerMode: LayerMode;
+  focusDepth: 1 | 2;
+  focusPaperId: string | null;
+  enabledRelationshipTypes: RelationshipType[];
+  minStrength: number;
+  isPanelOpen: boolean;
+  useFamiliarityOpacity: boolean;
+  searchText: string;
+  selectedPaperIds: string[];
+  selectedFamiliarityStars: number[];
+  selectedImportanceRatings: number[];
+}
+
+interface MindMapPinnedSnapshot {
+  savedAt: string;
+  payload: MindMapFilterPayload;
+}
 
 const nodeTypes = { paperNode: CustomNode };
 const edgeTypes = { relationshipEdge: CustomEdge };
@@ -114,48 +149,248 @@ function MindMapInner({ papers, relationships, onNodeClick }: MindMapProps) {
   const [surfaceMode, setSurfaceMode] = useState<SurfaceMode>('graph');
   const [viewMode, setViewMode] = useState<GraphViewMode>('overview');
   const [direction, setDirection] = useState<'TB' | 'LR'>('TB');
-  const [layerMode, setLayerMode] = useState<LayerMode>('year');
+  const [layerMode, setLayerMode] = useState<LayerMode>('year_topic');
   const [focusDepth, setFocusDepth] = useState<1 | 2>(1);
   const [focusPaperId, setFocusPaperId] = useState<string | null>(null);
   const [enabledRelationshipTypes, setEnabledRelationshipTypes] =
     useState<RelationshipType[]>(CORE_REL_TYPES);
   const [minStrength, setMinStrength] = useState(4);
   const [zoomLevel, setZoomLevel] = useState(1);
-  const [isPanelOpen, setIsPanelOpen] = useState(false);
+  const [isPanelOpen, setIsPanelOpen] = useState(true);
+  const [useFamiliarityOpacity, setUseFamiliarityOpacity] = useState(false);
   const [searchText, setSearchText] = useState('');
+  const [selectedPaperIds, setSelectedPaperIds] = useState<string[]>([]);
+  const [selectedFamiliarityStars, setSelectedFamiliarityStars] = useState<number[]>([]);
+  const [selectedImportanceRatings, setSelectedImportanceRatings] = useState<number[]>([]);
+  const [isFilterStateHydrated, setIsFilterStateHydrated] = useState(false);
+  const [hasPinnedSnapshot, setHasPinnedSnapshot] = useState(false);
+  const [pinnedSavedAt, setPinnedSavedAt] = useState<string | null>(null);
+  const { fitView } = useReactFlow();
 
-  const sortedPapers = useMemo(() => {
-    return [...papers].sort((a, b) => b.year - a.year);
-  }, [papers]);
+  const buildFilterPayload = useCallback(
+    (): MindMapFilterPayload => ({
+      surfaceMode,
+      viewMode,
+      direction,
+      layerMode,
+      focusDepth,
+      focusPaperId,
+      enabledRelationshipTypes,
+      minStrength,
+      isPanelOpen,
+      useFamiliarityOpacity,
+      searchText,
+      selectedPaperIds,
+      selectedFamiliarityStars,
+      selectedImportanceRatings,
+    }),
+    [
+      surfaceMode,
+      viewMode,
+      direction,
+      layerMode,
+      focusDepth,
+      focusPaperId,
+      enabledRelationshipTypes,
+      minStrength,
+      isPanelOpen,
+      useFamiliarityOpacity,
+      searchText,
+      selectedPaperIds,
+      selectedFamiliarityStars,
+      selectedImportanceRatings,
+    ]
+  );
+
+  const applyFilterPayload = useCallback((parsed: Partial<MindMapFilterPayload>) => {
+    if (parsed.surfaceMode === 'graph' || parsed.surfaceMode === 'list') {
+      setSurfaceMode(parsed.surfaceMode);
+    }
+    if (
+      parsed.viewMode === 'overview' ||
+      parsed.viewMode === 'focus' ||
+      parsed.viewMode === 'timeline'
+    ) {
+      setViewMode(parsed.viewMode);
+    }
+    if (parsed.direction === 'TB' || parsed.direction === 'LR') {
+      setDirection(parsed.direction);
+    }
+    if (
+      parsed.layerMode === 'year' ||
+      parsed.layerMode === 'year_topic' ||
+      parsed.layerMode === 'category'
+    ) {
+      setLayerMode(parsed.layerMode);
+    }
+    if (parsed.focusDepth === 1 || parsed.focusDepth === 2) {
+      setFocusDepth(parsed.focusDepth);
+    }
+    if (typeof parsed.focusPaperId === 'string' || parsed.focusPaperId === null) {
+      setFocusPaperId(parsed.focusPaperId);
+    }
+    if (typeof parsed.minStrength === 'number' && Number.isFinite(parsed.minStrength)) {
+      setMinStrength(Math.max(1, Math.min(10, Math.round(parsed.minStrength))));
+    }
+    if (typeof parsed.isPanelOpen === 'boolean') {
+      setIsPanelOpen(parsed.isPanelOpen);
+    }
+    if (typeof parsed.useFamiliarityOpacity === 'boolean') {
+      setUseFamiliarityOpacity(parsed.useFamiliarityOpacity);
+    }
+    if (typeof parsed.searchText === 'string') {
+      setSearchText(parsed.searchText);
+    }
+    if (Array.isArray(parsed.enabledRelationshipTypes)) {
+      const nextRelationshipTypes = parsed.enabledRelationshipTypes.filter(
+        (value): value is RelationshipType =>
+          typeof value === 'string' && ALL_REL_TYPES.includes(value as RelationshipType)
+      );
+      if (nextRelationshipTypes.length) {
+        setEnabledRelationshipTypes(Array.from(new Set(nextRelationshipTypes)));
+      }
+    }
+    if (Array.isArray(parsed.selectedPaperIds)) {
+      setSelectedPaperIds(
+        Array.from(
+          new Set(parsed.selectedPaperIds.filter((value): value is string => typeof value === 'string'))
+        )
+      );
+    }
+    if (Array.isArray(parsed.selectedFamiliarityStars)) {
+      const nextStars = parsed.selectedFamiliarityStars
+        .filter(
+          (value): value is number =>
+            typeof value === 'number' && FAMILIARITY_STAR_OPTIONS.includes(value as 0 | 1 | 2 | 3)
+        )
+        .sort((a, b) => a - b);
+      setSelectedFamiliarityStars(Array.from(new Set(nextStars)));
+    }
+    if (Array.isArray(parsed.selectedImportanceRatings)) {
+      const nextImportanceRatings = parsed.selectedImportanceRatings
+        .filter(
+          (value): value is number =>
+            typeof value === 'number' && IMPORTANCE_OPTIONS.includes(value as 1 | 2 | 3 | 4 | 5)
+        )
+        .sort((a, b) => a - b);
+      setSelectedImportanceRatings(Array.from(new Set(nextImportanceRatings)));
+    }
+  }, []);
 
   useEffect(() => {
-    if (!papers.length) return;
+    try {
+      const raw = localStorage.getItem(MINDMAP_FILTERS_STORAGE_KEY);
+      if (raw) {
+        applyFilterPayload(JSON.parse(raw) as Partial<MindMapFilterPayload>);
+      }
 
-    const exists = focusPaperId && papers.some((paper) => paper.id === focusPaperId);
+      const pinnedRaw = localStorage.getItem(MINDMAP_FILTERS_PINNED_STORAGE_KEY);
+      if (pinnedRaw) {
+        const pinnedParsed = JSON.parse(pinnedRaw) as Partial<MindMapPinnedSnapshot>;
+        const hasPayload = !!pinnedParsed.payload;
+        setHasPinnedSnapshot(hasPayload || typeof pinnedParsed.savedAt === 'string');
+        if (typeof pinnedParsed.savedAt === 'string') {
+          setPinnedSavedAt(pinnedParsed.savedAt);
+        }
+      }
+    } catch (error) {
+      console.warn('Failed to restore dashboard filter state:', error);
+    } finally {
+      setIsFilterStateHydrated(true);
+    }
+  }, [applyFilterPayload]);
+
+  useEffect(() => {
+    if (!isFilterStateHydrated) return;
+
+    try {
+      localStorage.setItem(MINDMAP_FILTERS_STORAGE_KEY, JSON.stringify(buildFilterPayload()));
+    } catch (error) {
+      console.warn('Failed to persist dashboard filter state:', error);
+    }
+  }, [isFilterStateHydrated, buildFilterPayload]);
+
+  const filteredPapers = useMemo(() => {
+    return papers.filter((paper) => {
+      const familiarityLevel: FamiliarityLevel | undefined = paper.familiarity_level;
+      const starScore = getFamiliarityStarScore(familiarityLevel);
+      const familiarityMatch =
+        !selectedFamiliarityStars.length || selectedFamiliarityStars.includes(starScore);
+      const importance = paper.importance_rating ?? 0;
+      const importanceMatch =
+        !selectedImportanceRatings.length || selectedImportanceRatings.includes(importance);
+      return familiarityMatch && importanceMatch;
+    });
+  }, [papers, selectedFamiliarityStars, selectedImportanceRatings]);
+
+  const filteredPaperIdSet = useMemo(
+    () => new Set(filteredPapers.map((paper) => paper.id)),
+    [filteredPapers]
+  );
+
+  const sortedPapers = useMemo(() => {
+    return [...filteredPapers].sort((a, b) => b.year - a.year);
+  }, [filteredPapers]);
+
+  const selectionCandidates = useMemo(() => {
+    if (!searchText.trim()) return sortedPapers;
+    return sortedPapers.filter((paper) => matchesSearch(paper, searchText));
+  }, [sortedPapers, searchText]);
+
+  const favoritePaperIds = useMemo(
+    () => filteredPapers.filter((paper) => paper.is_favorite).map((paper) => paper.id),
+    [filteredPapers]
+  );
+
+  const selectedPaperSet = useMemo(() => new Set(selectedPaperIds), [selectedPaperIds]);
+
+  useEffect(() => {
+    if (!filteredPapers.length) {
+      setFocusPaperId(null);
+      return;
+    }
+
+    const exists = focusPaperId && filteredPapers.some((paper) => paper.id === focusPaperId);
     if (exists) return;
 
     setFocusPaperId(sortedPapers[0]?.id ?? null);
-  }, [papers, sortedPapers, focusPaperId]);
+  }, [filteredPapers, sortedPapers, focusPaperId]);
+
+  useEffect(() => {
+    if (!selectedPaperIds.length) return;
+    if (focusPaperId && selectedPaperSet.has(focusPaperId)) return;
+    setFocusPaperId(selectedPaperIds[0] ?? null);
+  }, [selectedPaperIds, selectedPaperSet, focusPaperId]);
+
+  useEffect(() => {
+    setSelectedPaperIds((previous) =>
+      previous.filter((id) => filteredPapers.some((paper) => paper.id === id))
+    );
+  }, [filteredPapers]);
 
   const filteredRelationships = useMemo(() => {
     return relationships.filter((relationship) => {
       if (!enabledRelationshipTypes.includes(relationship.relationship_type)) {
         return false;
       }
-      return relationship.strength >= minStrength;
+      if (relationship.strength < minStrength) return false;
+      return (
+        filteredPaperIdSet.has(relationship.from_paper_id) &&
+        filteredPaperIdSet.has(relationship.to_paper_id)
+      );
     });
-  }, [relationships, enabledRelationshipTypes, minStrength]);
+  }, [relationships, enabledRelationshipTypes, minStrength, filteredPaperIdSet]);
 
   const { searchedPapers, searchedRelationships } = useMemo(() => {
     if (!searchText.trim()) {
       return {
-        searchedPapers: papers,
+        searchedPapers: filteredPapers,
         searchedRelationships: filteredRelationships,
       };
     }
 
     const matchedIds = new Set(
-      papers.filter((paper) => matchesSearch(paper, searchText)).map((paper) => paper.id)
+      filteredPapers.filter((paper) => matchesSearch(paper, searchText)).map((paper) => paper.id)
     );
 
     const relatedEdges = filteredRelationships.filter((relationship) => {
@@ -171,34 +406,58 @@ function MindMapInner({ papers, relationships, onNodeClick }: MindMapProps) {
     }
 
     return {
-      searchedPapers: papers.filter((paper) => visibleIds.has(paper.id)),
+      searchedPapers: filteredPapers.filter((paper) => visibleIds.has(paper.id)),
       searchedRelationships: relatedEdges,
     };
-  }, [papers, filteredRelationships, searchText]);
+  }, [filteredPapers, filteredRelationships, searchText]);
+
+  const { selectionFilteredPapers, selectionFilteredRelationships } = useMemo(() => {
+    if (!selectedPaperSet.size) {
+      return {
+        selectionFilteredPapers: searchedPapers,
+        selectionFilteredRelationships: searchedRelationships,
+      };
+    }
+
+    return {
+      selectionFilteredPapers: searchedPapers.filter((paper) => selectedPaperSet.has(paper.id)),
+      selectionFilteredRelationships: searchedRelationships.filter(
+        (relationship) =>
+          selectedPaperSet.has(relationship.from_paper_id) &&
+          selectedPaperSet.has(relationship.to_paper_id)
+      ),
+    };
+  }, [searchedPapers, searchedRelationships, selectedPaperSet]);
 
   const { displayPapers, displayRelationships } = useMemo(() => {
     if (viewMode !== 'focus' || !focusPaperId) {
       return {
-        displayPapers: searchedPapers,
-        displayRelationships: searchedRelationships,
+        displayPapers: selectionFilteredPapers,
+        displayRelationships: selectionFilteredRelationships,
       };
     }
 
-    const focusedSet = bfsNodeSet(focusPaperId, searchedRelationships, focusDepth);
+    const focusedSet = bfsNodeSet(focusPaperId, selectionFilteredRelationships, focusDepth);
     return {
-      displayPapers: searchedPapers.filter((paper) => focusedSet.has(paper.id)),
-      displayRelationships: searchedRelationships.filter((relationship) => {
+      displayPapers: selectionFilteredPapers.filter((paper) => focusedSet.has(paper.id)),
+      displayRelationships: selectionFilteredRelationships.filter((relationship) => {
         return (
           focusedSet.has(relationship.from_paper_id) && focusedSet.has(relationship.to_paper_id)
         );
       }),
     };
-  }, [viewMode, focusPaperId, focusDepth, searchedPapers, searchedRelationships]);
+  }, [
+    viewMode,
+    focusPaperId,
+    focusDepth,
+    selectionFilteredPapers,
+    selectionFilteredRelationships,
+  ]);
 
   const focusPaper = useMemo(() => {
     if (!focusPaperId) return null;
-    return papers.find((paper) => paper.id === focusPaperId) ?? null;
-  }, [focusPaperId, papers]);
+    return filteredPapers.find((paper) => paper.id === focusPaperId) ?? null;
+  }, [focusPaperId, filteredPapers]);
 
   const focusSnapshot = useMemo(() => {
     if (!focusPaper) return null;
@@ -207,38 +466,162 @@ function MindMapInner({ papers, relationships, onNodeClick }: MindMapProps) {
 
   const focusConnections = useMemo(() => {
     if (!focusPaperId) return [];
-    return buildPaperConnections(focusPaperId, papers, displayRelationships);
-  }, [focusPaperId, papers, displayRelationships]);
+    return buildPaperConnections(focusPaperId, filteredPapers, displayRelationships);
+  }, [focusPaperId, filteredPapers, displayRelationships]);
 
   const focusRecommendations = useMemo(() => {
     if (!focusPaperId) return [];
-    return buildBridgeRecommendations(focusPaperId, papers, filteredRelationships, 5);
-  }, [focusPaperId, papers, filteredRelationships]);
+    return buildBridgeRecommendations(
+      focusPaperId,
+      filteredPapers,
+      selectionFilteredRelationships,
+      5
+    );
+  }, [focusPaperId, filteredPapers, selectionFilteredRelationships]);
 
   const strongestRelationships = useMemo(() => {
     return [...displayRelationships]
       .sort((a, b) => b.strength - a.strength)
       .slice(0, 20)
       .map((relationship) => {
-        const from = papers.find((paper) => paper.id === relationship.from_paper_id);
-        const to = papers.find((paper) => paper.id === relationship.to_paper_id);
+        const from = filteredPapers.find((paper) => paper.id === relationship.from_paper_id);
+        const to = filteredPapers.find((paper) => paper.id === relationship.to_paper_id);
         return { relationship, from, to };
       })
       .filter((item) => item.from && item.to);
-  }, [displayRelationships, papers]);
+  }, [displayRelationships, filteredPapers]);
+
+  const visibleTopicLabels = useMemo(() => {
+    return RESEARCH_TOPIC_ORDER.filter((topic) =>
+      displayPapers.some((paper) => inferResearchTopic(paper) === topic)
+    ).map((topic) => RESEARCH_TOPIC_LABELS[topic]);
+  }, [displayPapers]);
 
   const activeDirection = viewMode === 'timeline' ? 'TB' : direction;
   const graphData = useGraphData(displayPapers, displayRelationships, {
     direction: activeDirection,
+    applyFamiliarityOpacity: useFamiliarityOpacity,
   });
+  const graphNodes = graphData.nodes;
 
   const layeredNodes = useMemo(() => {
-    const yearOrder = Array.from(new Set(displayPapers.map((paper) => paper.year))).sort(
-      (a, b) => a - b
-    );
-    const yearRank = new Map(yearOrder.map((year, index) => [year, index]));
+    const nodeMap = new Map(graphNodes.map((node) => [node.id, node]));
 
-    const categoryOrder = [
+    if (layerMode === 'year_topic') {
+      const sorted = [...displayPapers].sort((a, b) => {
+        if (a.year !== b.year) return a.year - b.year;
+        return a.title.localeCompare(b.title);
+      });
+      const yearOrder = Array.from(new Set(sorted.map((paper) => paper.year)));
+      const topicByPaperId = new Map(sorted.map((paper) => [paper.id, inferResearchTopic(paper)]));
+      const topicOrder = RESEARCH_TOPIC_ORDER.filter((topic) =>
+        sorted.some((paper) => topicByPaperId.get(paper.id) === topic)
+      );
+
+      if (!topicOrder.length) return graphNodes;
+
+      const groupedByCell = new Map<string, PaperWithNote[]>();
+      for (const year of yearOrder) {
+        for (const topic of topicOrder) {
+          groupedByCell.set(`${year}|${topic}`, []);
+        }
+      }
+
+      for (const paper of sorted) {
+        const topic = topicByPaperId.get(paper.id);
+        if (!topic) continue;
+        groupedByCell.get(`${paper.year}|${topic}`)?.push(paper);
+      }
+
+      const topicGap = 430;
+      const maxCellCols = 2;
+      const innerColGap = 140;
+      const innerRowGap = 150;
+      const yearSectionGap = 120;
+      const centeredTopicOffset = (topicOrder.length - 1) / 2;
+      const yearStartY = new Map<number, number>();
+      let yCursor = 0;
+
+      for (const year of yearOrder) {
+        yearStartY.set(year, yCursor);
+
+        let maxRowsInYear = 1;
+        for (const topic of topicOrder) {
+          const count = groupedByCell.get(`${year}|${topic}`)?.length ?? 0;
+          const rowCount = Math.max(1, Math.ceil(count / maxCellCols));
+          if (rowCount > maxRowsInYear) maxRowsInYear = rowCount;
+        }
+
+        yCursor += maxRowsInYear * innerRowGap + yearSectionGap;
+      }
+
+      const positioned: typeof graphNodes = [];
+
+      for (const year of yearOrder) {
+        const baseYearY = yearStartY.get(year) ?? 0;
+
+        topicOrder.forEach((topic, topicIndex) => {
+          const cell = groupedByCell.get(`${year}|${topic}`) ?? [];
+          const baseTopicX = (topicIndex - centeredTopicOffset) * topicGap;
+
+          cell.forEach((paper, index) => {
+            const base = nodeMap.get(paper.id);
+            if (!base) return;
+
+            const localCol = index % maxCellCols;
+            const localRow = Math.floor(index / maxCellCols);
+            const columnOffset = (localCol - (maxCellCols - 1) / 2) * innerColGap;
+
+            positioned.push({
+              ...base,
+              position: {
+                x: baseTopicX + columnOffset,
+                y: baseYearY + localRow * innerRowGap,
+              },
+            });
+          });
+        });
+      }
+
+      return positioned;
+    }
+
+    if (layerMode === 'year') {
+      const sorted = [...displayPapers].sort((a, b) => {
+        if (a.year !== b.year) return a.year - b.year;
+        return a.title.localeCompare(b.title);
+      });
+      const yearOrder = Array.from(new Set(sorted.map((paper) => paper.year)));
+      const groupedByYear = new Map<number, PaperWithNote[]>();
+      for (const year of yearOrder) groupedByYear.set(year, []);
+      for (const paper of sorted) {
+        groupedByYear.get(paper.year)?.push(paper);
+      }
+
+      const yearGap = 260;
+      const colGap = 320;
+      const positioned: typeof graphNodes = [];
+
+      yearOrder.forEach((year, rowIndex) => {
+        const row = groupedByYear.get(year) ?? [];
+        const totalWidth = Math.max(0, (row.length - 1) * colGap);
+        row.forEach((paper, colIndex) => {
+          const base = nodeMap.get(paper.id);
+          if (!base) return;
+          positioned.push({
+            ...base,
+            position: {
+              x: colIndex * colGap - totalWidth / 2,
+              y: rowIndex * yearGap,
+            },
+          });
+        });
+      });
+
+      return positioned;
+    }
+
+    const categoryBaseOrder = [
       'csi_compression',
       'autoencoder',
       'quantization',
@@ -246,34 +629,43 @@ function MindMapInner({ papers, relationships, onNodeClick }: MindMapProps) {
       'cnn',
       'other',
     ];
-    const categoryRank = new Map(categoryOrder.map((category, index) => [category, index]));
-    const paperMap = new Map(displayPapers.map((paper) => [paper.id, paper]));
+    const dynamicCategories = Array.from(
+      new Set(displayPapers.map((paper) => paper.category))
+    ).filter((category) => !categoryBaseOrder.includes(category));
+    const categoryOrder = [
+      ...categoryBaseOrder.filter((category) =>
+        displayPapers.some((paper) => paper.category === category)
+      ),
+      ...dynamicCategories,
+    ];
+    const groupedByCategory = new Map<string, PaperWithNote[]>();
+    for (const category of categoryOrder) groupedByCategory.set(category, []);
+    for (const paper of [...displayPapers].sort((a, b) => a.year - b.year || a.title.localeCompare(b.title))) {
+      groupedByCategory.get(paper.category)?.push(paper);
+    }
 
-    return graphData.nodes.map((node) => {
-      const paper = paperMap.get(node.id);
-      if (!paper) return node;
+    const colGap = 360;
+    const rowGap = 230;
+    const centeredOffset = (categoryOrder.length - 1) / 2;
+    const positioned: typeof graphNodes = [];
 
-      if (layerMode === 'year') {
-        const rank = yearRank.get(paper.year) ?? 0;
-        return {
-          ...node,
+    categoryOrder.forEach((category, colIndex) => {
+      const column = groupedByCategory.get(category) ?? [];
+      column.forEach((paper, rowIndex) => {
+        const base = nodeMap.get(paper.id);
+        if (!base) return;
+        positioned.push({
+          ...base,
           position: {
-            x: node.position.x,
-            y: rank * 240 + (node.position.y % 120),
+            x: (colIndex - centeredOffset) * colGap,
+            y: rowIndex * rowGap,
           },
-        };
-      }
-
-      const rank = categoryRank.get(paper.category) ?? categoryOrder.length;
-      return {
-        ...node,
-        position: {
-          x: rank * 340 + (node.position.x % 140),
-          y: node.position.y,
-        },
-      };
+        });
+      });
     });
-  }, [displayPapers, graphData.nodes, layerMode]);
+
+    return positioned;
+  }, [displayPapers, graphNodes, layerMode]);
 
   const labeledEdges = useMemo(() => {
     const showLabel = zoomLevel >= 0.78 && displayPapers.length <= 45;
@@ -297,12 +689,19 @@ function MindMapInner({ papers, relationships, onNodeClick }: MindMapProps) {
     setEdges(labeledEdges);
   }, [labeledEdges, setEdges]);
 
-  const handleNodeClick: NodeMouseHandler = useCallback(
-    (_event, node: Node<PaperNodeData>) => {
-      setFocusPaperId(node.id);
-      onNodeClick?.(node.id);
+  const openPaper = useCallback(
+    (paperId: string) => {
+      setFocusPaperId(paperId);
+      onNodeClick?.(paperId);
     },
     [onNodeClick]
+  );
+
+  const handleNodeClick: NodeMouseHandler = useCallback(
+    (_event, node: Node<PaperNodeData>) => {
+      openPaper(node.id);
+    },
+    [openPaper]
   );
 
   const miniMapNodeColor = useCallback((node: Node<PaperNodeData>) => {
@@ -316,6 +715,86 @@ function MindMapInner({ papers, relationships, onNodeClick }: MindMapProps) {
         : [...previous, type]
     );
   }, []);
+
+  const togglePaperSelection = useCallback((paperId: string) => {
+    setSelectedPaperIds((previous) =>
+      previous.includes(paperId)
+        ? previous.filter((id) => id !== paperId)
+        : [...previous, paperId]
+    );
+  }, []);
+
+  const toggleFamiliarityStarFilter = useCallback((star: number) => {
+    setSelectedFamiliarityStars((previous) =>
+      previous.includes(star)
+        ? previous.filter((value) => value !== star)
+        : [...previous, star].sort((a, b) => a - b)
+    );
+  }, []);
+
+  const toggleImportanceFilter = useCallback((rating: number) => {
+    setSelectedImportanceRatings((previous) =>
+      previous.includes(rating)
+        ? previous.filter((value) => value !== rating)
+        : [...previous, rating].sort((a, b) => a - b)
+    );
+  }, []);
+
+  const clearPaperSelection = useCallback(() => {
+    setSelectedPaperIds([]);
+  }, []);
+
+  const selectFavoritePapers = useCallback(() => {
+    setSelectedPaperIds(favoritePaperIds);
+  }, [favoritePaperIds]);
+
+  const selectSearchCandidates = useCallback(() => {
+    setSelectedPaperIds(selectionCandidates.map((paper) => paper.id));
+  }, [selectionCandidates]);
+
+  const savePinnedFilterState = useCallback(() => {
+    const snapshot: MindMapPinnedSnapshot = {
+      savedAt: new Date().toISOString(),
+      payload: buildFilterPayload(),
+    };
+
+    try {
+      localStorage.setItem(MINDMAP_FILTERS_PINNED_STORAGE_KEY, JSON.stringify(snapshot));
+      setHasPinnedSnapshot(true);
+      setPinnedSavedAt(snapshot.savedAt);
+    } catch (error) {
+      console.warn('Failed to save pinned dashboard filter state:', error);
+    }
+  }, [buildFilterPayload]);
+
+  const loadPinnedFilterState = useCallback(() => {
+    try {
+      const pinnedRaw = localStorage.getItem(MINDMAP_FILTERS_PINNED_STORAGE_KEY);
+      if (!pinnedRaw) return;
+
+      const parsed = JSON.parse(pinnedRaw) as Partial<MindMapPinnedSnapshot>;
+      if (parsed.payload) {
+        applyFilterPayload(parsed.payload);
+      } else {
+        applyFilterPayload(parsed as Partial<MindMapFilterPayload>);
+      }
+
+      setHasPinnedSnapshot(true);
+      if (typeof parsed.savedAt === 'string') {
+        setPinnedSavedAt(parsed.savedAt);
+      }
+    } catch (error) {
+      console.warn('Failed to load pinned dashboard filter state:', error);
+    }
+  }, [applyFilterPayload]);
+
+  useEffect(() => {
+    if (surfaceMode !== 'graph' || !nodes.length) return;
+    const raf = window.requestAnimationFrame(() => {
+      fitView({ padding: 0.22, duration: 350 });
+    });
+    return () => window.cancelAnimationFrame(raf);
+  }, [nodes, edges, surfaceMode, fitView]);
 
   const tabClass = (active: boolean) =>
     `rounded-md px-3 py-1.5 text-xs font-semibold transition ${
@@ -356,6 +835,27 @@ function MindMapInner({ papers, relationships, onNodeClick }: MindMapProps) {
             </button>
 
             <button
+              onClick={savePinnedFilterState}
+              className="rounded-md border border-blue-300 bg-blue-50 px-2 py-1 text-[11px] font-semibold text-blue-700 hover:bg-blue-100 dark:border-blue-700 dark:bg-blue-900/30 dark:text-blue-300 dark:hover:bg-blue-900/50"
+              title="현재 필터 상태 저장"
+            >
+              상태 저장
+            </button>
+            <button
+              onClick={loadPinnedFilterState}
+              disabled={!hasPinnedSnapshot}
+              className="rounded-md border border-indigo-300 bg-indigo-50 px-2 py-1 text-[11px] font-semibold text-indigo-700 hover:bg-indigo-100 disabled:cursor-not-allowed disabled:opacity-50 dark:border-indigo-700 dark:bg-indigo-900/30 dark:text-indigo-300 dark:hover:bg-indigo-900/50"
+              title="저장한 필터 상태 불러오기"
+            >
+              상태 불러오기
+            </button>
+            {hasPinnedSnapshot && (
+              <span className="text-[10px] text-gray-500 dark:text-gray-400">
+                저장됨: {pinnedSavedAt ? new Date(pinnedSavedAt).toLocaleString('ko-KR') : '확인됨'}
+              </span>
+            )}
+
+            <button
               onClick={() => setIsPanelOpen(false)}
               className="ml-auto rounded-md border border-gray-300 p-1.5 text-gray-500 hover:bg-gray-100 dark:border-gray-600 dark:text-gray-300 dark:hover:bg-gray-800"
               title="패널 닫기"
@@ -364,10 +864,13 @@ function MindMapInner({ papers, relationships, onNodeClick }: MindMapProps) {
             </button>
           </div>
 
-          <div className="mb-3 grid grid-cols-2 gap-2 md:grid-cols-4 text-[11px]">
+          <div className="mb-3 grid grid-cols-2 gap-2 text-[11px] md:grid-cols-5">
             <div className="rounded-md bg-gray-50 px-2 py-1.5 dark:bg-gray-800">전체 논문 {papers.length}</div>
             <div className="rounded-md bg-gray-50 px-2 py-1.5 dark:bg-gray-800">표시 논문 {displayPapers.length}</div>
             <div className="rounded-md bg-gray-50 px-2 py-1.5 dark:bg-gray-800">표시 관계 {displayRelationships.length}</div>
+            <div className="rounded-md bg-gray-50 px-2 py-1.5 dark:bg-gray-800">
+              선택 논문 {selectedPaperIds.length || sortedPapers.length}
+            </div>
             <div className="rounded-md bg-gray-50 px-2 py-1.5 dark:bg-gray-800">최소 강도 {minStrength}</div>
           </div>
 
@@ -383,6 +886,143 @@ function MindMapInner({ papers, relationships, onNodeClick }: MindMapProps) {
                 placeholder="제목, 저자, 태그"
                 className="input-base !py-2 !pl-8 !text-xs"
               />
+            </div>
+          </div>
+
+          <div className="mb-3 grid grid-cols-1 gap-2 md:grid-cols-2">
+            <div>
+              <div className="mb-1 flex items-center justify-between text-[11px] text-gray-600 dark:text-gray-300">
+                <span className="font-semibold">익숙도(별)</span>
+                {!!selectedFamiliarityStars.length && (
+                  <button
+                    onClick={() => setSelectedFamiliarityStars([])}
+                    className="text-[10px] font-semibold text-blue-600 hover:text-blue-700"
+                  >
+                    초기화
+                  </button>
+                )}
+              </div>
+              <div className="flex flex-wrap gap-1.5">
+                {FAMILIARITY_STAR_OPTIONS.map((star) => {
+                  const active = selectedFamiliarityStars.includes(star);
+                  return (
+                    <button
+                      key={star}
+                      onClick={() => toggleFamiliarityStarFilter(star)}
+                      className={`rounded-full border px-2 py-0.5 text-[10px] font-semibold transition ${
+                        active
+                          ? 'border-blue-600 bg-blue-600 text-white'
+                          : 'border-gray-300 bg-white text-gray-600 hover:border-blue-400 dark:border-gray-600 dark:bg-gray-900 dark:text-gray-300'
+                      }`}
+                    >
+                      별 {star}개
+                    </button>
+                  );
+                })}
+              </div>
+            </div>
+
+            <div>
+              <div className="mb-1 flex items-center justify-between text-[11px] text-gray-600 dark:text-gray-300">
+                <span className="font-semibold">중요도</span>
+                {!!selectedImportanceRatings.length && (
+                  <button
+                    onClick={() => setSelectedImportanceRatings([])}
+                    className="text-[10px] font-semibold text-blue-600 hover:text-blue-700"
+                  >
+                    초기화
+                  </button>
+                )}
+              </div>
+              <div className="flex flex-wrap gap-1.5">
+                {IMPORTANCE_OPTIONS.map((rating) => {
+                  const active = selectedImportanceRatings.includes(rating);
+                  return (
+                    <button
+                      key={rating}
+                      onClick={() => toggleImportanceFilter(rating)}
+                      className={`rounded-full border px-2 py-0.5 text-[10px] font-semibold transition ${
+                        active
+                          ? 'border-blue-600 bg-blue-600 text-white'
+                          : 'border-gray-300 bg-white text-gray-600 hover:border-blue-400 dark:border-gray-600 dark:bg-gray-900 dark:text-gray-300'
+                      }`}
+                    >
+                      {rating}
+                    </button>
+                  );
+                })}
+              </div>
+            </div>
+          </div>
+
+          <div className="mb-3 flex items-center justify-between rounded-md border border-gray-200 bg-gray-50 px-2.5 py-2 text-[11px] dark:border-gray-700 dark:bg-gray-800">
+            <div>
+              <p className="font-semibold text-gray-700 dark:text-gray-200">익숙도 투명도 시각화</p>
+              <p className="text-[10px] text-gray-500 dark:text-gray-400">
+                켜면 별 0개 노드가 완전 투명하게 표시됩니다.
+              </p>
+            </div>
+            <button
+              onClick={() => setUseFamiliarityOpacity((previous) => !previous)}
+              className={`rounded-full border px-2.5 py-1 text-[10px] font-semibold transition ${
+                useFamiliarityOpacity
+                  ? 'border-blue-600 bg-blue-600 text-white'
+                  : 'border-gray-300 bg-white text-gray-600 hover:border-blue-400 dark:border-gray-600 dark:bg-gray-900 dark:text-gray-300'
+              }`}
+            >
+              {useFamiliarityOpacity ? '켜짐' : '꺼짐'}
+            </button>
+          </div>
+
+          <div className="mb-3">
+            <div className="mb-1 flex items-center justify-between gap-2 text-[11px] text-gray-600 dark:text-gray-300">
+              <span className="inline-flex items-center gap-1 font-semibold">
+                <ListTree className="h-3.5 w-3.5" />
+                선택 논문 ({selectedPaperIds.length ? `${selectedPaperIds.length}개` : '전체'})
+              </span>
+              <div className="flex items-center gap-1.5">
+                <button
+                  onClick={selectSearchCandidates}
+                  disabled={!selectionCandidates.length}
+                  className="rounded border border-blue-300 px-2 py-0.5 text-[10px] font-semibold text-blue-700 hover:bg-blue-50 disabled:cursor-not-allowed disabled:opacity-50 dark:border-blue-700 dark:text-blue-300 dark:hover:bg-blue-900/30"
+                >
+                  검색결과 선택
+                </button>
+                <button
+                  onClick={selectFavoritePapers}
+                  className="inline-flex items-center gap-1 rounded border border-amber-300 bg-amber-50 px-2 py-0.5 text-[10px] font-semibold text-amber-700 hover:bg-amber-100 dark:border-amber-700 dark:bg-amber-900/30 dark:text-amber-300 dark:hover:bg-amber-900/50"
+                >
+                  <Star className="h-3 w-3" />
+                  즐겨찾기만
+                </button>
+                <button
+                  onClick={clearPaperSelection}
+                  disabled={!selectedPaperIds.length}
+                  className="rounded border border-gray-300 px-2 py-0.5 text-[10px] font-semibold text-gray-600 hover:bg-gray-100 disabled:cursor-not-allowed disabled:opacity-50 dark:border-gray-700 dark:text-gray-300 dark:hover:bg-gray-800"
+                >
+                  전체 보기
+                </button>
+              </div>
+            </div>
+            <div className="max-h-40 overflow-auto rounded-md border border-gray-200 bg-white px-2 py-1 dark:border-gray-700 dark:bg-gray-900">
+              {selectionCandidates.map((paper) => (
+                <label key={paper.id} className="flex items-center gap-2 py-1 text-[11px]">
+                  <input
+                    type="checkbox"
+                    checked={selectedPaperSet.has(paper.id)}
+                    onChange={() => togglePaperSelection(paper.id)}
+                    className="h-3 w-3 rounded border-gray-300 text-blue-600 focus:ring-blue-500"
+                  />
+                  <span className="truncate text-gray-700 dark:text-gray-300">
+                    {paper.year} - {paper.title}
+                  </span>
+                </label>
+              ))}
+              {selectionCandidates.length === 0 && (
+                <p className="py-2 text-center text-[11px] text-gray-400 dark:text-gray-500">
+                  검색 결과가 없습니다.
+                </p>
+              )}
             </div>
           </div>
 
@@ -432,7 +1072,7 @@ function MindMapInner({ papers, relationships, onNodeClick }: MindMapProps) {
               onChange={(event) => setFocusPaperId(event.target.value || null)}
               className="input-base !py-2 !text-xs"
             >
-              {sortedPapers.map((paper) => (
+              {(selectedPaperIds.length ? selectionFilteredPapers : sortedPapers).map((paper) => (
                 <option key={paper.id} value={paper.id}>
                   {paper.year} - {paper.title}
                 </option>
@@ -447,6 +1087,15 @@ function MindMapInner({ papers, relationships, onNodeClick }: MindMapProps) {
                 <option value="focus">초점 모드</option>
                 <option value="overview">전체 보기</option>
                 <option value="timeline">타임라인</option>
+              </select>
+              <select
+                value={layerMode}
+                onChange={(event) => setLayerMode(event.target.value as LayerMode)}
+                className="input-base !py-2 !text-xs"
+              >
+                <option value="year_topic">연도 x 주제 정렬</option>
+                <option value="year">연도 행 정렬</option>
+                <option value="category">카테고리 열 정렬</option>
               </select>
               <select
                 value={focusDepth}
@@ -469,6 +1118,14 @@ function MindMapInner({ papers, relationships, onNodeClick }: MindMapProps) {
             <p className="mt-0.5">
               포커스 모드는 기준 논문에서 {focusDepth}-hop 이내만 남겨 복잡도를 줄입니다.
             </p>
+            <p className="mt-0.5">
+              논문 선택/필터/정렬 변경 시 맵은 자동으로 재정렬됩니다.
+            </p>
+            {layerMode === 'year_topic' && (
+              <p className="mt-0.5">
+                현재 x축 주제: {visibleTopicLabels.length ? visibleTopicLabels.join(' · ') : '없음'}
+              </p>
+            )}
             <p className="mt-0.5">
               2-hop 추천 점수는 공통 연결·경로 강도·카테고리·태그·연도·복습 우선순위를 함께 반영합니다.
             </p>
@@ -608,7 +1265,7 @@ function MindMapInner({ papers, relationships, onNodeClick }: MindMapProps) {
                         <td className="px-2 py-2">
                           <button
                             onClick={() => {
-                              setFocusPaperId(connection.otherPaper.id);
+                              openPaper(connection.otherPaper.id);
                             }}
                             className="line-clamp-1 text-left font-medium text-blue-700 hover:underline dark:text-blue-300"
                           >
@@ -640,7 +1297,7 @@ function MindMapInner({ papers, relationships, onNodeClick }: MindMapProps) {
                     {focusRecommendations.map((recommendation) => (
                       <button
                         key={recommendation.paper.id}
-                        onClick={() => setFocusPaperId(recommendation.paper.id)}
+                        onClick={() => openPaper(recommendation.paper.id)}
                         className="flex w-full items-center justify-between rounded-md border border-gray-200 px-2 py-1.5 text-left hover:bg-gray-50 dark:border-gray-700 dark:hover:bg-gray-800"
                       >
                         <span className="line-clamp-1 text-xs text-gray-700 dark:text-gray-200">
@@ -666,7 +1323,7 @@ function MindMapInner({ papers, relationships, onNodeClick }: MindMapProps) {
                 {strongestRelationships.slice(0, 10).map((item) => (
                   <button
                     key={item.relationship.id}
-                    onClick={() => setFocusPaperId(item.relationship.from_paper_id)}
+                    onClick={() => openPaper(item.relationship.from_paper_id)}
                     className="flex items-center gap-2 rounded-md border border-gray-200 px-2 py-1.5 text-left hover:bg-gray-50 dark:border-gray-700 dark:hover:bg-gray-800"
                   >
                     <ArrowRightLeft className="h-3.5 w-3.5 text-gray-400" />
@@ -695,6 +1352,8 @@ function MindMapInner({ papers, relationships, onNodeClick }: MindMapProps) {
             onMove={(_, viewport) => setZoomLevel(viewport.zoom)}
             nodeTypes={nodeTypes}
             edgeTypes={edgeTypes}
+            nodesDraggable={false}
+            nodesConnectable={false}
             fitView
             fitViewOptions={{ padding: 0.25, duration: 500 }}
             minZoom={0.2}

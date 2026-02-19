@@ -960,15 +960,17 @@
       "architecture_detail": "압축비를 상황에 맞게 유연하게 바꿀 수 있는 가변 길이 코드워드 구조이다. 기존 CsiNet은 압축비마다 별도 모델을 학습해야 했지만, CsiNet+는 하나의 인코더에서 다양한 길이의 코드워드를 점진적으로 출력한다. 채널 상태가 좋을 때는 짧은 코드워드를, 나쁠 때는 긴 코드워드를 사용하여, 한 모델로 여러 압축비를 커버한다. 실용적인 적응형 FDD 시스템에 적합하다."
     },
     {
-      "title": "Lightweight CSI Feedback via Mixed-Precision Quantization",
+      "title": "Binarized Aggregated Network With Quantization: Flexible Deep Learning Deployment for CSI Feedback in Massive MIMO Systems",
       "authors": [
         "Zhilin Lu",
+        "Xudong Zhang",
+        "Hongyi He",
         "Jintao Wang",
         "Jian Song"
       ],
-      "year": 2023,
+      "year": 2022,
       "venue": "IEEE Transactions on Wireless Communications",
-      "doi": "10.1109/TWC.2023.3251213",
+      "doi": "10.1109/TWC.2022.3141653",
       "arxiv_id": null,
       "abstract": "본 논문은 CSI 피드백 네트워크를 위한 혼합 정밀도 양자화 프레임워크를 제안한다. 모든 레이어에 동일한 비트 폭을 적용하는 균일 양자화와 달리, 본 방법은 양자화 오류에 대한 민감도에 따라 각 레이어에 서로 다른 비트 폭을 할당하여 더 나은 NMSE-비트율 트레이드오프를 달성한다. 하드웨어 인식 탐색 알고리즘이 레이어별 최적 비트 할당을 찾는다.",
       "key_contributions": [
@@ -1490,6 +1492,82 @@
       "architecture_detail": "CSI 피드백 네트워크에 최적화된 양자화 설계를 다루는 연구이다. 핵심은 NMSE와 양자화 왜곡을 동시에 줄이는 적응적 결합 손실 함수와, 코드워드 원소별로 비트를 다르게 할당하는 비균일 비트 할당 전략이다. 양자화를 \"나중에 덧붙이는 후처리\"가 아니라 \"학습 과정의 일부\"로 통합하여, 양자화 후에도 복원 품질이 크게 떨어지지 않도록 한다."
     },
     {
+      "title": "Quantization Adaptor for Bit-Level Deep Learning-Based Massive MIMO CSI Feedback",
+      "authors": [
+        "Xudong Zhang",
+        "Zhilin Lu",
+        "Rui Zeng",
+        "Jintao Wang"
+      ],
+      "year": 2024,
+      "venue": "IEEE Transactions on Vehicular Technology 2024",
+      "doi": "10.1109/TVT.2023.3333358",
+      "arxiv_id": "2211.02937",
+      "abstract": "이 논문은 bit-level CSI 피드백에서 양자화 왜곡을 줄이기 위해 adaptor-assisted quantization을 제안한다. mu-law 양자화 기반 파이프라인 위에 경량 adaptor를 추가하고, L1 adaptor와 QSNR 정규화를 포함한 2단계 학습으로 복원 정확도와 양자화 강건성을 함께 개선한다.",
+      "key_contributions": [
+        "mu-law 기반 CSI 양자화에 adaptor 모듈을 결합해 오차 보정 경로 제시",
+        "병목 FC adaptor로 파라미터 비용을 줄이면서 보정 성능 유지",
+        "추론 비용이 추가되지 않는 L1 adaptor 제안",
+        "MSE + QSNR + alpha 스케줄 기반 2단계 학습으로 성능 안정화"
+      ],
+      "algorithms": [
+        "mu-law Companding Quantization",
+        "Bottleneck FC Adaptor",
+        "Parallel Bottleneck FC Adaptor",
+        "L1 Distribution Adaptor",
+        "Two-Stage Training with QSNR Regularization"
+      ],
+      "key_equations": [
+        {
+          "name": "mu-law 컴팬딩",
+          "latex": "\\Phi(x)=\\frac{\\ln(1+\\mu |x|)}{\\ln(1+\\mu)}",
+          "description": "0 근처 구간에 더 촘촘한 양자화 레벨을 배치해 zero-centered 코드워드에 유리하다."
+        },
+        {
+          "name": "L1 adaptor 손실",
+          "latex": "L(\\Theta_{en},\\Theta_{de})=\\frac{1}{N}\\sum_{i=1}^{N}\\|\\hat H_{c,i}-H_{c,i}\\|_2^2+\\|\\mathbf{v}_i\\|_1",
+          "description": "코드워드를 0 주변으로 모아 양자화기와 데이터 분포를 정렬한다."
+        },
+        {
+          "name": "QSNR 정규화 손실",
+          "latex": "L(\\Theta_{NA},\\Theta_{de})=\\frac{1}{N}\\sum_{i=1}^{N}\\|\\hat H_{c,i}-H_{c,i}\\|_2^2+\\alpha\\frac{\\|\\mathbf{v}_i\\|_2^2}{\\|\\mathbf{v}_i-\\mathbf{v}_{q,i}\\|_2^2}",
+          "description": "복원 오차와 양자화 강건성을 동시에 최적화한다."
+        }
+      ],
+      "category": "quantization",
+      "tags": [
+        "csi-feedback",
+        "bit-level",
+        "mu-law",
+        "adaptor",
+        "qsnr",
+        "quantization-aware"
+      ],
+      "pdf_url": "https://arxiv.org/pdf/2211.02937",
+      "code_url": null,
+      "color_hex": "#F97316",
+      "architecture_detail": "2.1 문제 설정\nbit-level 전송에서는 양자화 모듈이 필수이며 저비트에서 왜곡이 커진다.\n\n2.2 기존 한계\n기본 양자화만으로는 데이터 분포와 양자화기 정합이 부족하고, 무거운 보정 네트워크는 배포 부담이 크다.\n\n2.3 설계 철학\n양자화기를 바꾸기보다 코드워드를 양자화기에 맞게 적응시킨다.\n\n2.4 핵심 기법\n- Bottleneck FC adaptor\n- Parallel bottleneck adaptor\n- L1 adaptor (cost-free)\n- Two-stage training + alpha scheduler\n\n2.5 의미\nL1은 분포 정렬, QSNR은 양자화 노이즈 억제 역할을 담당한다.\n\n2.6 의의\n복잡한 코드북 없이도 경량 adaptor와 학습 전략으로 실용 성능을 끌어올린다.",
+      "difficulty_level": "intermediate",
+      "prerequisites": [
+        "오토인코더 기반 CSI 피드백 구조",
+        "mu-law companding 기본 개념",
+        "MSE와 QSNR 지표",
+        "병목 구조와 residual 기본"
+      ],
+      "learning_objectives": [
+        "adaptor 기반 보정의 원리를 설명할 수 있다.",
+        "bottleneck adaptor의 비용-성능 트레이드오프를 분석할 수 있다.",
+        "L1 adaptor가 cost-free인 이유를 설명할 수 있다.",
+        "2단계 학습과 alpha 스케줄의 효과를 설명할 수 있다."
+      ],
+      "self_check_questions": [
+        "mu-law가 zero-centered 데이터에 유리한 이유는 무엇인가?",
+        "bottleneck adaptor가 비용을 줄이는 방식은 무엇인가?",
+        "L1 adaptor가 추론 비용을 늘리지 않는 이유는 무엇인가?",
+        "alpha를 지나치게 크게 두면 어떤 문제가 생기는가?"
+      ]
+    },
+    {
       "title": "InvCSINet: Invertible Networks with Endogenous Quantization for CSI Feedback",
       "authors": [
         "Haotian Tian",
@@ -1954,43 +2032,155 @@
       "venue": "ICML 2021",
       "doi": null,
       "arxiv_id": "2011.10680",
-      "abstract": "HAWQ-V3는 헤시안 기반 민감도 분석을 사용하는 정수 전용 혼합 정밀도 양자화 프레임워크를 제시한다. 전체 연산이 정수 곱셈, 덧셈, 비트 시프트만으로 수행되며 부동소수점 연산이 필요 없다. 정수 선형 프로그래밍 문제를 풀어 모델 교란과 메모리/지연 제약 간의 균형을 맞추며, 최초의 INT4 정수 전용 양자화를 보고한다.",
+      "abstract": "HAWQ-V3는 integer-only 혼합 정밀도 양자화 프레임워크다. 전체 계산 그래프를 정수 곱셈, 덧셈, 비트 시프트만으로 실행하고, 레이어별 헤시안 민감도와 하드웨어 제약을 함께 고려한 ILP 비트 할당으로 정확도와 지연시간의 균형을 맞춘다.",
       "key_contributions": [
-        "헤시안 기반 계층별 비트 할당을 적용한 최초의 정수 전용 4비트 양자화",
-        "하드웨어 인식 혼합 정밀도 할당을 위한 정수 선형 프로그래밍",
-        "부동소수점 없이 정수 곱셈, 덧셈, 비트 시프트만으로 연산 수행"
+        "부동소수점 연산 없이 동작하는 integer-only 추론 파이프라인 제시",
+        "레이어별 헤시안 민감도와 모델 크기, BOPS, 지연시간 제약을 함께 푸는 ILP 기반 비트 할당",
+        "dyadic 스케일을 사용해 division 비용을 줄이고 하드웨어 친화성 강화",
+        "TVM 배포까지 포함한 실험으로 INT4/INT8 혼합 정밀도 성능 검증"
       ],
       "algorithms": [
-        "Hessian-Based Layer Sensitivity Analysis (헤시안 기반 계층 민감도 분석)",
-        "Integer Linear Programming Bit Allocation (정수 선형 프로그래밍 비트 할당)",
-        "Dyadic Integer Arithmetic (이진 정수 산술)",
-        "Mixed-Precision INT4/INT8 Inference (혼합 정밀도 INT4/INT8 추론)"
+        "Hessian-Based Layer Sensitivity Estimation (헤시안 기반 민감도 추정)",
+        "Hardware-Aware ILP Bit Allocation (하드웨어 제약 ILP 비트 할당)",
+        "Dyadic Rescaling for Integer-Only Arithmetic (dyadic 재스케일)",
+        "INT4 Packing + TVM Deployment (INT4 패킹 및 TVM 배포)"
       ],
       "key_equations": [
         {
-          "name": "헤시안 민감도",
-          "latex": "\\Omega_l = \\bar{\\delta}_l^T \\mathbf{H}_l \\bar{\\delta}_l, \\quad \\mathbf{H}_l = \\frac{\\partial^2 \\mathcal{L}}{\\partial \\mathbf{w}_l^2}",
-          "description": "손실 함수의 2차 미분(헤시안)으로 각 레이어가 양자화에 얼마나 민감한지를 측정한다. 헤시안 고유값이 크면 작은 가중치 변화에도 손실이 크게 변하므로, 높은 비트폭을 유지해야 한다."
+          "name": "균일 양자화",
+          "latex": "Q(r)=\\mathrm{Int}(r/S)-Z",
+          "description": "실수값 r을 스케일 S와 zero-point Z로 정수 격자에 매핑한다. integer-only 추론의 기본 식이다."
         },
         {
-          "name": "ILP 비트 할당",
-          "latex": "\\min_{\\{b_l\\}} \\sum_l \\Omega_l(b_l) \\quad \\text{s.t.} \\quad \\text{Latency}(\\{b_l\\}) \\leq T, \\quad b_l \\in \\{4, 8\\}",
-          "description": "정수 선형 프로그래밍(ILP)으로 레이어별 최적 비트폭을 자동 결정한다. 하드웨어 지연 시간 제약 하에서 전체 양자화 오차를 최소화하는 수학적으로 최적인 할당을 찾는다."
+          "name": "Dyadic 스케일 근사",
+          "latex": "\\frac{b}{2^c}=\\mathrm{DN}\\!\\left(\\frac{S_w S_h}{S_a}\\right)",
+          "description": "재스케일 계수를 b/2^c 형태로 제한하면 정수 곱셈과 비트 시프트만으로 스케일 연산이 가능하다."
+        },
+        {
+          "name": "ILP 혼합 정밀도 최적화",
+          "latex": "\\min_{\\{b_i\\}}\\sum_{i=1}^{L}\\Omega_i^{(b_i)}\\;\\text{s.t.}\\;\\sum_i M_i^{(b_i)}\\le M_{\\max},\\;\\sum_i G_i^{(b_i)}\\le G_{\\max},\\;\\sum_i Q_i^{(b_i)}\\le T_{\\max}",
+          "description": "민감도 합을 최소화하면서 모델 크기, 연산량, 지연시간 제약을 동시에 만족하는 비트폭을 찾는다."
         }
       ],
       "category": "quantization",
       "tags": [
-        "hawq",
+        "hawq-v3",
         "hessian",
         "mixed-precision",
         "integer-only",
+        "dyadic",
         "hardware-aware",
         "foundational"
       ],
       "pdf_url": "https://arxiv.org/pdf/2011.10680",
       "code_url": "https://github.com/Zhen-Dong/HAWQ",
       "color_hex": "#B91C1C",
-      "architecture_detail": "각 레이어에 최적 비트폭을 자동으로 결정하는 혼합 정밀도 양자화 프레임워크이다. 핵심은 헤시안(Hessian) 행렬의 고유값으로 레이어 민감도를 측정하는 것이다. 고유값이 큰 레이어(출력 변화에 민감한 레이어)에는 높은 비트폭을, 작은 레이어에는 낮은 비트폭을 할당한다. \"2의 거듭제곱\" 비트폭만 사용하여(dyadic) 하드웨어 친화적이며, 수동 튜닝 없이 자동으로 최적 배분을 찾는다."
+      "architecture_detail": "2.1 문제 설정\n양자화 모델이 실제 하드웨어에서 빠르지 않은 주요 원인은 float-int 변환 오버헤드다.\n\n2.2 기존 한계\nINT8은 안정적이지만 INT4 이하에서는 정확도 저하와 스케일 처리 비용이 동시에 커진다.\n\n2.3 설계 철학\n헤시안 기반 민감도로 레이어 중요도를 추정하고, ILP로 하드웨어 제약을 포함한 비트 배분을 자동화한다.\n\n2.4 핵심 기법\n- 민감도 사전 계산\n- ILP 기반 레이어별 비트 선택\n- dyadic 재스케일로 integer-only 연산 유지\n- TVM 커널 최적화 및 INT4 패킹\n\n2.5 의미\n정확도와 시스템 제약의 충돌을 수식으로 다루어 수동 튜닝 부담을 줄인다.\n\n2.6 의의\nHAWQ-V3는 혼합 정밀도 양자화를 배포 가능한 시스템 최적화 문제로 정착시켰다.",
+      "difficulty_level": "advanced",
+      "prerequisites": [
+        "헤시안과 2차 근사 기초",
+        "신경망 양자화 기본 개념",
+        "정수 연산 파이프라인(INT4/INT8)",
+        "제약 최적화와 ILP 기초"
+      ],
+      "learning_objectives": [
+        "dyadic 스케일의 하드웨어 이점을 설명할 수 있다.",
+        "민감도 기반 비트 할당을 ILP로 정식화할 수 있다.",
+        "정확도-지연시간-메모리 트레이드오프를 해석할 수 있다.",
+        "HAWQ-V3 아이디어를 CSI 피드백에 적용할 수 있다."
+      ],
+      "self_check_questions": [
+        "integer-only가 실제 지연시간 개선에 중요한 이유는 무엇인가?",
+        "ILP 제약식의 M, G, Q는 무엇을 의미하는가?",
+        "dyadic 스케일을 쓰면 어떤 연산 비용이 줄어드는가?",
+        "민감도가 큰 레이어에 높은 비트폭이 필요한 이유는 무엇인가?"
+      ]
+    },
+    {
+      "title": "BRECQ: Pushing the Limit of Post-Training Quantization by Block Reconstruction",
+      "authors": [
+        "Yuhang Li",
+        "Ruihao Gong",
+        "Xu Tan",
+        "Yang Yang",
+        "Peng Hu",
+        "Qi Zhang",
+        "Fengwei Yu",
+        "Wei Wang",
+        "Shi Gu"
+      ],
+      "year": 2021,
+      "venue": "ICLR 2021",
+      "doi": null,
+      "arxiv_id": "2102.05426",
+      "abstract": "BRECQ는 PTQ(post-training quantization)의 저비트 한계를 낮추기 위해 block reconstruction을 제안한다. 2차 오차 분석을 출력 공간 재구성 문제로 바꾸고, layer-wise와 network-wise 사이의 절충점으로 block-wise 보정을 수행해 INT2까지 확장 가능함을 보였다.",
+      "key_contributions": [
+        "PTQ에서 block-wise reconstruction을 도입해 cross-layer dependency를 더 잘 반영",
+        "2차 오차를 출력 공간 재구성 목적함수로 변환해 계산 가능성 확보",
+        "Fisher 가중을 사용해 중요한 출력 차원을 우선 보정",
+        "2/4/8bit 혼합 정밀도 탐색을 결합해 성능-효율 균형 개선"
+      ],
+      "algorithms": [
+        "Block Reconstruction PTQ Calibration (블록 단위 보정)",
+        "Fisher-Weighted Second-Order Objective (Fisher 가중 2차 목적함수)",
+        "AdaRound + LSQ Calibration",
+        "Genetic Mixed-Precision Search under Hardware Constraints"
+      ],
+      "key_equations": [
+        {
+          "name": "2차 손실 근사",
+          "latex": "\\mathbb{E}[L(w+\\Delta w)]-\\mathbb{E}[L(w)]\\approx\\Delta w^T\\bar g(w)+\\frac{1}{2}\\Delta w^T\\bar H(w)\\Delta w",
+          "description": "양자화를 가중치 교란으로 보고 손실 증가를 2차 항까지 근사한다."
+        },
+        {
+          "name": "출력 공간 재구성 변환",
+          "latex": "\\arg\\min_{\\hat\\theta}\\Delta\\theta^T\\bar H(\\theta)\\Delta\\theta\\approx\\arg\\min_{\\hat\\theta}\\mathbb{E}[\\Delta z^{(n)T}H(z^{(n)})\\Delta z^{(n)}]",
+          "description": "파라미터 공간 Hessian 목적식을 출력 변화 기반으로 바꿔 실용적으로 최적화한다."
+        },
+        {
+          "name": "블록 재구성 목적식",
+          "latex": "\\min_{\\hat w}\\mathbb{E}[\\Delta z^{(\\ell)T}\\operatorname{diag}((\\partial L/\\partial z^{(\\ell)}_1)^2,\\ldots,(\\partial L/\\partial z^{(\\ell)}_a)^2)\\Delta z^{(\\ell)}]",
+          "description": "중요도가 큰 출력 차원에 더 큰 가중을 주어 보정 효과를 높인다."
+        },
+        {
+          "name": "혼합 정밀도 제약 최적화",
+          "latex": "\\min_{c}L(\\hat w,c)\\;\\text{s.t.}\\;H(c)\\le\\delta,\\;c\\in\\{2,4,8\\}^n",
+          "description": "하드웨어 제약을 만족하면서 레이어별 비트폭 벡터를 선택한다."
+        }
+      ],
+      "category": "quantization",
+      "tags": [
+        "brecq",
+        "post-training-quantization",
+        "block-reconstruction",
+        "second-order",
+        "mixed-precision",
+        "hessian",
+        "foundational"
+      ],
+      "pdf_url": "https://arxiv.org/pdf/2102.05426",
+      "code_url": "https://github.com/yhhhli/BRECQ",
+      "color_hex": "#EF4444",
+      "architecture_detail": "2.1 문제 설정\nPTQ는 재학습 비용은 낮지만 저비트에서 정확도 하락이 크다.\n\n2.2 기존 한계\nfull Hessian은 계산량이 너무 크고, layer-wise 독립 가정은 상호작용을 과도하게 단순화한다.\n\n2.3 설계 철학\nlayer와 network 사이 중간 단위인 block을 재구성 단위로 사용한다.\n\n2.4 핵심 기법\n- 2차 오차 분석\n- 출력 공간 변환\n- block-wise 순차 보정\n- Fisher 가중\n- 혼합 정밀도 탐색\n\n2.5 의미\n단순 MSE보다 task-aware 보정이 가능해 저비트 PTQ에서 안정적이다.\n\n2.6 의의\nBRECQ는 PTQ가 8비트 중심이라는 한계를 넘어 4비트와 2비트 실용화를 촉진했다.",
+      "difficulty_level": "advanced",
+      "prerequisites": [
+        "Taylor 전개와 Hessian 기초",
+        "PTQ와 QAT 차이",
+        "Residual block 구조",
+        "혼합 정밀도 탐색 기본"
+      ],
+      "learning_objectives": [
+        "block-wise 재구성이 유리한 이유를 설명할 수 있다.",
+        "2차 오차 목적식을 출력 공간으로 변환할 수 있다.",
+        "Fisher 가중 목적함수의 의미를 설명할 수 있다.",
+        "2/4/8bit 혼합 정밀도 문제를 제약 최적화로 쓸 수 있다."
+      ],
+      "self_check_questions": [
+        "PTQ에서 full Hessian 직접 사용이 어려운 이유는 무엇인가?",
+        "block-wise는 어떤 의존성을 보존하는가?",
+        "Fisher 가중은 어떤 차원을 더 강하게 보정하는가?",
+        "같은 예산에서 uniform 2bit와 mixed precision의 차이는 무엇인가?"
+      ]
     },
     {
       "title": "GPTQ: Accurate Post-Training Quantization for Generative Pre-trained Transformers",
@@ -2136,46 +2326,76 @@
         "Yo-Seb Jeon"
       ],
       "year": 2024,
-      "venue": "arXiv preprint",
-      "doi": null,
+      "venue": "IEEE Wireless Communications Letters 2024",
+      "doi": "10.1109/LWC.2024.3415633",
       "arxiv_id": "2403.07355",
-      "abstract": "형상-이득 벡터 양자화를 적용한 VQ-VAE 기반 유한 레이트 CSI 피드백 방법을 제안한다. 잠재 벡터를 크기(이득)와 방향(형상)으로 분해하여 각각 별도로 양자화한다: 이득은 비균일 스칼라 코드북으로, 방향은 학습 가능한 그라스만 코드북으로 양자화한다. 가변 피드백 오버헤드를 위한 다중 레이트 중첩 코드북 전략을 포함한다.",
+      "abstract": "이 논문은 VQ-VAE 기반 CSI 피드백에서 잠재 벡터를 shape와 gain으로 분해해 양자화한다. gain은 clipped mu-law 기반 비균일 스칼라 양자화로 처리하고, shape는 학습 가능한 Grassmannian 코드북으로 양자화해 계산량을 줄이면서 복원 성능을 개선한다.",
       "key_contributions": [
-        "크기/방향 별도 양자화를 위한 CSI 잠재 벡터의 형상-이득 분해",
-        "단위 구면 위 방향 양자화를 위한 학습 가능한 그라스만 코드북",
-        "가변 피드백 오버헤드를 위한 다중 레이트 중첩 코드북 설계"
+        "잠재 벡터를 shape와 gain으로 분해해 서로 다른 양자화기를 적용",
+        "clipped mu-law 기반 gain 양자화 설계",
+        "Grassmannian 코드북 기반 shape 양자화",
+        "nested 코드북과 가중 손실로 multi-rate 피드백 지원"
       ],
       "algorithms": [
-        "Shape-Gain Vector Quantization (형상-이득 벡터 양자화)",
-        "Grassmannian Codebook Learning (그라스만 코드북 학습)",
-        "Non-Uniform Gain Scalar Quantization (비균일 이득 스칼라 양자화)",
-        "Nested Multi-Rate Codebook Selection (중첩 다중 레이트 코드북 선택)"
+        "Shape-Gain Vector Quantization",
+        "Clipped mu-law Gain Quantization",
+        "Trainable Grassmannian Shape Codebook",
+        "Nested Multi-Rate Codebook Training"
       ],
       "key_equations": [
         {
-          "name": "형상-이득 분해",
-          "latex": "\\mathbf{s} = g \\cdot \\mathbf{u}, \\quad g = \\|\\mathbf{s}\\|_2, \\quad \\mathbf{u} = \\mathbf{s}/\\|\\mathbf{s}\\|_2",
-          "description": "잠재 벡터를 방향(단위 벡터 u, 형상)과 크기(스칼라 g, 이득)로 분리한다. 방향은 \"어떤 패턴인가\", 크기는 \"얼마나 강한가\"를 나타내며, 각각을 최적 방식으로 양자화할 수 있다."
+          "name": "shape-gain 분해 양자화",
+          "latex": "\\mathbf{z}_{q,i}=Q_{mag}(\\|\\mathbf{z}_i\\|)\\cdot Q_{dir}(\\mathbf{z}_i/\\|\\mathbf{z}_i\\|)",
+          "description": "각 서브벡터를 크기와 방향으로 분리해 각각 양자화한 뒤 곱으로 재구성한다."
         },
         {
-          "name": "그라스만 코드북",
-          "latex": "\\hat{\\mathbf{u}} = \\arg\\max_{\\mathbf{c} \\in \\mathcal{C}_G} |\\mathbf{u}^H \\mathbf{c}|^2",
-          "description": "단위 벡터(형상)를 양자화하기 위한 코드북으로, 그라스만 다양체(방향만 다루는 수학적 공간) 위에서 벡터 간 최대 내적을 기준으로 설계된다. 방향 정보를 효율적으로 이산화한다."
+          "name": "gain 양자화기",
+          "latex": "Q_{mag}(\\|\\mathbf{z}_i\\|)=h^{-1}(f_u(h(\\|\\mathbf{z}_i\\|)))",
+          "description": "변환 후 균일 양자화, 역변환으로 분포에 맞춘 비균일 gain 양자화를 수행한다."
+        },
+        {
+          "name": "shape 코드북 선택",
+          "latex": "Q_{dir}(\\tilde{\\mathbf{z}}_i)=\\arg\\min_{\\mathbf{b}_k\\in\\mathcal{B}_{dir}} d(\\tilde{\\mathbf{z}}_i,\\mathbf{b}_k),\\; d(\\mathbf{c}_1,\\mathbf{c}_2)=\\sqrt{1-|\\langle\\mathbf{c}_1,\\mathbf{c}_2\\rangle|^2}",
+          "description": "단위 구면에서 각도 거리 기반으로 코드워드를 선택한다."
+        },
+        {
+          "name": "중첩 코드북 다중율 손실",
+          "latex": "\\mathcal{L}^{(l)}_{nvq}=\\frac{1}{\\sum_{k=1}^{l}\\gamma^k}\\sum_{j=1}^{l}\\gamma^j\\left(\\|\\hat{H}^{(j)}-\\tilde{H}_{ad}\\|_F^2+\\|sg(z)-z_q^{(j)}\\|^2+\\beta\\|z-sg(z_q^{(j)})\\|^2\\right)",
+          "description": "여러 rate를 단일 학습 과정에서 함께 최적화한다."
         }
       ],
       "category": "quantization",
       "tags": [
         "shape-gain",
+        "vq-vae",
         "grassmannian",
-        "vector-quantization",
         "multi-rate",
-        "codebook",
-        "csi-feedback"
+        "csi-feedback",
+        "finite-rate"
       ],
       "pdf_url": "https://arxiv.org/pdf/2403.07355",
       "code_url": null,
       "color_hex": "#4338CA",
-      "architecture_detail": "코드워드를 방향(형상)과 크기(이득)로 분해하여 각각 따로 양자화하는 VQ 기반 CSI 피드백이다. 단위 노름 방향 벡터(형상)는 구면 위의 코드북으로, 스칼라 크기(이득)는 별도의 스칼라 양자화기로 처리한다. 이렇게 분리하면 차원이 높아져도 코드북 크기가 기하급수적으로 폭발하는 문제를 완화할 수 있다. 방향과 크기의 서로 다른 통계적 특성을 각각 최적으로 양자화한다."
+      "architecture_detail": "2.1 문제 설정\nCSI 피드백은 제한된 비트 예산에서 잠재 벡터를 전송해야 한다.\n\n2.2 기존 한계\n스칼라 양자화는 차원 간 상관을 놓치고, 일반 VQ는 코드북 탐색 비용이 크다.\n\n2.3 설계 철학\n방향과 크기를 분리하면 같은 비트 예산에서 계산량을 줄이고 성능을 올릴 수 있다.\n\n2.4 핵심 기법\n- shape-gain 분해\n- clipped mu-law gain 양자화\n- Grassmannian shape 코드북\n- nested multi-rate 코드북\n\n2.5 의미\n복잡도를 O(2^B)에서 O(2^{max(B_mag,B_dir)}) 수준으로 완화한다.\n\n2.6 의의\nVQ 기반 CSI 피드백을 배포 가능한 구조로 발전시켰다.",
+      "difficulty_level": "advanced",
+      "prerequisites": [
+        "VQ-VAE와 commitment loss",
+        "벡터 노름과 단위벡터",
+        "mu-law companding",
+        "massive MIMO CSI 피드백 기본"
+      ],
+      "learning_objectives": [
+        "shape-gain 분해의 복잡도 이점을 설명할 수 있다.",
+        "Grassmannian 코드북 초기화 이유를 설명할 수 있다.",
+        "single-rate와 nested multi-rate를 비교할 수 있다.",
+        "스칼라/VQ/shape-gain 양자화 성능을 해석할 수 있다."
+      ],
+      "self_check_questions": [
+        "왜 shape와 gain을 분리하면 탐색 비용이 줄어드는가?",
+        "clipped mu-law가 near-zero 해상도에 주는 효과는 무엇인가?",
+        "Grassmannian 초기화가 중요한 이유는 무엇인가?",
+        "nested 코드북의 gamma 가중은 어떤 역할을 하는가?"
+      ]
     }
   ],
   "relationships": [
@@ -2362,14 +2582,14 @@
       "strength": 8
     },
     {
-      "from_title": "Lightweight CSI Feedback via Mixed-Precision Quantization",
+      "from_title": "Binarized Aggregated Network With Quantization: Flexible Deep Learning Deployment for CSI Feedback in Massive MIMO Systems",
       "to_title": "Quantization of Deep Neural Networks for Accurate CSI Feedback",
       "relationship_type": "extends",
       "description": "균일 양자화를 혼합 정밀도로 확장하여 민감도에 따라 계층별로 다른 비트 폭을 할당",
       "strength": 9
     },
     {
-      "from_title": "Lightweight CSI Feedback via Mixed-Precision Quantization",
+      "from_title": "Binarized Aggregated Network With Quantization: Flexible Deep Learning Deployment for CSI Feedback in Massive MIMO Systems",
       "to_title": "Binarized Neural Network for CSI Feedback in Massive MIMO Systems",
       "relationship_type": "compares_with",
       "description": "다중 비트 혼합 정밀도 접근법과 극단적 1비트 이진화 간의 절충점을 비교",
@@ -2713,14 +2933,14 @@
     },
     {
       "from_title": "AWQ: Activation-aware Weight Quantization for LLM Compression and Acceleration",
-      "to_title": "Lightweight CSI Feedback via Mixed-Precision Quantization",
+      "to_title": "Binarized Aggregated Network With Quantization: Flexible Deep Learning Deployment for CSI Feedback in Massive MIMO Systems",
       "relationship_type": "inspires",
       "description": "AWQ의 활성화 인지 중요도 개념이 CSI 양자화에서의 채널별 중요도 분석에 영감을 제공",
       "strength": 7
     },
     {
       "from_title": "HAWQ-V3: Dyadic Neural Network Quantization",
-      "to_title": "Lightweight CSI Feedback via Mixed-Precision Quantization",
+      "to_title": "Binarized Aggregated Network With Quantization: Flexible Deep Learning Deployment for CSI Feedback in Massive MIMO Systems",
       "relationship_type": "inspires",
       "description": "HAWQ-V3의 헤시안 기반 계층별 비트 할당이 혼합 정밀도 CSI 피드백에 직접 적용 가능",
       "strength": 8
@@ -2780,6 +3000,48 @@
       "relationship_type": "related",
       "description": "두 연구 모두 극저비트 양자화를 추구: 삼진 2비트 가중치 vs HAWQ-V3의 정수 전용 INT4",
       "strength": 6
+    },
+    {
+      "from_title": "Quantization Adaptor for Bit-Level Deep Learning-Based Massive MIMO CSI Feedback",
+      "to_title": "Quantization of Deep Neural Networks for Accurate CSI Feedback",
+      "relationship_type": "extends",
+      "description": "기존 코드워드 양자화 프레임워크에 adaptor 기반 오차 보정과 학습 스케줄을 추가해 저비트 성능을 개선한다.",
+      "strength": 9
+    },
+    {
+      "from_title": "Quantization Adaptor for Bit-Level Deep Learning-Based Massive MIMO CSI Feedback",
+      "to_title": "Deep Learning for Massive MIMO CSI Feedback",
+      "relationship_type": "builds_on",
+      "description": "CsiNet 계열 오토인코더 파이프라인 위에 bit-level 양자화 실용화 계층을 추가한다.",
+      "strength": 8
+    },
+    {
+      "from_title": "Quantization Adaptor for Bit-Level Deep Learning-Based Massive MIMO CSI Feedback",
+      "to_title": "Joint Compression and Quantization for Practical CSI Feedback",
+      "relationship_type": "compares_with",
+      "description": "둘 다 실배포 지향 양자화 연구지만, 본 논문은 adaptor 기반 보정으로 저비트 왜곡 완화에 집중한다.",
+      "strength": 7
+    },
+    {
+      "from_title": "BRECQ: Pushing the Limit of Post-Training Quantization by Block Reconstruction",
+      "to_title": "HAWQ-V3: Dyadic Neural Network Quantization",
+      "relationship_type": "related",
+      "description": "두 연구 모두 2차 민감도 정보를 사용하지만, BRECQ는 PTQ block reconstruction에, HAWQ-V3는 integer-only ILP 배치에 초점을 둔다.",
+      "strength": 8
+    },
+    {
+      "from_title": "Quantization Adaptor for Bit-Level Deep Learning-Based Massive MIMO CSI Feedback",
+      "to_title": "BRECQ: Pushing the Limit of Post-Training Quantization by Block Reconstruction",
+      "relationship_type": "inspired_by",
+      "description": "저비트 양자화 오차 보정 관점에서 BRECQ의 재구성 아이디어와 문제의식을 공유한다.",
+      "strength": 6
+    },
+    {
+      "from_title": "Vector Quantization for Deep-Learning-Based CSI Feedback with Shape-Gain Decomposition",
+      "to_title": "Quantization Adaptor for Bit-Level Deep Learning-Based Massive MIMO CSI Feedback",
+      "relationship_type": "compares_with",
+      "description": "둘 다 CSI bit-level 전송을 다루지만 adaptor 보정 기반 접근과 shape-gain VQ 코드북 접근으로 방법이 다르다.",
+      "strength": 7
     }
   ]
 }

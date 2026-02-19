@@ -1,8 +1,62 @@
 [
   {
+    "id": "alternating-optimization",
+    "name": "Alternating Optimization",
+    "aliases": [
+      "교대 최적화",
+      "블록 좌표 최적화",
+      "AO"
+    ],
+    "category": "technique",
+    "description": "여러 변수 블록을 동시에 풀기 어려울 때, 한 블록을 고정하고 다른 블록을 번갈아 최적화하는 방식이다. 각 단계의 부분문제가 상대적으로 쉬워 구현이 단순하고 안정적이며, 양자화-코드북-인코더/디코더처럼 결합된 시스템에서 자주 사용된다. 다만 전체 전역해 보장보다는 지역해 수렴 해석이 일반적이므로, 초기값과 갱신 스케줄이 성능을 크게 좌우한다.",
+    "related_paper_titles": [
+      "Quantization Design for Deep Learning-Based CSI Feedback",
+      "Quantization of Deep Neural Networks for Accurate CSI Feedback",
+      "Vector Quantized CSI Feedback with Learned Codebook",
+      "Deep Learning-Based CSI Feedback with Variable Length Codewords for Adaptive FDD Massive MIMO"
+    ]
+  },
+  {
+    "id": "angle-delay-domain",
+    "name": "Angle-Delay Domain",
+    "aliases": [
+      "각도-지연 도메인",
+      "Angular-Delay"
+    ],
+    "category": "domain",
+    "description": "공간-주파수 도메인의 CSI 행렬에 2D DFT를 적용하여, 안테나 축은 각도(angle), 부반송파 축은 지연(delay)으로 변환한 표현이다. 실제 무선 채널은 소수의 산란 경로로 구성되므로, 이 도메인에서 CSI는 근사 희소(approximately sparse)한 특성을 보인다. CsiNet 이래 대부분의 CSI 피드백 연구가 이 도메인을 입력 표현으로 채택하여 압축 효율을 극대화한다.",
+    "related_paper_titles": [
+      "Deep Learning for Massive MIMO CSI Feedback (CsiNet)",
+      "CRNet: A Deep-Learning Framework for CSI Feedback in Massive MIMO",
+      "ACRNet: Aggregation Cross-Domain Network for CSI Feedback in Massive MIMO",
+      "TransNet: Full Attention Network for CSI Feedback in FDD Massive MIMO",
+      "Deep Learning Based CSI Feedback Approach for Time-Varying Massive MIMO Channels"
+    ]
+  },
+  {
+    "id": "attention",
+    "name": "Attention",
+    "aliases": [
+      "어텐션",
+      "Self-Attention"
+    ],
+    "category": "technique",
+    "description": "입력 특징맵의 각 위치가 다른 위치와의 관계를 가중합으로 계산하여 전역 문맥을 포착하는 메커니즘이다. CSI 피드백에서는 채널의 비국소적(non-local) 상관관계를 포착해 압축 효율과 복원 정밀도를 높이는 데 활용된다. Self-Attention, Channel Attention, Spatial Attention 등 다양한 변형이 각 네트워크에 맞게 적용되어왔다.",
+    "related_paper_titles": [
+      "TransNet: Full Attention Network for CSI Feedback in FDD Massive MIMO",
+      "ACRNet: Aggregation Cross-Domain Network for CSI Feedback in Massive MIMO",
+      "AiANet: Attention-Infused Autoencoder for Massive MIMO CSI Compression",
+      "Attention Mechanism-Based CSI Feedback Network for Massive MIMO Systems",
+      "SLATE: SwinLSTM Autoencoder for Temporal-Spatial-Frequency CSI Compression"
+    ]
+  },
+  {
     "id": "autoencoder",
     "name": "Autoencoder",
-    "aliases": ["AE", "오토인코더"],
+    "aliases": [
+      "AE",
+      "오토인코더"
+    ],
     "category": "architecture",
     "description": "입력 데이터를 저차원 잠재 표현으로 압축(인코더)한 뒤 원본을 복원(디코더)하는 비지도 학습 신경망 구조이다. CSI 피드백 분야에서는 UE 측 인코더가 채널 행렬을 압축하고, BS 측 디코더가 이를 복원하는 비대칭 오토인코더가 표준 패러다임이 되었다. CsiNet이 이 구조를 처음 도입한 이후 대부분의 후속 연구가 동일한 인코더-디코더 프레임워크를 기반으로 발전하였다.",
     "related_paper_titles": [
@@ -15,40 +69,59 @@
     ]
   },
   {
-    "id": "nmse",
-    "name": "NMSE",
-    "aliases": ["Normalized MSE", "정규화 평균제곱오차"],
-    "category": "metric",
-    "description": "복원된 CSI와 원본 CSI 간의 오차를 원본 에너지로 정규화한 지표로, 채널 세기에 무관하게 공정한 성능 비교가 가능하다. 값이 작을수록 복원 품질이 높으며, dB 스케일로 표기할 때 음의 값이 클수록 우수하다. CSI 피드백 논문에서 사실상 모든 연구가 주요 평가 지표로 NMSE를 사용한다.",
+    "id": "batch-normalization",
+    "name": "Batch Normalization",
+    "aliases": [
+      "BN",
+      "배치 정규화"
+    ],
+    "category": "training",
+    "description": "미니배치 단위로 각 층의 입력을 정규화(평균 0, 분산 1)한 후, 학습 가능한 스케일과 시프트 파라미터를 적용하는 기법이다. 내부 공변량 변화(internal covariate shift)를 줄여 학습을 가속하고, 더 높은 학습률 사용을 가능케 하며, 정규화 효과도 부가적으로 제공한다. CSI 피드백의 CNN 기반 네트워크에서는 합성곱 층 직후에 거의 표준적으로 적용된다.",
     "related_paper_titles": [
       "Deep Learning for Massive MIMO CSI Feedback (CsiNet)",
-      "CsiNet-LSTM: A Deep Learning Architecture for Compressive CSI Estimation and Feedback in FDD Massive MIMO",
       "CRNet: A Deep-Learning Framework for CSI Feedback in Massive MIMO",
       "Lightweight and Effective CSI Feedback for Massive MIMO Systems (CLNet)",
-      "TransNet: Full Attention Network for CSI Feedback in FDD Massive MIMO",
-      "ACRNet: Aggregation Cross-Domain Network for CSI Feedback in Massive MIMO",
-      "ENet: Efficient CSI Feedback for Massive MIMO Communications",
-      "Quantization of Deep Neural Networks for Accurate CSI Feedback"
+      "ACRNet: Aggregation Cross-Domain Network for CSI Feedback in Massive MIMO"
     ]
   },
   {
-    "id": "attention",
-    "name": "Attention",
-    "aliases": ["어텐션", "Self-Attention"],
+    "id": "bit-allocation-optimization",
+    "name": "Bit Allocation Optimization",
+    "aliases": [
+      "비트 할당 최적화",
+      "적응 비트 할당",
+      "Bit Reallocation"
+    ],
     "category": "technique",
-    "description": "입력 특징맵의 각 위치가 다른 위치와의 관계를 가중합으로 계산하여 전역 문맥을 포착하는 메커니즘이다. CSI 피드백에서는 채널의 비국소적(non-local) 상관관계를 포착해 압축 효율과 복원 정밀도를 높이는 데 활용된다. Self-Attention, Channel Attention, Spatial Attention 등 다양한 변형이 각 네트워크에 맞게 적용되어왔다.",
+    "description": "고정된 총 비트 예산 아래에서 차원/채널/레이어별 비트폭을 다르게 배분해 전체 왜곡을 최소화하는 문제다. 핵심은 중요도가 높은 성분에 더 많은 비트를 주고, 민감도가 낮은 성분에서 비트를 회수하는 것이다. 균일 비트폭 대비 같은 전송량에서 더 낮은 NMSE를 달성할 수 있어 CSI 압축과 양자화에서 효과가 크다.",
     "related_paper_titles": [
-      "TransNet: Full Attention Network for CSI Feedback in FDD Massive MIMO",
-      "ACRNet: Aggregation Cross-Domain Network for CSI Feedback in Massive MIMO",
-      "AiANet: Attention-Infused Autoencoder for Massive MIMO CSI Compression",
-      "Attention Mechanism-Based CSI Feedback Network for Massive MIMO Systems",
-      "SLATE: SwinLSTM Autoencoder for Temporal-Spatial-Frequency CSI Compression"
+      "Quantization Design for Deep Learning-Based CSI Feedback",
+      "Quantization of Deep Neural Networks for Accurate CSI Feedback",
+      "Deep Learning-Based CSI Feedback with Variable Length Codewords for Adaptive FDD Massive MIMO",
+      "Vector Quantized CSI Feedback with Learned Codebook"
+    ]
+  },
+  {
+    "id": "block-reconstruction",
+    "name": "Block Reconstruction",
+    "aliases": [
+      "BRECQ",
+      "블록 재구성"
+    ],
+    "category": "technique",
+    "description": "레이어보다 큰 residual block 단위로 양자화 오차를 보정하는 PTQ 기법이다. layer-wise보다 cross-layer dependency를 더 반영하면서 network-wise보다 일반화 불안정을 줄인다.",
+    "related_paper_titles": [
+      "BRECQ: Pushing the Limit of Post-Training Quantization by Block Reconstruction"
     ]
   },
   {
     "id": "channel-attention-se",
     "name": "Channel Attention (SE)",
-    "aliases": ["SE Block", "Squeeze-and-Excitation", "채널 어텐션"],
+    "aliases": [
+      "SE Block",
+      "Squeeze-and-Excitation",
+      "채널 어텐션"
+    ],
     "category": "technique",
     "description": "Squeeze-and-Excitation 구조를 통해 각 채널(특징맵)의 중요도를 학습하고, 채널별 가중치를 재조정하는 기법이다. 글로벌 평균 풀링으로 채널 통계를 요약(Squeeze)한 후, FC-ReLU-FC-Sigmoid로 채널 게이트를 생성(Excitation)하여 유용한 채널을 강조한다. CSI 피드백 네트워크에서는 특히 디코더 단의 RefineNet 블록에 삽입되어 복원 품질 향상에 기여한다.",
     "related_paper_titles": [
@@ -58,105 +131,74 @@
     ]
   },
   {
-    "id": "multi-head-self-attention",
-    "name": "Multi-Head Self-Attention",
-    "aliases": ["MHSA", "멀티헤드 셀프 어텐션"],
+    "id": "clipped-mu-law-quantization",
+    "name": "Clipped ?-law Quantization",
+    "aliases": [
+      "??? ?-law ???",
+      "clipped mu-law"
+    ],
     "category": "technique",
-    "description": "Self-Attention을 여러 개의 독립적인 헤드로 분할하여 병렬로 수행한 뒤 결과를 결합하는 기법이다. 각 헤드가 서로 다른 부분공간에서 표현을 학습하므로, 단일 어텐션보다 다양한 패턴의 의존성을 동시에 포착할 수 있다. Transformer 기반 CSI 피드백 구조에서 핵심 연산 블록으로 사용된다.",
+    "description": "?-law ?? ? ??? clipping? ??? ?? ??? ??? ??? ? ??? ???? ??? ??? ????.",
     "related_paper_titles": [
-      "TransNet: Full Attention Network for CSI Feedback in FDD Massive MIMO",
-      "CSI-GPT: Integrating Generative Pre-Trained Transformer with Federated-Tuning for Channel Estimation in Massive MIMO"
-    ]
-  },
-  {
-    "id": "depthwise-separable-convolution",
-    "name": "Depthwise Separable Convolution",
-    "aliases": ["DSC", "깊이별 분리 합성곱"],
-    "category": "technique",
-    "description": "표준 합성곱을 채널별 공간 합성곱(depthwise)과 1×1 채널 간 합성곱(pointwise)으로 분리하여 파라미터 수와 연산량을 대폭 줄이는 기법이다. MobileNet에서 대중화된 이 기법은 UE 측 인코더처럼 연산 자원이 제한된 환경에서 경량 모델을 설계하는 데 핵심적으로 활용된다. CSI 피드백 분야에서도 경량화를 목표로 하는 여러 네트워크가 이 구조를 채택하였다.",
-    "related_paper_titles": [
-      "DS-NLCsiNet: Exploiting Non-Local Neural Networks for Massive MIMO CSI Feedback",
-      "ShuffleCsiNet: Lightweight CSI Feedback Network Based on ShuffleNet Architecture"
-    ]
-  },
-  {
-    "id": "residual-learning",
-    "name": "Residual Learning",
-    "aliases": ["잔차 학습", "Skip Connection", "ResBlock"],
-    "category": "technique",
-    "description": "네트워크가 입력 자체 대신 입력과 출력의 차이(잔차)를 학습하도록 설계하여, 깊은 네트워크에서의 기울기 소실 문제를 완화하고 학습을 안정화하는 기법이다. Skip Connection을 통해 입력을 출력에 직접 더하는 구조로 구현되며, ResNet에서 최초로 제안되었다. CSI 피드백 분야에서는 디코더의 RefineNet 블록이 잔차 학습을 통해 복원된 CSI를 점진적으로 보정하는 핵심 전략으로 사용된다.",
-    "related_paper_titles": [
-      "CRNet: A Deep-Learning Framework for CSI Feedback in Massive MIMO",
-      "Deep Learning for Massive MIMO CSI Feedback (CsiNet)",
-      "ACRNet: Aggregation Cross-Domain Network for CSI Feedback in Massive MIMO"
-    ]
-  },
-  {
-    "id": "quantization-aware-training",
-    "name": "Quantization-Aware Training (QAT)",
-    "aliases": ["양자화 인식 학습", "QAT"],
-    "category": "training",
-    "description": "학습 과정에서 양자화에 의한 정밀도 손실을 시뮬레이션하여, 추론 시 저비트 양자화를 적용해도 성능 저하가 최소화되도록 모델을 훈련하는 기법이다. 순전파 시 가중치나 활성값을 양자화하고, 역전파 시 STE 등의 근사 기울기를 사용한다. CSI 피드백에서는 코드워드를 유한 비트로 전송해야 하므로, QAT를 통해 양자화 오차를 학습 단계에서 보상하는 것이 중요하다.",
-    "related_paper_titles": [
-      "Quantization of Deep Neural Networks for Accurate CSI Feedback",
-      "Binarized Neural Network for CSI Feedback in Massive MIMO Systems (BCsiNet)",
-      "Lightweight CSI Feedback via Mixed-Precision Quantization"
-    ]
-  },
-  {
-    "id": "vector-quantization",
-    "name": "Vector Quantization",
-    "aliases": ["VQ", "벡터 양자화"],
-    "category": "technique",
-    "description": "연속적인 잠재 벡터를 유한한 코드북 내 가장 가까운 코드 벡터로 매핑하여 이산 표현을 생성하는 기법이다. VQ-VAE에서 제안된 이래 생성 모델과 압축 분야에서 널리 활용되며, 코드북의 인덱스만 전송하므로 고정 비트율 통신에 적합하다. CSI 피드백에서는 스칼라 양자화 대비 더 나은 율-왜곡 성능을 달성할 수 있어 주목받고 있다.",
-    "related_paper_titles": [
-      "Neural Discrete Representation Learning (VQ-VAE)",
-      "Vector Quantized CSI Feedback with Learned Codebook",
-      "Finite Scalar Quantization: VQ-VAE Made Simple (FSQ)",
       "Vector Quantization for Deep-Learning-Based CSI Feedback with Shape-Gain Decomposition"
     ]
   },
   {
-    "id": "straight-through-estimator",
-    "name": "Straight-Through Estimator (STE)",
-    "aliases": ["STE", "직선 통과 추정기"],
+    "id": "codebook",
+    "name": "Codebook",
+    "aliases": [
+      "???",
+      "Learned Codebook",
+      "Codeword Set"
+    ],
+    "category": "technique",
+    "description": "?? latent ??? ?? ???? ??? ?? ???? ????. ??? ??? ?? ??? ??? ?? ??, ??? ??, ??? ?? ??? ?? ??? ??.",
+    "related_paper_titles": [
+      "Vector Quantized CSI Feedback with Learned Codebook",
+      "Neural Discrete Representation Learning (VQ-VAE)",
+      "Finite Scalar Quantization: VQ-VAE Made Simple (FSQ)",
+      "Vector Quantization for Deep-Learning-Based CSI Feedback with Shape-Gain Decomposition",
+      "Precoding-Oriented CSI Feedback Design with Mutual Information Regularized VQ-VAE"
+    ]
+  },
+  {
+    "id": "codebook-collapse",
+    "name": "Codebook Collapse",
+    "aliases": [
+      "??? ??",
+      "Codeword Under-Utilization"
+    ],
     "category": "training",
-    "description": "양자화나 이산화처럼 미분 불가능한 연산의 역전파를 가능하게 하기 위해, 순전파에서는 양자화를 적용하고 역전파에서는 기울기를 그대로 통과시키는 근사 기법이다. 이론적으로는 편향된 추정이지만 실용적으로 잘 동작하여 BNN, QAT 등에서 표준적으로 사용된다. CSI 피드백의 양자화 학습에서 STE 없이는 이산 연산을 포함한 end-to-end 학습이 사실상 불가능하다.",
+    "description": "?? ????? ?? ???? ???? ?? ???? ?? ????. ??? ?? ?? ??? ???? ?? ??? ??? ? ??.",
     "related_paper_titles": [
-      "Binarized Neural Network for CSI Feedback in Massive MIMO Systems (BCsiNet)",
-      "Quantization of Deep Neural Networks for Accurate CSI Feedback",
-      "Ternary Neural Network for Extreme-Efficient CSI Feedback"
+      "Precoding-Oriented CSI Feedback Design with Mutual Information Regularized VQ-VAE",
+      "Vector Quantized CSI Feedback with Learned Codebook",
+      "Vector Quantization for Deep-Learning-Based CSI Feedback with Shape-Gain Decomposition"
     ]
   },
   {
-    "id": "lstm",
-    "name": "LSTM",
-    "aliases": ["Long Short-Term Memory", "장단기 기억"],
-    "category": "architecture",
-    "description": "장기 의존성 학습을 위해 forget gate, input gate, output gate로 구성된 셀 구조를 가진 순환 신경망(RNN)의 변형이다. 게이트 메커니즘을 통해 기울기 소실 문제를 완화하며, 시계열 데이터에서 과거 정보를 선택적으로 유지·삭제할 수 있다. CSI 피드백에서는 시간적으로 연속된 채널 프레임 간의 상관관계를 활용하여 압축 효율을 높이는 데 사용된다.",
+    "id": "commitment-loss",
+    "name": "Commitment Loss",
+    "aliases": [
+      "???? ??",
+      "VQ Commitment Term"
+    ],
+    "category": "training",
+    "description": "??? ??? ??? ???? ??? ???? ???? VQ ?? ?????. ??? ?? ???? ??? ??? ??? ????.",
     "related_paper_titles": [
-      "CsiNet-LSTM: A Deep Learning Architecture for Compressive CSI Estimation and Feedback in FDD Massive MIMO",
-      "SLATE: SwinLSTM Autoencoder for Temporal-Spatial-Frequency CSI Compression"
-    ]
-  },
-  {
-    "id": "angle-delay-domain",
-    "name": "Angle-Delay Domain",
-    "aliases": ["각도-지연 도메인", "Angular-Delay"],
-    "category": "domain",
-    "description": "공간-주파수 도메인의 CSI 행렬에 2D DFT를 적용하여, 안테나 축은 각도(angle), 부반송파 축은 지연(delay)으로 변환한 표현이다. 실제 무선 채널은 소수의 산란 경로로 구성되므로, 이 도메인에서 CSI는 근사 희소(approximately sparse)한 특성을 보인다. CsiNet 이래 대부분의 CSI 피드백 연구가 이 도메인을 입력 표현으로 채택하여 압축 효율을 극대화한다.",
-    "related_paper_titles": [
-      "Deep Learning for Massive MIMO CSI Feedback (CsiNet)",
-      "CRNet: A Deep-Learning Framework for CSI Feedback in Massive MIMO",
-      "ACRNet: Aggregation Cross-Domain Network for CSI Feedback in Massive MIMO",
-      "TransNet: Full Attention Network for CSI Feedback in FDD Massive MIMO",
-      "Deep Learning Based CSI Feedback Approach for Time-Varying Massive MIMO Channels"
+      "Precoding-Oriented CSI Feedback Design with Mutual Information Regularized VQ-VAE",
+      "Vector Quantized CSI Feedback with Learned Codebook",
+      "Vector Quantization for Deep-Learning-Based CSI Feedback with Shape-Gain Decomposition"
     ]
   },
   {
     "id": "compression-ratio",
     "name": "Compression Ratio",
-    "aliases": ["압축비", "γ", "CR"],
+    "aliases": [
+      "압축비",
+      "γ",
+      "CR"
+    ],
     "category": "metric",
     "description": "원본 CSI 차원(N_t × N_c)과 피드백 코드워드 차원(M)의 비율(γ = N_t·N_c / M)로, 피드백 오버헤드를 정량화하는 핵심 설계 파라미터이다. 압축비가 높을수록 전송 비트가 줄어 업링크 부담이 감소하지만, 정보 손실이 커져 복원 성능이 하락하는 트레이드오프가 존재한다. 일반적으로 1/4, 1/8, 1/16, 1/32, 1/64 등의 비율에서 성능을 비교 평가한다.",
     "related_paper_titles": [
@@ -168,9 +210,411 @@
     ]
   },
   {
+    "id": "depthwise-separable-convolution",
+    "name": "Depthwise Separable Convolution",
+    "aliases": [
+      "DSC",
+      "깊이별 분리 합성곱"
+    ],
+    "category": "technique",
+    "description": "표준 합성곱을 채널별 공간 합성곱(depthwise)과 1×1 채널 간 합성곱(pointwise)으로 분리하여 파라미터 수와 연산량을 대폭 줄이는 기법이다. MobileNet에서 대중화된 이 기법은 UE 측 인코더처럼 연산 자원이 제한된 환경에서 경량 모델을 설계하는 데 핵심적으로 활용된다. CSI 피드백 분야에서도 경량화를 목표로 하는 여러 네트워크가 이 구조를 채택하였다.",
+    "related_paper_titles": [
+      "DS-NLCsiNet: Exploiting Non-Local Neural Networks for Massive MIMO CSI Feedback",
+      "ShuffleCsiNet: Lightweight CSI Feedback Network Based on ShuffleNet Architecture"
+    ]
+  },
+  {
+    "id": "diffusion-model",
+    "name": "Diffusion Model",
+    "aliases": [
+      "확산 모델",
+      "Denoising Diffusion"
+    ],
+    "category": "architecture",
+    "description": "데이터에 점진적으로 가우시안 노이즈를 추가하는 순방향 과정과, 노이즈를 제거하며 원본을 복원하는 역방향 과정을 학습하는 생성 모델이다. GAN 대비 학습 안정성이 뛰어나고 다양성 높은 샘플을 생성할 수 있어 이미지 생성 분야에서 주목받았다. CSI 피드백에서는 압축된 코드워드로부터 채널을 복원할 때 디노이징 과정을 활용하여 복원 품질을 향상시키는 연구가 진행되고 있다.",
+    "related_paper_titles": [
+      "Generative Diffusion Model-Enhanced CSI Feedback",
+      "RD-JSCC: Residual Diffusion for Variable-Rate Joint Source-Channel Coding of MIMO CSI"
+    ]
+  },
+  {
+    "id": "dyadic-quantization",
+    "name": "Dyadic Quantization",
+    "aliases": [
+      "Dyadic Scaling",
+      "2의 거듭제곱 스케일 양자화"
+    ],
+    "category": "technique",
+    "description": "재스케일 계수를 b/2^c 형태로 제한해 정수 곱셈과 비트 시프트만으로 스케일링을 수행하는 방식이다. integer-only 추론에서 division과 float 연산 비용을 줄이는 데 효과적이다.",
+    "related_paper_titles": [
+      "HAWQ-V3: Dyadic Neural Network Quantization"
+    ]
+  },
+  {
+    "id": "federated-learning",
+    "name": "Federated Learning",
+    "aliases": [
+      "연합 학습",
+      "FL"
+    ],
+    "category": "training",
+    "description": "여러 클라이언트(기기)가 로컬 데이터를 공유하지 않고 각자 모델을 학습한 후, 모델 파라미터(또는 기울기)만 중앙 서버에 전송하여 글로벌 모델을 집계하는 분산 학습 프레임워크이다. 데이터 프라이버시를 보호하면서도 다양한 환경의 데이터를 활용할 수 있는 장점이 있다. CSI 피드백에서는 다수 기지국의 채널 데이터를 직접 모으지 않고도 범용적인 CSI 피드백 모델을 학습할 수 있는 방법으로 활용된다.",
+    "related_paper_titles": [
+      "CSI-GPT: Integrating Generative Pre-Trained Transformer with Federated-Tuning for Channel Estimation in Massive MIMO"
+    ]
+  },
+  {
+    "id": "fixed-length-feedback",
+    "name": "Fixed-Length Feedback",
+    "aliases": [
+      "?? ?? ???",
+      "Fixed-Rate Feedback"
+    ],
+    "category": "domain",
+    "description": "UE? ? ???? ?? ??? ?? ?? CSI ??? ????? ????. ?? ???? ?? ???? ?? ?? ????? ????.",
+    "related_paper_titles": [
+      "Precoding-Oriented CSI Feedback Design with Mutual Information Regularized VQ-VAE"
+    ]
+  },
+  {
+    "id": "gaussian-kernel-relaxation",
+    "name": "Gaussian Kernel Relaxation",
+    "aliases": [
+      "???? ?? ??",
+      "Indicator Relaxation"
+    ],
+    "category": "technique",
+    "description": "????? indicator ?? ?? Gaussian kernel? ??? ???? ????? ??? ????. MI ?? ?? ??? ?? ? ????.",
+    "related_paper_titles": [
+      "Precoding-Oriented CSI Feedback Design with Mutual Information Regularized VQ-VAE"
+    ]
+  },
+  {
+    "id": "grassmannian-codebook",
+    "name": "Grassmannian Codebook",
+    "aliases": [
+      "Grassmannian",
+      "???? ???",
+      "Line Packing Codebook"
+    ],
+    "category": "technique",
+    "description": "???? ?? ??(Shape)? ???? ?, ???? ? ?? ???? ?? ????? ??? ?????. shape quantization?? ??? ??? ? ????.",
+    "related_paper_titles": [
+      "Vector Quantization for Deep-Learning-Based CSI Feedback with Shape-Gain Decomposition"
+    ]
+  },
+  {
+    "id": "hessian-aware-quantization",
+    "name": "Hessian-Aware Quantization",
+    "aliases": [
+      "HAWQ",
+      "헤시안 기반 양자화"
+    ],
+    "category": "technique",
+    "description": "양자화 성능 저하를 2차 곡률 정보인 헤시안으로 추정해 민감한 레이어에는 높은 비트폭, 덜 민감한 레이어에는 낮은 비트폭을 배정하는 방법이다.",
+    "related_paper_titles": [
+      "HAWQ-V3: Dyadic Neural Network Quantization",
+      "BRECQ: Pushing the Limit of Post-Training Quantization by Block Reconstruction"
+    ]
+  },
+  {
+    "id": "kkt-conditions",
+    "name": "KKT Conditions",
+    "aliases": [
+      "KKT 조건",
+      "Karush-Kuhn-Tucker 조건"
+    ],
+    "category": "technique",
+    "description": "제약 최적화의 정지 조건으로, stationarity·primal feasibility·dual feasibility·complementary slackness를 포함한다. 연속 완화 문제에서 해의 타당성을 점검하거나 라그랑주 승수 업데이트의 기준으로 자주 쓰인다. CSI 비트 할당처럼 원래는 정수 제약인 문제에서도, 연속 근사 해석을 통해 알고리즘 설계 직관을 제공한다.",
+    "related_paper_titles": [
+      "Quantization Design for Deep Learning-Based CSI Feedback",
+      "Quantization of Deep Neural Networks for Accurate CSI Feedback",
+      "Deep Learning-Based CSI Feedback with Variable Length Codewords for Adaptive FDD Massive MIMO"
+    ]
+  },
+  {
+    "id": "knowledge-distillation",
+    "name": "Knowledge Distillation",
+    "aliases": [
+      "지식 증류",
+      "KD"
+    ],
+    "category": "training",
+    "description": "크고 성능이 좋은 교사(teacher) 모델의 출력 분포나 중간 표현을 작은 학생(student) 모델이 모방하도록 학습시켜, 경량 모델에서도 높은 성능을 달성하는 모델 압축 기법이다. 소프트 레이블(soft label)을 통해 교사 모델의 암묵적 지식을 전달하며, 온도(temperature) 파라미터로 분포의 평활도를 조절한다. CSI 피드백에서는 UE 측 인코더의 경량화에 활용되어 모바일 기기의 연산 제약을 완화한다.",
+    "related_paper_titles": [
+      "Knowledge Distillation-Based DNN for CSI Feedback in Massive MIMO Systems"
+    ]
+  },
+  {
+    "id": "lagrangian-relaxation",
+    "name": "Lagrangian Relaxation",
+    "aliases": [
+      "라그랑주 이완",
+      "라그랑주 완화",
+      "Lagrange Multiplier"
+    ],
+    "category": "technique",
+    "description": "직접 풀기 어려운 제약 최적화 문제를 목적함수 + 제약 페널티 형태로 바꾸는 방법이다. 비트 합 제약처럼 등식/부등식 제약이 있을 때 λ를 도입해 unconstrained 형태로 변환하면 학습 기반 최적화와 결합하기 쉬워진다. 실제 구현에서는 λ 스케줄, 페널티 강도, primal/dual 갱신 균형이 수렴성과 성능을 좌우한다.",
+    "related_paper_titles": [
+      "Quantization Design for Deep Learning-Based CSI Feedback",
+      "Quantization of Deep Neural Networks for Accurate CSI Feedback",
+      "Deep Learning-Based CSI Feedback with Variable Length Codewords for Adaptive FDD Massive MIMO"
+    ]
+  },
+  {
+    "id": "lstm",
+    "name": "LSTM",
+    "aliases": [
+      "Long Short-Term Memory",
+      "장단기 기억"
+    ],
+    "category": "architecture",
+    "description": "장기 의존성 학습을 위해 forget gate, input gate, output gate로 구성된 셀 구조를 가진 순환 신경망(RNN)의 변형이다. 게이트 메커니즘을 통해 기울기 소실 문제를 완화하며, 시계열 데이터에서 과거 정보를 선택적으로 유지·삭제할 수 있다. CSI 피드백에서는 시간적으로 연속된 채널 프레임 간의 상관관계를 활용하여 압축 효율을 높이는 데 사용된다.",
+    "related_paper_titles": [
+      "CsiNet-LSTM: A Deep Learning Architecture for Compressive CSI Estimation and Feedback in FDD Massive MIMO",
+      "SLATE: SwinLSTM Autoencoder for Temporal-Spatial-Frequency CSI Compression"
+    ]
+  },
+  {
+    "id": "mi-regularization",
+    "name": "Mutual Information Regularization",
+    "aliases": [
+      "MI ???",
+      "??? ???"
+    ],
+    "category": "training",
+    "description": "?? ??? MI ?? ?? ??? ??? ???? ???? ???? ??? ????. VQ ????? ???? ?? ?? ??? ?? ???.",
+    "related_paper_titles": [
+      "Precoding-Oriented CSI Feedback Design with Mutual Information Regularized VQ-VAE"
+    ]
+  },
+  {
+    "id": "mixed-precision-quantization",
+    "name": "Mixed-Precision Quantization",
+    "aliases": [
+      "혼합 정밀도 양자화",
+      "INT4/INT8"
+    ],
+    "category": "technique",
+    "description": "레이어마다 다른 비트폭을 할당해 같은 자원 예산에서 정확도와 지연시간의 균형을 개선하는 양자화 전략이다.",
+    "related_paper_titles": [
+      "HAWQ-V3: Dyadic Neural Network Quantization",
+      "BRECQ: Pushing the Limit of Post-Training Quantization by Block Reconstruction"
+    ]
+  },
+  {
+    "id": "monotone-convergence-theorem",
+    "name": "Monotone Convergence Theorem",
+    "aliases": [
+      "단조수렴정리",
+      "단조 수렴 정리",
+      "MCT"
+    ],
+    "category": "technique",
+    "description": "반복 최적화에서 목적함수 수열 J_t가 단조(비증가 또는 비감소)이고 하한/상한을 가지면 수렴한다는 정리다. 실무적으로는 매 반복에서 목적값이 나빠지지 않도록 업데이트 규칙을 설계하고, 목적값이 바닥값(예: 0) 아래로 내려갈 수 없음을 이용해 수렴을 보장한다. 비트 할당 문제처럼 정수 제약과 유한 feasible set이 있는 경우에는 수렴과 함께 유한 단계 종료 해석이 가능하다.",
+    "related_paper_titles": [
+      "Quantization Design for Deep Learning-Based CSI Feedback",
+      "Quantization of Deep Neural Networks for Accurate CSI Feedback",
+      "Deep Learning-Based CSI Feedback with Variable Length Codewords for Adaptive FDD Massive MIMO"
+    ]
+  },
+  {
+    "id": "mu-law-companding",
+    "name": "mu-law Companding",
+    "aliases": [
+      "mu-law",
+      "mu-law 양자화"
+    ],
+    "category": "technique",
+    "description": "신호를 비선형 변환해 0 근처 구간에 더 촘촘한 양자화 레벨을 배치하는 companding 기법이다. zero-centered 코드워드 분포에서 양자화 왜곡을 줄이는 데 유리하다.",
+    "related_paper_titles": [
+      "Quantization Adaptor for Bit-Level Deep Learning-Based Massive MIMO CSI Feedback",
+      "Quantization of Deep Neural Networks for Accurate CSI Feedback"
+    ]
+  },
+  {
+    "id": "multi-head-self-attention",
+    "name": "Multi-Head Self-Attention",
+    "aliases": [
+      "MHSA",
+      "멀티헤드 셀프 어텐션"
+    ],
+    "category": "technique",
+    "description": "Self-Attention을 여러 개의 독립적인 헤드로 분할하여 병렬로 수행한 뒤 결과를 결합하는 기법이다. 각 헤드가 서로 다른 부분공간에서 표현을 학습하므로, 단일 어텐션보다 다양한 패턴의 의존성을 동시에 포착할 수 있다. Transformer 기반 CSI 피드백 구조에서 핵심 연산 블록으로 사용된다.",
+    "related_paper_titles": [
+      "TransNet: Full Attention Network for CSI Feedback in FDD Massive MIMO",
+      "CSI-GPT: Integrating Generative Pre-Trained Transformer with Federated-Tuning for Channel Estimation in Massive MIMO"
+    ]
+  },
+  {
+    "id": "multi-rate-codebook-design",
+    "name": "Multi-Rate Codebook Design",
+    "aliases": [
+      "?? ??? ??? ??",
+      "Adaptive Rate Codebook"
+    ],
+    "category": "technique",
+    "description": "?? ?? ??? ?? ???? ????? ???? ?? ??/???? ????. ?? ??? ??? ??? ?? ???? ???.",
+    "related_paper_titles": [
+      "Vector Quantization for Deep-Learning-Based CSI Feedback with Shape-Gain Decomposition"
+    ]
+  },
+  {
+    "id": "mutual-information",
+    "name": "Mutual Information (MI)",
+    "aliases": [
+      "MI",
+      "?????"
+    ],
+    "category": "metric",
+    "description": "? ???? ??? ?? ???? ???? ???. ???? ??? ?? ??? ???? ??? ??? ???? ? ???? ??? ??? ? ??.",
+    "related_paper_titles": [
+      "Precoding-Oriented CSI Feedback Design with Mutual Information Regularized VQ-VAE"
+    ]
+  },
+  {
+    "id": "nested-codebook",
+    "name": "Nested Codebook",
+    "aliases": [
+      "?? ???",
+      "?? ???"
+    ],
+    "category": "technique",
+    "description": "? ???? ? ???? ????? ????? ??? ?? ?????? ??? ??????? ???? ?? ????.",
+    "related_paper_titles": [
+      "Vector Quantization for Deep-Learning-Based CSI Feedback with Shape-Gain Decomposition"
+    ]
+  },
+  {
+    "id": "nmse",
+    "name": "NMSE",
+    "aliases": [
+      "Normalized MSE",
+      "정규화 평균제곱오차"
+    ],
+    "category": "metric",
+    "description": "복원된 CSI와 원본 CSI 간의 오차를 원본 에너지로 정규화한 지표로, 채널 세기에 무관하게 공정한 성능 비교가 가능하다. 값이 작을수록 복원 품질이 높으며, dB 스케일로 표기할 때 음의 값이 클수록 우수하다. CSI 피드백 논문에서 사실상 모든 연구가 주요 평가 지표로 NMSE를 사용한다.",
+    "related_paper_titles": [
+      "Quantization Design for Deep Learning-Based CSI Feedback",
+      "Deep Learning for Massive MIMO CSI Feedback (CsiNet)",
+      "CsiNet-LSTM: A Deep Learning Architecture for Compressive CSI Estimation and Feedback in FDD Massive MIMO",
+      "CRNet: A Deep-Learning Framework for CSI Feedback in Massive MIMO",
+      "Lightweight and Effective CSI Feedback for Massive MIMO Systems (CLNet)",
+      "TransNet: Full Attention Network for CSI Feedback in FDD Massive MIMO",
+      "ACRNet: Aggregation Cross-Domain Network for CSI Feedback in Massive MIMO",
+      "ENet: Efficient CSI Feedback for Massive MIMO Communications",
+      "Quantization of Deep Neural Networks for Accurate CSI Feedback"
+    ]
+  },
+  {
+    "id": "positional-encoding",
+    "name": "Positional Encoding",
+    "aliases": [
+      "위치 인코딩",
+      "PE"
+    ],
+    "category": "technique",
+    "description": "Transformer 구조가 입력 토큰의 순서 정보를 인식할 수 있도록, 각 위치에 고유한 벡터를 더하거나 학습하는 기법이다. 사인·코사인 함수 기반의 고정 인코딩과 학습 가능한 인코딩이 대표적이며, 위치 정보 없이는 Self-Attention이 순서에 무관한 집합 연산이 된다. CSI 피드백에서는 채널 행렬의 공간·주파수 축 위치 정보를 Transformer에 주입하는 데 활용된다.",
+    "related_paper_titles": [
+      "TransNet: Full Attention Network for CSI Feedback in FDD Massive MIMO",
+      "CSI-GPT: Integrating Generative Pre-Trained Transformer with Federated-Tuning for Channel Estimation in Massive MIMO"
+    ]
+  },
+  {
+    "id": "post-training-quantization",
+    "name": "Post-Training Quantization (PTQ)",
+    "aliases": [
+      "PTQ",
+      "사후 학습 양자화"
+    ],
+    "category": "training",
+    "description": "학습이 끝난 모델을 재학습 없이, 또는 소량 calibration만으로 양자화하는 방법이다. 배포 속도와 비용에 유리하지만 저비트에서 정확도 유지가 어려워 고도 보정 기법이 필요하다.",
+    "related_paper_titles": [
+      "BRECQ: Pushing the Limit of Post-Training Quantization by Block Reconstruction",
+      "GPTQ: Accurate Post-Training Quantization for Generative Pre-trained Transformers"
+    ]
+  },
+  {
+    "id": "precoding-oriented-csi-feedback",
+    "name": "Precoding-Oriented CSI Feedback",
+    "aliases": [
+      "???? ?? CSI ???",
+      "Goal-Oriented CSI Feedback"
+    ],
+    "category": "domain",
+    "description": "CSI ???? ???? ?? downlink precoding ??(?: ? achievable rate)? ?? ??? ?? CSI ??? ?? ????.",
+    "related_paper_titles": [
+      "Precoding-Oriented CSI Feedback Design with Mutual Information Regularized VQ-VAE"
+    ]
+  },
+  {
+    "id": "pruning",
+    "name": "Pruning",
+    "aliases": [
+      "프루닝",
+      "가지치기",
+      "Network Pruning"
+    ],
+    "category": "training",
+    "description": "신경망에서 중요도가 낮은 가중치, 뉴런, 또는 필터를 제거하여 모델 크기와 연산량을 줄이는 경량화 기법이다. 비구조적 프루닝(개별 가중치 제거)과 구조적 프루닝(필터/채널 단위 제거)으로 나뉘며, 후자가 실제 하드웨어 가속에 더 유리하다. CSI 피드백에서는 특히 UE 측 인코더의 모델 크기를 줄여 제한된 모바일 환경에 배포 가능하게 만드는 데 활용된다.",
+    "related_paper_titles": [
+      "Pruning Deep Neural Networks for Efficient CSI Feedback"
+    ]
+  },
+  {
+    "id": "qsnr",
+    "name": "QSNR",
+    "aliases": [
+      "Quantization Signal-to-Noise Ratio",
+      "양자화 신호대잡음비"
+    ],
+    "category": "metric",
+    "description": "양자화 전후 신호 에너지 비율로 양자화 왜곡을 측정하는 지표다. 값이 높을수록 양자화 오차가 작다.",
+    "related_paper_titles": [
+      "Quantization Adaptor for Bit-Level Deep Learning-Based Massive MIMO CSI Feedback"
+    ]
+  },
+  {
+    "id": "quantization-aware-training",
+    "name": "Quantization-Aware Training (QAT)",
+    "aliases": [
+      "양자화 인식 학습",
+      "QAT"
+    ],
+    "category": "training",
+    "description": "학습 과정에서 양자화에 의한 정밀도 손실을 시뮬레이션하여, 추론 시 저비트 양자화를 적용해도 성능 저하가 최소화되도록 모델을 훈련하는 기법이다. 순전파 시 가중치나 활성값을 양자화하고, 역전파 시 STE 등의 근사 기울기를 사용한다. CSI 피드백에서는 코드워드를 유한 비트로 전송해야 하므로, QAT를 통해 양자화 오차를 학습 단계에서 보상하는 것이 중요하다.",
+    "related_paper_titles": [
+      "Quantization Design for Deep Learning-Based CSI Feedback",
+      "Quantization of Deep Neural Networks for Accurate CSI Feedback",
+      "Binarized Neural Network for CSI Feedback in Massive MIMO Systems (BCsiNet)",
+      "Binarized Aggregated Network With Quantization: Flexible Deep Learning Deployment for CSI Feedback in Massive MIMO Systems",
+      "Quantization Adaptor for Bit-Level Deep Learning-Based Massive MIMO CSI Feedback"
+    ]
+  },
+  {
+    "id": "rate-distortion-optimization",
+    "name": "Rate-Distortion Optimization",
+    "aliases": [
+      "율-왜곡 최적화",
+      "R-D 최적화",
+      "RDO"
+    ],
+    "category": "technique",
+    "description": "전송 비트율(rate)과 복원 오차(distortion)를 동시에 고려해 최적점을 찾는 프레임워크다. 일반적으로 D + λR 형태의 목적함수를 사용해 품질과 전송 비용의 균형을 맞춘다. λ가 크면 비트 절약 쪽, 작으면 복원 품질 쪽으로 해가 이동한다. CSI 피드백에서는 제한된 업링크 비트 예산에서 NMSE를 최소화하기 위한 핵심 관점이다.",
+    "related_paper_titles": [
+      "Quantization Design for Deep Learning-Based CSI Feedback",
+      "Quantization of Deep Neural Networks for Accurate CSI Feedback",
+      "Deep Learning-Based CSI Feedback with Variable Length Codewords for Adaptive FDD Massive MIMO",
+      "Vector Quantized CSI Feedback with Learned Codebook"
+    ]
+  },
+  {
     "id": "refinenet",
     "name": "RefineNet",
-    "aliases": ["리파인넷", "Refinement Network"],
+    "aliases": [
+      "리파인넷",
+      "Refinement Network"
+    ],
     "category": "architecture",
     "description": "디코더의 초기 복원(coarse reconstruction) 결과를 잔차 학습 블록을 통해 반복적으로 보정하여 최종 복원 품질을 높이는 후처리 네트워크이다. CsiNet에서 처음 제안되었으며, 복수의 ResBlock을 캐스케이드하여 점진적으로 세부 정보를 복원한다. 이후 CRNet 등에서 채널 어텐션과 결합한 개선된 RefineNet 구조로 발전하였다.",
     "related_paper_titles": [
@@ -179,29 +623,60 @@
     ]
   },
   {
-    "id": "knowledge-distillation",
-    "name": "Knowledge Distillation",
-    "aliases": ["지식 증류", "KD"],
-    "category": "training",
-    "description": "크고 성능이 좋은 교사(teacher) 모델의 출력 분포나 중간 표현을 작은 학생(student) 모델이 모방하도록 학습시켜, 경량 모델에서도 높은 성능을 달성하는 모델 압축 기법이다. 소프트 레이블(soft label)을 통해 교사 모델의 암묵적 지식을 전달하며, 온도(temperature) 파라미터로 분포의 평활도를 조절한다. CSI 피드백에서는 UE 측 인코더의 경량화에 활용되어 모바일 기기의 연산 제약을 완화한다.",
+    "id": "residual-learning",
+    "name": "Residual Learning",
+    "aliases": [
+      "잔차 학습",
+      "Skip Connection",
+      "ResBlock"
+    ],
+    "category": "technique",
+    "description": "네트워크가 입력 자체 대신 입력과 출력의 차이(잔차)를 학습하도록 설계하여, 깊은 네트워크에서의 기울기 소실 문제를 완화하고 학습을 안정화하는 기법이다. Skip Connection을 통해 입력을 출력에 직접 더하는 구조로 구현되며, ResNet에서 최초로 제안되었다. CSI 피드백 분야에서는 디코더의 RefineNet 블록이 잔차 학습을 통해 복원된 CSI를 점진적으로 보정하는 핵심 전략으로 사용된다.",
     "related_paper_titles": [
-      "Knowledge Distillation-Based DNN for CSI Feedback in Massive MIMO Systems"
+      "CRNet: A Deep-Learning Framework for CSI Feedback in Massive MIMO",
+      "Deep Learning for Massive MIMO CSI Feedback (CsiNet)",
+      "ACRNet: Aggregation Cross-Domain Network for CSI Feedback in Massive MIMO"
     ]
   },
   {
-    "id": "pruning",
-    "name": "Pruning",
-    "aliases": ["프루닝", "가지치기", "Network Pruning"],
-    "category": "training",
-    "description": "신경망에서 중요도가 낮은 가중치, 뉴런, 또는 필터를 제거하여 모델 크기와 연산량을 줄이는 경량화 기법이다. 비구조적 프루닝(개별 가중치 제거)과 구조적 프루닝(필터/채널 단위 제거)으로 나뉘며, 후자가 실제 하드웨어 가속에 더 유리하다. CSI 피드백에서는 특히 UE 측 인코더의 모델 크기를 줄여 제한된 모바일 환경에 배포 가능하게 만드는 데 활용된다.",
+    "id": "shape-gain-decomposition",
+    "name": "Shape-Gain Decomposition",
+    "aliases": [
+      "Shape-Gain",
+      "??-?? ??"
+    ],
+    "category": "technique",
+    "description": "latent ??? ??(gain)? ??(shape)?? ??? ?? ?? ????? ???? ????. ???? ???? ??? ??/???? ? ??? ??.",
     "related_paper_titles": [
-      "Pruning Deep Neural Networks for Efficient CSI Feedback"
+      "Vector Quantization for Deep-Learning-Based CSI Feedback with Shape-Gain Decomposition"
+    ]
+  },
+  {
+    "id": "straight-through-estimator",
+    "name": "Straight-Through Estimator (STE)",
+    "aliases": [
+      "STE",
+      "?? ?? ???",
+      "?? ?? ?????"
+    ],
+    "category": "training",
+    "description": "??? ??(?: ???)?? forward? ?? ??? ??? ??, backward? ?? ???? ??? ?????? ???? ????. VQ ?? CSI ????? end-to-end ??? ???? ??? ?? ???.",
+    "related_paper_titles": [
+      "Quantization Design for Deep Learning-Based CSI Feedback",
+      "Binarized Neural Network for CSI Feedback in Massive MIMO Systems (BCsiNet)",
+      "Quantization of Deep Neural Networks for Accurate CSI Feedback",
+      "Ternary Neural Network for Extreme-Efficient CSI Feedback",
+      "Precoding-Oriented CSI Feedback Design with Mutual Information Regularized VQ-VAE",
+      "Vector Quantized CSI Feedback with Learned Codebook",
+      "Vector Quantization for Deep-Learning-Based CSI Feedback with Shape-Gain Decomposition"
     ]
   },
   {
     "id": "transformer",
     "name": "Transformer",
-    "aliases": ["트랜스포머"],
+    "aliases": [
+      "트랜스포머"
+    ],
     "category": "architecture",
     "description": "Self-Attention 메커니즘을 핵심으로 하여, 순환 구조 없이 입력 시퀀스의 전역 의존성을 병렬로 포착하는 신경망 구조이다. 원래 자연어 처리를 위해 제안되었으나, 비전 트랜스포머(ViT) 이후 다양한 도메인으로 확산되었다. CSI 피드백에서는 채널 행렬을 패치 또는 토큰 시퀀스로 변환하여 Transformer에 입력함으로써, CNN 대비 더 넓은 수용 영역과 유연한 표현 학습을 가능케 한다.",
     "related_paper_titles": [
@@ -211,61 +686,20 @@
     ]
   },
   {
-    "id": "positional-encoding",
-    "name": "Positional Encoding",
-    "aliases": ["위치 인코딩", "PE"],
+    "id": "vector-quantization",
+    "name": "Vector Quantization",
+    "aliases": [
+      "VQ",
+      "?? ???"
+    ],
     "category": "technique",
-    "description": "Transformer 구조가 입력 토큰의 순서 정보를 인식할 수 있도록, 각 위치에 고유한 벡터를 더하거나 학습하는 기법이다. 사인·코사인 함수 기반의 고정 인코딩과 학습 가능한 인코딩이 대표적이며, 위치 정보 없이는 Self-Attention이 순서에 무관한 집합 연산이 된다. CSI 피드백에서는 채널 행렬의 공간·주파수 축 위치 정보를 Transformer에 주입하는 데 활용된다.",
+    "description": "latent ??? ???? ?? ??? ????? ??? ???? ???? ??? ????. ?? ???? scalar quantization?? ????? ? ? ??? ? ??.",
     "related_paper_titles": [
-      "TransNet: Full Attention Network for CSI Feedback in FDD Massive MIMO",
-      "CSI-GPT: Integrating Generative Pre-Trained Transformer with Federated-Tuning for Channel Estimation in Massive MIMO"
-    ]
-  },
-  {
-    "id": "diffusion-model",
-    "name": "Diffusion Model",
-    "aliases": ["확산 모델", "Denoising Diffusion"],
-    "category": "architecture",
-    "description": "데이터에 점진적으로 가우시안 노이즈를 추가하는 순방향 과정과, 노이즈를 제거하며 원본을 복원하는 역방향 과정을 학습하는 생성 모델이다. GAN 대비 학습 안정성이 뛰어나고 다양성 높은 샘플을 생성할 수 있어 이미지 생성 분야에서 주목받았다. CSI 피드백에서는 압축된 코드워드로부터 채널을 복원할 때 디노이징 과정을 활용하여 복원 품질을 향상시키는 연구가 진행되고 있다.",
-    "related_paper_titles": [
-      "Generative Diffusion Model-Enhanced CSI Feedback",
-      "RD-JSCC: Residual Diffusion for Variable-Rate Joint Source-Channel Coding of MIMO CSI"
-    ]
-  },
-  {
-    "id": "batch-normalization",
-    "name": "Batch Normalization",
-    "aliases": ["BN", "배치 정규화"],
-    "category": "training",
-    "description": "미니배치 단위로 각 층의 입력을 정규화(평균 0, 분산 1)한 후, 학습 가능한 스케일과 시프트 파라미터를 적용하는 기법이다. 내부 공변량 변화(internal covariate shift)를 줄여 학습을 가속하고, 더 높은 학습률 사용을 가능케 하며, 정규화 효과도 부가적으로 제공한다. CSI 피드백의 CNN 기반 네트워크에서는 합성곱 층 직후에 거의 표준적으로 적용된다.",
-    "related_paper_titles": [
-      "Deep Learning for Massive MIMO CSI Feedback (CsiNet)",
-      "CRNet: A Deep-Learning Framework for CSI Feedback in Massive MIMO",
-      "Lightweight and Effective CSI Feedback for Massive MIMO Systems (CLNet)",
-      "ACRNet: Aggregation Cross-Domain Network for CSI Feedback in Massive MIMO"
-    ]
-  },
-  {
-    "id": "codebook",
-    "name": "Codebook",
-    "aliases": ["코드북", "Learned Codebook"],
-    "category": "technique",
-    "description": "벡터 양자화에서 사용되는 유한 크기의 코드 벡터(codeword) 집합으로, 연속 잠재 공간을 이산 인덱스로 매핑하는 사전(dictionary) 역할을 한다. 코드북의 크기와 차원은 표현력과 전송 비트 수를 결정하며, 학습 기반 코드북은 데이터 분포에 맞춰 최적화되어 고정 코드북 대비 더 나은 율-왜곡 성능을 달성한다. CSI 피드백에서는 인코더 출력을 코드북 인덱스로 양자화하여 유한 비트로 피드백하는 핵심 구성 요소이다.",
-    "related_paper_titles": [
-      "Vector Quantized CSI Feedback with Learned Codebook",
       "Neural Discrete Representation Learning (VQ-VAE)",
+      "Vector Quantized CSI Feedback with Learned Codebook",
       "Finite Scalar Quantization: VQ-VAE Made Simple (FSQ)",
-      "Vector Quantization for Deep-Learning-Based CSI Feedback with Shape-Gain Decomposition"
-    ]
-  },
-  {
-    "id": "federated-learning",
-    "name": "Federated Learning",
-    "aliases": ["연합 학습", "FL"],
-    "category": "training",
-    "description": "여러 클라이언트(기기)가 로컬 데이터를 공유하지 않고 각자 모델을 학습한 후, 모델 파라미터(또는 기울기)만 중앙 서버에 전송하여 글로벌 모델을 집계하는 분산 학습 프레임워크이다. 데이터 프라이버시를 보호하면서도 다양한 환경의 데이터를 활용할 수 있는 장점이 있다. CSI 피드백에서는 다수 기지국의 채널 데이터를 직접 모으지 않고도 범용적인 CSI 피드백 모델을 학습할 수 있는 방법으로 활용된다.",
-    "related_paper_titles": [
-      "CSI-GPT: Integrating Generative Pre-Trained Transformer with Federated-Tuning for Channel Estimation in Massive MIMO"
+      "Vector Quantization for Deep-Learning-Based CSI Feedback with Shape-Gain Decomposition",
+      "Precoding-Oriented CSI Feedback Design with Mutual Information Regularized VQ-VAE"
     ]
   }
 ]

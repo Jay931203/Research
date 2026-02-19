@@ -3,11 +3,17 @@
 import { memo } from 'react';
 import { Handle, Position, type NodeProps } from 'reactflow';
 import type { PaperNodeData } from '@/types';
-import { FAMILIARITY_COLORS, FAMILIARITY_LABELS } from '@/lib/visualization/graphUtils';
+import {
+  FAMILIARITY_COLORS,
+  FAMILIARITY_LABELS,
+  RESEARCH_TOPIC_LABELS,
+  getFamiliarityOpacity,
+  inferResearchTopic,
+} from '@/lib/visualization/graphUtils';
 import { Star, BookOpen } from 'lucide-react';
 
 function CustomNodeComponent({ data, selected }: NodeProps<PaperNodeData>) {
-  const { paper, familiarity_level, is_favorite } = data;
+  const { paper, familiarity_level, is_favorite, apply_familiarity_opacity } = data;
 
   const familiarityColor = familiarity_level
     ? FAMILIARITY_COLORS[familiarity_level]
@@ -15,6 +21,9 @@ function CustomNodeComponent({ data, selected }: NodeProps<PaperNodeData>) {
   const familiarityLabel = familiarity_level
     ? FAMILIARITY_LABELS[familiarity_level]
     : FAMILIARITY_LABELS.not_started;
+  const familiarityOpacity = getFamiliarityOpacity(familiarity_level);
+  const researchTopic = inferResearchTopic(paper);
+  const researchTopicLabel = RESEARCH_TOPIC_LABELS[researchTopic];
 
   // 논문 제목 줄이기
   const shortTitle =
@@ -27,7 +36,10 @@ function CustomNodeComponent({ data, selected }: NodeProps<PaperNodeData>) {
         bg-white dark:bg-gray-800 min-w-[220px] max-w-[260px]
         ${selected ? 'ring-2 ring-blue-400 scale-105' : 'hover:shadow-xl hover:scale-[1.02]'}
       `}
-      style={{ borderColor: paper.color_hex }}
+      style={{
+        borderColor: paper.color_hex,
+        opacity: selected ? 1 : apply_familiarity_opacity ? familiarityOpacity : 1,
+      }}
     >
       {/* 상단 핸들 (입력) */}
       <Handle
@@ -43,14 +55,19 @@ function CustomNodeComponent({ data, selected }: NodeProps<PaperNodeData>) {
         style={{ backgroundColor: paper.color_hex }}
       />
 
-      {/* 헤더: 연도 + 즐겨찾기 */}
+      {/* 헤더: 연도 + 주제 + 즐겨찾기 */}
       <div className="flex items-center justify-between mb-1.5 mt-1">
-        <span
-          className="text-xs font-semibold px-2 py-0.5 rounded-full text-white"
-          style={{ backgroundColor: paper.color_hex }}
-        >
-          {paper.year}
-        </span>
+        <div className="flex items-center gap-1">
+          <span
+            className="text-xs font-semibold px-2 py-0.5 rounded-full text-white"
+            style={{ backgroundColor: paper.color_hex }}
+          >
+            {paper.year}
+          </span>
+          <span className="max-w-[120px] truncate rounded-full border border-gray-200 px-1.5 py-0.5 text-[9px] font-semibold text-gray-600 dark:border-gray-700 dark:text-gray-300">
+            {researchTopicLabel}
+          </span>
+        </div>
         <div className="flex items-center gap-1">
           {is_favorite && (
             <Star className="w-3.5 h-3.5 text-yellow-500 fill-yellow-500" />

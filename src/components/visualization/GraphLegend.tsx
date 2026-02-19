@@ -6,8 +6,13 @@ import {
   RELATIONSHIP_STYLES,
   FAMILIARITY_COLORS,
   FAMILIARITY_LABELS,
+  FAMILIARITY_SELECTABLE_LEVELS,
+  RESEARCH_TOPIC_COLORS,
+  RESEARCH_TOPIC_LABELS,
+  RESEARCH_TOPIC_ORDER,
+  getFamiliarityOpacity,
 } from '@/lib/visualization/graphUtils';
-import type { RelationshipType } from '@/types';
+import type { FamiliarityLevel, RelationshipType } from '@/types';
 
 export default function GraphLegend() {
   const [expanded, setExpanded] = useState(false);
@@ -18,7 +23,16 @@ export default function GraphLegend() {
     (typeof RELATIONSHIP_STYLES)[RelationshipType]
   ][];
 
-  const familiarityLevels = Object.entries(FAMILIARITY_COLORS) as [string, string][];
+  const familiarityLevels: { level: FamiliarityLevel; color: string }[] =
+    FAMILIARITY_SELECTABLE_LEVELS.map((level) => ({
+      level,
+      color: FAMILIARITY_COLORS[level],
+    }));
+  const researchTopics = RESEARCH_TOPIC_ORDER.map((topic) => ({
+    topic,
+    color: RESEARCH_TOPIC_COLORS[topic],
+    label: RESEARCH_TOPIC_LABELS[topic],
+  }));
 
   if (!visible) {
     return (
@@ -89,12 +103,33 @@ export default function GraphLegend() {
                 익숙함 레벨
               </p>
               <div className="space-y-1">
-                {familiarityLevels.map(([level, color]) => (
+                {familiarityLevels.map(({ level, color }) => (
                   <div key={level} className="flex items-center gap-2">
-                    <div className="w-2.5 h-2.5 rounded-full" style={{ backgroundColor: color }} />
+                    <div
+                      className="h-2.5 w-2.5 rounded-full"
+                      style={{ backgroundColor: color, opacity: getFamiliarityOpacity(level) }}
+                    />
                     <span className="text-[10px] text-gray-600 dark:text-gray-300">
-                      {FAMILIARITY_LABELS[level]}
+                      {FAMILIARITY_LABELS[level]} · 투명도{' '}
+                      {Math.round((1 - getFamiliarityOpacity(level)) * 100)}%
                     </span>
+                  </div>
+                ))}
+              </div>
+              <p className="mt-1 text-[10px] text-gray-500 dark:text-gray-400">
+                별 0개 완전 투명, 별 3개 최대 불투명
+              </p>
+            </div>
+
+            <div>
+              <p className="text-[10px] font-semibold text-gray-500 dark:text-gray-400 uppercase mb-1.5">
+                주제 축
+              </p>
+              <div className="space-y-1">
+                {researchTopics.map(({ topic, color, label }) => (
+                  <div key={topic} className="flex items-center gap-2">
+                    <div className="h-2.5 w-2.5 rounded-full" style={{ backgroundColor: color }} />
+                    <span className="text-[10px] text-gray-600 dark:text-gray-300">{label}</span>
                   </div>
                 ))}
               </div>
