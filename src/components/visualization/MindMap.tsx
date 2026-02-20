@@ -20,7 +20,7 @@ import type {
   PaperWithNote,
   RelationshipType,
 } from '@/types';
-import { RELATIONSHIP_STYLES, RESEARCH_TOPIC_ORDER, inferResearchTopic } from '@/lib/visualization/graphUtils';
+import { RELATIONSHIP_STYLES, RESEARCH_TOPIC_COLORS, RESEARCH_TOPIC_LABELS, RESEARCH_TOPIC_ORDER, inferResearchTopic } from '@/lib/visualization/graphUtils';
 import { useGraphData } from '@/hooks/useGraphData';
 import type { GraphFilterSettings } from '@/store/useAppStore';
 import { CORE_RELATIONSHIP_TYPES } from '@/store/useAppStore';
@@ -37,7 +37,24 @@ interface MindMapProps {
   onRemovePaper?: (paperId: string) => void;
 }
 
-const nodeTypes = { paperNode: CustomNode };
+function TopicLabelNode({ data }: { data: { label: string; color: string } }) {
+  return (
+    <div
+      className="pointer-events-none rounded-lg border px-3 py-1.5 text-center text-xs font-bold tracking-wide shadow-sm"
+      style={{
+        width: '200px',
+        borderColor: `${data.color}60`,
+        backgroundColor: `${data.color}15`,
+        color: data.color,
+        userSelect: 'none',
+      }}
+    >
+      {data.label}
+    </div>
+  );
+}
+
+const nodeTypes = { paperNode: CustomNode, topicLabel: TopicLabelNode };
 const edgeTypes = { relationshipEdge: CustomEdge };
 const ALL_RELATIONSHIP_TYPES = Object.keys(RELATIONSHIP_STYLES) as RelationshipType[];
 
@@ -162,6 +179,24 @@ function MindMapInner({
     }
 
     const positioned: typeof graphNodes = [];
+
+    // Add topic column labels above all nodes
+    topicOrder.forEach((topic, topicIndex) => {
+      const baseTopicX = (topicIndex - centeredTopicOffset) * topicGap;
+      positioned.push({
+        id: `topic-label-${topic}`,
+        type: 'topicLabel',
+        position: { x: baseTopicX - 100, y: -68 },
+        data: {
+          label: RESEARCH_TOPIC_LABELS[topic] ?? topic,
+          color: RESEARCH_TOPIC_COLORS[topic] ?? '#6b7280',
+        },
+        selectable: false,
+        focusable: false,
+        draggable: false,
+      } as any);
+    });
+
     for (const year of yearOrder) {
       const baseYearY = yearStartY.get(year) ?? 0;
 
@@ -238,6 +273,7 @@ function MindMapInner({
 
   const handleNodeClick: NodeMouseHandler = useCallback(
     (_event, node: Node<PaperNodeData>) => {
+      if (node.type === 'topicLabel') return;
       onNodeClick?.(node.id);
     },
     [onNodeClick]

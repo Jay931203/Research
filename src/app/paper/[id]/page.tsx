@@ -27,6 +27,7 @@ import {
   Zap,
 } from 'lucide-react';
 import Header from '@/components/layout/Header';
+import CommandPalette from '@/components/common/CommandPalette';
 import { useMapSelectionSync } from '@/hooks/useMapSelectionSync';
 import { usePapersWithNotes } from '@/hooks/useNotes';
 import { useRelationships } from '@/hooks/useRelationships';
@@ -400,6 +401,7 @@ export default function PaperStudyPage() {
 
   const [activeSection, setActiveSection] = useState<string>(TOC_SECTIONS[0].id);
   const [isTocCollapsed, setIsTocCollapsed] = useState(false);
+  const [isCommandPaletteOpen, setIsCommandPaletteOpen] = useState(false);
   const observerRef = useRef<IntersectionObserver | null>(null);
 
   useEffect(() => {
@@ -434,6 +436,15 @@ export default function PaperStudyPage() {
 
   useEffect(() => {
     const handler = (e: KeyboardEvent) => {
+      if ((e.ctrlKey || e.metaKey) && e.key === 'k') {
+        e.preventDefault();
+        setIsCommandPaletteOpen((prev) => !prev);
+        return;
+      }
+      if (e.key === 'Escape' && isCommandPaletteOpen) {
+        setIsCommandPaletteOpen(false);
+        return;
+      }
       const tag = (e.target as HTMLElement)?.tagName;
       if (tag === 'INPUT' || tag === 'TEXTAREA' || tag === 'SELECT') return;
 
@@ -448,7 +459,7 @@ export default function PaperStudyPage() {
 
     window.addEventListener('keydown', handler);
     return () => window.removeEventListener('keydown', handler);
-  }, [router, prevPaper, nextPaper]);
+  }, [router, prevPaper, nextPaper, isCommandPaletteOpen]);
 
   /* ---------- reading progress bar ---------- */
 
@@ -561,6 +572,7 @@ export default function PaperStudyPage() {
     return (
       <div className="min-h-screen bg-gray-50 dark:bg-gray-950">
         <Header />
+        <CommandPalette isOpen={isCommandPaletteOpen} onClose={() => setIsCommandPaletteOpen(false)} />
 
         {/* Reading progress bar */}
         <div className="fixed left-0 top-16 z-40 h-0.5 bg-blue-500 transition-all" style={{ width: `${scrollProgress}%` }} />
@@ -669,6 +681,7 @@ export default function PaperStudyPage() {
     <div className="min-h-screen bg-gray-50 dark:bg-gray-950">
       {/* -------- Shared Header -------- */}
       <Header />
+      <CommandPalette isOpen={isCommandPaletteOpen} onClose={() => setIsCommandPaletteOpen(false)} />
 
       {/* -------- Reading Progress Bar -------- */}
       <div className="fixed left-0 top-16 z-40 h-0.5 bg-blue-500 transition-all" style={{ width: `${scrollProgress}%` }} />
