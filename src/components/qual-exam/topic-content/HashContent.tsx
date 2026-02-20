@@ -289,6 +289,18 @@ export default function HashContent({ topic }: Props) {
       {/* 1. 개념 */}
       <section>
         <SH emoji="📖" title="해시 함수 개념 + 부하율" id={`${topic.id}-sec-concept`} />
+        <div className="rounded-xl border border-amber-200 bg-amber-50 dark:border-amber-700/40 dark:bg-amber-900/10 p-4 mb-4">
+          <p className="text-sm font-bold text-amber-800 dark:text-amber-300 mb-1.5">핵심 아이디어</p>
+          <p className="text-sm text-amber-700 dark:text-amber-400 leading-relaxed">
+            해시 테이블의 목표: &quot;키(key)를 O(1)에 값(value)으로 변환&quot;. 충돌(Collision)은 피할 수 없다 (비둘기집 원리): 키 공간(무한) &gt; 해시 테이블 크기(유한) &rarr; 반드시 충돌 발생. 따라서 충돌 처리 방법이 핵심!
+          </p>
+        </div>
+        <div className="rounded-xl border border-blue-200 bg-blue-50 dark:border-blue-800/40 dark:bg-blue-900/10 p-4 mb-4">
+          <p className="text-sm font-bold text-blue-800 dark:text-blue-200 mb-1.5">직관적으로 이해하기</p>
+          <p className="text-sm text-blue-700 dark:text-blue-300 leading-relaxed">
+            학교 도서관의 책장 번호판. 책 제목(key)을 해시 함수로 변환해 책장 번호(index)를 직접 계산 &rarr; 책장을 하나씩 뒤질 필요 없음. 해시 함수의 조건: 결정론적(같은 키 &rarr; 항상 같은 해시값), 균등 분포, 빠른 계산 O(1).
+          </p>
+        </div>
         <div className="grid grid-cols-1 sm:grid-cols-3 gap-3 mb-5">
           {[
             { label: '해시 함수', icon: 'h(k)', desc: 'key → 배열 인덱스 매핑. h(k) = k mod m (나눗셈법)', color: 'border-blue-200 dark:border-blue-800/40 bg-blue-50 dark:bg-blue-950/20' },
@@ -327,6 +339,12 @@ export default function HashContent({ topic }: Props) {
       {/* 2. 체이닝 */}
       <section>
         <SH emoji="⛓" title="체이닝(Chaining) 시뮬레이터" id={`${topic.id}-sec-chain`} />
+        <div className="rounded-xl border border-amber-200 bg-amber-50 dark:border-amber-700/40 dark:bg-amber-900/10 p-4 mb-4">
+          <p className="text-sm font-bold text-amber-800 dark:text-amber-300 mb-1.5">체이닝(Chaining) 개념</p>
+          <p className="text-sm text-amber-700 dark:text-amber-400 leading-relaxed">
+            충돌 시 같은 슬롯에 Linked List로 연결. 테이블 크기를 넘어도 삽입 가능, 삭제가 간단 (노드만 제거). 부하율(load factor) &alpha; = n/m: 평균 탐색 시간 = &Theta;(1 + &alpha;).
+          </p>
+        </div>
         <div className="rounded-xl border border-slate-200 dark:border-slate-700 bg-slate-50 dark:bg-slate-800/50 p-5">
           <div className="flex flex-wrap gap-2 mb-3">
             <input
@@ -383,6 +401,12 @@ export default function HashContent({ topic }: Props) {
       {/* 3. 오픈 어드레싱 */}
       <section>
         <SH emoji="🔍" title="오픈 어드레싱 — 선형 프로빙 시뮬레이터" id={`${topic.id}-sec-probe`} />
+        <div className="rounded-xl border border-amber-200 bg-amber-50 dark:border-amber-700/40 dark:bg-amber-900/10 p-4 mb-4">
+          <p className="text-sm font-bold text-amber-800 dark:text-amber-300 mb-1.5">선형 프로빙(Linear Probing) 개념</p>
+          <p className="text-sm text-amber-700 dark:text-amber-400 leading-relaxed">
+            충돌 시 다음 슬롯으로 이동. 장점: 캐시 지역성 좋음 (메모리 연속 접근). 단점: 1차 군집화(Primary Clustering) - 연속된 슬롯이 채워지면 충돌 증가. DELETED 마커 필요성: 삭제 시 슬롯을 단순히 빈 것으로 표시하면, 그 슬롯을 지나가야 하는 탐색이 중간에 끊겨버림.
+          </p>
+        </div>
         <div className="rounded-xl border border-slate-200 dark:border-slate-700 bg-slate-50 dark:bg-slate-800/50 p-5">
           <p className="text-xs text-slate-500 dark:text-slate-400 mb-3">
             탐침 함수: h(k, i) = (k mod {M} + i) mod {M}

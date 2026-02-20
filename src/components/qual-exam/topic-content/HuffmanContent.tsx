@@ -311,6 +311,18 @@ export default function HuffmanContent({ topic }: Props) {
       {/* 2. 허프만 트리 빌드 시뮬레이터 */}
       <section>
         <SH emoji="🔨" title="허프만 트리 빌드 시뮬레이터" id={`${topic.id}-sec-sim`} />
+        <div className="rounded-xl border border-amber-200 bg-amber-50 dark:border-amber-700/40 dark:bg-amber-900/10 p-4 mb-4">
+          <p className="text-sm font-bold text-amber-800 dark:text-amber-300 mb-1.5">핵심 아이디어</p>
+          <p className="text-sm text-amber-700 dark:text-amber-400 leading-relaxed">
+            자주 나오는 문자 = 짧은 코드, 드물게 나오는 문자 = 긴 코드. 매 단계에서 빈도가 가장 낮은 두 노드를 합쳐 트리를 구성. Greedy가 최적인 이유: 빈도가 낮은 문자는 트리에서 깊은 위치(긴 코드)에 배치해야 전체 ABL이 최소.
+          </p>
+        </div>
+        <div className="rounded-xl border border-blue-200 bg-blue-50 dark:border-blue-800/40 dark:bg-blue-900/10 p-4 mb-4">
+          <p className="text-sm font-bold text-blue-800 dark:text-blue-200 mb-1.5">직관적으로 이해하기</p>
+          <p className="text-sm text-blue-700 dark:text-blue-300 leading-relaxed">
+            모스 부호와 비슷 - E(가장 많이 쓰이는 영어 알파벳)는 짧은 코드 &quot;&middot;&quot;, 드문 Z는 긴 코드 &quot;--&middot;&middot;&quot;. Prefix-free 성질: 어떤 코드도 다른 코드의 접두사가 아님 &rarr; 구분자 없이도 복호화 가능 (트리의 리프까지 내려가면 반드시 하나의 문자).
+          </p>
+        </div>
         <div className="rounded-xl border border-slate-200 dark:border-slate-700 bg-slate-50 dark:bg-slate-800/50 p-5">
           {/* Min-heap pills */}
           <div className="mb-4">

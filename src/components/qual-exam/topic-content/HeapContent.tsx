@@ -232,6 +232,18 @@ export default function HeapContent({ topic }: Props) {
       {/* 1. 개념 */}
       <section>
         <SH emoji="📖" title="힙 개념" id={`${topic.id}-sec-concept`} />
+        <div className="rounded-xl border border-amber-200 bg-amber-50 dark:border-amber-700/40 dark:bg-amber-900/10 p-4 mb-4">
+          <p className="text-sm font-bold text-amber-800 dark:text-amber-300 mb-1.5">핵심 아이디어</p>
+          <p className="text-sm text-amber-700 dark:text-amber-400 leading-relaxed">
+            &quot;부모는 항상 자식보다 크다(Max-Heap) 또는 작다(Min-Heap)&quot; - 이 한 규칙만 지키면 된다. 배열로 힙 구현이 가능한 이유: 완전 이진 트리의 레벨 순서(BFS 순서)대로 배열에 저장하면 인덱스 계산만으로 트리 탐색 가능!
+          </p>
+        </div>
+        <div className="rounded-xl border border-blue-200 bg-blue-50 dark:border-blue-800/40 dark:bg-blue-900/10 p-4 mb-4">
+          <p className="text-sm font-bold text-blue-800 dark:text-blue-200 mb-1.5">직관적으로 이해하기</p>
+          <p className="text-sm text-blue-700 dark:text-blue-300 leading-relaxed">
+            회사 조직도처럼, 상사(부모)는 부하직원(자식)보다 항상 직급이 높다. 하지만 같은 레벨의 동료들끼리는 순서가 없다. 포인터 없이 인덱스 계산만으로 트리 탐색 가능: 왼쪽 자식=2i+1, 오른쪽 자식=2i+2, 부모=&lfloor;(i-1)/2&rfloor;.
+          </p>
+        </div>
         <div className="grid grid-cols-1 md:grid-cols-2 gap-4 mb-5">
           {[
             { name: 'Min-Heap', color: 'border-blue-300 dark:border-blue-700', badge: 'bg-blue-100 text-blue-800 dark:bg-blue-900/40 dark:text-blue-200', props: ['부모 ≤ 자식 (항상)', '루트 = 전체 최솟값', '삽입/삭제 O(log n)', '완전 이진 트리'] },
@@ -283,6 +295,20 @@ export default function HeapContent({ topic }: Props) {
       {/* 2. 시뮬레이터 */}
       <section>
         <SH emoji="🎮" title="인터랙티브 Min-Heap 시뮬레이터" id={`${topic.id}-sec-sim`} />
+        <div className="rounded-xl border border-slate-200 dark:border-slate-700 bg-white dark:bg-slate-900/50 p-4 mb-4">
+          <p className="text-sm font-bold text-slate-700 dark:text-slate-300 mb-3">삽입과 삭제의 동작 원리</p>
+          <ol className="space-y-2">
+            {[
+              { title: 'Sift-Up (삽입 후 복구)', desc: '새 원소를 배열 끝에 추가 → 부모와 비교 → 힙 조건 위반 시 swap → 루트까지 반복. 시간: O(log n)' },
+              { title: 'Sift-Down (삭제 후 복구)', desc: '루트 제거 → 마지막 원소를 루트로 이동 → 두 자식 중 더 작은 것과 비교 → 힙 조건 위반 시 swap → 리프까지 반복. 시간: O(log n)' },
+            ].map((step, i) => (
+              <li key={i} className="flex items-start gap-3 text-sm text-slate-600 dark:text-slate-400">
+                <span className="flex-shrink-0 w-5 h-5 rounded-full bg-blue-600 text-white text-xs flex items-center justify-center font-bold mt-0.5">{i + 1}</span>
+                <span><span className="font-semibold text-slate-700 dark:text-slate-300">{step.title}</span>: {step.desc}</span>
+              </li>
+            ))}
+          </ol>
+        </div>
         <div className="rounded-xl border border-slate-200 dark:border-slate-700 bg-slate-50 dark:bg-slate-800/50 p-5">
           {/* Controls */}
           <div className="flex flex-wrap items-center gap-3 mb-5">
@@ -361,6 +387,19 @@ export default function HeapContent({ topic }: Props) {
       {/* 3. Build-Heap O(n) */}
       <section>
         <SH emoji="🔨" title="Build-Heap O(n) 단계별 트레이스" id={`${topic.id}-sec-build`} />
+        <div className="rounded-xl border border-amber-200 bg-amber-50 dark:border-amber-700/40 dark:bg-amber-900/10 p-4 mb-4">
+          <p className="text-sm font-bold text-amber-800 dark:text-amber-300 mb-1.5">핵심 아이디어 — Build-Heap이 왜 O(n)인가?</p>
+          <p className="text-sm text-amber-700 dark:text-amber-400 leading-relaxed">
+            Heapify를 리프부터 시작하면: 리프 노드(n/2개)는 이미 힙이라 heapify 불필요, 높이 1 노드(n/4개)는 최대 1번 swap, 높이 2 노드(n/8개)는 최대 2번 swap... 합산하면 n/4&middot;1 + n/8&middot;2 + n/16&middot;3 + ... &le; 2n &rarr; O(n).
+          </p>
+        </div>
+        <div className="rounded-xl border border-red-200 bg-red-50 dark:border-red-800/40 dark:bg-red-900/10 p-3 mb-4">
+          <p className="text-sm font-bold text-red-800 dark:text-red-300 mb-1">시험 포인트</p>
+          <ul className="space-y-1">
+            <li className="text-sm text-red-700 dark:text-red-300">&bull; 반직관: &quot;n번 삽입하면 O(n log n)&quot;인데 Build-Heap은 O(n) - 이 차이가 자주 출제됨</li>
+            <li className="text-sm text-red-700 dark:text-red-300">&bull; Build-Heap은 bottom-up heapify를 사용하기 때문에 가능</li>
+          </ul>
+        </div>
         <div className="rounded-xl border border-slate-200 dark:border-slate-700 bg-slate-50 dark:bg-slate-800/50 p-5">
           <p className="text-sm text-slate-600 dark:text-slate-400 mb-4">
             입력 A = [4, 10, 3, 5, 1, 2] — <code className="bg-slate-200 dark:bg-slate-700 px-1 rounded text-xs">i = ⌊n/2⌋-1</code> 부터 역순으로 Heapify

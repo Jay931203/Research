@@ -215,6 +215,26 @@ export default function GraphContent({ topic }: Props) {
       {/* 1. BFS vs DFS */}
       <section>
         <SH emoji="🔍" title="BFS vs DFS 인터랙티브 시각화" id={`${topic.id}-sec-bfsdfs`} />
+        <div className="rounded-xl border border-amber-200 bg-amber-50 dark:border-amber-700/40 dark:bg-amber-900/10 p-4 mb-4">
+          <p className="text-sm font-bold text-amber-800 dark:text-amber-300 mb-1.5">핵심 아이디어 — BFS vs DFS</p>
+          <p className="text-sm text-amber-700 dark:text-amber-400 leading-relaxed">
+            어떤 자료구조를 쓰는가가 핵심 차이: BFS는 Queue(선입선출) → 가까운 노드부터 방문, DFS는 Stack(후입선출, 재귀 스택) → 깊이 먼저.
+          </p>
+        </div>
+        <div className="rounded-xl border border-blue-200 bg-blue-50 dark:border-blue-800/40 dark:bg-blue-900/10 p-4 mb-4">
+          <p className="text-sm font-bold text-blue-800 dark:text-blue-200 mb-1.5">직관적으로 이해하기</p>
+          <ul className="space-y-1.5 text-sm text-blue-700 dark:text-blue-300">
+            <li>&bull; <span className="font-bold">BFS</span> = 수면에 돌 던지기: 출발점에서 동심원을 그리며 레벨 by 레벨 탐색</li>
+            <li>&bull; <span className="font-bold">DFS</span> = 미로 찾기: 한 방향으로 끝까지 가다가 막히면 되돌아와 다른 길 시도</li>
+          </ul>
+        </div>
+        <div className="rounded-xl border border-slate-200 dark:border-slate-700 bg-white dark:bg-slate-900/50 p-4 mb-4">
+          <p className="text-sm font-bold text-slate-700 dark:text-slate-300 mb-2">언제 무엇을?</p>
+          <ul className="space-y-1.5 text-sm text-slate-600 dark:text-slate-400">
+            <li>&bull; <span className="font-semibold text-blue-600 dark:text-blue-400">BFS</span>: 최단 경로(비가중), 레벨 탐색, 최소 이동 횟수</li>
+            <li>&bull; <span className="font-semibold text-emerald-600 dark:text-emerald-400">DFS</span>: 사이클 감지, 위상 정렬, 연결 요소, 백트래킹 문제</li>
+          </ul>
+        </div>
         <div className="rounded-xl border border-slate-200 dark:border-slate-700 bg-slate-50 dark:bg-slate-800/50 p-5">
           <div className="flex flex-wrap gap-3 mb-4">
             <button onClick={() => runTraversal('bfs')} disabled={isRunning}
@@ -298,6 +318,25 @@ export default function GraphContent({ topic }: Props) {
       {/* 2. Dijkstra */}
       <section>
         <SH emoji="🗺" title="Dijkstra 단계별 추적 (시작: D)" id={`${topic.id}-sec-dijkstra`} />
+        <div className="rounded-xl border border-amber-200 bg-amber-50 dark:border-amber-700/40 dark:bg-amber-900/10 p-4 mb-4">
+          <p className="text-sm font-bold text-amber-800 dark:text-amber-300 mb-1.5">핵심 아이디어</p>
+          <p className="text-sm text-amber-700 dark:text-amber-400 leading-relaxed">
+            &quot;지금까지 알려진 최단 거리가 확정된 노드부터 처리&quot;. Greedy가 성립하는 이유: 음수 간선이 없으면, 최단 거리가 확정된 노드를 통해 거리가 더 나빠질 수 없다.
+          </p>
+        </div>
+        <div className="rounded-xl border border-blue-200 bg-blue-50 dark:border-blue-800/40 dark:bg-blue-900/10 p-4 mb-4">
+          <p className="text-sm font-bold text-blue-800 dark:text-blue-200 mb-1.5">직관적으로 이해하기</p>
+          <p className="text-sm text-blue-700 dark:text-blue-300 leading-relaxed">
+            서울에서 전국으로 퍼지는 KTX 노선 - 가장 가까운 도시부터 확정하고, 그 도시를 경유해 더 먼 도시의 거리를 업데이트 (릴렉스, Relaxation: dist[v] &gt; dist[u] + w(u,v)이면 갱신).
+          </p>
+        </div>
+        <div className="rounded-xl border border-red-200 bg-red-50 dark:border-red-800/40 dark:bg-red-900/10 p-3 mb-4">
+          <p className="text-sm font-bold text-red-800 dark:text-red-300 mb-1">시험 포인트</p>
+          <ul className="space-y-1">
+            <li className="text-sm text-red-700 dark:text-red-300">&bull; 음수 간선 있으면 Dijkstra 실패! &rarr; Bellman-Ford 사용</li>
+            <li className="text-sm text-red-700 dark:text-red-300">&bull; 시간 복잡도: O((V+E) log V) with min-heap</li>
+          </ul>
+        </div>
         <div className="rounded-xl border border-slate-200 dark:border-slate-700 bg-slate-50 dark:bg-slate-800/50 p-5">
           <div className="flex flex-col md:flex-row gap-4">
             {/* SVG */}
@@ -376,6 +415,12 @@ export default function GraphContent({ topic }: Props) {
       {/* 3. Bellman-Ford */}
       <section>
         <SH emoji="🔄" title="Bellman-Ford 알고리즘" id={`${topic.id}-sec-bellman`} />
+        <div className="rounded-xl border border-amber-200 bg-amber-50 dark:border-amber-700/40 dark:bg-amber-900/10 p-4 mb-4">
+          <p className="text-sm font-bold text-amber-800 dark:text-amber-300 mb-1.5">핵심 아이디어 — 왜 Bellman-Ford가 필요한가?</p>
+          <p className="text-sm text-amber-700 dark:text-amber-400 leading-relaxed">
+            Dijkstra는 음수 간선에서 틀린 답을 내지만, Bellman-Ford는 정확히 처리한다. 모든 간선을 V-1번 반복 릴렉스하면 최단 경로 확정. 왜 V-1번? 최단 경로는 사이클이 없으므로 최대 V-1개의 간선 포함. 음수 사이클 감지: V번째 반복에서도 업데이트 발생하면 음수 사이클 존재.
+          </p>
+        </div>
         <div className="grid grid-cols-1 md:grid-cols-2 gap-4 mb-4">
           <div>
             <p className="text-xs font-bold text-slate-500 dark:text-slate-400 mb-2">의사 코드</p>
@@ -443,6 +488,26 @@ export default function GraphContent({ topic }: Props) {
       {/* 4. MST */}
       <section>
         <SH emoji="🌲" title="MST — Kruskal & Prim" id={`${topic.id}-sec-mst`} />
+        <div className="rounded-xl border border-amber-200 bg-amber-50 dark:border-amber-700/40 dark:bg-amber-900/10 p-4 mb-4">
+          <p className="text-sm font-bold text-amber-800 dark:text-amber-300 mb-1.5">핵심 아이디어</p>
+          <p className="text-sm text-amber-700 dark:text-amber-400 leading-relaxed">
+            신장 트리(Spanning Tree): 그래프의 모든 V개 노드를 V-1개의 간선으로 연결한 트리 (사이클 없음). 최소 신장 트리(MST): 모든 신장 트리 중 간선 가중치 합이 최소인 것. 현실 예: 도시들을 최소 비용 도로로 연결.
+          </p>
+        </div>
+        <div className="rounded-xl border border-blue-200 bg-blue-50 dark:border-blue-800/40 dark:bg-blue-900/10 p-4 mb-4">
+          <p className="text-sm font-bold text-blue-800 dark:text-blue-200 mb-1.5">Kruskal vs Prim</p>
+          <ul className="space-y-1.5 text-sm text-blue-700 dark:text-blue-300">
+            <li>&bull; <span className="font-bold">Kruskal</span>: 간선을 가중치 순 정렬 후 사이클 없으면 추가 (Union-Find 사용) &rarr; 희소 그래프(sparse)에 유리</li>
+            <li>&bull; <span className="font-bold">Prim</span>: 현재 트리에서 가장 가중치 작은 간선으로 확장 (Dijkstra와 유사) &rarr; 밀집 그래프(dense)에 유리</li>
+          </ul>
+        </div>
+        <div className="rounded-xl border border-red-200 bg-red-50 dark:border-red-800/40 dark:bg-red-900/10 p-3 mb-4">
+          <p className="text-sm font-bold text-red-800 dark:text-red-300 mb-1">시험 포인트</p>
+          <ul className="space-y-1">
+            <li className="text-sm text-red-700 dark:text-red-300">&bull; 두 알고리즘 모두 같은 MST를 구하지만 접근 방식이 다름 (기출에 자주 나옴)</li>
+            <li className="text-sm text-red-700 dark:text-red-300">&bull; MST는 유일하지 않을 수 있음 — 동일 가중치 간선이 여러 개면 여러 MST 존재</li>
+          </ul>
+        </div>
         <div className="rounded-xl border border-slate-200 dark:border-slate-700 bg-slate-50 dark:bg-slate-800/50 p-5">
           <div className="flex flex-col md:flex-row gap-5">
             {/* MST SVG */}

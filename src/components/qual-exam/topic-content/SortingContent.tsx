@@ -130,6 +130,12 @@ export default function SortingContent({ topic }: Props) {
       {/* 1. 비교표 */}
       <section>
         <SH emoji="📊" title="알고리즘 비교표" id={`${topic.id}-sec-compare`} />
+        <div className="rounded-xl border border-amber-200 bg-amber-50 dark:border-amber-700/40 dark:bg-amber-900/10 p-4 mb-4">
+          <p className="text-sm font-bold text-amber-800 dark:text-amber-300 mb-1.5">핵심 아이디어</p>
+          <p className="text-sm text-amber-700 dark:text-amber-400 leading-relaxed">
+            정렬 알고리즘의 선택 기준은 단순히 &quot;빠름&quot;이 아니다. 데이터 크기, 메모리 제약, 안정성 요구, 데이터의 정렬 정도에 따라 최적 알고리즘이 달라진다.
+          </p>
+        </div>
         <div className="overflow-x-auto rounded-xl border border-slate-200 dark:border-slate-700 mb-4">
           <table className="w-full text-sm">
             <thead>
@@ -168,6 +174,24 @@ export default function SortingContent({ topic }: Props) {
             </tbody>
           </table>
         </div>
+        {/* When to use which sort */}
+        <div className="rounded-xl border border-slate-200 dark:border-slate-700 bg-white dark:bg-slate-900/50 p-4 mb-4">
+          <p className="text-sm font-bold text-slate-700 dark:text-slate-300 mb-3">언제 어떤 정렬?</p>
+          <ol className="space-y-2">
+            {[
+              { label: '일반 목적', val: 'QuickSort', why: '실제 가장 빠름, 캐시 친화적' },
+              { label: '안정성 필요', val: 'MergeSort', why: '2차 정렬 기준 유지 (e.g., 이름→학번 순)' },
+              { label: '메모리 제한', val: 'HeapSort', why: 'O(1) extra space, in-place' },
+              { label: '거의 정렬된 데이터', val: 'InsertionSort', why: 'O(n) best case, 실제 빠름' },
+              { label: 'Linked List 정렬', val: 'MergeSort', why: '랜덤 접근 불필요, 포인터만 수정' },
+            ].map((item, i) => (
+              <li key={i} className="flex items-start gap-3 text-sm text-slate-600 dark:text-slate-400">
+                <span className="flex-shrink-0 w-5 h-5 rounded-full bg-blue-600 text-white text-xs flex items-center justify-center font-bold mt-0.5">{i + 1}</span>
+                <span><span className="font-semibold text-slate-700 dark:text-slate-300">{item.label}</span> {'\u2192'} <span className="font-mono font-bold text-blue-600 dark:text-blue-400">{item.val}</span> <span className="text-slate-500 dark:text-slate-500">({item.why})</span></span>
+              </li>
+            ))}
+          </ol>
+        </div>
         {/* Callout */}
         <div className="rounded-xl border border-amber-200 bg-amber-50 dark:border-amber-700/40 dark:bg-amber-900/10 p-4">
           <p className="text-sm font-bold text-amber-800 dark:text-amber-300 mb-1">비교 기반 정렬 하한 (Information-Theoretic Lower Bound)</p>
@@ -183,6 +207,42 @@ export default function SortingContent({ topic }: Props) {
       {/* 2. QuickSort 파티션 시뮬레이터 */}
       <section>
         <SH emoji="⚡" title="QuickSort 파티션 시뮬레이터 (Lomuto)" id={`${topic.id}-sec-quicksort`} />
+        <div className="rounded-xl border border-amber-200 bg-amber-50 dark:border-amber-700/40 dark:bg-amber-900/10 p-4 mb-4">
+          <p className="text-sm font-bold text-amber-800 dark:text-amber-300 mb-1.5">핵심 아이디어</p>
+          <p className="text-sm text-amber-700 dark:text-amber-400 leading-relaxed">
+            &quot;피벗보다 작은 것들은 왼쪽, 큰 것들은 오른쪽&quot; - 이것만 반복하면 된다. 분할 정복(Divide &amp; Conquer): 큰 문제를 피벗 기준으로 두 작은 문제로 나눈다.
+          </p>
+        </div>
+        <div className="rounded-xl border border-blue-200 bg-blue-50 dark:border-blue-800/40 dark:bg-blue-900/10 p-4 mb-4">
+          <p className="text-sm font-bold text-blue-800 dark:text-blue-200 mb-1.5">직관적으로 이해하기</p>
+          <p className="text-sm text-blue-700 dark:text-blue-300 leading-relaxed">
+            학급 학생 키 순으로 줄 세우기 - 임의로 한 명(피벗)을 기준으로 &quot;이 사람보다 작으면 왼쪽, 크면 오른쪽&quot;으로 나누고, 각 그룹을 재귀적으로 같은 방법 적용.
+          </p>
+        </div>
+        <div className="rounded-xl border border-slate-200 dark:border-slate-700 bg-white dark:bg-slate-900/50 p-4 mb-4">
+          <p className="text-sm font-bold text-slate-700 dark:text-slate-300 mb-3">Lomuto 파티션 동작 원리</p>
+          <ol className="space-y-2">
+            {[
+              'A[high]를 pivot으로 선택',
+              'i = low-1 (작은 영역의 경계 포인터)',
+              'j를 low에서 high-1까지 이동: A[j] ≤ pivot이면 i++, swap(A[i], A[j])로 왼쪽 영역에 편입',
+              '마지막에 swap(A[i+1], A[high])로 pivot을 제자리에 위치시킴',
+            ].map((step, i) => (
+              <li key={i} className="flex items-start gap-3 text-sm text-slate-600 dark:text-slate-400">
+                <span className="flex-shrink-0 w-5 h-5 rounded-full bg-blue-600 text-white text-xs flex items-center justify-center font-bold mt-0.5">{i + 1}</span>
+                <span>{step}</span>
+              </li>
+            ))}
+          </ol>
+        </div>
+        <div className="rounded-xl border border-red-200 bg-red-50 dark:border-red-800/40 dark:bg-red-900/10 p-3 mb-4">
+          <p className="text-sm font-bold text-red-800 dark:text-red-300 mb-1">시험 포인트</p>
+          <ul className="space-y-1">
+            <li className="text-sm text-red-700 dark:text-red-300">&bull; 최악의 경우 O(n&sup2;): 이미 정렬된 배열에서 항상 최솟값/최댓값을 피벗으로 선택할 때</li>
+            <li className="text-sm text-red-700 dark:text-red-300">&bull; 평균 O(n log n): 랜덤 피벗이면 기대값</li>
+            <li className="text-sm text-red-700 dark:text-red-300">&bull; 안정하지 않다 (같은 값의 상대 순서 바뀔 수 있음)</li>
+          </ul>
+        </div>
         <div className="rounded-xl border border-slate-200 dark:border-slate-700 bg-slate-50 dark:bg-slate-800/50 p-5">
           <p className="text-xs text-slate-500 dark:text-slate-400 mb-4">
             A = [37, 22, 81, 63, 19, 53, 47], pivot = A[6] = 47
@@ -255,6 +315,41 @@ export default function SortingContent({ topic }: Props) {
       {/* 3. MergeSort */}
       <section>
         <SH emoji="🔀" title="MergeSort 분할·병합 추적" id={`${topic.id}-sec-mergesort`} />
+        <div className="rounded-xl border border-amber-200 bg-amber-50 dark:border-amber-700/40 dark:bg-amber-900/10 p-4 mb-4">
+          <p className="text-sm font-bold text-amber-800 dark:text-amber-300 mb-1.5">핵심 아이디어</p>
+          <p className="text-sm text-amber-700 dark:text-amber-400 leading-relaxed">
+            &quot;이미 정렬된 두 배열을 합치는 건 O(n)으로 쉽다&quot; - Merge 연산의 단순함이 MergeSort의 힘. 점화식 T(n) = 2T(n/2) + O(n) → Master Theorem으로 O(n log n).
+          </p>
+        </div>
+        <div className="rounded-xl border border-blue-200 bg-blue-50 dark:border-blue-800/40 dark:bg-blue-900/10 p-4 mb-4">
+          <p className="text-sm font-bold text-blue-800 dark:text-blue-200 mb-1.5">직관적으로 이해하기</p>
+          <p className="text-sm text-blue-700 dark:text-blue-300 leading-relaxed">
+            두 덱의 카드를 각각 정렬한 뒤, 두 덱의 맨 위 카드만 비교하며 작은 것을 새 더미에 놓으면 전체가 정렬됨.
+          </p>
+        </div>
+        <div className="rounded-xl border border-slate-200 dark:border-slate-700 bg-white dark:bg-slate-900/50 p-4 mb-4">
+          <p className="text-sm font-bold text-slate-700 dark:text-slate-300 mb-3">분할·정복·합병 동작 원리</p>
+          <ol className="space-y-2">
+            {[
+              '분할: 배열을 절반으로 재귀 분할 → 크기 1이 될 때까지',
+              '정복: 크기 1 배열은 이미 정렬됨',
+              '합병: 두 정렬된 부분을 하나로 합침 (Merge)',
+            ].map((step, i) => (
+              <li key={i} className="flex items-start gap-3 text-sm text-slate-600 dark:text-slate-400">
+                <span className="flex-shrink-0 w-5 h-5 rounded-full bg-blue-600 text-white text-xs flex items-center justify-center font-bold mt-0.5">{i + 1}</span>
+                <span>{step}</span>
+              </li>
+            ))}
+          </ol>
+        </div>
+        <div className="rounded-xl border border-red-200 bg-red-50 dark:border-red-800/40 dark:bg-red-900/10 p-3 mb-4">
+          <p className="text-sm font-bold text-red-800 dark:text-red-300 mb-1">시험 포인트</p>
+          <ul className="space-y-1">
+            <li className="text-sm text-red-700 dark:text-red-300">&bull; 항상 O(n log n) - 입력 상태와 무관</li>
+            <li className="text-sm text-red-700 dark:text-red-300">&bull; O(n) 추가 메모리 필요 (in-place 아님)</li>
+            <li className="text-sm text-red-700 dark:text-red-300">&bull; 안정(stable) 정렬 - 동일 값의 상대 순서 보존</li>
+          </ul>
+        </div>
         <div className="rounded-xl border border-slate-200 dark:border-slate-700 bg-slate-50 dark:bg-slate-800/50 p-5">
           <p className="text-xs text-slate-500 dark:text-slate-400 mb-4">
             입력: [38, 27, 43, 3, 9, 10]
@@ -324,6 +419,20 @@ export default function SortingContent({ topic }: Props) {
       {/* 4. 정렬 하한 & 비교 없는 정렬 */}
       <section>
         <SH emoji="📐" title="정렬 하한 & 비교 없는 정렬" id={`${topic.id}-sec-lowerbound`} />
+        <div className="rounded-xl border border-amber-200 bg-amber-50 dark:border-amber-700/40 dark:bg-amber-900/10 p-4 mb-4">
+          <p className="text-sm font-bold text-amber-800 dark:text-amber-300 mb-1.5">핵심 아이디어</p>
+          <p className="text-sm text-amber-700 dark:text-amber-400 leading-relaxed">
+            비교 기반 정렬은 O(n log n)보다 빠를 수 없다 - 수학적 증명. n개 원소의 모든 가능한 순열 = n! 가지, 각 비교 결과는 트리를 양분, n!개의 리프 &rarr; 최소 트리 높이 &asymp; n log n (Stirling 근사). 따라서 어떤 비교 기반 정렬도 최악의 경우 &Omega;(n log n) 비교가 필요하다.
+          </p>
+        </div>
+        <div className="rounded-xl border border-blue-200 bg-blue-50 dark:border-blue-800/40 dark:bg-blue-900/10 p-4 mb-4">
+          <p className="text-sm font-bold text-blue-800 dark:text-blue-200 mb-1.5">선형 정렬이 가능한 조건: 비교를 안 쓰면 됨</p>
+          <ul className="space-y-1.5 text-sm text-blue-700 dark:text-blue-300">
+            <li>&bull; <span className="font-bold">CountingSort</span>: 값이 정수이고 범위가 작을 때 O(n+k)</li>
+            <li>&bull; <span className="font-bold">RadixSort</span>: 자릿수 기반, d자리 × O(n) = O(dn)</li>
+            <li>&bull; <span className="font-bold">BucketSort</span>: 균등 분포 데이터, 평균 O(n)</li>
+          </ul>
+        </div>
         {/* Decision tree example */}
         <div className="rounded-xl border border-slate-200 dark:border-slate-700 bg-white dark:bg-slate-900 p-4 mb-4">
           <p className="text-xs font-bold text-slate-500 dark:text-slate-400 mb-3">결정 트리 예시 (n=3 원소 a,b,c 정렬)</p>

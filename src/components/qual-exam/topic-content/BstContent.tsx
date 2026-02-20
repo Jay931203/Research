@@ -349,6 +349,20 @@ export default function BstContent({ topic }: Props) {
       {/* 1. BST 속성 */}
       <section>
         <SH emoji="📖" title="BST 속성" id={`${topic.id}-sec-property`} />
+        <div className="rounded-xl border border-amber-200 bg-amber-50 dark:border-amber-700/40 dark:bg-amber-900/10 p-4 mb-4">
+          <p className="text-sm font-bold text-amber-800 dark:text-amber-300 mb-1.5">핵심 아이디어</p>
+          <p className="text-sm text-amber-700 dark:text-amber-400 leading-relaxed">
+            어떤 노드 N에 대해, N의 왼쪽 서브트리의 모든 값 &lt; N &lt; N의 오른쪽 서브트리의 모든 값. 이진 탐색(Binary Search)을 트리 구조로 구현한 것 — 탐색할 때 매 단계에서 절반을 버릴 수 있어 O(log n) 기대 성능.
+          </p>
+        </div>
+        <div className="rounded-xl border border-red-200 bg-red-50 dark:border-red-800/40 dark:bg-red-900/10 p-3 mb-4">
+          <p className="text-sm font-bold text-red-800 dark:text-red-300 mb-1">BST의 약점 — 시험 포인트</p>
+          <ul className="space-y-1">
+            <li className="text-sm text-red-700 dark:text-red-300">&bull; 삽입 순서에 따라 트리가 편향(Skewed)될 수 있음</li>
+            <li className="text-sm text-red-700 dark:text-red-300">&bull; 1,2,3,4,5 순으로 삽입 &rarr; 오른쪽으로만 뻗는 선형 구조 &rarr; O(n) 탐색</li>
+            <li className="text-sm text-red-700 dark:text-red-300">&bull; 이를 해결하기 위해 균형 트리(AVL, Red-Black Tree) 등장</li>
+          </ul>
+        </div>
         <div className="rounded-xl border border-violet-200 bg-violet-50 dark:border-violet-800/40 dark:bg-violet-950/20 p-4 mb-5">
           <p className="text-xs font-bold text-violet-700 dark:text-violet-300 mb-3 uppercase tracking-wide">BST 핵심 속성</p>
           <div className="grid grid-cols-1 sm:grid-cols-3 gap-3 text-center">
@@ -381,6 +395,21 @@ export default function BstContent({ topic }: Props) {
       {/* 2. 순회 시각화 */}
       <section>
         <SH emoji="🔄" title="4가지 순회 인터랙티브 시각화" id={`${topic.id}-sec-traversal`} />
+        <div className="rounded-xl border border-amber-200 bg-amber-50 dark:border-amber-700/40 dark:bg-amber-900/10 p-4 mb-4">
+          <p className="text-sm font-bold text-amber-800 dark:text-amber-300 mb-1.5">순회 4종의 활용</p>
+          <ul className="space-y-1.5 text-sm text-amber-700 dark:text-amber-400">
+            <li>&bull; <span className="font-bold">중위순회(In-order)</span>: BST에서 중위순회 = 오름차순 정렬된 출력! (가장 중요)</li>
+            <li>&bull; <span className="font-bold">전위순회(Pre-order)</span>: 트리 복사/직렬화에 사용 (루트 먼저)</li>
+            <li>&bull; <span className="font-bold">후위순회(Post-order)</span>: 폴더 삭제처럼 자식 먼저 처리 (루트 마지막)</li>
+            <li>&bull; <span className="font-bold">레벨순회(Level-order)</span>: BFS, 레벨별 처리</li>
+          </ul>
+        </div>
+        <div className="rounded-xl border border-red-200 bg-red-50 dark:border-red-800/40 dark:bg-red-900/10 p-3 mb-4">
+          <p className="text-sm font-bold text-red-800 dark:text-red-300 mb-1">시험 포인트</p>
+          <ul className="space-y-1">
+            <li className="text-sm text-red-700 dark:text-red-300">&bull; &quot;BST 중위순회 = 정렬된 배열&quot; - 이 성질이 자주 출제됨</li>
+          </ul>
+        </div>
         <div className="rounded-xl border border-slate-200 dark:border-slate-700 bg-slate-50 dark:bg-slate-800/50 p-5">
           <div className="flex flex-wrap gap-2 mb-4">
             {Object.entries(TRAVERSALS).map(([key, val]) => (

@@ -193,6 +193,32 @@ export default function DpContent({ topic }: Props) {
             </div>
           </div>
         </div>
+        {/* Fibonacci analogy */}
+        <div className="rounded-xl border border-blue-200 bg-blue-50 dark:border-blue-800/40 dark:bg-blue-900/10 p-4 mb-4">
+          <p className="text-sm font-bold text-blue-800 dark:text-blue-200 mb-1.5">직관적으로 이해하기 — 피보나치로 보는 DP</p>
+          <ul className="space-y-1.5 text-sm text-blue-700 dark:text-blue-300">
+            <li>&bull; <span className="font-bold">순수 재귀</span>: fib(5)를 계산하면 fib(3)을 2번, fib(2)를 3번 계산 &rarr; 지수적 O(2^n)</li>
+            <li>&bull; <span className="font-bold">메모이제이션</span>: 한 번 계산한 값을 저장 &rarr; fib(1)~fib(5)를 각 1번만 &rarr; O(n)</li>
+            <li>&bull; <span className="font-bold">핵심</span>: &quot;중복 계산을 캐싱&quot;이 DP의 본질</li>
+          </ul>
+        </div>
+        {/* DP 4 steps */}
+        <div className="rounded-xl border border-slate-200 dark:border-slate-700 bg-white dark:bg-slate-900/50 p-4 mb-4">
+          <p className="text-sm font-bold text-slate-700 dark:text-slate-300 mb-3">DP 문제 풀이 4단계</p>
+          <ol className="space-y-2">
+            {[
+              { title: '부분문제 정의', desc: 'dp[i][j]가 무엇을 의미하는지 명확히' },
+              { title: '점화식 도출', desc: '큰 문제를 작은 문제로 표현' },
+              { title: '기저 조건', desc: 'dp[0], dp[i][0] 등 초기값 설정' },
+              { title: '계산 순서', desc: 'Bottom-up은 작은 것부터, Top-down은 재귀' },
+            ].map((step, i) => (
+              <li key={i} className="flex items-start gap-3 text-sm text-slate-600 dark:text-slate-400">
+                <span className="flex-shrink-0 w-5 h-5 rounded-full bg-blue-600 text-white text-xs flex items-center justify-center font-bold mt-0.5">{i + 1}</span>
+                <span><span className="font-semibold text-slate-700 dark:text-slate-300">{step.title}</span>: {step.desc}</span>
+              </li>
+            ))}
+          </ol>
+        </div>
         {/* Memo vs Tabulation */}
         <div className="grid grid-cols-1 md:grid-cols-2 gap-3 mb-4">
           {[
@@ -225,6 +251,26 @@ export default function DpContent({ topic }: Props) {
       {/* 2. LCS 인터랙티브 DP 테이블 */}
       <section>
         <SH emoji="🔤" title="LCS 인터랙티브 DP 테이블" id={`${topic.id}-sec-lcs`} />
+        <div className="rounded-xl border border-amber-200 bg-amber-50 dark:border-amber-700/40 dark:bg-amber-900/10 p-4 mb-4">
+          <p className="text-sm font-bold text-amber-800 dark:text-amber-300 mb-1.5">핵심 아이디어</p>
+          <p className="text-sm text-amber-700 dark:text-amber-400 leading-relaxed">
+            LCS란? &quot;두 문자열에서 순서를 유지하며 공통으로 등장하는 가장 긴 부분수열&quot;. 예: &quot;ABCDE&quot;와 &quot;ACDBE&quot; &rarr; LCS = &quot;ACDE&quot; (길이 4). 연속할 필요 없음 — 부분문자열(substring)과 다름!
+          </p>
+        </div>
+        <div className="rounded-xl border border-blue-200 bg-blue-50 dark:border-blue-800/40 dark:bg-blue-900/10 p-4 mb-4">
+          <p className="text-sm font-bold text-blue-800 dark:text-blue-200 mb-1.5">점화식 직관</p>
+          <ul className="space-y-1.5 text-sm text-blue-700 dark:text-blue-300">
+            <li>&bull; <span className="font-bold">X[i] == Y[j]</span>: 두 문자가 같으면, 둘 다 LCS에 포함! &rarr; dp[i-1][j-1]+1</li>
+            <li>&bull; <span className="font-bold">X[i] &ne; Y[j]</span>: 둘 중 하나를 제외한 최대값 &rarr; max(dp[i-1][j], dp[i][j-1])</li>
+          </ul>
+        </div>
+        <div className="rounded-xl border border-red-200 bg-red-50 dark:border-red-800/40 dark:bg-red-900/10 p-3 mb-4">
+          <p className="text-sm font-bold text-red-800 dark:text-red-300 mb-1">시험 포인트</p>
+          <ul className="space-y-1">
+            <li className="text-sm text-red-700 dark:text-red-300">&bull; LCS는 부분수열(not 연속)</li>
+            <li className="text-sm text-red-700 dark:text-red-300">&bull; 역추적(backtracking)으로 실제 수열 복원 가능</li>
+          </ul>
+        </div>
         <div className="rounded-xl border border-slate-200 dark:border-slate-700 bg-slate-50 dark:bg-slate-800/50 p-5">
           <p className="text-xs text-slate-500 dark:text-slate-400 mb-1">
             X = &quot;{LCS_X.join('')}&quot;, Y = &quot;{LCS_Y.join('')}&quot;
@@ -310,6 +356,26 @@ export default function DpContent({ topic }: Props) {
       {/* 3. 0-1 Knapsack */}
       <section>
         <SH emoji="🎒" title="0-1 Knapsack DP 테이블" id={`${topic.id}-sec-knapsack`} />
+        <div className="rounded-xl border border-amber-200 bg-amber-50 dark:border-amber-700/40 dark:bg-amber-900/10 p-4 mb-4">
+          <p className="text-sm font-bold text-amber-800 dark:text-amber-300 mb-1.5">핵심 아이디어</p>
+          <p className="text-sm text-amber-700 dark:text-amber-400 leading-relaxed">
+            각 물건을 &quot;넣거나(1) 말거나(0)&quot; - 쪼갤 수 없다. dp[i][w] = 물건 1~i까지 고려, 무게 한도 w일 때 최대 가치.
+          </p>
+        </div>
+        <div className="rounded-xl border border-blue-200 bg-blue-50 dark:border-blue-800/40 dark:bg-blue-900/10 p-4 mb-4">
+          <p className="text-sm font-bold text-blue-800 dark:text-blue-200 mb-1.5">점화식 직관</p>
+          <ul className="space-y-1.5 text-sm text-blue-700 dark:text-blue-300">
+            <li>&bull; 물건 i를 넣을 수 없음(w&#x1D456; &gt; w): dp[i-1][w] (이전 결과 그대로)</li>
+            <li>&bull; 물건 i를 넣을 수 있음: max(넣지 않는 경우: dp[i-1][w], 넣는 경우: dp[i-1][w-w&#x1D456;]+v&#x1D456;)</li>
+          </ul>
+        </div>
+        <div className="rounded-xl border border-red-200 bg-red-50 dark:border-red-800/40 dark:bg-red-900/10 p-3 mb-4">
+          <p className="text-sm font-bold text-red-800 dark:text-red-300 mb-1">시험 포인트 — 0-1 vs Fractional Knapsack</p>
+          <ul className="space-y-1">
+            <li className="text-sm text-red-700 dark:text-red-300">&bull; <span className="font-bold">0-1 Knapsack</span>: DP 필요, 물건 쪼갤 수 없음</li>
+            <li className="text-sm text-red-700 dark:text-red-300">&bull; <span className="font-bold">Fractional Knapsack</span>: Greedy로 풀 수 있음 (단위 가치 순 정렬 후 채우기)</li>
+          </ul>
+        </div>
         <div className="rounded-xl border border-slate-200 dark:border-slate-700 bg-slate-50 dark:bg-slate-800/50 p-5">
           <div className="mb-3 flex flex-wrap gap-2 text-xs">
             <span className="rounded-full px-2 py-0.5 bg-slate-200 dark:bg-slate-700 text-slate-700 dark:text-slate-300">최대 용량 W={KN_W}</span>
@@ -413,6 +479,19 @@ export default function DpContent({ topic }: Props) {
       {/* 4. 편집 거리 */}
       <section>
         <SH emoji="✏️" title="편집 거리 (Edit Distance)" id={`${topic.id}-sec-edit`} />
+        <div className="rounded-xl border border-amber-200 bg-amber-50 dark:border-amber-700/40 dark:bg-amber-900/10 p-4 mb-4">
+          <p className="text-sm font-bold text-amber-800 dark:text-amber-300 mb-1.5">핵심 아이디어</p>
+          <p className="text-sm text-amber-700 dark:text-amber-400 leading-relaxed">
+            편집 거리(Levenshtein Distance): 한 문자열을 다른 문자열로 바꾸는 최소 연산 수 (삽입/삭제/교체 각 비용 1). 활용: 맞춤법 검사, DNA 서열 비교, 버전 관리 diff.
+          </p>
+        </div>
+        <div className="rounded-xl border border-blue-200 bg-blue-50 dark:border-blue-800/40 dark:bg-blue-900/10 p-4 mb-4">
+          <p className="text-sm font-bold text-blue-800 dark:text-blue-200 mb-1.5">점화식 직관</p>
+          <ul className="space-y-1.5 text-sm text-blue-700 dark:text-blue-300">
+            <li>&bull; <span className="font-bold">s[i] == t[j]</span>: 이 문자는 비용 없음 &rarr; dp[i-1][j-1]</li>
+            <li>&bull; <span className="font-bold">s[i] &ne; t[j]</span>: 세 연산 중 최소 &rarr; min(삭제: dp[i-1][j]+1, 삽입: dp[i][j-1]+1, 교체: dp[i-1][j-1]+1)</li>
+          </ul>
+        </div>
         <div className="rounded-xl border border-slate-200 dark:border-slate-700 bg-slate-50 dark:bg-slate-800/50 p-5">
           <div className="flex gap-4 mb-3 text-sm flex-wrap">
             <span className="font-mono font-bold text-blue-700 dark:text-blue-300">s = &quot;{ED_S}&quot;</span>
