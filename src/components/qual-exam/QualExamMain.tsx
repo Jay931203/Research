@@ -35,6 +35,27 @@ const CUSTOM_SECTIONS: Record<string, Array<{ id: string; label: string }>> = {
     { id: 'linked-list-sec-stack-queue', label: '스택 vs 큐'         },
     { id: 'linked-list-sec-code',        label: '코드 예시'          },
   ],
+  'heap': [
+    { id: 'heap-sec-concept',    label: '힙 개념'           },
+    { id: 'heap-sec-sim',        label: 'Min-Heap 시뮬레이터'},
+    { id: 'heap-sec-build',      label: 'Build-Heap 트레이스'},
+    { id: 'heap-sec-heapsort',   label: 'HeapSort 추적'     },
+    { id: 'heap-sec-complexity', label: '복잡도 & 함정'     },
+  ],
+  'bst': [
+    { id: 'bst-sec-property',   label: 'BST 속성'          },
+    { id: 'bst-sec-traversal',  label: '순회 4종 시각화'   },
+    { id: 'bst-sec-insert',     label: '삽입 시뮬레이터'   },
+    { id: 'bst-sec-delete',     label: '삭제 3케이스'       },
+    { id: 'bst-sec-rbtree',     label: 'Red-Black Tree'    },
+  ],
+  'hash': [
+    { id: 'hash-sec-concept',  label: '해시 개념 & 부하율' },
+    { id: 'hash-sec-chain',    label: '체이닝 시뮬레이터'  },
+    { id: 'hash-sec-probe',    label: '선형 프로빙 시뮬레이터'},
+    { id: 'hash-sec-compare',  label: '방법 비교표'         },
+    { id: 'hash-sec-perfect',  label: '완전 해시 & 함정'   },
+  ],
   'oop-basics': [
     { id: 'oop-basics-sec-access',   label: '접근 지정자 시뮬레이터' },
     { id: 'oop-basics-sec-initlist', label: '초기화 리스트'          },

@@ -6,6 +6,9 @@ import MathBlock from './MathBlock';
 import type { StudyTopic } from './TopicStudyCard';
 import AsymptoticContent from './topic-content/AsymptoticContent';
 import LinkedListContent from './topic-content/LinkedListContent';
+import HeapContent from './topic-content/HeapContent';
+import BstContent from './topic-content/BstContent';
+import HashContent from './topic-content/HashContent';
 import OopBasicsContent from './topic-content/OopBasicsContent';
 import ConstructorsContent from './topic-content/ConstructorsContent';
 
@@ -146,6 +149,9 @@ export default function TopicDetail({ topic }: Props) {
   // Route to custom per-topic pages
   if (topic.id === 'asymptotic')   return <AsymptoticContent topic={topic} />;
   if (topic.id === 'linked-list')  return <LinkedListContent topic={topic} />;
+  if (topic.id === 'heap')         return <HeapContent topic={topic} />;
+  if (topic.id === 'bst')          return <BstContent topic={topic} />;
+  if (topic.id === 'hash')         return <HashContent topic={topic} />;
   if (topic.id === 'oop-basics')   return <OopBasicsContent topic={topic} />;
   if (topic.id === 'constructors') return <ConstructorsContent topic={topic} />;
 
