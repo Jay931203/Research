@@ -362,7 +362,7 @@ function CallTracerSection() {
       {/* Scenario selector */}
       <div>
         <p className="text-xs font-bold text-slate-500 dark:text-slate-400 uppercase tracking-wider mb-2">
-          2024년 2학기 기출 코드 — 시나리오 선택
+          시나리오 선택
         </p>
         <div className="flex flex-wrap gap-2">
           {TRACE_SCENARIOS.map((sc, i) => (
@@ -381,7 +381,7 @@ function CallTracerSection() {
       {/* Class code reference */}
       <div className="rounded-xl border border-slate-200 dark:border-slate-700 overflow-hidden">
         <div className="bg-slate-50 dark:bg-slate-800 px-4 py-2.5 border-b border-slate-200 dark:border-slate-700">
-          <p className="text-xs font-bold text-slate-600 dark:text-slate-300">클래스 선언 참고 (2024년 2학기 기출)</p>
+          <p className="text-xs font-bold text-slate-600 dark:text-slate-300">클래스 선언 참고</p>
         </div>
         <pre className="bg-slate-950 text-xs p-4 text-slate-200 overflow-x-auto leading-relaxed">{`class Student {
     virtual void m1() { cout << "ss::m1"; }   // virtual
@@ -594,7 +594,7 @@ export default function VirtualFunctionsContent({ topic }: Props) {
       </section>
 
       <section id="virtual-sec-tracer">
-        <SH icon="🔬" title="함수 호출 추적기 — 기출 코드 완전 분석" />
+        <SH icon="🔬" title="함수 호출 추적기" />
         <CallTracerSection />
       </section>
 

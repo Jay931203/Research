@@ -362,7 +362,7 @@ function ExamFillSection() {
       {/* Code with blanks */}
       <div className="rounded-xl overflow-hidden border border-slate-200 dark:border-slate-700">
         <div className="bg-slate-50 dark:bg-slate-800 px-4 py-2.5 border-b border-slate-200 dark:border-slate-700 flex items-center justify-between">
-          <p className="text-xs font-bold text-slate-600 dark:text-slate-300">2025년 2학기 기출 — 빈칸 채우기</p>
+          <p className="text-xs font-bold text-slate-600 dark:text-slate-300">빈칸 채우기 — Scene 패턴</p>
           <div className="flex gap-2">
             <button onClick={revealAll} className="rounded px-2.5 py-1 text-[10px] font-bold bg-blue-600 text-white hover:bg-blue-500 transition">
               전체 보기
@@ -516,7 +516,7 @@ export default function PolymorphismContent({ topic }: Props) {
       </section>
 
       <section id="abstract-sec-exam">
-        <SH icon="📝" title="2025년 기출 빈칸 채우기 — Scene 패턴" />
+        <SH icon="📝" title="빈칸 채우기 — Scene 패턴" />
         <ExamFillSection />
       </section>
     </div>

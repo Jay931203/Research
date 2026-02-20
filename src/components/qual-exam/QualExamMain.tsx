@@ -83,7 +83,22 @@ const CUSTOM_SECTIONS: Record<string, Array<{ id: string; label: string }>> = {
   'polymorphism-abstract': [
     { id: 'abstract-sec-concepts', label: '추상 클래스 체크'      },
     { id: 'abstract-sec-clone',    label: 'clone() 패턴'          },
-    { id: 'abstract-sec-exam',     label: '기출 빈칸 채우기'       },
+    { id: 'abstract-sec-exam',     label: '빈칸 채우기'            },
+  ],
+  'linked-list-impl': [
+    { id: 'linked-list-impl-sec-builder', label: 'append 시뮬레이터' },
+    { id: 'linked-list-impl-sec-dtor',    label: '소멸자 step player' },
+    { id: 'linked-list-impl-sec-reverse', label: '재귀 vs 반복 뒤집기' },
+  ],
+  'stack-queue-impl': [
+    { id: 'stack-queue-sec-stack', label: 'Stack 시뮬레이터'  },
+    { id: 'stack-queue-sec-queue', label: 'Queue 시뮬레이터'  },
+    { id: 'stack-queue-sec-trace', label: '실행 결과 추적'    },
+  ],
+  'templates': [
+    { id: 'templates-sec-trace',         label: 'Pair<int> 추적'    },
+    { id: 'templates-sec-constraints',   label: 'T 타입 제약 체커'   },
+    { id: 'templates-sec-instantiation', label: '컴파일 타임 인스턴스화' },
   ],
 };
 
@@ -282,7 +297,7 @@ export default function QualExamMain() {
   const [view,              setView]              = useState<View>({ kind: 'topics' });
   const [leftCollapsed,     setLeftCollapsed]     = useState(false);
   const [mobileSidebarOpen, setMobileSidebarOpen] = useState(false);
-  const [examPanelOpen,     setExamPanelOpen]     = useState(false);
+  const [examPanelOpen,     setExamPanelOpen]     = useState(true);
   const [modalExam,         setModalExam]         = useState<ExamProblem | null>(null);
 
   // topics scroll spy
@@ -457,7 +472,7 @@ export default function QualExamMain() {
   const switchSubject = (s: Subject) => {
     setSubject(s);
     setView({ kind: 'topics' });
-    setExamPanelOpen(false);
+    setExamPanelOpen(true);
     setMobileSidebarOpen(false);
   };
 

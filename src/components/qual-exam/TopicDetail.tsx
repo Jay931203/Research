@@ -9,11 +9,18 @@ import LinkedListContent from './topic-content/LinkedListContent';
 import HeapContent from './topic-content/HeapContent';
 import BstContent from './topic-content/BstContent';
 import HashContent from './topic-content/HashContent';
+import SortingContent from './topic-content/SortingContent';
+import DpContent from './topic-content/DpContent';
+import GraphContent from './topic-content/GraphContent';
+import HuffmanContent from './topic-content/HuffmanContent';
 import OopBasicsContent from './topic-content/OopBasicsContent';
 import ConstructorsContent from './topic-content/ConstructorsContent';
 import MemoryManagementContent from './topic-content/MemoryManagementContent';
 import VirtualFunctionsContent from './topic-content/VirtualFunctionsContent';
 import PolymorphismContent from './topic-content/PolymorphismContent';
+import LinkedListImplContent from './topic-content/LinkedListImplContent';
+import StackQueueContent from './topic-content/StackQueueContent';
+import TemplatesContent from './topic-content/TemplatesContent';
 
 const AlgoVisualizer = dynamic(() => import('./AlgoVisualizer'), { ssr: false });
 
@@ -160,6 +167,9 @@ export default function TopicDetail({ topic }: Props) {
   if (topic.id === 'memory-management')   return <MemoryManagementContent topic={topic} />;
   if (topic.id === 'virtual-functions')   return <VirtualFunctionsContent topic={topic} />;
   if (topic.id === 'polymorphism-abstract') return <PolymorphismContent topic={topic} />;
+  if (topic.id === 'linked-list-impl')      return <LinkedListImplContent topic={topic} />;
+  if (topic.id === 'stack-queue-impl')      return <StackQueueContent topic={topic} />;
+  if (topic.id === 'templates')             return <TemplatesContent topic={topic} />;
 
   return (
     <div className="max-w-5xl mx-auto space-y-8 px-6 py-6">
