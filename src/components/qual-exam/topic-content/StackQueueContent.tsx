@@ -447,6 +447,7 @@ export default function StackQueueContent({ topic }: Props) {
           <code className="text-xs bg-slate-100 dark:bg-slate-800 px-1 rounded">-1</code>이며,
           push 시 <code className="text-xs bg-slate-100 dark:bg-slate-800 px-1 rounded">arr[++top] = x</code>처럼
           top을 먼저 증가시킨 뒤 저장합니다. 이 순서를 바꾸면 인덱스가 어긋납니다.
+          스택은 <strong>함수 호출 스택</strong>(재귀 호출 추적), <strong>괄호 균형 검사</strong>, <strong>undo/redo 기능</strong>처럼 &ldquo;가장 최근 것을 먼저 처리&rdquo;해야 하는 상황에 활용됩니다.
         </p>
         <StackSection />
       </section>
@@ -456,6 +457,7 @@ export default function StackQueueContent({ topic }: Props) {
         <p className="text-sm text-slate-600 dark:text-slate-400 mb-4 leading-relaxed">
           Queue는 FIFO(First In, First Out) 자료구조로,{' '}
           <strong>front</strong>(출구)와 <strong>rear</strong>(입구) 두 포인터로 관리합니다.
+          큐는 <strong>프로세스 스케줄링</strong>(먼저 도착한 작업을 먼저 처리), <strong>BFS(너비 우선 탐색) 구현</strong>, <strong>이벤트 처리 대기열</strong>처럼 &ldquo;먼저 들어온 것을 먼저 처리&rdquo;해야 하는 상황에 활용됩니다.
           선형 큐는 dequeue 후 앞쪽 공간이 영구 낭비되는 문제가 있습니다.
           원형 큐는 <code className="text-xs bg-slate-100 dark:bg-slate-800 px-1 rounded">(rear+1)%MAX</code>로 인덱스를 배열 끝에서 0으로 순환시켜 이 낭비를 해결합니다.
           빈 조건은 <code className="text-xs bg-slate-100 dark:bg-slate-800 px-1 rounded">front == rear</code>, 가득 찬 조건은 <code className="text-xs bg-slate-100 dark:bg-slate-800 px-1 rounded">(rear+1)%MAX == front</code>입니다.

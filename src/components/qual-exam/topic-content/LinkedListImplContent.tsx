@@ -409,6 +409,7 @@ export default function LinkedListImplContent({ topic }: Props) {
           <code className="text-xs bg-slate-100 dark:bg-slate-800 px-1 rounded">append(val)</code>는 이름과 달리 실제로는 리스트 <strong>맨 앞</strong>에 삽입합니다.{' '}
           <code className="text-xs bg-slate-100 dark:bg-slate-800 px-1 rounded">head = new Node(val, head)</code>에서 새 노드가 기존 head를 next로 품고 새 head가 됩니다.
           따라서 호출 순서와 리스트 순서가 역전됩니다.
+          실제 구현에서 진짜 &apos;append&apos;(뒤에 추가)를 하려면 <strong>tail 포인터를 별도로 관리</strong>하거나 리스트 끝까지 순회해야 합니다 — 끝까지 순회하면 O(n)이므로, 빈번한 뒤 삽입이 필요할 때는 tail을 항상 마지막 노드로 유지하는 것이 효율적입니다.
         </p>
         <ListBuilderSection />
       </section>

@@ -441,7 +441,11 @@ export default function TemplatesContent({ topic }: Props) {
           클래스 템플릿에서 T가 필요한 연산(<code className="text-xs bg-slate-100 dark:bg-slate-800 px-1 rounded">+=</code>,{' '}
           <code className="text-xs bg-slate-100 dark:bg-slate-800 px-1 rounded">&lt;&lt;</code> 등)을 지원해야 컴파일됩니다.
           오류는 <code className="text-xs bg-slate-100 dark:bg-slate-800 px-1 rounded">Pair&lt;T&gt;</code>를{' '}
-          <strong>실제로 사용(인스턴스화)하는 시점</strong>에 발생합니다. 아래에서 T를 바꿔보세요.
+          <strong>실제로 사용(인스턴스화)하는 시점</strong>에 발생합니다.
+          이것이 템플릿의 <strong>지연 컴파일</strong> 특성입니다 —{' '}
+          <code className="text-xs bg-slate-100 dark:bg-slate-800 px-1 rounded">Pair&lt;T&gt;</code> 내부의 모든 코드는 T가 실제로 지정될 때까지 컴파일되지 않습니다.
+          그래서 <code className="text-xs bg-slate-100 dark:bg-slate-800 px-1 rounded">Pair&lt;LinkedList&gt;</code>를 한 번도 사용하지 않으면 컴파일 에러가 발생하지 않습니다.
+          아래에서 T를 바꿔보세요.
         </p>
         <TypeConstraintSection />
       </section>

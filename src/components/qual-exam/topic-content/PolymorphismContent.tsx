@@ -513,6 +513,8 @@ export default function PolymorphismContent({ topic }: Props) {
           <code className="text-xs bg-slate-100 dark:bg-slate-800 px-1 rounded">{'virtual void area() const = 0;'}</code>처럼 본문 없이 선언만 존재합니다.
           추상 클래스는 직접 인스턴스화할 수 없으며(<code className="text-xs bg-slate-100 dark:bg-slate-800 px-1 rounded">Shape s;</code>는 컴파일 에러),{' '}
           파생 클래스가 <strong>모든 순수 가상 함수를 override해야</strong> 비로소 인스턴스화가 가능합니다.
+          인스턴스화를 막는 이유는 단순합니다: 순수 가상 함수는 <strong>구현 본문이 없으므로 호출할 코드가 존재하지 않습니다</strong>.
+          만약 추상 클래스의 객체가 만들어진다면, 컴파일러는 그 vtable 슬롯에 어떤 함수를 연결해야 할지 알 수 없습니다.
           이 제약을 통해 특정 인터페이스 구현을 강제할 수 있습니다.
         </p>
         <AbstractClassSection />

@@ -607,6 +607,7 @@ export default function VirtualFunctionsContent({ topic }: Props) {
           <strong>가상 함수 테이블(vtable)</strong>이 하나 생성됩니다.
           vtable은 virtual 함수 포인터들의 배열로, 파생 클래스가 함수를 오버라이드하면 해당 슬롯이 파생 클래스의 구현으로 교체됩니다.
           각 객체는 생성자 시작 시 자신의 클래스 vtable을 가리키는 <strong>vptr</strong>을 갖게 됩니다.
+          메모리 비용 측면에서는, <strong>vptr은 객체마다 하나씩</strong>(포인터 크기, 보통 8바이트) 추가되고, <strong>vtable 자체는 클래스당 하나만</strong> 존재하며 모든 인스턴스가 공유합니다.
           동적 디스패치 과정은{' '}
           <code className="text-xs bg-slate-100 dark:bg-slate-800 px-1 rounded">obj-&gt;vptr → vtable[슬롯] → 실제 함수</code> 순으로 진행됩니다.
         </p>
@@ -638,6 +639,8 @@ export default function VirtualFunctionsContent({ topic }: Props) {
           해결책은 기반 클래스에{' '}
           <code className="text-xs bg-slate-100 dark:bg-slate-800 px-1 rounded">{'virtual ~Base() {}'}</code>를 선언하는 것입니다.
           <strong>다형성을 사용하는 기반 클래스라면 항상 virtual 소멸자를 선언하세요</strong> — 비용은 거의 없지만 버그 예방 효과는 큽니다.
+          부연하면, 가상 함수를 재정의할 때{' '}
+          <code className="text-xs bg-slate-100 dark:bg-slate-800 px-1 rounded">override</code> 키워드(C++11)를 붙이면 컴파일러가 시그니처 불일치를 검사해줍니다 — 함수 이름을 오타 내거나 매개변수 타입을 잘못 쓰면 컴파일 에러로 즉시 알 수 있어 소리 없이 새 함수가 생성되는 사고를 막을 수 있습니다.
         </p>
         <VirtualDtorSection />
       </section>

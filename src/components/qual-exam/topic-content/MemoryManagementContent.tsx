@@ -588,6 +588,7 @@ export default function MemoryManagementContent({ topic }: Props) {
           포인터 산술 <code className="text-xs bg-slate-100 dark:bg-slate-800 px-1 rounded">ptr + n</code>은{' '}
           <code className="text-xs bg-slate-100 dark:bg-slate-800 px-1 rounded">sizeof(T) × n</code> 바이트만큼 이동해 n번째 요소의 주소를 가리킵니다.
           배열 범위 밖 접근(<code className="text-xs bg-slate-100 dark:bg-slate-800 px-1 rounded">arr[n]</code> 등)은 컴파일 오류 없이 통과하지만 런타임에 충돌하거나 잘못된 값을 반환하는 <strong>미정의 동작(UB)</strong>이니 반드시 주의해야 합니다.
+          아울러 현대 C++에서는 아무것도 가리키지 않는 포인터를 초기화할 때 <code className="text-xs bg-slate-100 dark:bg-slate-800 px-1 rounded">NULL</code>이나 <code className="text-xs bg-slate-100 dark:bg-slate-800 px-1 rounded">0</code> 대신 <strong><code className="text-xs bg-slate-100 dark:bg-slate-800 px-1 rounded">nullptr</code></strong>을 사용하세요 — 타입 안전성이 높고, 정수 <code className="text-xs bg-slate-100 dark:bg-slate-800 px-1 rounded">0</code>과 혼동되지 않아 오버로드 해결 시 의도치 않은 함수가 선택되는 문제를 예방합니다.
         </p>
         <PointerOpsSection />
       </section>

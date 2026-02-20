@@ -9,6 +9,7 @@ const cards = [
     icon: <GitBranch className="h-6 w-6 text-blue-600" />,
     accent: 'hover:ring-blue-200/50 dark:hover:ring-blue-500/20',
     tag: '논문 탐색',
+    highlight: false,
   },
   {
     href: '/my-research',
@@ -17,6 +18,7 @@ const cards = [
     icon: <BookOpen className="h-6 w-6 text-violet-600" />,
     accent: 'hover:ring-violet-200/50 dark:hover:ring-violet-500/20',
     tag: '연구 정리',
+    highlight: false,
   },
   {
     href: '/qual-exam',
@@ -25,6 +27,7 @@ const cards = [
     icon: <GraduationCap className="h-6 w-6 text-orange-600" />,
     accent: 'hover:ring-orange-200/50 dark:hover:ring-orange-500/20',
     tag: '시험 준비',
+    highlight: false,
   },
   {
     href: '/coursework',
@@ -33,6 +36,7 @@ const cards = [
     icon: <Layers className="h-6 w-6 text-teal-600" />,
     accent: 'hover:ring-teal-200/50 dark:hover:ring-teal-500/20',
     tag: '과목 정리',
+    highlight: false,
   },
 ];
 

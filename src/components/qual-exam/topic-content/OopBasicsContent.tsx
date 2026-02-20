@@ -639,6 +639,7 @@ export default function OopBasicsContent({ topic }: Props) {
           <code className="text-xs bg-slate-100 dark:bg-slate-800 px-1 rounded">private</code>은 해당 클래스 안에서만 접근할 수 있습니다.
           <code className="text-xs bg-slate-100 dark:bg-slate-800 px-1 rounded ml-1">struct</code>의 기본값은 public,{' '}
           <code className="text-xs bg-slate-100 dark:bg-slate-800 px-1 rounded">class</code>의 기본값은 private입니다.
+          이는 역사적 설계 의도를 반영합니다: <strong>struct는 C의 구조체에서 유래</strong>해 데이터를 공개적으로 묶는 용도였고, <strong>class는 캡슐화(encapsulation)를 명시적으로 강제</strong>하기 위해 기본값을 private으로 설계했습니다.
           아래에서 접근 컨텍스트를 선택해 각 멤버의 접근 가능 여부를 확인하세요.
         </p>
         <AccessSimulator />
@@ -666,6 +667,7 @@ export default function OopBasicsContent({ topic }: Props) {
           매개변수 생성자를 하나라도 정의하면 더 이상 자동 생성되지 않으므로, 인수 없이 객체를 만들려면 직접 정의해야 합니다.
           복사 생성자는 복사 초기화, 직접 초기화, 값 전달, 값 반환 시 호출되지만{' '}
           <code className="text-xs bg-slate-100 dark:bg-slate-800 px-1 rounded">MyClass* p = &a;</code>같은 포인터 대입에서는 호출되지 않습니다.
+          포인터 대입은 <strong>새 객체를 만들지 않고 주소값만 복사</strong>하기 때문입니다 — p는 a를 가리킬 뿐, a의 복사본이 생성되지는 않습니다.
         </p>
         <CtorSection />
       </section>
@@ -679,6 +681,7 @@ export default function OopBasicsContent({ topic }: Props) {
           <code className="text-xs bg-slate-100 dark:bg-slate-800 px-1 rounded">return *this;</code>를 이용하면 메서드 체이닝이 가능합니다.{' '}
           <code className="text-xs bg-slate-100 dark:bg-slate-800 px-1 rounded">static</code> 멤버 변수는 클래스당 하나만 존재하며,
           반드시 클래스 <strong>외부</strong>에서 별도 정의해야 합니다.
+          클래스 내부는 <em>선언</em>만 허용되고 실제 메모리 할당은 이루어지지 않기 때문입니다 — 외부 정의(<code className="text-xs bg-slate-100 dark:bg-slate-800 px-1 rounded">int Widget::count_ = 0;</code>)가 있어야 링커가 실제 저장 공간을 확보합니다.
         </p>
         <StaticsSection />
       </section>
