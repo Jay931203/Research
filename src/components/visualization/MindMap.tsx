@@ -98,7 +98,7 @@ function MindMapInner({
     const raf = window.requestAnimationFrame(() => {
       const node = getNode(id);
       if (node) {
-        fitView({ nodes: [node], duration: 0, padding: 0.4, maxZoom: 1.5 });
+        fitView({ nodes: [node], duration: 0, padding: 0.4, maxZoom: 1 });
         pendingFocusRef.current = null;
       } else {
         pendingFocusRef.current = id;
@@ -289,7 +289,7 @@ function MindMapInner({
     const node = getNode(id);
     if (!node) return;
     pendingFocusRef.current = null;
-    fitView({ nodes: [node], duration: 0, padding: 0.4, maxZoom: 1.5 });
+    fitView({ nodes: [node], duration: 0, padding: 0.4, maxZoom: 1 });
   // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [nodes]);
 
