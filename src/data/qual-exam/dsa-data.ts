@@ -84,22 +84,73 @@ A=lg(n!), B=lg(n^n): O=T, o=F, Ω=T, ω=F, Θ=T (둘 다 Θ(n·lg n))`,
       'BubbleSort: 인접 교환, O(n²), in-place',
       'QuickSort partition: last element as pivot (CLRS 방식)',
     ],
-    theory: `■ QuickSort Partition (2025년 2학기 기출)
+    theory: `■ QuickSort — CLRS Lomuto Partition
 partition(A, p, r):
-  pivot ← A[r]       // 마지막 원소를 피벗으로
-  i ← p - 1         // smaller-than-pivot zone의 경계
+  pivot ← A[r]       // 마지막 원소를 피벗
+  i ← p - 1         // ≤pivot 구역 경계 (i 이하는 ≤pivot)
   for j = p to r-1:
-    if A[j] <= pivot:
+    if A[j] ≤ pivot:
       i ← i + 1
-      swap A[i] and A[j]   // if i=j, skip swap
-  swap A[i+1] and A[r]    // 피벗을 최종 위치로
-  return i+1
+      swap(A[i], A[j])
+  swap(A[i+1], A[r])  // 피벗을 올바른 자리로
+  return i+1           // 피벗의 최종 인덱스 반환
 
-A=[37,22,81,63,19,97,53,47,73,55], pivot=55
-step1: i=3, j=5 → A=[37,22,19,63,81,97,53,47,73,55] (i=2,j=3일 때 37<55→swap)
-... (trace table로 실제 단계 추적)
+전체 호출: quicksort(A, p, q-1), quicksort(A, q+1, r) — 피벗은 재귀에서 제외
 
-■ 정렬 비교표`,
+■ 완전 추적 예시 (A = [37, 22, 81, 63, 19, 97, 53, 47, 73, 55], pivot=55)
+초기 상태: i = -1 (p=0 기준이면 i = p-1 = -1)
+j=0: A[0]=37 ≤ 55 → i=0, swap(A[0],A[0]) → 변화 없음
+j=1: A[1]=22 ≤ 55 → i=1, swap(A[1],A[1]) → 변화 없음
+j=2: A[2]=81 > 55 → skip
+j=3: A[3]=63 > 55 → skip
+j=4: A[4]=19 ≤ 55 → i=2, swap(A[2],A[4]) → [37,22,19,63,81,97,53,47,73,55]
+j=5: A[5]=97 > 55 → skip
+j=6: A[6]=53 ≤ 55 → i=3, swap(A[3],A[6]) → [37,22,19,53,81,97,63,47,73,55]
+j=7: A[7]=47 ≤ 55 → i=4, swap(A[4],A[7]) → [37,22,19,53,47,97,63,81,73,55]
+j=8: A[8]=73 > 55 → skip
+루프 종료 후: swap(A[5], A[9]) → [37,22,19,53,47,55,63,81,73,97]
+피벗 55가 인덱스 5에 정착. 왼쪽[0..4]은 모두 ≤55, 오른쪽[6..9]은 모두 >55
+
+■ QuickSort 복잡도 분석
+최선/평균: 균등 분할 → T(n) = 2T(n/2) + O(n) → O(n log n)
+최악: 이미 정렬된 배열 + last-element pivot → 매번 n-1 : 0으로 분할
+  T(n) = T(n-1) + O(n) → T(n) = O(n²)
+공간: in-place (추가 배열 없음), 재귀 깊이 O(log n) 평균 / O(n) 최악
+
+■ MergeSort — 분할정복 (항상 O(n log n))
+mergesort(A, p, r):
+  if p < r:
+    q ← ⌊(p+r)/2⌋
+    mergesort(A, p, q)
+    mergesort(A, q+1, r)
+    merge(A, p, q, r)     // O(n) 시간, O(n) 추가 공간
+
+예시: [38, 27, 43, 3, 9, 82, 10]
+분할: [38,27,43,3] | [9,82,10]
+재귀: [27,38] | [3,43] 병합 → [3,27,38,43]
+     [9,82] | [10] 병합 → [9,10,82]
+최종 병합: [3,9,10,27,38,43,82]
+핵심: NOT in-place → O(n) 추가 공간 필요, 안정 정렬(stable)
+
+■ HeapSort — 제자리 O(n log n)
+1단계: Build-Max-Heap(A) — O(n), 아래서부터 sift-down
+2단계: 루트(최댓값)를 배열 끝으로 보내고 힙 크기 감소, sift-down — O(n log n)
+특징: in-place (추가 O(1)), 불안정 정렬(unstable)
+
+■ 정렬 알고리즘 핵심 비교
+알고리즘    | 최선       | 평균       | 최악       | 공간  | 안정성
+QuickSort  | O(n log n) | O(n log n) | O(n²)     | O(1)  | 불안정
+MergeSort  | O(n log n) | O(n log n) | O(n log n)| O(n)  | 안정
+HeapSort   | O(n log n) | O(n log n) | O(n log n)| O(1)  | 불안정
+InsertSort | O(n)       | O(n²)      | O(n²)     | O(1)  | 안정
+BubbleSort | O(n)       | O(n²)      | O(n²)     | O(1)  | 안정
+
+■ 시험 단골 함정
+• MergeSort는 in-place가 아님 — "O(n) 추가 공간 필요"
+• QuickSort 최악은 O(n²) — 이미 정렬되거나 역정렬된 배열에서 마지막 원소 피벗
+• partition 후 피벗의 위치 = 반환된 q → quicksort(A,p,q-1)과 quicksort(A,q+1,r) 호출
+• in-place 정렬: QuickSort, HeapSort, InsertionSort, BubbleSort
+• 안정(stable) 정렬: MergeSort, InsertionSort, BubbleSort (QuickSort, HeapSort는 불안정)`,
     complexityTable: [
       { operation: 'QuickSort 평균', complexity: 'O(n log n)', note: '제자리 정렬(in-place)' },
       { operation: 'QuickSort 최악', complexity: 'O(n²)', note: '이미 정렬된 경우' },
@@ -198,33 +249,81 @@ Extract-min (1회): 루트=1 저장, 11을 루트로, sift-down
       'Red-Black Tree: 루트는 항상 검정(Black)',
       'MST는 유일하지 않을 수 있음 (같은 가중치 간선이 있을 경우)',
     ],
-    theory: `■ BST (이진 탐색 트리)
-왼쪽 서브트리의 모든 키 < 노드 키 < 오른쪽 서브트리의 모든 키
+    theory: `■ BST 속성 (Binary Search Tree Property)
+모든 노드 x에 대해:
+  left subtree의 모든 y → y.key < x.key
+  right subtree의 모든 z → z.key > x.key
+(중복 키는 보통 허용하지 않거나 왼쪽/오른쪽 한 방향으로만 허용)
 
-순회:
-• 전위(Preorder): root → left → right
-• 중위(Inorder): left → root → right  ← BST에서 오름차순 출력
-• 후위(Postorder): left → right → root
-• BFS (레벨순서): 큐(Queue) 사용
+■ 4가지 순회 (예시 트리: 루트=50, L=30(L=20,R=40), R=70(L=60,R=80))
+전위(Preorder) — root → L → R:    50, 30, 20, 40, 70, 60, 80
+중위(Inorder)  — L → root → R:    20, 30, 40, 50, 60, 70, 80  ← 오름차순!
+후위(Postorder)— L → R → root:    20, 40, 30, 60, 80, 70, 50
+BFS (레벨순서): 큐 이용 → 50, 30, 70, 20, 40, 60, 80
 
-■ 2025년 1학기 기출: BFS 순서로 BST 재구성
+■ 삽입 알고리즘
+tree-insert(T, z):
+  y ← NIL; x ← T.root
+  while x ≠ NIL:
+    y ← x
+    if z.key < x.key: x ← x.left
+    else:              x ← x.right
+  z.parent ← y
+  if y = NIL:    T.root ← z       // 트리가 비어 있음
+  elif z.key < y.key: y.left ← z
+  else:               y.right ← z
+
+■ 삭제 — 3가지 경우
+Case 1: 삭제 노드 z가 자식이 없음 → 그냥 제거
+Case 2: 삭제 노드 z가 자식이 하나 → 자식이 z 자리를 대신
+Case 3: 삭제 노드 z가 자식이 둘 → z의 중위 후계자(in-order successor) y를 찾아 z.key를 y.key로 교체하고, y를 삭제 (y는 왼쪽 자식이 없으므로 Case 1 or 2)
+중위 후계자: z의 오른쪽 서브트리에서 가장 왼쪽 노드
+
+■ BFS 순서로 BST 재구성 (2025년 1학기 기출)
 BFS 순서: 30, 20, 40, 10, 35, 42, 37, 50, 36
-• 루트: 30 (첫 번째 원소)
-• 30의 왼쪽: 20, 오른쪽: 40 (레벨 2)
-• 20의 왼쪽: 10, 오른쪽: 35? → BST 속성 위반! 35>30이므로 40의 왼쪽
-재구성: 30의 자식 = 20(좌), 40(우)
-  20의 자식 = 10(좌), 35(우)?  → 35>30 이므로 40의 왼쪽
-  실제: 20→left=10, 40→left=35, 40→right=42
-  35→left=?, 42→right=50
-  37: 35 < 37 < 40 → 35의 오른쪽
-  36: 35 < 36 < 37 → 37의 왼쪽
+방법: 각 원소를 BST에 순차 삽입 (BFS 순서 = 레벨 순서이므로 순서대로 insert하면 됨)
 
-■ Red-Black Tree 속성
-1. 모든 노드는 Red 또는 Black
-2. 루트는 Black ← 자주 출제!
-3. 모든 리프(NIL)는 Black
-4. Red 노드의 자식은 항상 Black (Red 연속 불가)
-5. 임의의 노드에서 리프까지 경로의 Black 노드 수는 동일`,
+삽입 30: root=30
+삽입 20: 20<30 → 30.left=20
+삽입 40: 40>30 → 30.right=40
+삽입 10: 10<30→left, 10<20→left → 20.left=10
+삽입 35: 35>30→right, 35<40→left → 40.left=35
+삽입 42: 42>30→right, 42>40→right → 40.right=42
+삽입 37: 37>30→right, 37<40→left, 37>35→right → 35.right=37
+삽입 50: 50>30→right, 50>40→right, 50>42→right → 42.right=50
+삽입 36: 36>30→right, 36<40→left, 36>35→right, 36<37→left → 37.left=36
+
+최종 트리:
+            30
+          /    \
+        20      40
+       /       /  \
+      10      35   42
+               \    \
+               37   50
+              /
+             36
+
+BFS로 순회하면: 30,20,40,10,35,42,37,50,36 — 주어진 순서와 일치 ✓
+
+■ Red-Black Tree — 5가지 속성 (암기 필수)
+1. 모든 노드는 RED 또는 BLACK
+2. 루트는 항상 BLACK                              ← 시험에서 자주 묻는 것
+3. 모든 리프 (NIL 센티넬) 노드는 BLACK
+4. RED 노드의 두 자식은 모두 BLACK (RED-RED 연속 불가)
+5. 임의의 노드에서 리프까지의 모든 경로는 동일한 수의 BLACK 노드를 포함 (black-height)
+
+RB-Tree 성질:
+• 높이 h ≤ 2 lg(n+1) — 항상 O(log n) 보장
+• 삽입/삭제 시 최대 O(log n)번의 color-flip과 최대 3번의 rotation
+• AVL Tree보다 rotation이 적음 (삽입에서 AVL은 최대 2번, RB는 최대 2번)
+• AVL은 더 엄격한 균형(높이 ≤ 1.44 lg n) → 탐색 빠름, 삽입/삭제 느림
+
+■ 시험 함정
+• BST 중위 순회는 항상 오름차순 — 역순이 되려면 (R→root→L)
+• BFS 순서로 트리를 준다면 → 순서대로 BST에 삽입하면 동일한 트리 재구성 가능
+• 삭제의 Case 3에서 in-order successor (오른쪽 서브트리의 최솟값)를 사용
+• RB-Tree: 루트는 반드시 Black (삽입 후 루트가 Red가 되면 Black으로 변경)`,
     complexityTable: [
       { operation: '검색 (평균)', complexity: 'O(log n)', note: '균형 잡힌 트리' },
       { operation: '검색 (최악)', complexity: 'O(n)', note: '불균형 (선형 체인)' },
@@ -375,33 +474,60 @@ Greedy 결과: "AE" (최적이 아님!)
       '배열: 임의 접근 O(1), 중간 삽입 O(n) (shift 필요)',
       '배열이 꽉 찰 때 끝 삽입: O(n) (resize + copy)',
     ],
-    theory: `■ 2025년 1학기 기출: Insert 시간 복잡도
+    theory: `■ 배열(Array) 핵심
+임의 접근(Random Access): arr[i] → O(1) (메모리 주소 = base + i × size)
+삽입 at end (여유 있음): O(1) — 마지막 위치에 저장
+삽입 at end (꽉 찼을 때): O(n) — 2배 크기 새 배열 할당 + 전체 복사 (Dynamic Array)
+삽입 at index i: O(n) — arr[i..n-1]을 한 칸씩 뒤로 shift
+삭제 at index i: O(n) — arr[i+1..n-1]을 한 칸씩 앞으로 shift
+탐색 (정렬된 경우): O(log n) (이진 탐색)
+탐색 (비정렬): O(n)
 
+■ 단방향 연결 리스트 (Singly Linked List)
+구조: head → [data|next] → [data|next] → ... → NIL
+앞 삽입 (prepend): O(1) — 새 노드.next = head, head = 새 노드
+뒤 삽입 (tail 없음): O(n) — tail까지 순회 후 삽입
+뒤 삽입 (tail 포인터 유지): O(1)
+임의 위치 삽입: O(n) — 해당 위치까지 순회 O(n) + 삽입 O(1)
+탐색: O(n)
+역방향 순회: 불가 (단방향)
+
+■ 양방향 연결 리스트 (Doubly Linked List)
+구조: head ⇄ [prev|data|next] ⇄ ... ⇄ NIL (tail 포인터 보유 시)
+앞/뒤 삽입: O(1) (head 또는 tail 포인터 이용)
+임의 위치 삽입: O(n) 탐색 + O(1) 삽입
+삭제: O(1) — 앞뒤 포인터 조작으로 즉시 제거 (단방향은 이전 노드 찾기 O(n))
+
+■ 2025년 1학기 기출: Insert 연산 시간 복잡도
 C1: array.insert(idx=array.length(), "a")  // 배열 끝 삽입
-• 배열이 꽉 차지 않음: O(1) (그냥 추가)
-• 배열이 꽉 찼을 수 있음: O(n) (resize 필요, 전체 복사)
+  → 꽉 차지 않았다면 O(1), 꽉 찼다면 O(n) (resize)
+  → 최악 O(n), 분할 상환(amortized) O(1)
 
-C2: array.insert(idx=x, "b")  // 임의 위치 삽입
-• 배열이 꽉 차지 않음: O(n) (idx 이후 원소를 뒤로 shift)
-• 배열이 꽉 찼을 수 있음: O(n) (동일, resize 포함)
+C2: array.insert(idx=x, "b")  // 배열 임의 위치 삽입
+  → 항상 O(n) (idx 이후 원소를 shift해야 함)
 
 C3: list.insert(idx=list.length(), "c")  // 연결 리스트 끝 삽입
-• 단방향 연결 리스트 (tail 없음): O(n) (끝까지 순회 필요)
-• 단방향 연결 리스트 (tail 있음): O(1)
-• 양방향 연결 리스트 (tail 있음): O(1)
+  → tail 포인터 없음: O(n) (끝까지 순회)
+  → tail 포인터 있음: O(1)
 
-■ Stack vs Queue
-Stack (LIFO):
-• push: 맨 위에 추가
-• pop: 맨 위에서 제거
-• peek: 맨 위 조회
-• isEmpty: 빈 여부 확인
+■ Stack (LIFO — Last In First Out)
+구현: 배열(top 포인터) 또는 연결 리스트(head가 top)
+push(x): top에 추가 → O(1)
+pop():   top 제거 및 반환 → O(1)
+peek():  top 값 반환 (제거 안 함) → O(1)
+용도: 함수 호출 스택, 괄호 검사, DFS(비재귀), 수식 계산
 
-Queue (FIFO):
-• enqueue: 뒤에 추가
-• dequeue: 앞에서 제거
+■ Queue (FIFO — First In First Out)
+구현: 원형 배열(head/tail 포인터) 또는 연결 리스트
+enqueue(x): tail에 추가 → O(1)
+dequeue():  head에서 제거 및 반환 → O(1)
+용도: BFS, 프로세스 스케줄링, 프린터 대기열
 
-중요: 스택은 LIFO만 지원 (FIFO 지원 X)`,
+■ 시험 함정
+• 배열 끝 삽입: 평균(amortized) O(1)이지만 worst case는 O(n)
+• 연결 리스트는 임의 접근(O(1)) 불가 — 무조건 O(n) 탐색
+• 스택은 LIFO, 큐는 FIFO — 스택으로 큐 구현 가능하지만 O(n) 비용
+• 이중 연결 리스트의 중간 삽입/삭제: 노드 위치를 알면 O(1), 위치 탐색에 O(n)`,
     complexityTable: [
       { operation: '배열 임의 접근', complexity: 'O(1)', note: '' },
       { operation: '배열 끝 삽입 (여유 있음)', complexity: 'O(1)', note: '' },
@@ -489,21 +615,57 @@ n개의 문자 → ⌈log₂ n⌉ 비트 필요
       '평균 O(1) 탐색, 최악 O(n)',
       'Load factor = n/m (n: 항목수, m: 버킷수)',
     ],
-    theory: `■ 해시 테이블 핵심
+    theory: `■ 해시 테이블 기본 구조
+해시 함수 h: U → {0, 1, ..., m-1}  (U = key universe, m = slot 수)
+목표: 키 k를 O(1)에 저장/탐색
 
-해시 함수: key → index (0 ~ m-1)
+Load Factor α = n/m  (n: 저장된 원소 수, m: 슬롯 수)
+α < 1: 오픈 어드레싱에서 필수 조건
+α = 1: 슬롯이 꽉 참
+탐색 평균 성능: O(1 + α) — α를 상수로 유지하면 O(1)
 
-■ 충돌 해결 방법
-1. 체이닝 (Chaining): 같은 인덱스에 여러 원소를 연결 리스트로 저장
-2. 오픈 어드레싱: 다른 빈 슬롯을 찾아 저장
-   - 선형 프로빙: h(k), h(k)+1, h(k)+2, ...
-   - 이차 프로빙: h(k), h(k)+1², h(k)+2², ...
-   - 이중 해싱: h1(k) + i·h2(k)
+■ 충돌(Collision): 서로 다른 두 키 k₁ ≠ k₂가 h(k₁) = h(k₂)인 경우
 
-■ 완전 해시 (Perfect Hash)
-- 모든 키에 대해 충돌이 없음
-- 정적 데이터셋에만 구성 가능
-- 조건: 서로 다른 모든 키가 서로 다른 인덱스로 매핑됨`,
+■ 충돌 해결 방법 1 — 체이닝 (Chaining)
+각 슬롯을 연결 리스트로 관리. 같은 해시값 → 같은 리스트에 연결
+탐색 최악: O(n) (모든 키가 같은 슬롯)
+탐색 평균: O(1 + α) → α가 상수이면 O(1)
+삽입: O(1) (리스트 앞에 삽입)
+장점: α > 1도 허용, 삭제가 간단
+단점: 포인터 오버헤드, 캐시 비효율
+
+■ 충돌 해결 방법 2 — 오픈 어드레싱 (α < 1 필수)
+빈 슬롯을 probing sequence로 탐색
+
+선형 프로빙 (Linear Probing):
+  h(k, i) = (h(k) + i) mod m  (i = 0, 1, 2, ...)
+  문제: 군집화(Primary Clustering) — 채워진 슬롯이 연속으로 늘어남
+
+이차 프로빙 (Quadratic Probing):
+  h(k, i) = (h(k) + c₁i + c₂i²) mod m
+  군집화 완화, 단 Secondary Clustering 가능
+
+이중 해싱 (Double Hashing):
+  h(k, i) = (h₁(k) + i·h₂(k)) mod m
+  h₂(k) ≠ 0 이어야 하며 h₂(k)와 m은 서로소
+  군집화 최소화, 실용적으로 가장 좋음
+
+■ 완전 해시 (Perfect Hashing)
+• 모든 키 k₁ ≠ k₂에 대해 h(k₁) ≠ h(k₂) — 충돌 없음
+• 정적(static) 데이터셋에서만 가능 (런타임에 키 집합이 고정)
+• 2-level hashing으로 O(1) 최악 탐색 달성 가능 (Fredman et al.)
+• 조건 확인: 모든 키의 해시값이 서로 다른지 점검하면 완전 해시 여부 판단
+
+■ 해시 함수 설계 방법
+• 나눗셈법: h(k) = k mod m (m은 소수 선택)
+• 곱셈법: h(k) = ⌊m·(k·A mod 1)⌋  (A ≈ (√5-1)/2 = 0.618...)
+• 유니버설 해싱: 함수를 랜덤하게 선택 — 최악 충돌 확률 최소화
+
+■ 시험 함정
+• 오픈 어드레싱에서 삭제는 슬롯을 "DELETED" 마커로 표시해야 함 (그냥 비우면 탐색 실패)
+• 완전 해시 ≠ 충돌이 적은 해시; 충돌이 아예 없는 것
+• 체이닝은 α > 1도 허용하지만, 오픈 어드레싱은 α < 1이어야 함
+• 탐색 평균 O(1)은 α를 상수로 유지하는 조건 하에만 성립`,
     complexityTable: [
       { operation: '검색 (평균)', complexity: 'O(1)', note: '' },
       { operation: '검색 (최악)', complexity: 'O(n)', note: '모든 키가 같은 버킷' },

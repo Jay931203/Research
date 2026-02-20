@@ -3,6 +3,7 @@ import { useMemo, useState } from 'react';
 import { BookOpen, BrainCircuit, ChevronRight, ClipboardList, GraduationCap, Menu, X } from 'lucide-react';
 import TopicDetail from './TopicDetail';
 import ExamProblemCard from './ExamProblemCard';
+import ExamProblemModal from './ExamProblemModal';
 import { DSA_TOPICS, DSA_EXAM_PROBLEMS, DSA_PRACTICE_QUESTIONS } from '@/data/qual-exam/dsa-data';
 import { PROG_TOPICS, PROG_EXAM_PROBLEMS, PROG_PRACTICE_QUESTIONS } from '@/data/qual-exam/prog-data';
 import type { StudyTopic } from './TopicStudyCard';
@@ -98,6 +99,7 @@ export default function QualExamMain() {
   const [subject, setSubject] = useState<Subject>('dsa');
   const [view, setView] = useState<View>({ kind: 'topic', topicId: 'asymptotic' });
   const [sidebarOpen, setSidebarOpen] = useState(false);
+  const [modalExam, setModalExam] = useState<ExamProblem | null>(null);
 
   const topics = subject === 'dsa' ? DSA_TOPICS : PROG_TOPICS;
   const examProblems = subject === 'dsa' ? DSA_EXAM_PROBLEMS : PROG_EXAM_PROBLEMS;
@@ -147,6 +149,7 @@ export default function QualExamMain() {
           topic={topic}
           relatedExams={relatedExams}
           practiceQuestions={topicPractice as QuizQuestion[]}
+          onExamClick={setModalExam}
         />
       );
     }
@@ -224,6 +227,8 @@ export default function QualExamMain() {
   );
 
   return (
+    <>
+    <ExamProblemModal problem={modalExam} onClose={() => setModalExam(null)} />
     <div className="flex flex-col" style={{ height: 'calc(100vh - 60px)' }}>
       {/* Mobile top bar */}
       <div className="flex items-center gap-3 px-4 py-2.5 border-b border-slate-200 dark:border-slate-800 bg-white dark:bg-slate-900 sm:hidden">
@@ -262,5 +267,6 @@ export default function QualExamMain() {
         </main>
       </div>
     </div>
+    </>
   );
 }

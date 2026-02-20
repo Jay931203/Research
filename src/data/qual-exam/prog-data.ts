@@ -22,27 +22,66 @@ export const PROG_TOPICS: StudyTopic[] = [
       'public/private/protected 접근 제어',
       '기본 생성자: 컴파일러가 자동 생성 (단, 사용자 정의 생성자가 없을 때)',
     ],
-    theory: `■ 클래스 기본 구조 (C++)
+    theory: `■ 클래스 = 데이터 + 동작의 캡슐화
+struct vs class: struct는 default public, class는 default private
 
 class MyClass {
-private:
-    int data_;           // 멤버 변수 (캡슐화)
+private:   // 클래스 내부에서만 접근
+    int data_;
     char* name_;
-public:
-    MyClass(int d);      // 생성자
-    MyClass(const MyClass& other);  // 복사 생성자
-    ~MyClass();          // 소멸자
-    int getData() const; // const 멤버 함수 (객체 변경 안 함)
+protected: // 파생 클래스에서도 접근 가능
+    double internal_;
+public:    // 외부에서 접근 가능
+    MyClass(int d);               // 기본 생성자
+    MyClass(const MyClass& o);    // 복사 생성자
+    MyClass& operator=(const MyClass& o); // 복사 대입 연산자
+    ~MyClass();                   // 소멸자
+    int getData() const;          // const 멤버 함수 (this는 const*)
 };
 
-■ 생성자 초기화 리스트 (Initialization List)
-MyClass::MyClass(int d) : data_(d), name_(nullptr) {}
-// 멤버 변수를 생성과 동시에 초기화 (더 효율적)
+■ 초기화 리스트 (Initialization List) — 반드시 알아야 할 규칙
+// 리스트 방식 (권장): 멤버가 생성과 동시에 초기화됨
+MyClass::MyClass(int d, const char* n)
+    : data_(d), name_(nullptr) {  // data_는 d로, name_는 nullptr로 초기화
+    // 생성자 본문
+}
 
-■ 접근 제어
-• private: 클래스 내부에서만 접근
-• public: 외부에서 접근 가능
-• protected: 파생 클래스에서 접근 가능`,
+// 대입 방식 (비권장): 멤버가 먼저 default 생성된 뒤 대입됨
+MyClass::MyClass(int d) {
+    data_ = d;  // 먼저 data_가 기본 초기화, 그 다음 대입 — 비효율적
+}
+
+반드시 초기화 리스트를 써야 하는 경우:
+• const 멤버: const int n_ — 대입 불가, 반드시 리스트에서 초기화
+• 참조(reference) 멤버: int& ref_ — 대입 불가
+• 기본 생성자가 없는 멤버 객체
+• 성능상의 이유 (대입 vs 직접 초기화)
+
+■ const 멤버 함수
+int getData() const { return data_; }
+// this 포인터가 const MyClass*로 바뀜 → 멤버 변수 수정 불가
+// const 객체에서는 const 함수만 호출 가능
+
+■ 접근 제어 상속 시 변화
+class D : public B { ... }    → B의 public/protected 그대로 유지
+class D : protected B { ... } → B의 public → protected로 좁힘
+class D : private B { ... }   → B의 public/protected → private으로 좁힘
+
+■ this 포인터
+• 모든 비정적(non-static) 멤버 함수 내에서 현재 객체를 가리키는 포인터
+• 복사 대입 연산자에서 자기 대입 검사: if (this == &other) return *this;
+• return *this: 연쇄 호출 가능하게 함 (a.add(1).mul(2) 등)
+
+■ 정적(static) 멤버
+• static int count_: 클래스 당 하나의 인스턴스 (객체 없이도 접근)
+• static void f(): this 없음, 멤버 변수 접근 불가
+• 초기화: 클래스 외부에서 int MyClass::count_ = 0;
+
+■ 시험 함정
+• 기본 생성자: 사용자가 어떤 생성자도 정의하지 않을 때만 컴파일러가 자동 생성
+  (다른 생성자를 하나라도 정의하면 기본 생성자는 자동 생성 안 됨)
+• struct는 default public이므로 생성자 없이도 멤버 직접 초기화 가능
+• const 멤버 변수가 있으면 반드시 초기화 리스트 사용`,
     codeExample: `class Student {
 private:
     int id_;
@@ -138,9 +177,28 @@ Student(const Student& other) : id_(other.id_) {
       'vtable: 가상 함수 포인터 테이블, 런타임에 호출 결정',
       '비가상 함수는 정적 바인딩 (컴파일 타임에 결정)',
     ],
-    theory: `■ 동적 디스패치 규칙
-virtual 함수: 실제 객체 타입에 따라 호출 결정 (런타임)
-non-virtual 함수: 선언된 포인터/참조 타입에 따라 결정 (컴파일 타임)
+    theory: `■ 정적 바인딩 vs 동적 바인딩
+정적 바인딩 (Static Binding, 컴파일 타임):
+  → non-virtual 함수, 포인터/참조 타입에 따라 호출 결정
+  → 오버라이드해도 포인터 타입 기준으로 부모 함수 호출
+
+동적 바인딩 (Dynamic Binding, 런타임):
+  → virtual 함수, 실제 객체 타입에 따라 호출 결정
+  → vtable(가상 함수 포인터 테이블)로 구현
+
+■ vtable 메커니즘
+각 클래스마다 vtable이 하나 존재:
+  Student vtable:     → { &Student::m1, &Student::m2 }
+  GradStudent vtable: → { &GradStudent::m1, &GradStudent::m2 }
+  PhD vtable:         → { &PhD::m1, &GradStudent::m2 }  // m2는 GradStudent 버전
+
+각 객체에는 vptr(vtable 포인터)이 있어 해당 클래스의 vtable을 가리킴
+런타임에 obj->vptr->vtable[slot]을 통해 가상 함수 호출
+
+■ 핵심 디스패치 규칙 요약
+1. virtual 함수 → 실제 객체의 vtable에서 함수 포인터 조회 (동적)
+2. non-virtual 함수 → 선언된 포인터 타입의 함수 직접 호출 (정적)
+3. 가상 함수 내부에서 다른 가상 함수 호출 → 여전히 동적 (this->vptr 사용)
 
 ■ 2024년 2학기 기출 코드 분석
 class Student {
@@ -167,10 +225,53 @@ class PhD : public GradStudent {
 • mina->m3(): PhD* → PhD::m3 (virtual) → m4() 호출
   m4는 non-virtual → Student::m4() → m3() 호출 (virtual) → PhD::m3() → 무한 재귀!
 
+■ 2024년 2학기 기출 전체 출력 추적 (위 코드 기준)
+PhD *mina = new PhD();  // Student() → GradStudent() → PhD() 순서 생성자 호출
+  → "[++] ss", "[++] gs", "[++] phd"
+
+ss->m1():
+  m1은 virtual → PhD 객체의 vptr → PhD::m1() → "phd::m1"
+
+ss->m3():
+  m3은 non-virtual → Student::m3() 호출 (포인터 타입 Student* 기준)
+  Student::m3() 내부: m2() 호출 → m2는 virtual → PhD 객체의 vtable → GradStudent::m2()
+  → "gs::m2", 이후 "ss::m3"
+
+gs->m1():
+  m1은 virtual → PhD::m1() → "phd::m1"
+
+gs->m3():
+  m3은 non-virtual, gs는 GradStudent* → GradStudent::m3()
+  내부 m1() → virtual → PhD::m1() → "phd::m1"
+  이후 "gs::m3"
+
+mina->m3():
+  m3은 virtual (PhD에서 새로 virtual 선언) → PhD::m3()
+  PhD::m3() 내: m4() 호출 → m4는 non-virtual → Student::m4() (this는 여전히 PhD 객체!)
+  Student::m4() 내: m3() 호출 → m3는 virtual → PhD::m3() → 무한 재귀! → Stack Overflow
+
 ■ 순수 가상 함수 (Pure Virtual Function)
 virtual void area() const = 0;  // = 0으로 선언
 → 추상 클래스(Abstract Class): 직접 인스턴스화 불가
-→ 파생 클래스에서 반드시 override해야 함`,
+→ 파생 클래스에서 반드시 override해야 함
+
+■ 가상 소멸자 (Virtual Destructor) — 반드시 선언!
+// Base* ptr = new Derived(); delete ptr;
+// Base에 virtual ~Base()가 없으면 Derived::~Derived()가 호출 안 됨 → 메모리 누수
+// 기반 클래스 포인터로 파생 클래스 객체를 삭제할 가능성이 있으면 항상 virtual 소멸자 선언
+
+■ override와 final (C++11)
+void m1() override { ... }  // 부모의 virtual 함수를 오버라이드함을 명시 (컴파일러 체크)
+void m1() final { ... }     // 이 함수는 더 이상 override 불가
+class Derived final { };    // 이 클래스는 상속 불가
+
+■ 시험 함정 정리
+• non-virtual 함수 내에서 virtual 함수를 호출하면 → 여전히 동적 바인딩!
+  (this 포인터가 실제 객체를 가리키므로 vptr을 통해 가상 함수 조회)
+• Student* ss = new PhD(); ss->m3() → m3이 non-virtual이므로 Student::m3() 호출
+  하지만 m3 내부의 m2()는 virtual → GradStudent::m2() 호출 (동적!)
+• 생성자 호출 순서: 부모→자식 순서 (상속 깊이 순)
+• 소멸자 호출 순서: 자식→부모 순서 (역순)`,
     codeExample: `// 2025년 2학기 기출 패턴
 struct Shape {
     virtual ~Shape() {}              // 가상 소멸자 (필수!)
@@ -283,7 +384,15 @@ delete[] arr;  // 배열은 delete[] !`,
       '템플릿 인스턴스화: 컴파일 타임에 구체 타입으로 생성',
       'Pair<LinkedList>가 컴파일 안 되는 이유: LinkedList가 필요한 연산을 지원하지 않을 때',
     ],
-    theory: `■ 클래스 템플릿 기본
+    theory: `■ 함수 템플릿 (Function Template)
+template<typename T>
+T max(T a, T b) { return (a > b) ? a : b; }
+
+// 호출 시 T를 명시하거나 추론:
+max<int>(3, 5);      // T=int로 명시
+max(3.0, 5.0);       // T=double로 자동 추론
+
+■ 클래스 템플릿 (Class Template)
 template<typename T>
 class Pair {
 private:
@@ -291,24 +400,63 @@ private:
     T* second;
 public:
     Pair(T* a, T* b) : first(a), second(b) {}
-    void add(const Pair& other) { *first += *(other.first); }
+
+    void add(const Pair<T>& other) {
+        *first  += *(other.first);   // T에 += 연산자 필요!
+        *second += *(other.second);
+    }
+
+    void print() const {
+        cout << "(" << *first << "," << *second << ")" << endl;
+    }
 };
 
-■ 2025년 1학기 기출: Pair 클래스
+■ 인스턴스화 (Template Instantiation) — 컴파일 타임
+Pair<int>는 컴파일 타임에 int용 코드를 생성
+Pair<double>은 별도로 double용 코드를 생성
+→ 실행 파일 크기가 커질 수 있음 (코드 팽창, code bloat)
+→ 템플릿 정의는 헤더 파일에 있어야 함 (분리 컴파일 불가)
 
-int data[4] = {1,2,3,4};
-Pair a(data, data+2);    // first=&data[0]=1, second=&data[2]=3
-Pair b(data+1, data+3);  // first=&data[1]=2, second=&data[3]=4
-a.add(b);                // data[0]+=data[1] → data[0]=3; data[2]+=data[3] → data[2]=7
-a.print();               // 출력: (3, 7)
+■ 2025년 1학기 기출: Pair<int> 추적
+int data[4] = {1, 2, 3, 4};
+// Pair 생성 (T=int 자동 추론 — C++17 CTAD)
+Pair a(data,   data+2);  // first=&data[0] (값=1), second=&data[2] (값=3)
+Pair b(data+1, data+3);  // first=&data[1] (값=2), second=&data[3] (값=4)
+
+a.add(b);
+// *a.first  += *b.first  → data[0] += data[1] → 1+2=3 → data[0]=3
+// *a.second += *b.second → data[2] += data[3] → 3+4=7 → data[2]=7
+
+a.print();  // (*a.first, *a.second) = (data[0], data[2]) = (3, 7)
 
 ■ Pair<LinkedList> 컴파일 실패 이유
-template<typename T>에서 Pair를 사용하면:
-• add() 내부: *first += *(other.first) → LinkedList에 += 연산자 없음
-• 또는 복사 생성자가 필요할 수 있음
+Pair<LinkedList>를 인스턴스화하면 컴파일러가 add()를 확인:
+  *first += *(other.first)  →  LinkedList에 operator+= 없음!
 
-해결: LinkedList에 필요한 연산자 선언 추가
-(시험에서는 함수 헤더만 선언하면 됨)`,
+해결: LinkedList에 operator+= 헤더 선언 추가
+class LinkedList {
+public:
+    LinkedList& operator+=(const LinkedList& other);  // 이 선언만 추가하면 컴파일 가능
+    // (시험에서는 함수 헤더만 선언하면 됨, 구현 불필요)
+};
+
+■ 템플릿 특수화 (Template Specialization)
+// 특정 타입에 대해 별도 구현 제공
+template<>
+class Pair<char*> {
+    // char* 포인터를 위한 특별 처리
+};
+
+■ typename vs class (in template parameter)
+template<typename T>  // 와 동일
+template<class T>     // 둘 다 사용 가능, typename이 더 명확
+typename을 쓰는 추가 경우: 의존 타입을 나타낼 때
+  typename T::iterator it;  // T의 중첩 타입 명시적 지시
+
+■ 시험 함정
+• Pair<T>에서 T가 필요한 모든 연산(+=, <<, 복사 생성자 등)을 지원해야 함
+• 함수 헤더만 선언해도 해당 함수 호출이 없으면 링크 오류 안 남 (Pair<LinkedList>::print()만 쓴다면 OK)
+• 컴파일 타임 인스턴스화: T를 실제로 사용하는 코드에서만 오류 발생`,
     codeExample: `template<typename T>
 class Pair {
 private:
