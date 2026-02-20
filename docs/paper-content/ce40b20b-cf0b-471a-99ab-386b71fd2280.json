@@ -1,0 +1,73 @@
+{
+  "id": "ce40b20b-cf0b-471a-99ab-386b71fd2280",
+  "title": "AutoQ: Automated Kernel-Wise Neural Network Quantization",
+  "authors": [
+    "Qian Lou",
+    "Feng Guo",
+    "Lantao Liu",
+    "Minje Kim",
+    "Lei Jiang"
+  ],
+  "year": 2020,
+  "venue": "ICLR 2020 (arXiv 1902.05690)",
+  "doi": "10.48550/arXiv.1902.05690",
+  "arxiv_id": "1902.05690",
+  "abstract": "AutoQ는 레이어 단위 혼합 정밀도의 거친 탐색 한계를 넘기 위해, 양자화 비트 탐색 단위를 커널(kernel) 수준으로 세분화한 자동화 프레임워크다. 커널별 민감도 차이를 반영하면 더 나은 정확도-자원 트레이드오프를 얻을 수 있지만, 탐색 공간이 폭발적으로 커진다.\n\n논문은 이를 계층형 강화학습(Hierarchical DRL)으로 해결한다. 상위 제어기(HLC)는 레이어 수준 목표를 생성하고, 하위 제어기(LLC)는 각 커널의 비트를 결정한다. 또한 보상함수에 정확도뿐 아니라 지연시간, 에너지, 면적을 함께 넣어 하드웨어 제약을 직접 최적화한다.\n\n특히 shaped intrinsic reward를 도입해 LLC 학습 안정성을 높였고, FPGA 기반 평가에서 단순 layer-wise 정책 대비 더 좋은 자원-정확도 균형을 달성했다. AutoQ의 핵심 가치는 양자화 정책 탐색을 신경망 성능 문제와 하드웨어 시스템 문제의 공동 최적화로 정식화했다는 점이다.",
+  "notes_summary": "커널 단위 비트할당을 계층형 DRL(HLC/LLC)로 탐색하고, 정확도-지연시간-에너지-면적을 통합 보상으로 최적화하는 하드웨어 인지형 자동 양자화.",
+  "key_contributions": [
+    "레이어 단위를 넘어 커널 단위(bit per kernel) 정책을 자동 탐색해 더 미세한 민감도 반영이 가능함을 보였다.",
+    "HLC/LLC 계층형 제어 구조로 거대한 행동 공간을 분해해 실용적인 탐색 속도와 수렴성을 확보했다.",
+    "정확도, 지연시간, 에너지, 면적을 하나의 extrinsic reward로 통합해 배포 친화적인 정책을 직접 유도했다.",
+    "goal 달성 항과 환경 보상 항을 결합한 intrinsic reward로 하위 제어기의 학습 불안정을 완화했다.",
+    "FPGA 기반 실험에서 layer-wise 기준 대비 더 우수한 Pareto 전선(정확도-자원)을 보고했다."
+  ],
+  "algorithms": [
+    "상위 제어기(HLC)가 레이어별 목표(평균 비트 또는 활성화 비트 목표)를 제안한다.",
+    "하위 제어기(LLC)가 해당 목표를 만족하도록 레이어 내 각 커널의 비트를 순차 할당한다.",
+    "정책이 생성한 비트할당으로 모델을 양자화하고 단기 파인튜닝 후 정확도를 측정한다.",
+    "하드웨어 추정기 또는 실측으로 지연시간, 에너지, 면적을 산출한다.",
+    "extrinsic/intrinsic reward를 계산해 HLC와 LLC를 오프폴리시로 갱신한다.",
+    "최종 정책을 선택해 전체 데이터로 재학습 후 배포 모델을 생성한다."
+  ],
+  "key_equations": [
+    {
+      "name": "상태 표현",
+      "latex": "state_{[L_i,K_j]}=(L_i,K_j,c_{in},c_{out},s_{kernel},s_{stride},s_{feature},b_{dw},b_{w/a},g_{L_{i-1}},a_{[L_i,K_{j-1}]})",
+      "description": "현재 레이어/커널 문맥, 이전 결정, 목표 정보를 함께 포함해 정책의 조건부 결정을 가능하게 한다."
+    },
+    {
+      "name": "외재 보상(하드웨어 인지)",
+      "latex": "eRd=\\log\\frac{accuracy(NC)^{\\psi_{acc}}}{lat(NC,HC)^{\\psi_l}\\,en(NC,HC)^{\\psi_e}\\,area(NC,HC)^{\\psi_a}}",
+      "description": "정확도는 높이고 지연시간·에너지·면적은 줄이는 방향으로 정책을 유도하는 핵심 목적식이다."
+    },
+    {
+      "name": "내재 보상(Shaped Reward)",
+      "latex": "iRd_{L_i}=(1-\\zeta)\\big(-\\|g_{L_i}c_{out}-\\sum_j a_{L_i,K_j}\\|_2\\big)+\\zeta\\sum_j eRd_{L_i,K_j}",
+      "description": "HLC 목표 달성도와 실제 환경 보상을 동시에 반영해 LLC 학습을 안정화한다."
+    },
+    {
+      "name": "LLC TD 손실",
+      "latex": "\\left(Q_{\\theta}^{LLC}(s,g,a)-iRd-\\gamma_{iRd}Q_{\\theta}^{LLC}(s',g,\\mu_{\\phi}^{LLC}(s',g))\\right)^2",
+      "description": "하위 제어기의 Q함수를 시간차 학습으로 갱신해 커널 단위 정책 품질을 높인다."
+    },
+    {
+      "name": "평균 커널 비트폭",
+      "latex": "\\overline{B}_W=\\frac{\\sum_{L_i}\\sum_{K_j}Weight\\_QBN_{[L_i,K_j]}}{\\sum_i c_{out,i}}",
+      "description": "최종 정책의 전역 정밀도 수준을 요약하는 지표로 자원 제약 만족 여부를 점검할 때 사용한다."
+    }
+  ],
+  "architecture_detail": "## 1) 문제 설정: 왜 kernel-wise가 필요한가\n\n같은 레이어 안에서도 커널별 중복도와 민감도가 다르다. 레이어 전체에 동일 비트를 주면 일부 커널에는 과한 비트를, 일부에는 부족한 비트를 배정하게 되어 비효율이 생긴다.\n\n## 2) 계층형 DRL 구조(HLC/LLC)\n\n- HLC: 레이어 수준 목표 생성\n- LLC: 목표를 만족하도록 커널별 비트 결정\n\n이 분해 덕분에 커널 단위의 거대한 행동 공간을 직접 한 번에 다루지 않아도 된다.\n\n$$\nstate_{[L_i,K_j]}=(L_i,K_j,c_{in},c_{out},s_{kernel},s_{stride},s_{feature},b_{dw},b_{w/a},g_{L_{i-1}},a_{[L_i,K_{j-1}]})\n$$\n\n## 3) 하드웨어 인지 목적식\n\n$$\neRd=\\log\\frac{accuracy(NC)^{\\psi_{acc}}}{lat(NC,HC)^{\\psi_l}\\,en(NC,HC)^{\\psi_e}\\,area(NC,HC)^{\\psi_a}}\n$$\n\n정확도만 보는 탐색이 아니라, 실제 배포 지표(지연시간/에너지/면적)를 동시에 최적화한다.\n\n## 4) Shaped Intrinsic Reward로 학습 안정화\n\n$$\niRd_{L_i}=(1-\\zeta)\\big(-\\|g_{L_i}c_{out}-\\sum_j a_{L_i,K_j}\\|_2\\big)+\\zeta\\sum_j eRd_{L_i,K_j}\n$$\n\n첫 항은 HLC 목표 달성도를, 둘째 항은 실제 환경 성능을 반영한다. 이 결합이 LLC의 탐색 분산을 줄여준다.\n\n## 5) 최적화 파이프라인\n\n1. HLC/LLC로 정책 생성\n2. 단기 파인튜닝으로 정확도 평가\n3. 하드웨어 비용 추정\n4. 강화학습 업데이트 반복\n5. 최종 정책 전체 재학습 후 배포\n\n## 6) 구현 체크리스트\n\n- 커널 단위 행동 공간 폭발을 막기 위한 episode 길이/탐색률 조정\n- 하드웨어 추정기의 편향(실측 대비 오차) 주기적 점검\n- \\(\\zeta\\), \\(\\psi\\) 계수 튜닝으로 정확도 우선/자원 우선 모드 분리\n- layer-wise baseline과 동일 예산 조건에서 공정 비교\n- 최종 지표는 정확도뿐 아니라 실제 latency/energy까지 동시 보고",
+  "category": "quantization",
+  "tags": [
+    "autoq",
+    "kernel-wise-quantization",
+    "hierarchical-rl",
+    "hardware-aware",
+    "fpga",
+    "cnn-compression"
+  ],
+  "pdf_url": "https://arxiv.org/pdf/1902.05690",
+  "code_url": null,
+  "color_hex": "#14B8A6",
+  "icon_name": null
+}

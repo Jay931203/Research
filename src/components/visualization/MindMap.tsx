@@ -1,4 +1,4 @@
-'use client';
+﻿'use client';
 
 import { useCallback, useEffect, useMemo, useState } from 'react';
 import ReactFlow, {
@@ -34,6 +34,7 @@ interface MindMapProps {
   relationships: PaperRelationship[];
   graphFilterSettings: GraphFilterSettings;
   onNodeClick?: (paperId: string) => void;
+  onRemovePaper?: (paperId: string) => void;
 }
 
 const nodeTypes = { paperNode: CustomNode };
@@ -62,6 +63,7 @@ function MindMapInner({
   relationships,
   graphFilterSettings,
   onNodeClick,
+  onRemovePaper,
 }: MindMapProps) {
   const { fitView } = useReactFlow();
   const [direction, setDirection] = useState<'TB' | 'LR'>('TB');
@@ -187,12 +189,24 @@ function MindMapInner({
     }));
   }, [graphData.edges, zoomLevel, sortedPapers.length]);
 
-  const [nodes, setNodes, onNodesChange] = useNodesState(layeredNodes);
+  const interactiveNodes = useMemo(
+    () =>
+      layeredNodes.map((node) => ({
+        ...node,
+        data: {
+          ...node.data,
+          on_remove_paper: onRemovePaper,
+        },
+      })),
+    [layeredNodes, onRemovePaper]
+  );
+
+  const [nodes, setNodes, onNodesChange] = useNodesState(interactiveNodes);
   const [edges, setEdges, onEdgesChange] = useEdgesState(labeledEdges);
 
   useEffect(() => {
-    setNodes(layeredNodes);
-  }, [layeredNodes, setNodes]);
+    setNodes(interactiveNodes);
+  }, [interactiveNodes, setNodes]);
 
   useEffect(() => {
     setEdges(labeledEdges);
@@ -223,7 +237,7 @@ function MindMapInner({
         <div className="text-center">
           <p className="mb-2 text-gray-600 dark:text-gray-300">표시할 논문이 없습니다.</p>
           <p className="text-sm text-gray-500 dark:text-gray-400">
-            왼쪽 필터를 조정하거나 데이터를 먼저 불러오세요.
+            왼쪽 필터나 논문 목록에서 맵에 논문을 추가해 주세요.
           </p>
         </div>
       </div>

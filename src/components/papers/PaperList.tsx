@@ -1,11 +1,12 @@
-'use client';
+﻿'use client';
 
 import Link from 'next/link';
-import { useCallback, useMemo, useState } from 'react';
+import { useCallback, useEffect, useMemo, useState } from 'react';
 import { useRouter } from 'next/navigation';
 import { usePapersWithNotes } from '@/hooks/useNotes';
 import { filterPapersBySearchFilters, type PaperSearchFilters } from '@/lib/papers/filtering';
 import { upsertNote } from '@/lib/supabase/notes';
+import { useAppStore } from '@/store/useAppStore';
 import { useToastStore } from '@/store/useToastStore';
 import type { FamiliarityLevel, PaperWithNote } from '@/types';
 import PaperCard from './PaperCard';
@@ -18,6 +19,13 @@ export default function PaperList({ filters }: PaperListProps) {
   const { papers, isLoading, isError, refresh } = usePapersWithNotes();
   const router = useRouter();
   const addToast = useToastStore((state) => state.addToast);
+  const mapPaperIds = useAppStore((state) => state.mapPaperIds);
+  const mapSelectionHydrated = useAppStore((state) => state.mapSelectionHydrated);
+  const setMapPaperIds = useAppStore((state) => state.setMapPaperIds);
+  const addMapPaper = useAppStore((state) => state.addMapPaper);
+  const addMapPapers = useAppStore((state) => state.addMapPapers);
+  const removeMapPaper = useAppStore((state) => state.removeMapPaper);
+
   const [savingByPaperId, setSavingByPaperId] = useState<Record<string, boolean>>({});
 
   const handleQuickSave = useCallback(
@@ -37,7 +45,7 @@ export default function PaperList({ filters }: PaperListProps) {
         addToast('success', successMessage);
       } catch (error) {
         console.error('Quick save error:', error);
-        addToast('error', '저장 실패, 다시 시도해주세요');
+        addToast('error', '저장에 실패했습니다. 다시 시도해주세요.');
       } finally {
         setSavingByPaperId((prev) => {
           const next = { ...prev };
@@ -51,7 +59,11 @@ export default function PaperList({ filters }: PaperListProps) {
 
   const handleFavoriteToggle = useCallback(
     async (paper: PaperWithNote) => {
-      await handleQuickSave(paper.id, { is_favorite: !paper.is_favorite }, '즐겨찾기를 저장했습니다');
+      await handleQuickSave(
+        paper.id,
+        { is_favorite: !paper.is_favorite },
+        '즐겨찾기 상태를 변경했습니다.'
+      );
     },
     [handleQuickSave]
   );
@@ -64,17 +76,49 @@ export default function PaperList({ filters }: PaperListProps) {
           familiarity_level: level,
           last_read_at: new Date().toISOString(),
         },
-        '익숙도 변경을 저장했습니다'
+        '익숙도 점수를 변경했습니다.'
       );
     },
     [handleQuickSave]
   );
 
   const filteredPapers = useMemo(
-    () =>
-      [...filterPapersBySearchFilters(papers, filters)].sort((a, b) => b.year - a.year),
+    () => [...filterPapersBySearchFilters(papers, filters)].sort((a, b) => b.year - a.year),
     [papers, filters]
   );
+
+  useEffect(() => {
+    if (!mapSelectionHydrated) return;
+    if (mapPaperIds !== null) return;
+    if (!papers.length) return;
+    setMapPaperIds(papers.map((paper) => paper.id));
+  }, [mapSelectionHydrated, mapPaperIds, papers, setMapPaperIds]);
+
+  const mapPaperIdSet = useMemo(() => new Set(mapPaperIds ?? []), [mapPaperIds]);
+
+  const handleMapToggle = useCallback(
+    (paper: PaperWithNote) => {
+      if (mapPaperIds === null) {
+        setMapPaperIds(papers.map((entry) => entry.id).filter((id) => id !== paper.id));
+        addToast('info', '관계 맵에서 제거했습니다.');
+        return;
+      }
+      if (mapPaperIdSet.has(paper.id)) {
+        removeMapPaper(paper.id);
+        addToast('info', '관계 맵에서 제거했습니다.');
+        return;
+      }
+      addMapPaper(paper.id);
+      addToast('success', '관계 맵에 추가했습니다.');
+    },
+    [mapPaperIds, mapPaperIdSet, papers, setMapPaperIds, removeMapPaper, addMapPaper, addToast]
+  );
+
+  const handleAddFilteredToMap = useCallback(() => {
+    const ids = filteredPapers.map((paper) => paper.id);
+    addMapPapers(ids);
+    addToast('success', `${ids.length}개 논문을 관계 맵에 추가했습니다.`);
+  }, [filteredPapers, addMapPapers, addToast]);
 
   if (isLoading) {
     return (
@@ -89,7 +133,7 @@ export default function PaperList({ filters }: PaperListProps) {
     return (
       <div className="p-4 text-center text-red-500">
         <p className="text-sm">논문 데이터를 불러오지 못했습니다.</p>
-        <p className="mt-1 text-xs">Supabase 연결 상태를 확인해 주세요.</p>
+        <p className="mt-1 text-xs">Supabase 연결 상태를 확인해주세요.</p>
       </div>
     );
   }
@@ -114,7 +158,17 @@ export default function PaperList({ filters }: PaperListProps) {
 
   return (
     <div className="space-y-3 p-4">
-      <div className="mb-2 text-xs text-gray-500">총 {filteredPapers.length}개 논문</div>
+      <div className="mb-2 flex items-center justify-between gap-2">
+        <div className="text-xs text-gray-500">총 {filteredPapers.length}개 논문</div>
+        <button
+          type="button"
+          onClick={handleAddFilteredToMap}
+          className="rounded-md border border-blue-300 bg-blue-50 px-2 py-1 text-[10px] font-semibold text-blue-700 transition hover:bg-blue-100 dark:border-blue-700 dark:bg-blue-900/30 dark:text-blue-300 dark:hover:bg-blue-900/50"
+        >
+          검색 결과 전체 +맵
+        </button>
+      </div>
+
       {filteredPapers.map((paper) => (
         <PaperCard
           key={paper.id}
@@ -122,6 +176,8 @@ export default function PaperList({ filters }: PaperListProps) {
           onClick={() => router.push(`/paper/${paper.id}`)}
           onFavoriteToggle={handleFavoriteToggle}
           onFamiliarityChange={handleFamiliarityChange}
+          onMapToggle={handleMapToggle}
+          isInMap={mapPaperIds === null || mapPaperIdSet.has(paper.id)}
           isSaving={!!savingByPaperId[paper.id]}
         />
       ))}

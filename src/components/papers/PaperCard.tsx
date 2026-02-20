@@ -1,4 +1,4 @@
-import { Code, ExternalLink, Star } from 'lucide-react';
+﻿import { Code, ExternalLink, Minus, Plus, Star } from 'lucide-react';
 import type { FamiliarityLevel, PaperWithNote } from '@/types';
 import {
   FAMILIARITY_LABELS,
@@ -12,6 +12,8 @@ interface PaperCardProps {
   onClick?: () => void;
   onFavoriteToggle?: (paper: PaperWithNote) => void;
   onFamiliarityChange?: (paper: PaperWithNote, level: FamiliarityLevel) => void;
+  onMapToggle?: (paper: PaperWithNote) => void;
+  isInMap?: boolean;
   isSaving?: boolean;
 }
 
@@ -24,6 +26,13 @@ const familiarityStyles: Record<string, string> = {
 };
 
 const QUICK_FAMILIARITY_LEVELS: FamiliarityLevel[] = FAMILIARITY_SELECTABLE_LEVELS;
+const FAMILIARITY_SCORE: Record<FamiliarityLevel, number> = {
+  not_started: 0,
+  difficult: 1,
+  moderate: 2,
+  familiar: 3,
+  expert: 3,
+};
 
 export default function PaperCard({
   paper,
@@ -31,11 +40,12 @@ export default function PaperCard({
   onClick,
   onFavoriteToggle,
   onFamiliarityChange,
+  onMapToggle,
+  isInMap = false,
   isSaving = false,
 }: PaperCardProps) {
   const familiarity = paper.familiarity_level ?? 'not_started';
-  const normalizedFamiliarity: FamiliarityLevel =
-    familiarity === 'expert' ? 'familiar' : familiarity;
+  const normalizedFamiliarity: FamiliarityLevel = familiarity === 'expert' ? 'familiar' : familiarity;
 
   return (
     <article
@@ -56,38 +66,65 @@ export default function PaperCard({
     >
       <div className="mb-2 flex items-start justify-between gap-2">
         <h3 className="line-clamp-2 flex-1 text-sm font-semibold">{paper.title}</h3>
-        <button
-          type="button"
-          aria-label={paper.is_favorite ? '즐겨찾기 해제' : '즐겨찾기'}
-          title={paper.is_favorite ? '즐겨찾기 해제' : '즐겨찾기'}
-          disabled={isSaving || !onFavoriteToggle}
-          onClick={(event) => {
-            event.stopPropagation();
-            if (!onFavoriteToggle || isSaving) return;
-            onFavoriteToggle(paper);
-          }}
-          className={`rounded p-0.5 transition ${
-            isSaving || !onFavoriteToggle
-              ? 'cursor-not-allowed opacity-60'
-              : 'hover:bg-amber-50 dark:hover:bg-amber-900/20'
-          }`}
-        >
-          <Star
-            className={`h-4 w-4 flex-shrink-0 ${
-              paper.is_favorite ? 'fill-yellow-500 text-yellow-500' : 'text-gray-400'
+        <div className="flex items-center gap-1">
+          <button
+            type="button"
+            aria-label={paper.is_favorite ? '즐겨찾기 해제' : '즐겨찾기'}
+            title={paper.is_favorite ? '즐겨찾기 해제' : '즐겨찾기'}
+            disabled={isSaving || !onFavoriteToggle}
+            onClick={(event) => {
+              event.stopPropagation();
+              if (!onFavoriteToggle || isSaving) return;
+              onFavoriteToggle(paper);
+            }}
+            className={`rounded p-0.5 transition ${
+              isSaving || !onFavoriteToggle
+                ? 'cursor-not-allowed opacity-60'
+                : 'hover:bg-amber-50 dark:hover:bg-amber-900/20'
             }`}
-          />
-        </button>
+          >
+            <Star
+              className={`h-4 w-4 flex-shrink-0 ${
+                paper.is_favorite ? 'fill-yellow-500 text-yellow-500' : 'text-gray-400'
+              }`}
+            />
+          </button>
+
+          <button
+            type="button"
+            aria-label={isInMap ? '관계 맵에서 제거' : '관계 맵에 추가'}
+            title={isInMap ? '관계 맵에서 제거' : '관계 맵에 추가'}
+            disabled={isSaving || !onMapToggle}
+            onClick={(event) => {
+              event.stopPropagation();
+              if (!onMapToggle || isSaving) return;
+              onMapToggle(paper);
+            }}
+            className={`rounded p-0.5 transition ${
+              isSaving || !onMapToggle
+                ? 'cursor-not-allowed opacity-60'
+                : isInMap
+                  ? 'text-red-500 hover:bg-red-50 dark:hover:bg-red-900/20'
+                  : 'text-blue-600 hover:bg-blue-50 dark:text-blue-300 dark:hover:bg-blue-900/20'
+            }`}
+          >
+            {isInMap ? (
+              <Minus className="h-4 w-4 flex-shrink-0" />
+            ) : (
+              <Plus className="h-4 w-4 flex-shrink-0" />
+            )}
+          </button>
+        </div>
       </div>
 
       <div className="mb-2 text-xs text-gray-600 dark:text-gray-400">
         <span className="font-medium">{paper.authors[0]}</span>
-        {paper.authors.length > 1 && ` 외 ${paper.authors.length - 1}명`}
-        <span className="mx-2">•</span>
+        {paper.authors.length > 1 && ` +${paper.authors.length - 1}명`}
+        <span className="mx-2">·</span>
         <span>{paper.year}</span>
         {paper.venue ? (
           <>
-            <span className="mx-2">•</span>
+            <span className="mx-2">·</span>
             <span className="italic">{paper.venue}</span>
           </>
         ) : null}
@@ -111,14 +148,15 @@ export default function PaperCard({
       </div>
 
       <div className="mb-2 flex flex-wrap items-center gap-1.5">
-        {QUICK_FAMILIARITY_LEVELS.map((level, idx) => {
+        {QUICK_FAMILIARITY_LEVELS.map((level) => {
           const active = normalizedFamiliarity === level;
+          const score = FAMILIARITY_SCORE[level];
           return (
             <button
               key={level}
               type="button"
               disabled={isSaving || !onFamiliarityChange}
-              title={`익숙도 ${idx}단계 저장`}
+              title={`익숙도 ${score}점으로 변경`}
               onClick={(event) => {
                 event.stopPropagation();
                 if (!onFamiliarityChange || isSaving) return;
@@ -130,7 +168,7 @@ export default function PaperCard({
                   : 'border-gray-300 bg-white text-gray-600 hover:border-blue-400 dark:border-gray-600 dark:bg-gray-900 dark:text-gray-300'
               } ${isSaving || !onFamiliarityChange ? 'cursor-not-allowed opacity-60' : ''}`}
             >
-              ★{idx}
+              {score}
             </button>
           );
         })}

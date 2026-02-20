@@ -1,0 +1,78 @@
+{
+  "id": "e3fe0b77-8e76-4e75-9aca-7af0e3117015",
+  "title": "AWQ: Activation-aware Weight Quantization for LLM Compression and Acceleration",
+  "authors": [
+    "Ji Lin",
+    "Jiaming Tang",
+    "Haotian Tang",
+    "Shang Yang",
+    "Wei-Ming Chen",
+    "Wei-Chen Wang",
+    "Guangxuan Xiao",
+    "Xingyu Dang",
+    "Chuang Gan",
+    "Song Han"
+  ],
+  "year": 2024,
+  "venue": "MLSys 2024 (Best Paper), arXiv 2306.00978",
+  "doi": "10.48550/arXiv.2306.00978",
+  "arxiv_id": "2306.00978",
+  "abstract": "AWQ는 LLM의 저비트 weight-only 사후 양자화(PTQ)에서 성능이 무너지는 핵심 원인을 채널별 중요도 불균형으로 해석하고, 이를 활성화 통계 기반으로 보정하는 방법을 제안한다. 기존 방식처럼 일부 채널을 FP16으로 남기는 혼합 정밀도는 배포 커널이 복잡해지고 메모리 접근이 비효율적이지만, AWQ는 등가 스케일링 변환으로 같은 효과를 하드웨어 친화적으로 구현한다.\n\n핵심 아이디어는 가중치 크기 자체보다, 실제 입력 활성화가 큰 채널이 출력 오차에 더 민감하다는 점이다. 따라서 소수의 salient 채널을 스케일링으로 보호하면 INT4/INT3에서도 품질 저하를 크게 줄일 수 있다.\n\nAWQ는 재구성용 역전파(Backprop reconstruction)에 의존하지 않아 캘리브레이션 데이터 과적합 위험이 낮고, 언어 모델뿐 아니라 멀티모달 모델에도 잘 일반화된다. 논문은 TinyChat 시스템과 결합해 W4A16 배포에서 실제 토큰 처리량을 유의미하게 높임을 보인다.",
+  "notes_summary": "활성화 기반 중요 채널 탐지와 등가 스케일링으로 저비트 품질을 지키면서도 배포 커널 복잡도를 늘리지 않는 실전형 LLM PTQ 프레임워크.",
+  "key_contributions": [
+    "가중치 크기 기준 대신 활성화 통계 기반으로 채널 중요도(salience)를 정의해, 저비트 오차의 실제 원인에 맞춘 보호 전략을 제시했다.",
+    "중요 채널을 FP16으로 남기는 비배포형 혼합 정밀도 대신, 등가 스케일링 변환으로 동일한 보호 효과를 저비트 경로 안에서 구현했다.",
+    "고차원 채널별 스케일 최적화를 단일 하이퍼파라미터(alpha) 탐색으로 축소해, 튜닝 비용과 불안정성을 크게 줄였다.",
+    "재구성 역전파 없이도 강한 성능을 달성해 캘리브레이션 데이터 과적합을 줄이고 도메인/모달리티 일반화를 확보했다.",
+    "TinyChat 커널 융합 및 패킹과 결합하여 W4A16 추론에서 실측 속도 향상과 메모리 이득을 동시에 검증했다."
+  ],
+  "algorithms": [
+    "캘리브레이션 배치에서 채널별 활성화 통계(예: 평균 절대값)를 수집해 중요 채널 후보를 산출한다.",
+    "기본 그룹 단위 weight-only 양자화(INT4/INT3, group size 고정)를 적용해 기준 오차를 계산한다.",
+    "중요 채널에 대해 W·diag(s), diag(s)^{-1}·X 형태의 등가 스케일링을 적용해 양자화 오차를 재분배한다.",
+    "s = s_X^alpha 제약 아래 alpha 격자 탐색으로 레이어별 스케일을 선택한다.",
+    "필요 시 clipping을 함께 적용해 극단값 채널의 양자화 불안정을 완화한다.",
+    "최종 가중치를 패킹하고 디양자화-연산 융합 커널로 배포해 실제 처리량을 검증한다."
+  ],
+  "key_equations": [
+    {
+      "name": "그룹 단위 가중치 양자화",
+      "latex": "Q(\\mathbf{w}) = \\Delta\\,\\mathrm{Round}(\\mathbf{w}/\\Delta),\\quad \\Delta = \\frac{\\max(|\\mathbf{w}|)}{2^{N-1}}",
+      "description": "그룹 내부 최대 절대값으로 스케일을 정하고 정수 격자로 반올림하는 기본 weight-only 양자화식이다."
+    },
+    {
+      "name": "등가 스케일링 변환",
+      "latex": "Q(w\\,s)\\cdot\\frac{x}{s}",
+      "description": "중요 채널을 스케일업해 상대 양자화 오차를 줄이되, 입력을 역스케일해 연산 등가성을 유지한다."
+    },
+    {
+      "name": "스케일 최적화 목적식",
+      "latex": "\\mathbf{s}^*=\\arg\\min_{\\mathbf{s}}\\left\\|Q\\!\\left(\\mathbf{W}\\,\\mathrm{diag}(\\mathbf{s})\\right)\\left(\\mathrm{diag}(\\mathbf{s})^{-1}\\mathbf{X}\\right)-\\mathbf{W}\\mathbf{X}\\right\\|",
+      "description": "스케일링 후 양자화된 출력과 원래 FP 출력을 최대한 가깝게 맞추는 목적식이다."
+    },
+    {
+      "name": "탐색 공간 축소",
+      "latex": "\\mathbf{s}=\\mathbf{s}_X^{\\alpha},\\quad \\alpha\\in[0,1]",
+      "description": "채널별 자유변수 전체를 직접 탐색하지 않고 alpha 하나로 줄여 안정적이고 빠른 탐색을 가능하게 한다."
+    },
+    {
+      "name": "오차 비율 직관",
+      "latex": "\\frac{\\mathrm{Err}_{new}}{\\mathrm{Err}_{org}}\\approx\\frac{\\Delta_{new}}{\\Delta}\\cdot\\frac{1}{s}",
+      "description": "새 스케일이 기존과 비슷할 때 s>1이면 중요 채널의 상대 오차가 감소함을 보여주는 직관식이다."
+    }
+  ],
+  "architecture_detail": "## 1) 문제 설정: 왜 LLM 저비트 양자화가 어려운가\n\nLLM 추론은 메모리 대역폭 병목이 커서 weight-only 저비트 양자화가 필수다. 하지만 INT4/INT3로 내리면 특정 채널의 정보 손실이 집중되어 perplexity가 급격히 악화될 수 있다.\n\n## 2) 핵심 관찰: 가중치 크기보다 활성화가 중요도를 더 잘 반영\n\nAWQ는 채널 중요도를 \\(\\|w\\|\\)가 아니라 입력 활성화 통계로 본다. 실제 추론에서 크게 활성화되는 채널은 같은 양자화 오차라도 출력 손실 기여가 더 크기 때문이다.\n\n## 3) 기본 양자화식\n\n$$\nQ(\\mathbf{w}) = \\Delta\\,\\mathrm{Round}(\\mathbf{w}/\\Delta),\\quad \\Delta = \\frac{\\max(|\\mathbf{w}|)}{2^{N-1}}\n$$\n\n이 기본식 위에 중요 채널 보호를 위한 스케일링을 결합한다.\n\n## 4) AWQ 등가 스케일링: 혼합 정밀도 없이 중요 채널 보호\n\n$$\nQ(w\\,s)\\cdot\\frac{x}{s}\n$$\n\n위 식은 중요한 채널을 양자화 전에 확장(s>1)하고, 입력 측 역스케일로 연산 등가를 유지하는 아이디어다. 즉 FP16 채널 보존 없이도 유사한 보호 효과를 얻는다.\n\n## 5) 스케일 최적화와 탐색 단순화\n\n$$\n\\mathbf{s}^*=\\arg\\min_{\\mathbf{s}}\\left\\|Q\\!\\left(\\mathbf{W}\\,\\mathrm{diag}(\\mathbf{s})\\right)\\left(\\mathrm{diag}(\\mathbf{s})^{-1}\\mathbf{X}\\right)-\\mathbf{W}\\mathbf{X}\\right\\|\n$$\n\n직접 탐색은 차원이 커서 불안정하므로,\n\n$$\n\\mathbf{s}=\\mathbf{s}_X^{\\alpha},\\quad \\alpha\\in[0,1]\n$$\n\n로 축소해 레이어별 alpha만 탐색한다. 이 설계가 AWQ의 실전성을 만든다.\n\n## 6) 시스템 관점: TinyChat과 W4A16 배포\n\n핵심은 알고리즘 성능뿐 아니라 커널 구현 가능성이다. AWQ는 패킹/디양자화 융합 커널과 결합되어 엣지 GPU에서도 일관된 처리량 향상을 보인다.\n\n## 7) 구현 체크리스트\n\n- 캘리브레이션 데이터는 도메인 편향이 적게 구성\n- bit-width와 group size를 먼저 고정한 뒤 alpha 탐색\n- 레이어별 출력 mismatch, perplexity 변화를 함께 기록\n- clipping on/off를 모두 비교\n- 품질(Perplexity)과 처리량(tokens/s)을 동시에 평가",
+  "category": "quantization",
+  "tags": [
+    "awq",
+    "activation-aware",
+    "llm-quantization",
+    "weight-only-quantization",
+    "tinychat",
+    "on-device-llm"
+  ],
+  "pdf_url": "https://arxiv.org/pdf/2306.00978",
+  "code_url": "https://github.com/mit-han-lab/llm-awq",
+  "color_hex": "#2563EB",
+  "icon_name": null
+}

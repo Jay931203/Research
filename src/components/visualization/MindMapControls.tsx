@@ -1,4 +1,4 @@
-'use client';
+﻿'use client';
 
 import { useReactFlow } from 'reactflow';
 import { LayoutGrid, Maximize, ZoomIn, ZoomOut } from 'lucide-react';
@@ -53,4 +53,3 @@ export default function MindMapControls({
     </div>
   );
 }
-
