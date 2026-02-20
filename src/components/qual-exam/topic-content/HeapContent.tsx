@@ -390,7 +390,7 @@ export default function HeapContent({ topic }: Props) {
         <div className="rounded-xl border border-red-200 bg-red-50 dark:border-red-800/40 dark:bg-red-900/10 p-3 mb-4">
           <p className="text-sm font-bold text-red-800 dark:text-red-300 mb-1">시험 포인트</p>
           <ul className="space-y-1">
-            <li className="text-sm text-red-700 dark:text-red-300">&bull; 반직관: &quot;n번 삽입하면 O(n log n)&quot;인데 Build-Heap은 O(n) - 이 차이가 자주 출제됨</li>
+            <li className="text-sm text-red-700 dark:text-red-300">&bull; 반직관: &quot;n번 삽입하면 O(n log n)&quot;이지만 Build-Heap은 O(n) — bottom-up heapify를 사용하기 때문</li>
             <li className="text-sm text-red-700 dark:text-red-300">&bull; Build-Heap은 bottom-up heapify를 사용하기 때문에 가능</li>
           </ul>
         </div>

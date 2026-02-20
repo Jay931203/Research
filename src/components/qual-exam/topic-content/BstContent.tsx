@@ -36,7 +36,7 @@ const BST_EDGES = [[0,1],[0,2],[1,3],[1,4],[2,5],[2,6]] as const;
 
 const TRAVERSALS: Record<string, { order: number[]; label: string; note: string }> = {
   '전위': { order: [50,30,20,40,70,60,80], label: 'root → L → R', note: '루트 먼저' },
-  '중위': { order: [20,30,40,50,60,70,80], label: 'L → root → R', note: '항상 오름차순 ★' },
+  '중위': { order: [20,30,40,50,60,70,80], label: 'L → root → R', note: '항상 오름차순' },
   '후위': { order: [20,40,30,60,80,70,50], label: 'L → R → root', note: '루트가 마지막' },
   'BFS':  { order: [50,30,70,20,40,60,80], label: '레벨 순서', note: '큐 사용' },
 };
@@ -440,7 +440,7 @@ export default function BstContent({ topic }: Props) {
         <div className="rounded-xl border border-red-200 bg-red-50 dark:border-red-800/40 dark:bg-red-900/10 p-3 mb-4">
           <p className="text-sm font-bold text-red-800 dark:text-red-300 mb-1">시험 포인트</p>
           <ul className="space-y-1">
-            <li className="text-sm text-red-700 dark:text-red-300">&bull; &quot;BST 중위순회 = 정렬된 배열&quot; - 이 성질이 자주 출제됨</li>
+            <li className="text-sm text-red-700 dark:text-red-300">&bull; BST 중위순회는 항상 오름차순 — 완전 이진 탐색 트리의 핵심 성질</li>
           </ul>
         </div>
         <div className="rounded-xl border border-slate-200 dark:border-slate-700 bg-slate-50 dark:bg-slate-800/50 p-5">
@@ -623,7 +623,7 @@ export default function BstContent({ topic }: Props) {
           {[
             '일반 BST는 삽입 순서에 따라 O(n) 최악 — 정렬된 데이터 삽입 시 편향 트리',
             'AVL 트리 vs RB 트리: AVL은 더 엄격한 균형 → 탐색 빠름, RB는 삽입/삭제 빠름',
-            '중위 순회 = 오름차순 출력 — 이 성질이 BST의 핵심, 시험 단골 문제',
+            '중위 순회 = 오름차순 출력 — BST의 구조적 성질에서 직접 유도됨',
             'Case 3 삭제 시 중위 전임자(inorder predecessor, 왼쪽 최댓값) 사용도 가능',
           ].map((p, i) => (
             <p key={i} className="flex gap-2 text-sm text-red-700 dark:text-red-300"><span>⚠</span>{p}</p>

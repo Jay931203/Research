@@ -14,7 +14,7 @@ export const DSA_TOPICS: StudyTopic[] = [
     difficulty: 'intermediate',
     examFrequency: 5,
     studyOrder: 1,
-    summary: '알고리즘 성능의 점근적 분석. Big-O, Big-Ω, Big-Θ 표기법으로 입력 크기에 따른 성장률을 정의합니다. 매년 출제되는 핵심 주제.',
+    summary: '알고리즘 성능의 점근적 분석. Big-O, Big-Ω, Big-Θ 표기법으로 입력 크기에 따른 성장률을 정의합니다.',
     relatedExamIds: ['dsa-2024-2-1', 'dsa-2022-1-2', 'dsa-2025-1-1'],
     mathFormulas: [
       { label: 'Big-O 정의 (점근적 상한)', latex: 'f(n) = O(g(n)) \\iff \\exists\\, c > 0,\\, n_0 : f(n) \\le c \\cdot g(n)\\ \\forall n \\ge n_0' },

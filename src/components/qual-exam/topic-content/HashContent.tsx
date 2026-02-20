@@ -523,9 +523,9 @@ export default function HashContent({ topic }: Props) {
         </div>
       </section>
 
-      {/* 5. 완전 해시 + 함정 */}
+      {/* 5. 완전 해시 & 유니버설 해싱 */}
       <section>
-        <SH emoji="💎" title="완전 해시 + 시험 함정" id={`${topic.id}-sec-perfect`} />
+        <SH emoji="💎" title="완전 해시 & 유니버설 해싱" id={`${topic.id}-sec-perfect`} />
         <div className="grid grid-cols-1 sm:grid-cols-2 gap-4 mb-5">
           {[
             {
@@ -561,7 +561,7 @@ export default function HashContent({ topic }: Props) {
         </div>
         <div className="rounded-xl border border-red-200 bg-red-50 p-4 dark:border-red-800/40 dark:bg-red-900/10 space-y-2">
           {[
-            '해시 테이블 탐색 O(1)은 평균 — 최악은 O(n), 시험에서 "항상 O(1)"이라고 하면 틀림',
+            '해시 테이블 탐색 O(1)은 평균 — 최악은 O(n) (모든 키가 같은 슬롯에 해시될 때)',
             '오픈 어드레싱에서 삭제 후 empty 처리 시 탐색 체인이 끊겨 찾지 못할 수 있음 → DELETED 필수',
             '선형 프로빙의 Primary Clustering: 연속된 슬롯 점령 → 긴 탐침 체인 형성',
             'm을 2의 거듭제곱으로 하면 비트 마스킹으로 빠르지만 해시 함수 품질에 취약',

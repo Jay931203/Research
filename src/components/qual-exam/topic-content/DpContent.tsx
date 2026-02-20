@@ -495,7 +495,7 @@ export default function DpContent({ topic }: Props) {
           </p>
         </div>
         <div className="rounded-xl border border-slate-200 dark:border-slate-700 bg-white dark:bg-slate-900/50 p-4 mt-4">
-          <p className="text-sm font-bold text-slate-700 dark:text-slate-300 mb-2">Coin Change (동전 거스름돈) — DP 빈출 패턴</p>
+          <p className="text-sm font-bold text-slate-700 dark:text-slate-300 mb-2">Coin Change (동전 거스름돈)</p>
           <p className="text-sm text-slate-600 dark:text-slate-400 leading-relaxed mb-2">
             동전 종류 리스트와 목표 금액 amount가 주어질 때, 최소 동전 개수를 구하는 문제.
           </p>
