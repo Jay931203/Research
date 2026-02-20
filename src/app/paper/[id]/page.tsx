@@ -579,7 +579,7 @@ export default function PaperStudyPage() {
 
         {/* Breadcrumb bar (같은 위치, 같은 디자인) */}
         <div className="border-b border-gray-200 bg-white px-4 py-2 dark:border-gray-800 dark:bg-gray-900">
-          <div className="mx-auto flex max-w-[calc(16rem+56rem)] items-center justify-between gap-4">
+          <div className="mx-auto flex max-w-[calc(16rem+64rem)] items-center justify-between gap-4">
             <div className="flex min-w-0 items-center gap-2 text-sm">
               <Link
                 href="/dashboard"
@@ -667,7 +667,7 @@ export default function PaperStudyPage() {
 
           {/* Main content */}
           <main className="min-w-0 flex-1">
-            <div className="mx-auto max-w-4xl px-4 py-8 sm:px-6 lg:px-8">
+            <div className="mx-auto max-w-5xl px-4 py-8 sm:px-6 lg:px-8">
               <FullStudyComponent />
               <div className="h-16" />
             </div>
@@ -688,7 +688,7 @@ export default function PaperStudyPage() {
 
       {/* -------- Breadcrumb Bar -------- */}
       <div className="border-b border-gray-200 bg-white px-4 py-2 dark:border-gray-800 dark:bg-gray-900">
-        <div className="mx-auto flex max-w-[calc(16rem+56rem)] items-center justify-between gap-4">
+        <div className="mx-auto flex max-w-[calc(16rem+64rem)] items-center justify-between gap-4">
           <div className="flex min-w-0 items-center gap-2 text-sm">
             <Link
               href="/dashboard"
@@ -775,7 +775,7 @@ export default function PaperStudyPage() {
 
         {/* -------- Main Content -------- */}
         <main className="min-w-0 flex-1">
-          <div className="mx-auto max-w-4xl space-y-8 px-4 py-8 sm:px-6 lg:px-8">
+          <div className="mx-auto max-w-5xl space-y-8 px-4 py-8 sm:px-6 lg:px-8">
 
             {/* ===== Section 1: Overview ===== */}
             <section id="section-overview" className="scroll-mt-20">
@@ -1471,7 +1471,7 @@ function LoadingSkeleton() {
     <div className="min-h-screen bg-gray-50 dark:bg-gray-950">
       <Header />
       <div className="border-b border-gray-200 bg-white px-4 py-2 dark:border-gray-800 dark:bg-gray-900">
-        <div className="mx-auto flex max-w-[calc(16rem+56rem)] items-center gap-4">
+        <div className="mx-auto flex max-w-[calc(16rem+64rem)] items-center gap-4">
           <div className="h-4 w-24 animate-pulse rounded bg-gray-200 dark:bg-gray-700" />
           <div className="h-4 w-48 animate-pulse rounded bg-gray-200 dark:bg-gray-700" />
         </div>
@@ -1485,7 +1485,7 @@ function LoadingSkeleton() {
           </div>
         </aside>
         <main className="flex-1">
-          <div className="mx-auto max-w-4xl space-y-6 px-4 py-8 sm:px-6 lg:px-8">
+          <div className="mx-auto max-w-5xl space-y-6 px-4 py-8 sm:px-6 lg:px-8">
             {Array.from({ length: 4 }).map((_, i) => (
               <div key={i} className="rounded-xl bg-white p-6 shadow-sm dark:bg-gray-900 dark:shadow-none dark:ring-1 dark:ring-gray-800">
                 <div className="mb-3 h-5 w-32 animate-pulse rounded bg-gray-200 dark:bg-gray-700" />
