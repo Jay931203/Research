@@ -49,6 +49,14 @@ const BudgetOutageViz = dynamic(
   () => import('@/components/my-research/infographics/BudgetOutageViz'),
   { ssr: false },
 );
+const MambaSSMCoreViz = dynamic(
+  () => import('@/components/my-research/infographics/MambaSSMCoreViz'),
+  { ssr: false },
+);
+const NmseVsBopScatterViz = dynamic(
+  () => import('@/components/my-research/infographics/NmseVsBopScatterViz'),
+  { ssr: false },
+);
 
 /* ------------------------------------------------------------------ */
 /*  ToC                                                                 */
@@ -619,6 +627,20 @@ export default function MyResearchPage() {
                     CNN의 수용장(receptive field)은 하드 컷오프, SSM의 지수 감쇠 메모리는 멀리 있는 성분도 부드럽게 포함합니다.
                   </InfographicCaption>
 
+                  {/* 3.3.5 — Mamba SSM internals */}
+                  <div className="mt-6">
+                    <SubSectionHeading number="3.3+" title="Mamba 선택적 스캔: 핵심 메커니즘" />
+                    <p className="mb-4 text-sm leading-relaxed text-gray-700 dark:text-gray-300">
+                      Mamba의 핵심은 입력 의존적 파라미터 Δ_t입니다. 아래 애니메이션에서
+                      CSI 각도 도메인 계수를 입력으로 받아 상태 벡터 h가 어떻게
+                      지배 경로만 선택적으로 포착하는지 확인하세요.
+                    </p>
+                    <MambaSSMCoreViz />
+                    <InfographicCaption>
+                      고정 Δ(S4)와 선택적 Δ(Mamba) 비교: 지배 경로에서 Mamba가 상태를 크게 갱신하고, 잡음에서는 이전 기억을 유지합니다.
+                    </InfographicCaption>
+                  </div>
+
                   {/* 3.4 */}
                   <div className="mt-6">
                     <SubSectionHeading number="3.4" title="비대칭 구조 결론" />
@@ -903,13 +925,18 @@ export default function MyResearchPage() {
                     </table>
                   </div>
 
-                  <div className="rounded-lg border border-indigo-200 bg-indigo-50 px-4 py-3 dark:border-indigo-800 dark:bg-indigo-900/20">
+                  <div className="rounded-lg border border-indigo-200 bg-indigo-50 px-4 py-3 dark:border-indigo-800 dark:bg-indigo-900/20 mb-6">
                     <p className="text-xs leading-relaxed text-indigo-700 dark:text-indigo-300">
                       <span className="font-bold">핵심 관찰:</span> Mamba-Transformer는 INT8에서도 NMSE -15.12 dB를 유지하지만,
                       CsiNet은 INT8에서 이미 0.68 dB로 급격히 성능이 저하됩니다.
                       이는 Mamba 인코더의 양자화 내성이 현저히 높음을 보여줍니다.
                     </p>
                   </div>
+
+                  <NmseVsBopScatterViz />
+                  <InfographicCaption>
+                    효율 프론티어: 오른쪽 아래가 최적 (高 BOP 절약 + 低 NMSE). RP-MPQ는 균일 양자화 대비 동일 예산에서 일관되게 우위.
+                  </InfographicCaption>
                 </Card>
               </div>
             </section>

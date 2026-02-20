@@ -31,6 +31,21 @@ export default function OffGridDFTViz() {
 
   const maxMag = useMemo(() => Math.max(...magnitudes, 1), [magnitudes]);
 
+  // Energy leakage analysis
+  const nearestBin = useMemo(() => Math.round(freq) % 16, [freq]);
+  const { mainPct, leakagePct } = useMemo(() => {
+    const totalE = magnitudes.reduce((s, m) => s + m * m, 0);
+    const mainE = magnitudes[nearestBin] * magnitudes[nearestBin];
+    const main = totalE > 0 ? (mainE / totalE) * 100 : 100;
+    return { mainPct: main, leakagePct: 100 - main };
+  }, [magnitudes, nearestBin]);
+
+  // Polynomial decay bound: c₀/(1+|k-nearestBin|)
+  const decayRef = useMemo(() => {
+    const c0 = magnitudes[nearestBin];
+    return magnitudes.map((_, k) => c0 / (1 + Math.abs(k - nearestBin)));
+  }, [magnitudes, nearestBin]);
+
   const svgHeight = 200;
   const svgWidth = 560;
   const barAreaHeight = 160;
@@ -148,6 +163,36 @@ export default function OffGridDFTViz() {
             );
           })}
 
+          {/* Polynomial decay reference line (off-grid only) */}
+          {!isOnGrid && decayRef.map((d, k) => {
+            const x1 = k * barSpacing + 2 + barWidth / 2;
+            if (k === 0) return null;
+            const x0 = (k - 1) * barSpacing + 2 + barWidth / 2;
+            const y1 = barAreaTop + barAreaHeight - (d / maxMag) * barAreaHeight;
+            const y0 = barAreaTop + barAreaHeight - (decayRef[k - 1] / maxMag) * barAreaHeight;
+            return (
+              <line key={k} x1={x0} y1={y0} x2={x1} y2={y1}
+                stroke="#9ca3af" strokeWidth={1} strokeDasharray="3,2" opacity={0.6}
+              />
+            );
+          })}
+
+          {/* Main bin highlight */}
+          {!isOnGrid && (
+            <rect
+              x={nearestBin * barSpacing + 1}
+              y={barAreaTop - 2}
+              width={barWidth + 2}
+              height={barAreaHeight + 2}
+              fill="none"
+              stroke="#9ca3af"
+              strokeWidth={1}
+              strokeDasharray="3,2"
+              opacity={0.5}
+              rx={2}
+            />
+          )}
+
           {/* X-axis label */}
           <text
             x={svgWidth / 2}
@@ -160,6 +205,34 @@ export default function OffGridDFTViz() {
           </text>
         </svg>
       </div>
+
+      {/* Energy leakage gauge */}
+      <div className="mt-3 mb-1">
+        <div className="flex items-center justify-between text-xs mb-1">
+          <span className="font-medium text-gray-600 dark:text-gray-400">에너지 분포</span>
+          <span className={`font-mono ${isOnGrid ? 'text-blue-600 dark:text-blue-400' : 'text-orange-600 dark:text-orange-400'}`}>
+            주빈 {mainPct.toFixed(1)}% / 누설 {leakagePct.toFixed(1)}%
+          </span>
+        </div>
+        <div className="h-4 w-full bg-orange-200 dark:bg-orange-900/40 rounded-full overflow-hidden">
+          <div
+            className="h-full rounded-full transition-all duration-300"
+            style={{
+              width: `${mainPct}%`,
+              backgroundColor: isOnGrid ? '#3b82f6' : '#f97316',
+            }}
+          />
+        </div>
+        <div className="flex justify-between text-[9px] text-gray-400 mt-0.5">
+          <span>← 주 빈 에너지</span>
+          <span>누설 에너지 →</span>
+        </div>
+      </div>
+      {!isOnGrid && (
+        <p className="text-[10px] text-gray-500 dark:text-gray-400 mb-2">
+          회색 점선: 다항식 감쇠 경계 c₀/(1+|k−k₀|). Off-grid 채널의 CSI 코드북 표현 오차 원인.
+        </p>
+      )}
 
       {/* Legend */}
       <div className="flex gap-4 mt-2 mb-3">

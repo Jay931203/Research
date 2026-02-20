@@ -20,6 +20,24 @@ const BUDGETS = [
 // Best candidate index per budget (from ILP_SELECTED)
 const BEST_PER_BUDGET = [0, 2, 5, 8, 11];
 
+// Actual bit-width assignments per budget (M=6 blocks)
+// Block 5 (FC-z) has highest Hessian sensitivity → always gets higher bits
+const BLOCK_NAMES = ['Conv', 'SSM-1', 'SSM-2', 'SSM-3', 'FC-z★', 'Proj'];
+const POLICY_TABLE = [
+  { label: 'c=75%',    bits: [4, 4, 4, 4, 8,  4],  avgBits: 4.67 },
+  { label: 'c=80%',    bits: [4, 8, 4, 4, 8,  8],  avgBits: 6.00 },
+  { label: 'c=87.5%',  bits: [8, 8, 4, 8, 16, 8],  avgBits: 8.67 },
+  { label: 'c=90%',    bits: [8, 8, 8, 8, 16, 8],  avgBits: 9.33 },
+  { label: 'c=93.75%', bits: [16,8, 8, 16,16, 16], avgBits: 13.33 },
+] as const;
+
+function bitColor(b: number) {
+  if (b === 4)  return 'bg-emerald-100 dark:bg-emerald-950/50 text-emerald-700 dark:text-emerald-300';
+  if (b === 8)  return 'bg-amber-100 dark:bg-amber-950/50 text-amber-700 dark:text-amber-300';
+  if (b === 16) return 'bg-red-100 dark:bg-red-950/50 text-red-700 dark:text-red-300';
+  return 'bg-gray-100 text-gray-600';
+}
+
 type Stage = 0 | 1 | 2;
 
 // Gaussian PDF approximation for SVG curve
@@ -154,59 +172,75 @@ export default function PolicySpaceViz() {
         )}
       </div>
 
-      {/* STAGE 2: KL Refinement */}
+      {/* STAGE 2: KL Refinement — bit-width assignment table */}
       {stage >= 2 && (
         <div className="mb-5 transition-all duration-500">
-          <p className="text-sm font-semibold text-emerald-700 dark:text-emerald-300 mb-3">
-            KL 정제: 예산별 최적 정책 선택 (분포 이동 최소화)
+          <p className="text-sm font-semibold text-emerald-700 dark:text-emerald-300 mb-1">
+            KL 정제: 예산별 최적 비트폭 할당 (Π_C 결과)
           </p>
-          <div className="grid grid-cols-5 gap-2">
-            {BUDGETS.map(({ label }, bi) => {
-              const isBest = true; // all budgets have a best
-              const selectedIdx = BEST_PER_BUDGET[bi];
-              return (
-                <div
-                  key={label}
-                  className="rounded-lg border border-emerald-200 dark:border-emerald-800 bg-emerald-50 dark:bg-emerald-950/30 p-2 flex flex-col items-center gap-1"
-                >
-                  <span className="text-xs font-semibold text-emerald-700 dark:text-emerald-300">
-                    {label}
-                  </span>
-                  {/* SVG Gaussian curves */}
-                  <svg viewBox="0 0 80 60" width="100%" height={60} className="block">
-                    {/* FP32 reference (gray) */}
-                    <polyline
-                      points={gaussianPoints(40, 55, 70, 40, 1.0)}
-                      fill="none"
-                      stroke="#9ca3af"
-                      strokeWidth={1.5}
-                      strokeDasharray="3,2"
-                    />
-                    {/* Selected policy (blue, slightly shifted) */}
-                    <polyline
-                      points={gaussianPoints(40 - (bi - 2) * 3, 55, 70, 35, 1.1 + bi * 0.08)}
-                      fill="rgba(59,130,246,0.15)"
-                      stroke="#3b82f6"
-                      strokeWidth={1.5}
-                    />
-                    <text x={40} y={10} textAnchor="middle" fontSize={7} fill="#6b7280">
-                      KL↓
-                    </text>
-                    {/* Star */}
-                    <text x={62} y={18} fontSize={10} textAnchor="middle" fill="#f59e0b">
-                      ★
-                    </text>
-                  </svg>
-                  <span className="text-[10px] text-emerald-600 dark:text-emerald-400 text-center">
-                    후보 #{selectedIdx + 1}
-                  </span>
-                </div>
-              );
-            })}
+          <p className="text-xs text-gray-500 dark:text-gray-400 mb-3">
+            ★ FC-z 블록은 Hessian Tr(H) 최고 → 모든 예산에서 항상 높은 비트폭 할당
+          </p>
+          <div className="overflow-x-auto rounded-xl border border-emerald-200 dark:border-emerald-800">
+            <table className="w-full text-xs border-collapse">
+              <thead>
+                <tr className="bg-emerald-50 dark:bg-emerald-950/30">
+                  <th className="px-3 py-2 text-left font-semibold text-emerald-700 dark:text-emerald-300 border-b border-emerald-200 dark:border-emerald-800">
+                    예산
+                  </th>
+                  {BLOCK_NAMES.map((name) => (
+                    <th
+                      key={name}
+                      className={`px-2 py-2 text-center font-semibold border-b border-emerald-200 dark:border-emerald-800 ${
+                        name === 'FC-z★'
+                          ? 'text-red-600 dark:text-red-400'
+                          : 'text-emerald-700 dark:text-emerald-300'
+                      }`}
+                    >
+                      {name}
+                    </th>
+                  ))}
+                  <th className="px-3 py-2 text-center font-semibold text-emerald-700 dark:text-emerald-300 border-b border-emerald-200 dark:border-emerald-800">
+                    평균 비트
+                  </th>
+                </tr>
+              </thead>
+              <tbody>
+                {POLICY_TABLE.map((row, ri) => (
+                  <tr
+                    key={row.label}
+                    className="border-b border-emerald-100 dark:border-emerald-900/40 last:border-0 hover:bg-emerald-50/50 dark:hover:bg-emerald-950/20"
+                  >
+                    <td className="px-3 py-2 font-mono font-semibold text-emerald-700 dark:text-emerald-300">
+                      {row.label}
+                    </td>
+                    {row.bits.map((b, bi) => (
+                      <td key={bi} className="px-2 py-1.5 text-center">
+                        <span
+                          className={`inline-block rounded px-1.5 py-0.5 text-[10px] font-bold ${bitColor(b)}`}
+                        >
+                          INT{b}
+                        </span>
+                      </td>
+                    ))}
+                    <td className="px-3 py-2 text-center font-mono font-bold text-emerald-700 dark:text-emerald-300">
+                      {row.avgBits.toFixed(1)}
+                    </td>
+                  </tr>
+                ))}
+              </tbody>
+            </table>
           </div>
-          <p className="text-xs text-gray-500 dark:text-gray-400 mt-2 text-center">
-            회색 점선: FP32 기준 분포 / 파란 곡선: 선택된 정책 분포 (KL 발산 최소화)
-          </p>
+          <div className="flex flex-wrap gap-3 mt-2">
+            {[['INT4','bg-emerald-200 text-emerald-700','낮은 민감도 블록'],
+              ['INT8','bg-amber-200 text-amber-700','중간 민감도'],
+              ['INT16','bg-red-200 text-red-700','높은 민감도 (FC-z 등)']].map(([label, cls, desc]) => (
+              <div key={label} className="flex items-center gap-1.5">
+                <span className={`text-[10px] font-bold px-1.5 py-0.5 rounded ${cls}`}>{label}</span>
+                <span className="text-[10px] text-gray-500 dark:text-gray-400">{desc}</span>
+              </div>
+            ))}
+          </div>
         </div>
       )}
 
