@@ -416,7 +416,12 @@ export default function DashboardPage() {
                           {selectedFullscreenPaper.algorithms.map((item, idx) => (
                             <li key={`fullscreen-algorithm-${idx}`} className="flex gap-2">
                               <span className="mt-[7px] h-1.5 w-1.5 flex-shrink-0 rounded-full bg-violet-400" />
-                              <span>{item}</span>
+                              <div className="min-w-0 flex-1">
+                                <MarkdownContent
+                                  content={item}
+                                  className="text-sm leading-6 text-gray-200"
+                                />
+                              </div>
                             </li>
                           ))}
                         </ul>

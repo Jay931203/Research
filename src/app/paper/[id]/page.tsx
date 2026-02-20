@@ -117,21 +117,32 @@ function hasArchKeyword(text: string): boolean {
   return ARCH_KEYWORDS.some((kw) => lower.includes(kw));
 }
 
+function normalizeInlineMath(text: string): string {
+  return text
+    .replace(/\\\(([\s\S]*?)\\\)/g, (_, expr: string) => `$${expr.trim()}$`)
+    .replace(/\\\[([\s\S]*?)\\\]/g, (_, expr: string) => `$$\n${expr.trim()}\n$$`);
+}
+
+function containsMathMarkup(text: string): boolean {
+  return /\\\(|\\\[|\$/.test(text);
+}
+
 function parseAlgorithmStep(text: string, idx: number): AlgorithmStepCardData {
   const compact = text.replace(/\s+/g, ' ').trim();
   const normalized = compact.replace(ALGO_LIST_PREFIX_PATTERN, '');
+  const normalizedWithMath = normalizeInlineMath(normalized);
 
-  let title = normalized;
+  let title = normalizedWithMath;
   let detail: string | null = null;
 
-  const separatorMatch = normalized.match(ALGO_SEPARATOR_PATTERN);
+  const separatorMatch = normalizedWithMath.match(ALGO_SEPARATOR_PATTERN);
   if (separatorMatch && separatorMatch.index !== undefined) {
     const splitAt = separatorMatch.index;
-    title = normalized.slice(0, splitAt).trim();
-    detail = normalized.slice(splitAt + separatorMatch[0].length).trim() || null;
+    title = normalizedWithMath.slice(0, splitAt).trim();
+    detail = normalizedWithMath.slice(splitAt + separatorMatch[0].length).trim() || null;
   }
 
-  if (!detail && title.length > 72) {
+  if (!detail && title.length > 72 && !containsMathMarkup(title)) {
     const lastSpace = title.lastIndexOf(' ', 72);
     if (lastSpace > 36) {
       detail = title.slice(lastSpace + 1).trim();
@@ -139,12 +150,12 @@ function parseAlgorithmStep(text: string, idx: number): AlgorithmStepCardData {
     }
   }
 
-  if (detail && detail.length > 170) {
+  if (detail && detail.length > 170 && !containsMathMarkup(detail)) {
     detail = `${detail.slice(0, 167).trim()}...`;
   }
 
   const keywords = Array.from(
-    new Set((normalized.match(ALGO_KEYWORD_PATTERN) ?? []).map((token) => token.trim())),
+    new Set((normalizedWithMath.match(ALGO_KEYWORD_PATTERN) ?? []).map((token) => token.trim())),
   ).slice(0, 3);
 
   return {
@@ -152,7 +163,7 @@ function parseAlgorithmStep(text: string, idx: number): AlgorithmStepCardData {
     title: title || `Step ${idx + 1}`,
     detail,
     keywords,
-    isArchitectureElement: hasArchKeyword(normalized),
+    isArchitectureElement: hasArchKeyword(normalizedWithMath),
   };
 }
 
@@ -841,14 +852,18 @@ export default function PaperStudyPage() {
                                   </span>
                                 </div>
 
-                                <p className="mt-2 text-sm font-semibold leading-snug text-gray-800 dark:text-gray-100">
-                                  {step.title}
-                                </p>
+                                <MarkdownContent
+                                  content={step.title}
+                                  className="mt-2 text-sm font-semibold leading-snug text-gray-800 dark:text-gray-100"
+                                  glossaryTerms={paperTerms}
+                                />
 
                                 {step.detail && (
-                                  <p className="mt-2 line-clamp-3 text-xs leading-relaxed text-gray-600 dark:text-gray-300">
-                                    {step.detail}
-                                  </p>
+                                  <MarkdownContent
+                                    content={step.detail}
+                                    className="mt-2 text-xs leading-relaxed text-gray-600 dark:text-gray-300"
+                                    glossaryTerms={paperTerms}
+                                  />
                                 )}
 
                                 {step.keywords.length > 0 && (
