@@ -43,6 +43,8 @@ export interface PaperWithNote {
   authors: string[];
   year: number;
   venue?: string;
+  doi?: string;
+  arxiv_id?: string;
   abstract?: string;
   key_contributions?: string[];
   algorithms?: string[];

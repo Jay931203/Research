@@ -3,6 +3,7 @@
 import { useCallback, useEffect, useMemo, useRef, useState } from 'react';
 import { useParams, useRouter } from 'next/navigation';
 import Link from 'next/link';
+import dynamic from 'next/dynamic';
 import {
   ArrowLeft,
   ArrowRight,
@@ -14,6 +15,7 @@ import {
   Cpu,
   ExternalLink,
   FileText,
+  FlaskConical,
   GraduationCap,
   Hash,
   Layers,
@@ -49,21 +51,46 @@ import { useAppStore } from '@/store/useAppStore';
 import katex from 'katex';
 
 /* ------------------------------------------------------------------ */
+/*  Paper-specific Infographic Registry                                */
+/* ------------------------------------------------------------------ */
+
+const IncoherenceVizDynamic = dynamic(
+  () => import('@/components/quant-study/IncoherenceViz'),
+  { ssr: false },
+);
+const E8LatticeVizDynamic = dynamic(
+  () => import('@/components/quant-study/E8LatticeViz'),
+  { ssr: false },
+);
+const AddQuantVizDynamic = dynamic(
+  () => import('@/components/quant-study/AddQuantViz'),
+  { ssr: false },
+);
+
+// arxiv_id → interactive infographic component
+const INFOGRAPHIC_REGISTRY: Record<string, React.ComponentType> = {
+  '2307.13304': IncoherenceVizDynamic,  // QuIP
+  '2402.04396': E8LatticeVizDynamic,   // QuIP#
+  '2401.06118': AddQuantVizDynamic,    // AQLM
+};
+
+/* ------------------------------------------------------------------ */
 /*  ToC Sections config                                                */
 /* ------------------------------------------------------------------ */
 
-const TOC_SECTIONS = [
+const TOC_SECTIONS: Array<{ id: string; label: string; icon: React.ComponentType<{ className?: string }> }> = [
   { id: 'section-overview', label: '개요', icon: BookOpen },
   { id: 'section-learning-guide', label: '학습 안내', icon: GraduationCap },
   { id: 'section-abstract', label: '초록', icon: FileText },
   { id: 'section-contributions', label: '주요 기여', icon: List },
   { id: 'section-architecture', label: '아키텍처', icon: Cpu },
   { id: 'section-equations', label: '핵심 수식', icon: Hash },
+  { id: 'section-infographic', label: '인터랙티브', icon: FlaskConical },
   { id: 'section-shared-techniques', label: '공통 기술', icon: Zap },
   { id: 'section-related', label: '연계 논문', icon: Link2 },
   { id: 'section-self-check', label: '셀프 체크', icon: CheckCircle2 },
   { id: 'section-notes', label: '학습 노트', icon: Layers },
-] as const;
+];
 
 /* ------------------------------------------------------------------ */
 /*  Architecture helpers                                               */
@@ -459,6 +486,7 @@ export default function PaperStudyPage() {
   const isInMap = mapPaperIds === null || mapPaperIdSet.has(paper.id);
   const algorithms = paper.algorithms ?? [];
   const algorithmSteps = algorithms.map((algo, idx) => parseAlgorithmStep(algo, idx));
+  const PaperInfographic = paper.arxiv_id ? (INFOGRAPHIC_REGISTRY[paper.arxiv_id] ?? null) : null;
   const archTags = (paper.tags ?? []).filter(hasArchKeyword);
   const inferredResearchTopic = inferResearchTopic(paper);
   const categoryArchHint =
@@ -976,6 +1004,26 @@ export default function PaperStudyPage() {
               </div>
               </div>
             </section>
+
+            {/* ===== Section: Interactive Infographic ===== */}
+            {PaperInfographic !== null && (
+            <section id="section-infographic" className="scroll-mt-20">
+              <SectionHeading
+                icon={<FlaskConical className="h-5 w-5" />}
+                title="인터랙티브 시각화"
+                collapsed={!!collapsed['section-infographic']}
+                onToggle={() => toggleSection('section-infographic')}
+              />
+              <div className={`overflow-hidden transition-all duration-300 ${collapsed['section-infographic'] ? 'max-h-0' : 'max-h-[4000px]'}`}>
+              <div className="rounded-xl bg-white p-6 shadow-sm dark:bg-gray-900 dark:shadow-none dark:ring-1 dark:ring-gray-800">
+                <p className="mb-4 text-xs text-gray-500 dark:text-gray-400">
+                  이 논문의 핵심 개념을 직접 조작하며 체험할 수 있는 인터랙티브 시각화입니다.
+                </p>
+                <PaperInfographic />
+              </div>
+              </div>
+            </section>
+            )}
 
             {/* ===== Section: Shared Techniques (tag cloud) ===== */}
             {paperTerms.length > 0 && (
