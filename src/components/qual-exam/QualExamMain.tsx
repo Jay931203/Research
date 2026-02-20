@@ -68,6 +68,23 @@ const CUSTOM_SECTIONS: Record<string, Array<{ id: string; label: string }>> = {
     { id: 'constructors-sec-r3',     label: 'Rule of Three'          },
     { id: 'constructors-sec-assign', label: '복사 대입 연산자'        },
   ],
+  'memory-management': [
+    { id: 'memory-sec-layout',   label: '스택 vs 힙 시각화'     },
+    { id: 'memory-sec-pointer',  label: '포인터 연산 탐색기'     },
+    { id: 'memory-sec-offbyone', label: 'Off-by-One 시뮬레이터'  },
+    { id: 'memory-sec-swap',     label: '포인터 Swap 함정'       },
+  ],
+  'virtual-functions': [
+    { id: 'virtual-sec-dispatch', label: '정적 vs 동적 바인딩'   },
+    { id: 'virtual-sec-vtable',   label: 'vtable 시각화'         },
+    { id: 'virtual-sec-tracer',   label: '함수 호출 추적기'       },
+    { id: 'virtual-sec-dtor',     label: '가상 소멸자'            },
+  ],
+  'polymorphism-abstract': [
+    { id: 'abstract-sec-concepts', label: '추상 클래스 체크'      },
+    { id: 'abstract-sec-clone',    label: 'clone() 패턴'          },
+    { id: 'abstract-sec-exam',     label: '기출 빈칸 채우기'       },
+  ],
 };
 
 function getGenericSections(topic: StudyTopic): Array<{ id: string; label: string }> {

@@ -230,7 +230,7 @@ const MANDATORY_CASES = [
 ];
 
 function InitListSection() {
-  const [activeCase, setActiveCase] = useState<number | null>(null);
+  const [openCases, setOpenCases] = useState<boolean[]>([true, true, true]);
 
   return (
     <div className="space-y-6">
@@ -322,15 +322,15 @@ function InitListSection() {
       {/* 3 mandatory cases */}
       <div>
         <p className="text-sm font-bold text-slate-700 dark:text-slate-200 mb-3">
-          반드시 초기화 리스트를 써야 하는 3가지 경우 (클릭해서 펼치기)
+          반드시 초기화 리스트를 써야 하는 3가지 경우
         </p>
         <div className="space-y-2">
           {MANDATORY_CASES.map((c, i) => {
-            const open = activeCase === i;
+            const open = openCases[i];
             return (
               <div key={i} className={`rounded-xl border-2 overflow-hidden transition ${open ? c.color : 'border-slate-200 dark:border-slate-700'}`}>
                 <button
-                  onClick={() => setActiveCase(open ? null : i)}
+                  onClick={() => setOpenCases(prev => prev.map((v, j) => j === i ? !v : v))}
                   className={`w-full flex items-center gap-3 px-4 py-3 text-left transition ${
                     open ? `${c.headBg}` : 'bg-white dark:bg-slate-900 hover:bg-slate-50 dark:hover:bg-slate-800/50'
                   }`}
@@ -381,19 +381,20 @@ const COPY_CTOR_SCENARIOS = [
 ];
 
 function CtorSection() {
-  const [open, setOpen] = useState<'default' | 'copy' | null>('default');
+  const [openDefault, setOpenDefault] = useState(true);
+  const [openCopy, setOpenCopy] = useState(true);
 
   return (
     <div className="space-y-3">
 
       {/* Default constructor card */}
       <div className={`rounded-xl border-2 overflow-hidden transition ${
-        open === 'default' ? 'border-blue-300 dark:border-blue-700' : 'border-slate-200 dark:border-slate-700'
+        openDefault ? 'border-blue-300 dark:border-blue-700' : 'border-slate-200 dark:border-slate-700'
       } bg-white dark:bg-slate-900`}>
         <button
-          onClick={() => setOpen(open === 'default' ? null : 'default')}
+          onClick={() => setOpenDefault(v => !v)}
           className={`w-full flex items-center gap-3 px-4 py-3.5 text-left transition ${
-            open === 'default' ? 'bg-blue-50 dark:bg-blue-950/30' : 'hover:bg-slate-50 dark:hover:bg-slate-800/50'
+            openDefault ? 'bg-blue-50 dark:bg-blue-950/30' : 'hover:bg-slate-50 dark:hover:bg-slate-800/50'
           }`}
         >
           <span className="text-2xl flex-shrink-0">🏗️</span>
@@ -401,11 +402,11 @@ function CtorSection() {
             <p className="text-sm font-bold text-slate-800 dark:text-slate-100">기본 생성자 (Default Constructor)</p>
             <code className="text-xs font-mono text-slate-500">ClassName() — 인수 없음</code>
           </div>
-          {open === 'default'
+          {openDefault
             ? <ChevronDown className="h-4 w-4 text-slate-400 flex-shrink-0" />
             : <ChevronRight className="h-4 w-4 text-slate-400 flex-shrink-0" />}
         </button>
-        {open === 'default' && (
+        {openDefault && (
           <div className="px-4 py-4 border-t border-slate-100 dark:border-slate-800 space-y-4">
             <div className="rounded-lg bg-amber-50 dark:bg-amber-900/20 border border-amber-200 dark:border-amber-700/40 px-4 py-3 space-y-2">
               <p className="text-xs font-bold text-amber-700 dark:text-amber-300 mb-2">⚠️ 자동 생성 조건 — 핵심!</p>
@@ -439,12 +440,12 @@ Student arr[3];         // 배열 원소 각각에 기본 생성자 호출`}</pr
 
       {/* Copy constructor card */}
       <div className={`rounded-xl border-2 overflow-hidden transition ${
-        open === 'copy' ? 'border-purple-300 dark:border-purple-700' : 'border-slate-200 dark:border-slate-700'
+        openCopy ? 'border-purple-300 dark:border-purple-700' : 'border-slate-200 dark:border-slate-700'
       } bg-white dark:bg-slate-900`}>
         <button
-          onClick={() => setOpen(open === 'copy' ? null : 'copy')}
+          onClick={() => setOpenCopy(v => !v)}
           className={`w-full flex items-center gap-3 px-4 py-3.5 text-left transition ${
-            open === 'copy' ? 'bg-purple-50 dark:bg-purple-950/30' : 'hover:bg-slate-50 dark:hover:bg-slate-800/50'
+            openCopy ? 'bg-purple-50 dark:bg-purple-950/30' : 'hover:bg-slate-50 dark:hover:bg-slate-800/50'
           }`}
         >
           <span className="text-2xl flex-shrink-0">📋</span>
@@ -452,11 +453,11 @@ Student arr[3];         // 배열 원소 각각에 기본 생성자 호출`}</pr
             <p className="text-sm font-bold text-slate-800 dark:text-slate-100">복사 생성자 (Copy Constructor)</p>
             <code className="text-xs font-mono text-slate-500">ClassName(const ClassName&amp; other)</code>
           </div>
-          {open === 'copy'
+          {openCopy
             ? <ChevronDown className="h-4 w-4 text-slate-400 flex-shrink-0" />
             : <ChevronRight className="h-4 w-4 text-slate-400 flex-shrink-0" />}
         </button>
-        {open === 'copy' && (
+        {openCopy && (
           <div className="px-4 py-4 border-t border-slate-100 dark:border-slate-800 space-y-4">
             <p className="text-sm text-slate-600 dark:text-slate-300">
               같은 타입의 다른 객체를 이용해 새 객체를 초기화할 때 호출됩니다.
