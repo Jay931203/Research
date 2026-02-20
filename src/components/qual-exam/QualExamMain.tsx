@@ -289,7 +289,7 @@ function RightPanel({ exams, practiceQs, onExamClick, onClose }: {
           <X className="h-4 w-4 text-slate-500" />
         </button>
       </div>
-      <div className="flex-1 overflow-y-auto p-3 space-y-2">
+      <div className="flex-1 overflow-y-auto overscroll-contain p-3 space-y-2">
         {exams.length > 0 && (
           <>
             <p className="px-1 text-[10px] font-bold text-slate-400 uppercase tracking-wider">기출문제 ({exams.length})</p>
@@ -567,7 +567,7 @@ export default function QualExamMain() {
           </div>
 
           {/* Topic list (topics view) or Exam group list (exams view) */}
-          <div className="flex-1 overflow-y-auto p-3 space-y-0.5 min-h-0">
+          <div className="flex-1 overflow-y-auto overscroll-contain p-3 space-y-0.5 min-h-0">
             {view.kind === 'topics' && sortedTopics.map((t, idx) => (
               <TopicNavItem
                 key={t.id}
@@ -607,7 +607,7 @@ export default function QualExamMain() {
     <>
       <ExamProblemModal problem={modalExam} onClose={() => setModalExam(null)} />
 
-      <div className="flex flex-col" style={{ height: 'calc(100vh - 64px)' }}>
+      <div className="flex flex-col overflow-hidden" style={{ height: 'calc(100vh - 64px)' }}>
         <div className="flex items-center gap-3 px-4 py-2.5 border-b border-slate-200 dark:border-slate-800 bg-white dark:bg-slate-900 sm:hidden flex-shrink-0">
           <button
             onClick={() => setMobileSidebarOpen(o => !o)}
@@ -654,7 +654,7 @@ export default function QualExamMain() {
             )}
 
             <div className="flex flex-1 overflow-hidden">
-              <main ref={mainRef} className="flex-1 overflow-y-auto bg-slate-50 dark:bg-slate-950">
+              <main ref={mainRef} className="flex-1 overflow-y-auto overscroll-contain bg-slate-50 dark:bg-slate-950">
                 {view.kind === 'topics' && (
                   <div>
                     {sortedTopics.map((t, idx) => (
