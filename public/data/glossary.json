@@ -544,7 +544,8 @@
     "description": "헤시안 인지 양자화는 각 가중치가 손실에 미치는 2차 민감도(곡률)를 추정해 비트폭을 차등 배정하는 방법이다. 같은 압축률에서도 손실 증가를 더 잘 억제해 정확도 하락을 줄이고, 대각·블록 헤시안 근사로 계산량을 관리하면서 메모리와 지연을 동시에 낮출 수 있다. 특히 대규모 트랜스포머 후처리 양자화에서 효과가 크다.",
     "related_paper_titles": [
       "HAWQ-V3: Dyadic Neural Network Quantization",
-      "BRECQ: Pushing the Limit of Post-Training Quantization by Block Reconstruction"
+      "BRECQ: Pushing the Limit of Post-Training Quantization by Block Reconstruction",
+      "AWQ: Activation-aware Weight Quantization for LLM Compression and Acceleration"
     ],
     "hierarchy": [
       "Quantization",
@@ -696,7 +697,9 @@
     "description": "혼합 정밀도 양자화는 레이어·채널별 민감도 차이를 반영해 서로 다른 비트폭을 배정하는 압축 전략이다. 동일 평균 비트에서도 중요한 구간에 정밀도를 남겨 정확도 손실을 줄일 수 있고, 하드웨어 비용 모델과 함께 최적화하면 메모리·지연·전력 목표를 동시에 맞추기 쉽다. 자동 비트할당은 latency lookup table과 결합해 구현한다.",
     "related_paper_titles": [
       "HAWQ-V3: Dyadic Neural Network Quantization",
-      "BRECQ: Pushing the Limit of Post-Training Quantization by Block Reconstruction"
+      "BRECQ: Pushing the Limit of Post-Training Quantization by Block Reconstruction",
+      "LLM.int8(): 8-bit Matrix Multiplication for Transformers at Scale",
+      "AWQ: Activation-aware Weight Quantization for LLM Compression and Acceleration"
     ],
     "hierarchy": [
       "Quantization",
@@ -948,7 +951,9 @@
     "description": "사후학습 양자화(PTQ)는 학습이 끝난 모델을 재학습 없이 정수 비트폭으로 변환하는 배포 최적화 기법이다. 소량의 보정 데이터로 스케일·제로포인트를 추정해 빠르게 적용할 수 있어 엔지니어링 비용이 낮다. 정확도 민감 모델은 이상치 처리, bias correction, 채널별 보정을 함께 써야 안정적이다.",
     "related_paper_titles": [
       "BRECQ: Pushing the Limit of Post-Training Quantization by Block Reconstruction",
-      "GPTQ: Accurate Post-Training Quantization for Generative Pre-trained Transformers"
+      "GPTQ: Accurate Post-Training Quantization for Generative Pre-trained Transformers",
+      "LLM.int8(): 8-bit Matrix Multiplication for Transformers at Scale",
+      "AWQ: Activation-aware Weight Quantization for LLM Compression and Acceleration"
     ],
     "hierarchy": [
       "Quantization",

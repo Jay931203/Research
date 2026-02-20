@@ -142,6 +142,15 @@ export default function GlossaryPage() {
   const [selectedStudyTag, setSelectedStudyTag] = useState('all');
   const [selectedTermId, setSelectedTermId] = useState<string | null>(null);
   const [expandedIds, setExpandedIds] = useState<string[]>([]);
+  const initialExpandedRef = useRef(false);
+
+  // Default: expand all terms when data first loads
+  useEffect(() => {
+    if (terms.length > 0 && !initialExpandedRef.current) {
+      initialExpandedRef.current = true;
+      setExpandedIds(terms.map((t) => t.id));
+    }
+  }, [terms]);
 
   const appliedQueryRef = useRef<string | null>(null);
 
