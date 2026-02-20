@@ -292,14 +292,13 @@ export default function HashContent({ topic }: Props) {
         <div className="rounded-xl border border-amber-200 bg-amber-50 dark:border-amber-700/40 dark:bg-amber-900/10 p-4 mb-4">
           <p className="text-sm font-bold text-amber-800 dark:text-amber-300 mb-1.5">핵심 아이디어</p>
           <p className="text-sm text-amber-700 dark:text-amber-400 leading-relaxed">
-            해시 테이블의 목표: &quot;키(key)를 O(1)에 값(value)으로 변환&quot;. 충돌(Collision)은 피할 수 없다 (비둘기집 원리): 키 공간(무한) &gt; 해시 테이블 크기(유한) &rarr; 반드시 충돌 발생. 따라서 충돌 처리 방법이 핵심!
+            해시 테이블의 목표: 키(key)를 O(1)에 값(value)으로 변환. 충돌(Collision)은 피할 수 없다 (비둘기집 원리): 키 공간(무한) &gt; 해시 테이블 크기(유한) → 반드시 충돌 발생. 따라서 충돌 처리 방법이 핵심.
           </p>
-        </div>
-        <div className="rounded-xl border border-blue-200 bg-blue-50 dark:border-blue-800/40 dark:bg-blue-900/10 p-4 mb-4">
-          <p className="text-sm font-bold text-blue-800 dark:text-blue-200 mb-1.5">직관적으로 이해하기</p>
-          <p className="text-sm text-blue-700 dark:text-blue-300 leading-relaxed">
-            학교 도서관의 책장 번호판. 책 제목(key)을 해시 함수로 변환해 책장 번호(index)를 직접 계산 &rarr; 책장을 하나씩 뒤질 필요 없음. 해시 함수의 조건: 결정론적(같은 키 &rarr; 항상 같은 해시값), 균등 분포, 빠른 계산 O(1).
-          </p>
+          <ul className="mt-2.5 space-y-1 text-xs text-amber-700 dark:text-amber-400">
+            <li>• <span className="font-semibold">결정론적</span>: 같은 키 → 항상 같은 해시값</li>
+            <li>• <span className="font-semibold">균등 분포</span>: 해시값이 테이블 전체에 고르게 분포</li>
+            <li>• <span className="font-semibold">빠른 계산</span>: O(1)에 계산 가능</li>
+          </ul>
         </div>
         <div className="grid grid-cols-1 sm:grid-cols-3 gap-3 mb-5">
           {[

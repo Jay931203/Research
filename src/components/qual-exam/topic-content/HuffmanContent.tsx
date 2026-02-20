@@ -318,9 +318,9 @@ export default function HuffmanContent({ topic }: Props) {
           </p>
         </div>
         <div className="rounded-xl border border-blue-200 bg-blue-50 dark:border-blue-800/40 dark:bg-blue-900/10 p-4 mb-4">
-          <p className="text-sm font-bold text-blue-800 dark:text-blue-200 mb-1.5">직관적으로 이해하기</p>
+          <p className="text-sm font-bold text-blue-800 dark:text-blue-200 mb-1.5">Prefix-free 성질</p>
           <p className="text-sm text-blue-700 dark:text-blue-300 leading-relaxed">
-            모스 부호와 비슷 - E(가장 많이 쓰이는 영어 알파벳)는 짧은 코드 &quot;&middot;&quot;, 드문 Z는 긴 코드 &quot;--&middot;&middot;&quot;. Prefix-free 성질: 어떤 코드도 다른 코드의 접두사가 아님 &rarr; 구분자 없이도 복호화 가능 (트리의 리프까지 내려가면 반드시 하나의 문자).
+            어떤 코드도 다른 코드의 접두사(prefix)가 아니다. 이 성질 덕분에 구분자(delimiter) 없이도 복호화 가능하다. 트리에서 루트부터 내려가다 리프에 도달하면 반드시 하나의 문자로 확정되므로, 연속된 비트열을 모호함 없이 분리할 수 있다.
           </p>
         </div>
         <div className="rounded-xl border border-slate-200 dark:border-slate-700 bg-slate-50 dark:bg-slate-800/50 p-5">

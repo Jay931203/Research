@@ -235,13 +235,7 @@ export default function HeapContent({ topic }: Props) {
         <div className="rounded-xl border border-amber-200 bg-amber-50 dark:border-amber-700/40 dark:bg-amber-900/10 p-4 mb-4">
           <p className="text-sm font-bold text-amber-800 dark:text-amber-300 mb-1.5">핵심 아이디어</p>
           <p className="text-sm text-amber-700 dark:text-amber-400 leading-relaxed">
-            &quot;부모는 항상 자식보다 크다(Max-Heap) 또는 작다(Min-Heap)&quot; - 이 한 규칙만 지키면 된다. 배열로 힙 구현이 가능한 이유: 완전 이진 트리의 레벨 순서(BFS 순서)대로 배열에 저장하면 인덱스 계산만으로 트리 탐색 가능!
-          </p>
-        </div>
-        <div className="rounded-xl border border-blue-200 bg-blue-50 dark:border-blue-800/40 dark:bg-blue-900/10 p-4 mb-4">
-          <p className="text-sm font-bold text-blue-800 dark:text-blue-200 mb-1.5">직관적으로 이해하기</p>
-          <p className="text-sm text-blue-700 dark:text-blue-300 leading-relaxed">
-            회사 조직도처럼, 상사(부모)는 부하직원(자식)보다 항상 직급이 높다. 하지만 같은 레벨의 동료들끼리는 순서가 없다. 포인터 없이 인덱스 계산만으로 트리 탐색 가능: 왼쪽 자식=2i+1, 오른쪽 자식=2i+2, 부모=&lfloor;(i-1)/2&rfloor;.
+            &quot;부모는 항상 자식보다 크다(Max-Heap) 또는 작다(Min-Heap)&quot; — 이 한 규칙만 지키면 된다. 배열로 구현할 수 있는 이유는 힙이 완전 이진 트리이기 때문: 레벨 순서(BFS 순서)대로 배열에 저장하면 포인터 없이 인덱스만으로 탐색 가능. 인덱스 0-based 기준: 왼쪽 자식 = 2i+1, 오른쪽 자식 = 2i+2, 부모 = ⌊(i-1)/2⌋.
           </p>
         </div>
         <div className="grid grid-cols-1 md:grid-cols-2 gap-4 mb-5">

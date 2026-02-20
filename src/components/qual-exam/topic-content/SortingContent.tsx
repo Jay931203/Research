@@ -213,12 +213,6 @@ export default function SortingContent({ topic }: Props) {
             &quot;피벗보다 작은 것들은 왼쪽, 큰 것들은 오른쪽&quot; - 이것만 반복하면 된다. 분할 정복(Divide &amp; Conquer): 큰 문제를 피벗 기준으로 두 작은 문제로 나눈다.
           </p>
         </div>
-        <div className="rounded-xl border border-blue-200 bg-blue-50 dark:border-blue-800/40 dark:bg-blue-900/10 p-4 mb-4">
-          <p className="text-sm font-bold text-blue-800 dark:text-blue-200 mb-1.5">직관적으로 이해하기</p>
-          <p className="text-sm text-blue-700 dark:text-blue-300 leading-relaxed">
-            학급 학생 키 순으로 줄 세우기 - 임의로 한 명(피벗)을 기준으로 &quot;이 사람보다 작으면 왼쪽, 크면 오른쪽&quot;으로 나누고, 각 그룹을 재귀적으로 같은 방법 적용.
-          </p>
-        </div>
         <div className="rounded-xl border border-slate-200 dark:border-slate-700 bg-white dark:bg-slate-900/50 p-4 mb-4">
           <p className="text-sm font-bold text-slate-700 dark:text-slate-300 mb-3">Lomuto 파티션 동작 원리</p>
           <ol className="space-y-2">
@@ -319,12 +313,6 @@ export default function SortingContent({ topic }: Props) {
           <p className="text-sm font-bold text-amber-800 dark:text-amber-300 mb-1.5">핵심 아이디어</p>
           <p className="text-sm text-amber-700 dark:text-amber-400 leading-relaxed">
             &quot;이미 정렬된 두 배열을 합치는 건 O(n)으로 쉽다&quot; - Merge 연산의 단순함이 MergeSort의 힘. 점화식 T(n) = 2T(n/2) + O(n) → Master Theorem으로 O(n log n).
-          </p>
-        </div>
-        <div className="rounded-xl border border-blue-200 bg-blue-50 dark:border-blue-800/40 dark:bg-blue-900/10 p-4 mb-4">
-          <p className="text-sm font-bold text-blue-800 dark:text-blue-200 mb-1.5">직관적으로 이해하기</p>
-          <p className="text-sm text-blue-700 dark:text-blue-300 leading-relaxed">
-            두 덱의 카드를 각각 정렬한 뒤, 두 덱의 맨 위 카드만 비교하며 작은 것을 새 더미에 놓으면 전체가 정렬됨.
           </p>
         </div>
         <div className="rounded-xl border border-slate-200 dark:border-slate-700 bg-white dark:bg-slate-900/50 p-4 mb-4">

@@ -221,13 +221,6 @@ export default function GraphContent({ topic }: Props) {
             어떤 자료구조를 쓰는가가 핵심 차이: BFS는 Queue(선입선출) → 가까운 노드부터 방문, DFS는 Stack(후입선출, 재귀 스택) → 깊이 먼저.
           </p>
         </div>
-        <div className="rounded-xl border border-blue-200 bg-blue-50 dark:border-blue-800/40 dark:bg-blue-900/10 p-4 mb-4">
-          <p className="text-sm font-bold text-blue-800 dark:text-blue-200 mb-1.5">직관적으로 이해하기</p>
-          <ul className="space-y-1.5 text-sm text-blue-700 dark:text-blue-300">
-            <li>&bull; <span className="font-bold">BFS</span> = 수면에 돌 던지기: 출발점에서 동심원을 그리며 레벨 by 레벨 탐색</li>
-            <li>&bull; <span className="font-bold">DFS</span> = 미로 찾기: 한 방향으로 끝까지 가다가 막히면 되돌아와 다른 길 시도</li>
-          </ul>
-        </div>
         <div className="rounded-xl border border-slate-200 dark:border-slate-700 bg-white dark:bg-slate-900/50 p-4 mb-4">
           <p className="text-sm font-bold text-slate-700 dark:text-slate-300 mb-2">언제 무엇을?</p>
           <ul className="space-y-1.5 text-sm text-slate-600 dark:text-slate-400">
@@ -325,9 +318,9 @@ export default function GraphContent({ topic }: Props) {
           </p>
         </div>
         <div className="rounded-xl border border-blue-200 bg-blue-50 dark:border-blue-800/40 dark:bg-blue-900/10 p-4 mb-4">
-          <p className="text-sm font-bold text-blue-800 dark:text-blue-200 mb-1.5">직관적으로 이해하기</p>
+          <p className="text-sm font-bold text-blue-800 dark:text-blue-200 mb-1.5">릴렉세이션 (Relaxation)</p>
           <p className="text-sm text-blue-700 dark:text-blue-300 leading-relaxed">
-            서울에서 전국으로 퍼지는 KTX 노선 - 가장 가까운 도시부터 확정하고, 그 도시를 경유해 더 먼 도시의 거리를 업데이트 (릴렉스, Relaxation: dist[v] &gt; dist[u] + w(u,v)이면 갱신).
+            <span className="font-mono font-bold">dist[v] &gt; dist[u] + w(u,v)</span>이면 <span className="font-mono font-bold">dist[v] = dist[u] + w(u,v)</span>로 갱신. 확정된 노드의 인접 노드 dist[]를 이 방식으로 업데이트하는 것이 Dijkstra의 핵심 연산.
           </p>
         </div>
         <div className="rounded-xl border border-red-200 bg-red-50 dark:border-red-800/40 dark:bg-red-900/10 p-3 mb-4">

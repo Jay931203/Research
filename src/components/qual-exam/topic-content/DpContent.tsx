@@ -195,7 +195,7 @@ export default function DpContent({ topic }: Props) {
         </div>
         {/* Fibonacci analogy */}
         <div className="rounded-xl border border-blue-200 bg-blue-50 dark:border-blue-800/40 dark:bg-blue-900/10 p-4 mb-4">
-          <p className="text-sm font-bold text-blue-800 dark:text-blue-200 mb-1.5">직관적으로 이해하기 — 피보나치로 보는 DP</p>
+          <p className="text-sm font-bold text-blue-800 dark:text-blue-200 mb-1.5">피보나치 예제: 재귀 vs 메모이제이션</p>
           <ul className="space-y-1.5 text-sm text-blue-700 dark:text-blue-300">
             <li>&bull; <span className="font-bold">순수 재귀</span>: fib(5)를 계산하면 fib(3)을 2번, fib(2)를 3번 계산 &rarr; 지수적 O(2^n)</li>
             <li>&bull; <span className="font-bold">메모이제이션</span>: 한 번 계산한 값을 저장 &rarr; fib(1)~fib(5)를 각 1번만 &rarr; O(n)</li>
