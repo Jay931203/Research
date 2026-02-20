@@ -85,6 +85,9 @@ export default function Header({ onSearchClick }: HeaderProps = {}) {
           <HeaderLink href="/quant-study" active={pathname === '/quant-study'}>
             양자화 공부
           </HeaderLink>
+          <HeaderLink href="/qual-exam" active={pathname === '/qual-exam'}>
+            논자시 준비
+          </HeaderLink>
 
           {onSearchClick && (
             <button
@@ -172,6 +175,13 @@ export default function Header({ onSearchClick }: HeaderProps = {}) {
               active={pathname === '/my-research'}
             >
               내 연구
+            </MobileHeaderLink>
+            <MobileHeaderLink
+              href="/qual-exam"
+              onClick={() => setMobileMenuOpen(false)}
+              active={pathname === '/qual-exam'}
+            >
+              논자시 준비
             </MobileHeaderLink>
             <a
               href={REPO_URL}
