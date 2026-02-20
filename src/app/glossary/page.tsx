@@ -405,17 +405,6 @@ export default function GlossaryPage() {
 
         <div className="grid gap-4 lg:grid-cols-[280px_minmax(0,1fr)_320px] xl:gap-5">
           <aside className="space-y-4 lg:sticky lg:top-24 lg:h-[calc(100vh-7rem)] lg:overflow-y-auto lg:pr-1">
-          <div className="relative">
-            <Search className="absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-gray-400" />
-            <input
-              type="text"
-              placeholder="용어 검색 (예: Monotone Convergence Theorem)"
-              value={searchQuery}
-              onChange={(e) => setSearchQuery(e.target.value)}
-              className="w-full rounded-xl border border-gray-200 bg-white py-2.5 pl-10 pr-4 text-sm text-gray-800 placeholder-gray-400 transition focus:border-blue-400 focus:outline-none focus:ring-2 focus:ring-blue-100 dark:border-gray-700 dark:bg-gray-900 dark:text-gray-200 dark:placeholder-gray-500 dark:focus:border-blue-600 dark:focus:ring-blue-900/30"
-            />
-          </div>
-
           <div className="flex flex-wrap items-center gap-2">
             <Filter className="h-4 w-4 text-gray-400" />
             <button

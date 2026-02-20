@@ -669,6 +669,37 @@ export default function PaperStudyPage() {
           <main className="min-w-0 flex-1">
             <div className="mx-auto max-w-5xl px-4 py-8 sm:px-6 lg:px-8">
               <FullStudyComponent />
+
+              {/* ===== Section: Shared Techniques (tag cloud) — full study view ===== */}
+              {paperTerms.length > 0 && (
+              <section id="section-shared-techniques" className="scroll-mt-20 mt-8">
+                <SectionHeading icon={<Zap className="h-5 w-5" />} title="공통 기술" collapsed={!!collapsed['section-shared-techniques']} onToggle={() => toggleSection('section-shared-techniques')} />
+                <div className={`overflow-hidden transition-all duration-300 ${collapsed['section-shared-techniques'] ? 'max-h-0' : 'max-h-[3000px]'}`}>
+                <div className="rounded-xl bg-white p-6 shadow-sm dark:bg-gray-900 dark:shadow-none dark:ring-1 dark:ring-gray-800">
+                  <p className="mb-4 text-xs text-gray-500 dark:text-gray-400">
+                    이 논문에서 사용하는 핵심 기술 및 용어를 클릭하면 정의를 확인할 수 있습니다.
+                  </p>
+                  <div className="flex flex-wrap gap-2">
+                    {paperTerms.map((term) => (
+                      <GlossaryHighlighter key={term.id} text={term.name} terms={[term]} />
+                    ))}
+                  </div>
+                  <Link
+                    href={
+                      paperTerms[0]
+                        ? `/glossary?q=${encodeURIComponent(paperTerms[0].name)}`
+                        : '/glossary'
+                    }
+                    className="mt-4 inline-flex items-center gap-1.5 text-xs font-medium text-blue-600 transition hover:text-blue-700 dark:text-blue-400 dark:hover:text-blue-300"
+                  >
+                    전체 용어집 보기
+                    <ChevronRight className="h-3 w-3" />
+                  </Link>
+                </div>
+                </div>
+              </section>
+              )}
+
               <div className="h-16" />
             </div>
           </main>
