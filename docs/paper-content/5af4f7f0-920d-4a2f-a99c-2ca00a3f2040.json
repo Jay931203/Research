@@ -1,0 +1,100 @@
+{
+  "id": "5af4f7f0-920d-4a2f-a99c-2ca00a3f2040",
+  "title": "Extreme Compression of Large Language Models via Additive Quantization",
+  "authors": [
+    "Vage Egiazarian",
+    "Andrei Panferov",
+    "Denis Kuznedelev",
+    "Elias Frantar",
+    "Artem Babenko",
+    "Dan Alistarh"
+  ],
+  "year": 2024,
+  "venue": "ICML 2024 (PMLR 235), arXiv 2401.06118",
+  "doi": "10.48550/arXiv.2401.06118",
+  "arxiv_id": "2401.06118",
+  "abstract": "AQLM은 극저비트(2~3bit) LLM 압축에서 기존 단일 코드북/스칼라 양자화의 표현력 한계를 넘기 위해 Additive Quantization(AQ)을 LLM PTQ에 맞게 재설계한다. 각 가중치 그룹을 하나의 코드북이 아니라 여러 코드북의 합으로 표현하고, calibration 입력 분포를 반영한 목적함수 \\(\\|WX-\\hat WX\\|_2^2\\)를 직접 최소화한다. 학습은 (1) residual K-means 초기화, (2) 코드 인덱스 beam search, (3) 코드북/스케일 연속 최적화, (4) transformer block 단위 fine-tuning으로 구성된다. 결과적으로 AQLM은 <3bit 영역에서 정확도-모델크기 Pareto frontier를 유의미하게 개선한다.",
+  "notes_summary": "AQLM은 '코드북 하나로는 표현력이 부족하다'는 문제를 다중 코드북 합(Additive)으로 해결해 2~3bit에서 정확도-압축률 균형을 크게 개선한 대표 기법이다.",
+  "key_contributions": [
+    "정보검색 계열 AQ(다중 코드북 양자화)를 LLM PTQ로 확장해 초저비트 압축에 맞는 목적함수와 최적화 절차를 제시했다.",
+    "가중치 자체 오차가 아니라 레이어 출력 오차 \\(\\|WX-\\hat WX\\|\\)를 직접 최소화하는 input-adaptive 설정을 도입했다.",
+    "코드(이산)와 코드북(연속)을 분리해 beam search + 연속 최적화(Adam/LS 관점)로 번갈아 최적화하는 3단계 알고리즘을 설계했다.",
+    "개별 레이어 양자화 후 block 단위 fine-tuning으로 레이어 간 오차 상호작용을 보정해 실사용 정확도를 끌어올렸다.",
+    "2~4bit 실험에서 특히 2bit 구간의 품질을 크게 개선하며 모델 크기 대비 정확도 Pareto를 전진시켰다."
+  ],
+  "algorithms": [
+    "Step 1: 레이어 가중치 \\(W\\)와 calibration 입력 \\(X\\)를 수집하고 출력 보존 목적 \\(\\|WX-\\hat WX\\|_2^2\\)를 정의한다.",
+    "Step 2: 가중치를 길이 \\(g\\) 그룹으로 나누고, 각 그룹을 \\(M\\)개 코드북 \\(C_1,\\dots,C_M\\)의 합으로 표현하는 형식을 채택한다.",
+    "Step 3: residual K-means로 코드북과 코드 인덱스를 초기화한다(이전 코드북 잔차를 다음 코드북이 설명).",
+    "Step 4: 고정된 코드북 하에서 코드 인덱스 \\(b\\)를 beam search로 갱신한다(MRF 형태의 에너지 최소화).",
+    "Step 5: 고정된 코드 \\(b\\) 하에서 코드북 \\(C\\)와 스케일 \\(s\\)를 연속 최적화한다(least-squares 근사 + Adam).",
+    "Step 6: Step 4~5를 손실 개선이 멈출 때까지 교대 반복해 레이어 단위 양자화를 수렴시킨다.",
+    "Step 7: 한 transformer block 내 모든 선형층 양자화 후 \\(\\|\\mathrm{block}(X)-Y\\|_2^2\\)를 미세조정해 블록 오차를 보정한다.",
+    "Step 8: 블록 단위로 순차 진행해 전체 모델 양자화를 완성하고, 필요 시 추가 end-to-end fine-tuning으로 최종 성능을 높인다."
+  ],
+  "key_equations": [
+    {
+      "name": "Output-Aware Quantization Objective",
+      "latex": "\\arg\\min_{\\hat W}\\ \\|WX-\\hat W X\\|_2^2",
+      "description": "AQLM의 핵심 목표. 가중치 자체가 아니라 레이어 출력 보존을 직접 최적화한다."
+    },
+    {
+      "name": "Additive Multi-Codebook Representation",
+      "latex": "\\hat W_i = \\left[\\sum_{m=1}^{M} C_m b_{i,1,m}\\ \\|\\ \\cdots\\ \\|\\ \\sum_{m=1}^{M} C_m b_{i,d_{in}/g,m}\\right]",
+      "description": "각 가중치 그룹을 여러 코드북 벡터의 합으로 표현해 저비트 표현력을 확장한다."
+    },
+    {
+      "name": "Joint Optimization over Codes and Codebooks",
+      "latex": "\\arg\\min_{C,b}\\ \\left\\|WX-\\left(\\mathrm{Concat}_{i,j}\\sum_{m=1}^{M} C_m b_{i,j,m}\\right)X\\right\\|_2^2",
+      "description": "이산 변수(코드)와 연속 변수(코드북)를 함께 최적화하는 AQLM의 원문 핵심 식."
+    },
+    {
+      "name": "Precomputed Metric Trick",
+      "latex": "\\langle A,B\\rangle_{X^\\top}\\equiv\\langle AXX^\\top,B\\rangle_F",
+      "description": "코드 탐색 시 \\(XX^\\top\\)를 미리 계산해 반복 계산 비용을 줄이는 핵심 구현 트릭."
+    },
+    {
+      "name": "Codebook Update Objective",
+      "latex": "\\|WX-\\hat W X\\|_2^2 = \\langle (W-\\hat W)XX^\\top,\\ (W-\\hat W)\\rangle_F",
+      "description": "코드 고정 시 코드북/스케일을 연속 최적화할 때 사용하는 계산식."
+    },
+    {
+      "name": "Block Fine-Tuning Loss",
+      "latex": "\\mathcal{L}_{block}=\\|\\mathrm{block}(X_{block})-Y_{block}\\|_2^2",
+      "description": "레이어 간 상호작용으로 누적되는 오차를 transformer block 수준에서 보정한다."
+    }
+  ],
+  "architecture_detail": "## 1) 핵심 문제의식: 초저비트에서 표현력 부족\n\n2~3bit에서는 스칼라/단일 코드북 양자화가 표현력을 빠르게 잃는다. AQLM은 이를\n\n- 더 촘촘한 격자를 억지로 만드는 대신,\n- **여러 코드북의 합**으로 표현공간을 확장\n\n하는 방향으로 해결한다.\n\n---\n\n## 2) 목적함수는 '출력 보존'에 맞춘다\n\nAQLM은 단순 \\(\\|W-\\hat W\\|\\) 대신, calibration 입력 \\(X\\)에 대해\n\n$$\n\\arg\\min_{\\hat W}\\|WX-\\hat W X\\|_2^2\n$$\n\n를 직접 최소화한다. 즉, \"실제 추론에서 중요한 오차\"를 최적화 타깃으로 삼는다.\n\n---\n\n## 3) Additive Multi-Codebook 표현\n\n가중치 행 \\(W_i\\)를 그룹 단위로 나누고, 그룹마다 코드북 하나가 아니라 \\(M\\)개 코드북의 합으로 표현한다.\n\n$$\n\\hat W_i = \\left[\\sum_{m=1}^{M} C_m b_{i,1,m}\\ \\|\\ \\cdots\\ \\|\\ \\sum_{m=1}^{M} C_m b_{i,d_{in}/g,m}\\right]\n$$\n\n이 구조가 AQLM의 표현력 핵심이다.\n\n---\n\n## 4) 최적화 파이프라인 (논문 Algorithm 1)\n\nAQLM은 세 단계 교대 최적화로 동작한다.\n\n1. **코드 업데이트(이산)**: beam search로 인덱스 \\(b\\) 갱신\n2. **코드북/스케일 업데이트(연속)**: \\(C,s\\)를 Adam/LS 관점으로 갱신\n3. **블록 미세조정**: quantized block 출력을 원본 block 출력에 맞춤\n\n실전에서는 residual K-means 초기화가 수렴 속도와 품질 모두에 중요하다.\n\n---\n\n## 5) 계산 효율 트릭\n\n코드 탐색에서 \\(XX^\\top\\)를 선계산해 에너지 항을 빠르게 재사용한다.\n\n$$\n\\langle A,B\\rangle_{X^\\top}=\\langle AXX^\\top,B\\rangle_F\n$$\n\n코드 1개 변경 시 영향 항만 갱신해 beam search를 현실적인 시간으로 수행한다.\n\n---\n\n## 6) 왜 AQLM이 2~3bit에서 강한가\n\n- 단일 코드북: 표현 공간이 빠르게 포화\n- 다중 코드북 합: 같은 총 비트에서도 더 유연한 근사 가능\n- 출력 보존 목적 + 블록 보정: 실제 perplexity/제로샷 성능에 더 직접적으로 작동\n\n이 조합이 초저비트 Pareto 개선의 핵심이다.\n\n---\n\n## 7) 구현 체크리스트\n\n- 그룹 크기 \\(g\\), 코드북 개수 \\(M\\), 코드 폭 \\(B\\)를 함께 튜닝\n- residual K-means 초기화 품질 점검\n- beam size와 탐색 반복 횟수의 속도-정확도 균형\n- block FT에서 학습 대상(코드북/스케일/정규화층) 범위 고정\n- perplexity + 실제 토큰 속도 + 메모리 footprint를 함께 평가",
+  "difficulty_level": "advanced",
+  "prerequisites": [
+    "벡터 양자화(VQ)와 코드북 학습 기본",
+    "PTQ/LLM calibration 파이프라인 이해",
+    "이산 최적화(beam search)와 연속 최적화(Adam) 기초",
+    "Transformer block 구조와 출력 보존 학습 개념"
+  ],
+  "learning_objectives": [
+    "AQLM이 단일 코드북 대비 왜 저비트에서 표현력이 높은지 설명할 수 있다.",
+    "AQLM의 \\(\\|WX-\\hat W X\\|\\) 목적함수가 실전 지표와 어떻게 연결되는지 설명할 수 있다.",
+    "코드 탐색 단계와 코드북 갱신 단계의 역할 분리를 알고 구현 관점에서 비교할 수 있다.",
+    "블록 단위 fine-tuning이 왜 극저비트에서 특히 효과적인지 설명할 수 있다."
+  ],
+  "self_check_questions": [
+    "AQLM에서 코드북 개수 \\(M\\)을 늘리면 어떤 이점과 비용이 동시에 커지는가?",
+    "왜 AQLM은 \\(W\\) 오차보다 \\(WX\\) 오차를 직접 최소화하는가?",
+    "beam search 단계에서 \\(XX^\\top\\)를 미리 계산하는 이유는 무엇인가?",
+    "2-bit AQLM이 4-bit 단순 양자화보다 나은 구간이 생기는 조건은 무엇인가?"
+  ],
+  "category": "quantization",
+  "tags": [
+    "aqlm",
+    "additive-quantization",
+    "multi-codebook",
+    "beam-search",
+    "output-aware-ptq",
+    "llm-quantization"
+  ],
+  "pdf_url": "https://arxiv.org/pdf/2401.06118.pdf",
+  "code_url": "https://github.com/Vahe1994/AQLM",
+  "color_hex": "#4338CA",
+  "icon_name": null
+}

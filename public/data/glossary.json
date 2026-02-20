@@ -1678,5 +1678,230 @@
       ]
     },
     "details_markdown": "### 정의\n- 고비트 그룹을 늘릴 때 동일 개수의 저비트 그룹을 함께 배치해 평균 비트를 보존한다.\n\n### 핵심 수식\n$$|\\mathcal{G}_{N-1}|=|\\mathcal{G}_{N+1}|$$\n$$\\bar b = N$$\n\n### 변수 해석\n- $\\mathcal{G}_{N-1},\\mathcal{G}_{N+1}$: 저/고비트 그룹 집합\n- $\\bar b$: 전체 평균 비트폭\n\n### 실무 체크\n- 정수 제약 아래 탐색하므로 후보 수 증가 시 탐색 전략(포인터/빔)이 성능과 시간에 큰 영향을 준다."
+  },
+  {
+    "id": "incoherence-processing",
+    "name": "Incoherence Processing",
+    "aliases": [
+      "IncP",
+      "Orthogonal Incoherence Transform"
+    ],
+    "category": "technique",
+    "description": "Incoherence Processing은 가중치와 Hessian을 직교 변환해 outlier/축 정렬 문제를 완화한 뒤 양자화를 수행하고, 역변환으로 원 좌표계로 복원하는 절차다.",
+    "related_paper_titles": [
+      "QuIP: 2-Bit Quantization of Large Language Models With Guarantees",
+      "QuIP#: Even Better LLM Quantization with Hadamard Incoherence and Lattice Codebooks"
+    ],
+    "hierarchy": [
+      "Optimization",
+      "Quantization Strategy",
+      "Incoherence Processing"
+    ],
+    "study_classification": {
+      "optimization": [
+        "Error Geometry Control"
+      ],
+      "learning_flow": [
+        "Pre/Post Transform Design"
+      ]
+    },
+    "term_set": "llm_quantization",
+    "details_markdown": "### 정의\n- 양자화 전에 좌표계를 직교 변환해 반올림 민감도를 낮추고, 양자화 후 역변환으로 복원한다.\n\n### 핵심 수식\n$$\\tilde W = U W V^\\top,\\quad \\tilde H = V H V^\\top$$\n$$\\hat W = U^\\top \\hat{\\tilde W} V$$\n\n### 해석 포인트\n- 핵심은 목적함수(예: Hessian 기반 quadratic proxy)를 보존하면서 반올림 난이도를 낮추는 것이다.\n- QuIP은 Kronecker/랜덤 직교 기반, QuIP#은 RHT(Hadamard) 기반으로 구현한다.\n\n### 실무 체크\n- 비트폭이 낮을수록(특히 2-bit) 개선 효과가 크게 나타나는 경향이 있다.\n- 변환 품질이 낮으면 후속 rounding 개선 폭도 제한된다."
+  },
+  {
+    "id": "ldlq",
+    "name": "LDLQ",
+    "aliases": [
+      "LDL Quantization",
+      "Adaptive LDL Rounding"
+    ],
+    "category": "technique",
+    "description": "LDLQ는 Hessian의 LDL 분해를 이용해 이전 양자화 오차를 이후 열(또는 블록)에 선형 피드백하는 adaptive rounding 기법이다.",
+    "related_paper_titles": [
+      "QuIP: 2-Bit Quantization of Large Language Models With Guarantees",
+      "QuIP#: Even Better LLM Quantization with Hadamard Incoherence and Lattice Codebooks"
+    ],
+    "hierarchy": [
+      "Optimization",
+      "Adaptive Rounding",
+      "LDLQ"
+    ],
+    "study_classification": {
+      "optimization": [
+        "Adaptive Rounding",
+        "Hessian-aware PTQ"
+      ],
+      "learning_flow": [
+        "Column/Block-wise Error Feedback"
+      ]
+    },
+    "term_set": "llm_quantization",
+    "details_markdown": "### 정의\n- Hessian 분해로 얻은 구조를 이용해 단순 반올림 대신 오차 전파를 제어하며 열 순차 양자화를 수행한다.\n\n### 핵심 수식\n$$H=(\\tilde U+I)D(\\tilde U+I)^\\top,\\quad U\\leftarrow\\tilde U$$\n$$\\hat W_k = Q\\!\\left(W_k + (W_{1:k-1}-\\hat W_{1:k-1})a_k\\right)$$\n\n### 해석 포인트\n- 앞선 열의 양자화 오차를 보정 항으로 반영해 누적 오차를 줄인다.\n- QuIP은 LDLQ가 proxy loss 관점에서 타당한 선택임을 이론으로 보강했다.\n\n### 실무 체크\n- Hessian 추정 품질(보정 데이터)과 damping 설정이 안정성에 직접 영향을 준다.\n- 2-bit에서는 반올림 경계가 거칠어 LDLQ의 상대 이점이 더 커진다."
+  },
+  {
+    "id": "randomized-hadamard-transform",
+    "name": "Randomized Hadamard Transform",
+    "aliases": [
+      "RHT",
+      "FWHT Incoherence"
+    ],
+    "category": "technique",
+    "description": "RHT(Randomized Hadamard Transform)는 부호 대각행렬과 Hadamard 변환으로 저비용 incoherence를 만드는 전처리로, QuIP#의 핵심 가속 구성요소다.",
+    "related_paper_titles": [
+      "QuIP#: Even Better LLM Quantization with Hadamard Incoherence and Lattice Codebooks"
+    ],
+    "hierarchy": [
+      "Optimization",
+      "Incoherence Processing",
+      "RHT"
+    ],
+    "study_classification": {
+      "optimization": [
+        "Fast Orthogonal Transform"
+      ],
+      "learning_flow": [
+        "Hardware-Friendly Preconditioning"
+      ]
+    },
+    "term_set": "llm_quantization",
+    "details_markdown": "### 정의\n- 랜덤 부호를 곱한 뒤 Hadamard 변환(FWHT)을 적용해 좌표 축 정렬을 빠르게 섞는다.\n\n### 핵심 수식\n$$x' = H_n\\,\\mathrm{diag}(s)\\,x,\\quad s\\in\\{\\pm1\\}^n$$\n\n### 해석 포인트\n- FWHT 구현으로 \\(\\mathcal{O}(n\\log n)\\) 계산이 가능해 대규모 레이어에서도 실용적이다.\n- Kronecker 기반 랜덤 직교 대비 상수항과 구현 복잡도를 낮추면서 incoherence 품질을 유지/개선한다.\n\n### 실무 체크\n- 차원 제약(2의 거듭제곱)에 맞춘 패딩 전략이 필요할 수 있다.\n- 커널 구현 시 메모리 접근 패턴이 토큰 처리량에 큰 영향을 준다."
+  },
+  {
+    "id": "blockldlq",
+    "name": "BlockLDLQ",
+    "aliases": [
+      "Block Adaptive Rounding"
+    ],
+    "category": "technique",
+    "description": "BlockLDLQ는 LDLQ를 블록 단위로 확장해 벡터 코드북 양자화기와 결합한 방식으로, QuIP#에서 핵심 역할을 한다.",
+    "related_paper_titles": [
+      "QuIP#: Even Better LLM Quantization with Hadamard Incoherence and Lattice Codebooks"
+    ],
+    "hierarchy": [
+      "Optimization",
+      "Adaptive Rounding",
+      "BlockLDLQ"
+    ],
+    "study_classification": {
+      "optimization": [
+        "Block-wise PTQ"
+      ],
+      "learning_flow": [
+        "Vector Codebook Rounding"
+      ]
+    },
+    "term_set": "llm_quantization",
+    "details_markdown": "### 정의\n- 스칼라 열 단위가 아니라 블록 단위로 오차 피드백을 적용해 벡터 양자화와 정합되도록 만든다.\n\n### 핵심 수식\n$$\\hat W_k = Q\\!\\left(W_k + (W_{:1:k-1}-\\hat W_{:1:k-1})A_k\\right)$$\n\n### 해석 포인트\n- \\(Q\\)가 벡터 코드북일 때도 LDLQ류 오차 제어 원리를 유지한다.\n- RHT와 결합하면 블록 분포가 더 균질해져 코드북 효율이 높아진다.\n\n### 실무 체크\n- block size \\(g\\)가 커지면 표현력은 좋아질 수 있으나 탐색/복원 비용이 증가한다.\n- 코드북 차원과 블록 분할을 함께 튜닝해야 최적점이 나온다."
+  },
+  {
+    "id": "e8-lattice-codebook",
+    "name": "E8 Lattice Codebook",
+    "aliases": [
+      "E8P",
+      "E8-based VQ Codebook"
+    ],
+    "category": "technique",
+    "description": "E8 lattice codebook은 8차원 E8 격자의 조밀한 packing 특성을 이용한 벡터 코드북으로, QuIP#의 초저비트 성능 향상 핵심이다.",
+    "related_paper_titles": [
+      "QuIP#: Even Better LLM Quantization with Hadamard Incoherence and Lattice Codebooks"
+    ],
+    "hierarchy": [
+      "Quantization",
+      "Vector Quantization",
+      "Lattice Codebook"
+    ],
+    "study_classification": {
+      "optimization": [
+        "Codebook Shaping"
+      ],
+      "learning_flow": [
+        "Low-bit Codebook Design"
+      ]
+    },
+    "term_set": "llm_quantization",
+    "details_markdown": "### 정의\n- 8차원 공간에서 왜곡 대비 코드 효율이 높은 E8 구조를 코드북으로 사용한다.\n\n### 핵심 수식\n$$E_8=\\left(\\mathbb{Z}^8\\cup\\left(\\mathbb{Z}^8+\\frac{1}{2}\\right)\\right)\\cap\\{x\\mid \\mathbf{1}^\\top x\\ \\text{is even}\\}$$\n\n### 해석 포인트\n- 같은 비트 예산에서 일반 격자보다 양자화 왜곡을 줄이기 유리하다.\n- QuIP#은 E8P(실용 변형)로 LUT/디코딩 친화성을 강화한다.\n\n### 실무 체크\n- 코드북 메모리 배치와 LUT 캐시 적중률이 실제 추론 속도에 중요하다.\n- 차원 정렬(8D) 불일치 시 패딩/재배열 오버헤드가 생길 수 있다."
+  },
+  {
+    "id": "additive-quantization",
+    "name": "Additive Quantization",
+    "aliases": [
+      "AQ",
+      "Multi-Codebook Sum Quantization"
+    ],
+    "category": "technique",
+    "description": "Additive Quantization(AQ)은 하나의 코드북 대신 여러 코드북 벡터의 합으로 표현해 저비트에서도 높은 근사 표현력을 확보하는 방법이다.",
+    "related_paper_titles": [
+      "Extreme Compression of Large Language Models via Additive Quantization"
+    ],
+    "hierarchy": [
+      "Quantization",
+      "Vector Quantization",
+      "Additive Quantization"
+    ],
+    "study_classification": {
+      "optimization": [
+        "Codebook Optimization"
+      ],
+      "learning_flow": [
+        "Extreme Compression"
+      ]
+    },
+    "term_set": "llm_quantization",
+    "details_markdown": "### 정의\n- 각 그룹을 단일 코드워드가 아니라 다중 코드워드 합으로 표현해 표현 공간을 확장한다.\n\n### 핵심 수식\n$$\\hat w_{\\text{group}}=\\sum_{m=1}^{M} C_m b_m$$\n\n### 해석 포인트\n- 동일 총 비트폭에서 단일 코드북 대비 왜곡-표현력 균형을 개선할 수 있다.\n- AQLM은 AQ를 LLM PTQ에 맞게 출력 보존 목적함수와 결합했다.\n\n### 실무 체크\n- 코드북 수 \\(M\\)를 늘리면 품질은 오를 수 있지만 인코딩/디코딩 비용도 증가한다.\n- 초기화 품질(residual K-means)이 수렴과 최종 성능에 큰 영향을 준다."
+  },
+  {
+    "id": "multi-codebook-quantization",
+    "name": "Multi-Codebook Quantization",
+    "aliases": [
+      "MCQ"
+    ],
+    "category": "technique",
+    "description": "Multi-Codebook Quantization은 여러 코드북을 조합해 한 벡터를 표현하는 양자화 패러다임으로, AQ/RVQ/PQ 계열의 공통 기반이다.",
+    "related_paper_titles": [
+      "Extreme Compression of Large Language Models via Additive Quantization"
+    ],
+    "hierarchy": [
+      "Quantization",
+      "Vector Quantization",
+      "MCQ"
+    ],
+    "study_classification": {
+      "optimization": [
+        "Discrete + Continuous Alternating Optimization"
+      ],
+      "learning_flow": [
+        "Code Search and Codebook Update"
+      ]
+    },
+    "term_set": "llm_quantization",
+    "details_markdown": "### 정의\n- 이산 코드 탐색과 연속 코드북 갱신을 교대로 수행해 표현을 최적화한다.\n\n### 핵심 아이디어\n- 코드(이산): beam search 등 조합 탐색\n- 코드북(연속): Adam/LS 기반 갱신\n- 필요 시 블록 단위 미세조정으로 누적 오차 보정\n\n### AQLM 관점\n- 목적함수는 \\(\\|WX-\\hat W X\\|\\) 형태의 출력 보존을 직접 최소화한다.\n- 다중 코드북 합으로 <3-bit 영역의 Pareto를 개선한다.\n\n### 실무 체크\n- beam size, 반복 횟수, 코드북 크기를 함께 조정해야 시간-품질 균형이 맞는다."
+  },
+  {
+    "id": "residual-vector-quantization",
+    "name": "Residual Vector Quantization",
+    "aliases": [
+      "RVQ"
+    ],
+    "category": "technique",
+    "description": "Residual Vector Quantization(RVQ)은 1차 양자화 잔차를 다시 양자화해 단계적으로 근사를 정교화하는 벡터 양자화 확장 기법이다.",
+    "related_paper_titles": [
+      "QuIP#: Even Better LLM Quantization with Hadamard Incoherence and Lattice Codebooks",
+      "Extreme Compression of Large Language Models via Additive Quantization"
+    ],
+    "hierarchy": [
+      "Quantization",
+      "Vector Quantization",
+      "Residual VQ"
+    ],
+    "study_classification": {
+      "optimization": [
+        "Progressive Residual Coding"
+      ],
+      "learning_flow": [
+        "Bitrate Scaling"
+      ]
+    },
+    "term_set": "llm_quantization",
+    "details_markdown": "### 정의\n- 첫 코드북으로 설명되지 않은 잔차를 다음 코드북이 순차적으로 보정한다.\n\n### 핵심 수식\n$$\\hat x=\\sum_{t=1}^{T}q_t,\\quad q_t=Q_t(r_{t-1}),\\quad r_t=r_{t-1}-q_t$$\n\n### 해석 포인트\n- 같은 기본 코드북을 재사용하며 비트레이트(2→3→4bit)를 유연하게 확장할 수 있다.\n- QuIP#에서는 2-bit E8P 기반을 RVQ로 확장해 고비트 구성까지 연결한다.\n\n### 실무 체크\n- 단계 수 \\(T\\)가 늘수록 정확도는 좋아질 수 있으나 지연과 메모리 접근이 증가한다.\n- 잔차 분포가 급격히 비등방이면 후속 단계 효율이 빠르게 떨어질 수 있다."
   }
 ]

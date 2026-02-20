@@ -79,6 +79,9 @@ export default function Header({ onSearchClick }: HeaderProps = {}) {
           <HeaderLink href="/glossary" active={pathname === '/glossary'}>
             용어집
           </HeaderLink>
+          <HeaderLink href="/my-research" active={pathname === '/my-research'}>
+            내 연구
+          </HeaderLink>
 
           {onSearchClick && (
             <button
@@ -159,6 +162,13 @@ export default function Header({ onSearchClick }: HeaderProps = {}) {
               active={pathname === '/glossary'}
             >
               용어집
+            </MobileHeaderLink>
+            <MobileHeaderLink
+              href="/my-research"
+              onClick={() => setMobileMenuOpen(false)}
+              active={pathname === '/my-research'}
+            >
+              내 연구
             </MobileHeaderLink>
             <a
               href={REPO_URL}

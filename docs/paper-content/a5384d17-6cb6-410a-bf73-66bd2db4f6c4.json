@@ -1,0 +1,100 @@
+{
+  "id": "a5384d17-6cb6-410a-bf73-66bd2db4f6c4",
+  "title": "QuIP#: Even Better LLM Quantization with Hadamard Incoherence and Lattice Codebooks",
+  "authors": [
+    "Albert Tseng",
+    "Jerry Chee",
+    "Qingyao Sun",
+    "Volodymyr Kuleshov",
+    "Christopher De Sa"
+  ],
+  "year": 2024,
+  "venue": "ICML 2024 (PMLR 235), arXiv 2402.04396",
+  "doi": "10.48550/arXiv.2402.04396",
+  "arxiv_id": "2402.04396",
+  "abstract": "QuIP#는 QuIP의 핵심 아이디어(비일관성 기반 양자화)를 유지하면서 실제 성능/속도 병목을 동시에 개선한다. 첫째, Kronecker 기반 랜덤 직교변환 대신 Randomized Hadamard Transform(RHT)을 사용해 incoherence 품질과 계산 효율을 모두 개선한다. 둘째, RHT 후 가중치가 구형에 가까운 분포를 보인다는 점을 이용해 E8 lattice 기반 벡터 코드북(E8P)을 설계하고, BlockLDLQ로 블록 단위 적응형 반올림을 수행한다. 셋째, 블록/모델 레벨 fine-tuning을 결합해 초저비트 영역(특히 2~4bit) 정확도를 추가로 끌어올린다.",
+  "notes_summary": "QuIP#는 QuIP의 이론적 틀을 실전 배포 관점으로 확장해 RHT + BlockLDLQ + E8 코드북 + FT를 결합한 초저비트 PTQ의 대표 구현이다.",
+  "key_contributions": [
+    "Incoherence processing을 RHT로 바꿔 \\(\\mathcal{O}(n\\log n)\\) 복잡도와 더 강한 concentration 특성을 확보했다.",
+    "스칼라 반올림 대신 블록 반올림(BlockLDLQ)을 도입해 벡터 코드북 사용 시의 손실 최적화를 체계화했다.",
+    "E8 lattice 기반 E8P 코드북(2-bit, 8D)을 설계해 구형 분포에 맞는 shaping과 하드웨어 친화적 디코딩을 동시에 달성했다.",
+    "2-bit E8P를 반복 적용하는 RVQ 전략으로 3/4-bit까지 확장 가능한 코드북 파이프라인을 제시했다.",
+    "블록 내부/모델 전체 fine-tuning을 결합해 PTQ 정확도를 크게 개선하고 실제 추론 커널에서도 높은 대역폭 활용을 보였다."
+  ],
+  "algorithms": [
+    "Step 1: 레이어 입력 샘플에서 Hessian \\(H\\)를 추정하고, RHT용 랜덤 부호 벡터 \\(S_U,S_V\\)를 샘플링한다.",
+    "Step 2: Incoherence processing으로 \\(\\tilde W,\\tilde H\\)를 구성한다. 구현은 Hadamard-FWHT를 이용해 \\(\\mathcal{O}(n\\log n)\\)로 계산한다.",
+    "Step 3: \\(\\tilde H\\)의 g-block LDL 분해를 계산하고 블록 피드백 행렬 \\(A_k\\)를 준비한다.",
+    "Step 4: BlockLDLQ로 블록 단위 반올림을 수행한다: \\(\\hat W_k=Q(W_k+(W_{:1:k-1}-\\hat W_{:1:k-1})A_k)\\).",
+    "Step 5: 벡터 양자화기 \\(Q\\)는 E8P 코드북을 사용해 8차원 블록을 2-bit로 부호화한다(코드북 shaping).",
+    "Step 6: 3/4-bit는 RVQ(잔차 벡터 양자화)로 확장해 여러 코드북의 합으로 잔차를 순차 보정한다.",
+    "Step 7: 후처리에서 Hadamard/부호 변환을 역적용해 원래 좌표계의 \\(\\hat W\\)를 복원한다.",
+    "Step 8: 블록 수준 + 전체 모델 수준 fine-tuning으로 비선형 상호작용 오차를 줄여 최종 정확도를 끌어올린다."
+  ],
+  "key_equations": [
+    {
+      "name": "Proxy Loss (QuIP 계열 공통)",
+      "latex": "\\ell(\\hat W)=\\mathrm{tr}\\!\\left((\\hat W-W)H(\\hat W-W)^\\top\\right)",
+      "description": "QuIP#도 동일한 Hessian-aware proxy loss 프레임워크를 사용한다."
+    },
+    {
+      "name": "RHT Incoherence Processing (개념식)",
+      "latex": "\\tilde W = U\\,\\mathrm{diag}(S_U)\\,W\\,\\mathrm{diag}(S_V)\\,V^\\top,\\quad \\tilde H = V\\,\\mathrm{diag}(S_V)\\,H\\,\\mathrm{diag}(S_V)\\,V^\\top",
+      "description": "Hadamard 기반 랜덤 직교/부호 변환으로 outlier와 축 정렬 효과를 약화한다."
+    },
+    {
+      "name": "BlockLDLQ Update",
+      "latex": "\\hat W_k = Q\\!\\left(W_k + (W_{:1:k-1}-\\hat W_{:1:k-1})A_k\\right)",
+      "description": "스칼라가 아닌 블록 단위 적응형 반올림. 벡터 코드북 양자화기 \\(Q\\)와 결합된다."
+    },
+    {
+      "name": "E8 Lattice",
+      "latex": "E_8 = \\left(\\mathbb{Z}^8 \\cup \\left(\\mathbb{Z}^8+\\frac{1}{2}\\right)\\right)\\cap\\{x\\mid \\mathbf{1}^\\top x\\ \\text{is even}\\}",
+      "description": "8차원 구면 packing 밀도가 높은 격자 구조를 코드북 설계에 활용한다."
+    },
+    {
+      "name": "RVQ Expansion",
+      "latex": "\\hat x = \\sum_{t=1}^{T} q_t,\\quad q_t=Q_t(r_{t-1}),\\quad r_t=r_{t-1}-q_t",
+      "description": "2-bit 코드북을 잔차 형태로 누적해 3/4-bit 등 고비트 구성으로 확장한다."
+    },
+    {
+      "name": "BlockLDLQ Error Bound (Intuition)",
+      "latex": "\\mathbb{E}\\,\\ell(\\hat W)\\ \\lesssim\\ \\frac{g m \\mu^2\\sigma^2}{n}\\,\\mathrm{tr}(H^{1/2})^2",
+      "description": "블록 반올림에서도 incoherence 하에서 스펙트럼형 이득이 유지됨을 보여주는 대표 형태."
+    }
+  ],
+  "architecture_detail": "## 1) QuIP에서 QuIP#로: 무엇이 달라졌나\n\nQuIP#는 QuIP의 핵심 아이디어를 유지하되, 실제 배포에서 중요한 세 축을 강화했다.\n\n1. **RHT 기반 incoherence** (더 빠르고 더 안정적인 변환)\n2. **E8 lattice 코드북** (분포 맞춤 벡터 양자화)\n3. **Fine-tuning 결합** (초저비트 오차 누적 보정)\n\n---\n\n## 2) RHT: Kronecker보다 왜 유리한가\n\nQuIP의 Kronecker 직교변환은 유효하지만, QuIP#는 RHT(FWHT)를 채택해\n\n- 연산량: \\(\\mathcal{O}(n\\log n)\\)\n- 상수항: Hadamard 행렬 원소가 \\(\\{\\pm1\\}\\)라 곱셈 부담이 작음\n- 이론: incoherence concentration bound 개선\n\n을 동시에 얻는다.\n\n핵심 아이디어는 \"축 정렬된 중요 방향\"을 빠르게 섞어 반올림 민감도를 낮추는 것이다.\n\n---\n\n## 3) BlockLDLQ: 스칼라 반올림의 한계를 넘기기\n\nRHT 이후 가중치 분포는 구형(sub-Gaussian) 성격이 강해진다. 그런데 스칼라 반올림은 이를 활용하지 못한다.\n\nQuIP#는 블록 단위 반올림으로 바꿔 벡터 코드북을 직접 사용한다.\n\n$$\n\\hat W_k=Q\\left(W_k+(W_{:1:k-1}-\\hat W_{:1:k-1})A_k\\right)\n$$\n\n- \\(Q\\): 벡터 코드북 기반 양자화기\n- \\(A_k\\): g-block LDL 분해에서 온 피드백\n\n즉, \"오차 피드백\"과 \"벡터 코드북\"을 같은 수식 내에서 일관되게 결합한다.\n\n---\n\n## 4) E8P 코드북: 분포 맞춤 shaping\n\nE8 격자는 8차원 단위구 packing 밀도가 높아, 초저비트에서 같은 코드 수 대비 왜곡이 작다.\n\nQuIP#는 E8 구조를 하드웨어 친화적으로 변형한 E8P를 사용해\n\n- 코드북 shaping 품질,\n- LUT/캐시 친화적 디코딩,\n\n을 함께 가져간다.\n\n---\n\n## 5) 3/4-bit 확장: RVQ\n\n2-bit E8P 하나로 끝내지 않고 잔차를 여러 번 양자화한다.\n\n$$\n\\hat x=\\sum_t q_t,\\quad q_t=Q_t(r_{t-1}),\\quad r_t=r_{t-1}-q_t\n$$\n\n이 구조는 코드북 재사용성과 확장성(2→3→4bit)을 동시에 제공한다.\n\n---\n\n## 6) Fine-tuning의 역할\n\n극저비트에서는 레이어 간 오차 상호작용이 커져 레이어 독립 PTQ만으로는 한계가 생긴다.\n\nQuIP#는\n\n- 블록 내부 FT,\n- 전체 모델 FT,\n\n를 결합해 \"양자화 이후의 실제 동작 분포\"에 맞춰 잔차를 줄인다. 결과적으로 2~4bit 정확도를 크게 개선한다.\n\n---\n\n## 7) 구현 관점 체크리스트\n\n- Hadamard 가능한 차원/패딩 전략(또는 FFT fallback)\n- block size \\(g\\), 코드북 차원/비트 설계\n- E8P LUT 메모리 배치와 커널 접근 패턴\n- FT 단계에서 학습 파라미터(코드북/스케일/정규화층) 범위\n- perplexity뿐 아니라 토큰 처리량, 메모리 대역폭 효율 동시 측정",
+  "difficulty_level": "advanced",
+  "prerequisites": [
+    "QuIP/LDLQ 기본 이해",
+    "Hadamard/FWHT 및 랜덤 직교변환 기초",
+    "벡터 양자화(VQ), 코드북, 잔차 양자화(RVQ) 개념",
+    "LLM PTQ 파이프라인과 커널 관점의 성능 지표"
+  ],
+  "learning_objectives": [
+    "RHT가 QuIP의 Kronecker 변환을 어떤 측면에서 개선하는지 설명할 수 있다.",
+    "BlockLDLQ와 스칼라 LDLQ의 차이를 수식으로 비교할 수 있다.",
+    "E8 lattice 코드북이 초저비트에서 유리한 이유를 분포/packing 관점으로 설명할 수 있다.",
+    "RVQ와 FT가 각각 어떤 오차를 줄이는지 역할을 분리해 설명할 수 있다."
+  ],
+  "self_check_questions": [
+    "왜 RHT 이후에는 스칼라 코드북보다 벡터 코드북의 이점이 더 크게 나타나는가?",
+    "BlockLDLQ의 피드백 항이 없다면 QuIP# 성능이 어느 방향으로 악화될까?",
+    "E8P가 하드웨어 친화적이라고 말할 수 있는 구현적 근거는 무엇인가?",
+    "QuIP#의 FT는 단순 QAT와 무엇이 같고 무엇이 다른가?"
+  ],
+  "category": "quantization",
+  "tags": [
+    "quip-sharp",
+    "rht",
+    "hadamard",
+    "e8-lattice",
+    "blockldlq",
+    "rvq",
+    "llm-quantization"
+  ],
+  "pdf_url": "https://arxiv.org/pdf/2402.04396.pdf",
+  "code_url": "https://github.com/Cornell-RelaxML/quip-sharp",
+  "color_hex": "#4338CA",
+  "icon_name": null
+}
