@@ -571,7 +571,7 @@ export default function PaperStudyPage() {
 
     return (
       <div className="min-h-screen bg-gray-50 dark:bg-gray-950">
-        <Header />
+        <Header onSearchClick={() => setIsCommandPaletteOpen(true)} />
         <CommandPalette isOpen={isCommandPaletteOpen} onClose={() => setIsCommandPaletteOpen(false)} />
 
         {/* Reading progress bar */}
@@ -680,7 +680,7 @@ export default function PaperStudyPage() {
   return (
     <div className="min-h-screen bg-gray-50 dark:bg-gray-950">
       {/* -------- Shared Header -------- */}
-      <Header />
+      <Header onSearchClick={() => setIsCommandPaletteOpen(true)} />
       <CommandPalette isOpen={isCommandPaletteOpen} onClose={() => setIsCommandPaletteOpen(false)} />
 
       {/* -------- Reading Progress Bar -------- */}

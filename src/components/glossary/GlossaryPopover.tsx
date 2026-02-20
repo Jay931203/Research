@@ -28,9 +28,28 @@ interface GlossaryPopoverProps {
 
 export default function GlossaryPopover({ term, children }: GlossaryPopoverProps) {
   const [isOpen, setIsOpen] = useState(false);
-  const ref = useRef<HTMLSpanElement>(null);
+  const [popPos, setPopPos] = useState<{ top: number; left: number } | null>(null);
+  const containerRef = useRef<HTMLSpanElement>(null);
+  const triggerRef = useRef<HTMLButtonElement>(null);
 
   const close = useCallback(() => setIsOpen(false), []);
+
+  const handleToggle = useCallback(() => {
+    setIsOpen((prev) => {
+      if (!prev && triggerRef.current) {
+        const r = triggerRef.current.getBoundingClientRect();
+        const popupH = 270;
+        const popupW = 288;
+        const spaceBelow = window.innerHeight - r.bottom;
+        const top = spaceBelow > popupH + 10
+          ? r.bottom + 6
+          : Math.max(8, r.top - popupH - 6);
+        const left = Math.max(8, Math.min(r.left, window.innerWidth - popupW - 8));
+        setPopPos({ top, left });
+      }
+      return !prev;
+    });
+  }, []);
 
   useEffect(() => {
     if (!isOpen) return;
@@ -40,36 +59,44 @@ export default function GlossaryPopover({ term, children }: GlossaryPopoverProps
     };
 
     const handleClickOutside = (e: MouseEvent) => {
-      if (ref.current && !ref.current.contains(e.target as Node)) {
-        close();
-      }
+      if (containerRef.current && containerRef.current.contains(e.target as Node)) return;
+      // Check if click was on the fixed popup (it's still inside containerRef in the DOM)
+      close();
     };
+
+    const handleScroll = () => close();
 
     document.addEventListener('keydown', handleEsc);
     document.addEventListener('mousedown', handleClickOutside);
+    window.addEventListener('scroll', handleScroll, { passive: true, capture: true });
     return () => {
       document.removeEventListener('keydown', handleEsc);
       document.removeEventListener('mousedown', handleClickOutside);
+      window.removeEventListener('scroll', handleScroll, { capture: true });
     };
   }, [isOpen, close]);
 
   const color = CATEGORY_COLORS[term.category];
-  const description = term.description.length > 150
-    ? `${term.description.slice(0, 147)}...`
+  const description = term.description.length > 180
+    ? `${term.description.slice(0, 177)}...`
     : term.description;
 
   return (
-    <span ref={ref} className="relative inline">
+    <span ref={containerRef} className="inline">
       <button
-        onClick={() => setIsOpen((prev) => !prev)}
+        ref={triggerRef}
+        onClick={handleToggle}
         className="cursor-pointer rounded px-0.5 font-medium underline decoration-dotted decoration-1 underline-offset-2 transition hover:bg-blue-50 dark:hover:bg-blue-900/20"
         style={{ color }}
       >
         {children}
       </button>
 
-      {isOpen && (
-        <span className="absolute left-0 top-full z-50 mt-1.5 block w-72 animate-scale-in rounded-xl border border-gray-200 bg-white p-4 shadow-lg dark:border-gray-700 dark:bg-gray-800">
+      {isOpen && popPos && (
+        <span
+          className="fixed z-[9999] block w-72 animate-scale-in rounded-xl border border-gray-200 bg-white p-4 shadow-xl dark:border-gray-700 dark:bg-gray-800"
+          style={{ top: popPos.top, left: popPos.left }}
+        >
           <span className="mb-2 flex items-center gap-2">
             <span className="text-sm font-bold text-gray-800 dark:text-gray-200">{term.name}</span>
             <span

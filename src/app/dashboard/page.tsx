@@ -306,15 +306,15 @@ export default function DashboardPage() {
         )}
 
         {isMapFullscreen && (
-          <div className="fixed bottom-0 left-0 right-0 top-16 z-40 bg-gray-950">
-            <div className="flex h-12 items-center justify-between border-b border-gray-700 bg-gray-900/95 px-4">
-              <p className="text-sm font-semibold text-gray-100">연구 관계 맵 (노드 클릭 시 우측 패널 표시)</p>
+          <div className="fixed bottom-0 left-0 right-0 top-16 z-40 bg-white dark:bg-gray-950">
+            <div className="flex h-12 items-center justify-between border-b border-gray-200 bg-white/95 px-4 dark:border-gray-700 dark:bg-gray-900/95">
+              <p className="text-sm font-semibold text-gray-800 dark:text-gray-100">연구 관계 맵 (노드 클릭 시 우측 패널 표시)</p>
               <button
                 onClick={() => {
                   setSelectedFullscreenPaperId(null);
                   setIsMapFullscreen(false);
                 }}
-                className="inline-flex items-center gap-1.5 rounded-md border border-gray-600 px-3 py-1.5 text-xs font-semibold text-gray-200 hover:bg-gray-800"
+                className="inline-flex items-center gap-1.5 rounded-md border border-gray-300 px-3 py-1.5 text-xs font-semibold text-gray-700 hover:bg-gray-100 dark:border-gray-600 dark:text-gray-200 dark:hover:bg-gray-800"
               >
                 <Minimize2 className="h-3.5 w-3.5" />
                 축소
@@ -330,32 +330,32 @@ export default function DashboardPage() {
                   onRemovePaper={handleRemovePaperFromMap}
                 />
                 {!selectedFullscreenPaper && (
-                  <div className="pointer-events-none absolute bottom-4 right-4 rounded-lg border border-gray-700 bg-gray-900/90 px-3 py-2 text-xs text-gray-300 shadow-lg">
+                  <div className="pointer-events-none absolute bottom-4 right-4 rounded-lg border border-gray-200 bg-white/90 px-3 py-2 text-xs text-gray-600 shadow-lg dark:border-gray-700 dark:bg-gray-900/90 dark:text-gray-300">
                     노드를 클릭하면 우측에 논문 세부 정보가 표시됩니다.
                   </div>
                 )}
               </div>
 
               {selectedFullscreenPaper && (
-                <aside className="h-full w-[420px] shrink-0 overflow-y-auto border-l border-gray-700 bg-gray-900/95 text-gray-100">
-                  <div className="sticky top-0 border-b border-gray-700 bg-gray-900/95 px-4 py-4 backdrop-blur">
+                <aside className="h-full w-[420px] shrink-0 overflow-y-auto border-l border-gray-200 bg-white text-gray-900 dark:border-gray-700 dark:bg-gray-900/95 dark:text-gray-100">
+                  <div className="sticky top-0 border-b border-gray-200 bg-white/95 px-4 py-4 backdrop-blur dark:border-gray-700 dark:bg-gray-900/95">
                     <div className="mb-2 flex items-center justify-between gap-2">
-                      <p className="text-xs font-semibold uppercase tracking-wide text-gray-400">선택된 논문</p>
+                      <p className="text-xs font-semibold uppercase tracking-wide text-gray-500 dark:text-gray-400">선택된 논문</p>
                       <button
                         onClick={() => setSelectedFullscreenPaperId(null)}
-                        className="rounded-md border border-gray-600 p-1 text-gray-300 hover:bg-gray-800"
+                        className="rounded-md border border-gray-200 p-1 text-gray-400 hover:bg-gray-100 dark:border-gray-600 dark:text-gray-300 dark:hover:bg-gray-800"
                         aria-label="패널 닫기"
                       >
                         <X className="h-4 w-4" />
                       </button>
                     </div>
-                    <h3 className="line-clamp-3 text-sm font-bold leading-5 text-white">
+                    <h3 className="line-clamp-3 text-sm font-bold leading-5 text-gray-900 dark:text-white">
                       {selectedFullscreenPaper.title}
                     </h3>
-                    <p className="mt-2 text-xs text-gray-400">
+                    <p className="mt-2 text-xs text-gray-500 dark:text-gray-400">
                       {selectedFullscreenPaper.authors?.join(', ') || '저자 정보 없음'}
                     </p>
-                    <p className="mt-1 text-xs text-gray-400">
+                    <p className="mt-1 text-xs text-gray-500 dark:text-gray-400">
                       {selectedFullscreenPaper.year}
                       {selectedFullscreenPaper.venue ? ` · ${selectedFullscreenPaper.venue}` : ''}
                     </p>
@@ -372,7 +372,7 @@ export default function DashboardPage() {
                       {(selectedFullscreenPaper.tags ?? []).slice(0, 3).map((tag) => (
                         <span
                           key={`fullscreen-tag-${tag}`}
-                          className="rounded-full bg-gray-800 px-2 py-0.5 text-[10px] text-gray-300"
+                          className="rounded-full bg-gray-100 px-2 py-0.5 text-[10px] text-gray-500 dark:bg-gray-800 dark:text-gray-300"
                         >
                           {tag}
                         </span>
@@ -389,18 +389,18 @@ export default function DashboardPage() {
                   <div className="space-y-5 p-4">
                     {selectedFullscreenPaper.abstract && (
                       <section>
-                        <h4 className="mb-1.5 text-xs font-semibold text-gray-300">초록</h4>
+                        <h4 className="mb-1.5 text-xs font-semibold text-gray-600 dark:text-gray-300">초록</h4>
                         <MarkdownContent
                           content={selectedFullscreenPaper.abstract}
-                          className="text-sm leading-6 text-gray-200"
+                          className="text-sm leading-6 text-gray-700 dark:text-gray-200"
                         />
                       </section>
                     )}
 
                     {!!selectedFullscreenPaper.key_contributions?.length && (
                       <section>
-                        <h4 className="mb-1.5 text-xs font-semibold text-gray-300">핵심 기여</h4>
-                        <ul className="space-y-1.5 text-sm text-gray-200">
+                        <h4 className="mb-1.5 text-xs font-semibold text-gray-600 dark:text-gray-300">핵심 기여</h4>
+                        <ul className="space-y-1.5 text-sm text-gray-700 dark:text-gray-200">
                           {selectedFullscreenPaper.key_contributions.map((item, idx) => (
                             <li key={`fullscreen-contribution-${idx}`} className="flex gap-2">
                               <span className="mt-[7px] h-1.5 w-1.5 flex-shrink-0 rounded-full bg-blue-400" />
@@ -413,15 +413,15 @@ export default function DashboardPage() {
 
                     {!!selectedFullscreenPaper.algorithms?.length && (
                       <section>
-                        <h4 className="mb-1.5 text-xs font-semibold text-gray-300">알고리즘</h4>
-                        <ul className="space-y-1.5 text-sm text-gray-200">
+                        <h4 className="mb-1.5 text-xs font-semibold text-gray-600 dark:text-gray-300">알고리즘</h4>
+                        <ul className="space-y-1.5 text-sm text-gray-700 dark:text-gray-200">
                           {selectedFullscreenPaper.algorithms.map((item, idx) => (
                             <li key={`fullscreen-algorithm-${idx}`} className="flex gap-2">
                               <span className="mt-[7px] h-1.5 w-1.5 flex-shrink-0 rounded-full bg-violet-400" />
                               <div className="min-w-0 flex-1">
                                 <MarkdownContent
                                   content={item}
-                                  className="text-sm leading-6 text-gray-200"
+                                  className="text-sm leading-6 text-gray-700 dark:text-gray-200"
                                 />
                               </div>
                             </li>
@@ -432,11 +432,11 @@ export default function DashboardPage() {
 
                     {!!selectedFullscreenPaper.architecture_detail && (
                       <section>
-                        <h4 className="mb-1.5 text-xs font-semibold text-gray-300">아키텍처 상세</h4>
-                        <div className="rounded-lg border border-gray-700 bg-gray-800/60 p-3">
+                        <h4 className="mb-1.5 text-xs font-semibold text-gray-600 dark:text-gray-300">아키텍처 상세</h4>
+                        <div className="rounded-lg border border-gray-200 bg-gray-50 p-3 dark:border-gray-700 dark:bg-gray-800/60">
                           <MarkdownContent
                             content={selectedFullscreenPaper.architecture_detail}
-                            className="text-sm leading-6 text-gray-100"
+                            className="text-sm leading-6 text-gray-800 dark:text-gray-100"
                           />
                         </div>
                       </section>
@@ -444,7 +444,7 @@ export default function DashboardPage() {
 
                     {!!selectedFullscreenPaper.key_equations?.length && (
                       <section>
-                        <h4 className="mb-1.5 text-xs font-semibold text-gray-300">핵심 수식</h4>
+                        <h4 className="mb-1.5 text-xs font-semibold text-gray-600 dark:text-gray-300">핵심 수식</h4>
                         <PaperEquations equations={selectedFullscreenPaper.key_equations as any} forceLight />
                       </section>
                     )}
@@ -454,18 +454,18 @@ export default function DashboardPage() {
                       selectedFullscreenPaper.learning_objectives?.length ||
                       selectedFullscreenPaper.self_check_questions?.length) && (
                       <section className="space-y-3">
-                        <h4 className="text-xs font-semibold text-gray-300">학습 가이드</h4>
+                        <h4 className="text-xs font-semibold text-gray-600 dark:text-gray-300">학습 가이드</h4>
 
                         {selectedFullscreenPaper.difficulty_level && (
-                          <p className="text-sm text-gray-200">
+                          <p className="text-sm text-gray-700 dark:text-gray-200">
                             난이도: <span className="font-semibold">{selectedFullscreenPaper.difficulty_level}</span>
                           </p>
                         )}
 
                         {!!selectedFullscreenPaper.prerequisites?.length && (
                           <div>
-                            <p className="mb-1 text-xs font-semibold text-gray-400">선행 지식</p>
-                            <ul className="space-y-1.5 text-sm text-gray-200">
+                            <p className="mb-1 text-xs font-semibold text-gray-500 dark:text-gray-400">선행 지식</p>
+                            <ul className="space-y-1.5 text-sm text-gray-700 dark:text-gray-200">
                               {selectedFullscreenPaper.prerequisites.map((item, idx) => (
                                 <li key={`fullscreen-prereq-${idx}`} className="flex gap-2">
                                   <span className="mt-[7px] h-1.5 w-1.5 flex-shrink-0 rounded-full bg-emerald-400" />
@@ -478,8 +478,8 @@ export default function DashboardPage() {
 
                         {!!selectedFullscreenPaper.learning_objectives?.length && (
                           <div>
-                            <p className="mb-1 text-xs font-semibold text-gray-400">학습 목표</p>
-                            <ul className="space-y-1.5 text-sm text-gray-200">
+                            <p className="mb-1 text-xs font-semibold text-gray-500 dark:text-gray-400">학습 목표</p>
+                            <ul className="space-y-1.5 text-sm text-gray-700 dark:text-gray-200">
                               {selectedFullscreenPaper.learning_objectives.map((item, idx) => (
                                 <li key={`fullscreen-objective-${idx}`} className="flex gap-2">
                                   <span className="mt-[7px] h-1.5 w-1.5 flex-shrink-0 rounded-full bg-cyan-400" />
@@ -492,8 +492,8 @@ export default function DashboardPage() {
 
                         {!!selectedFullscreenPaper.self_check_questions?.length && (
                           <div>
-                            <p className="mb-1 text-xs font-semibold text-gray-400">셀프 체크 질문</p>
-                            <ul className="space-y-1.5 text-sm text-gray-200">
+                            <p className="mb-1 text-xs font-semibold text-gray-500 dark:text-gray-400">셀프 체크 질문</p>
+                            <ul className="space-y-1.5 text-sm text-gray-700 dark:text-gray-200">
                               {selectedFullscreenPaper.self_check_questions.map((item, idx) => (
                                 <li key={`fullscreen-check-${idx}`} className="flex gap-2">
                                   <span className="mt-[7px] h-1.5 w-1.5 flex-shrink-0 rounded-full bg-amber-400" />
@@ -508,11 +508,11 @@ export default function DashboardPage() {
 
                     {!!selectedFullscreenPaper.note_content && (
                       <section>
-                        <h4 className="mb-1.5 text-xs font-semibold text-gray-300">노트</h4>
-                        <div className="rounded-lg border border-gray-700 bg-gray-800/70 p-3">
+                        <h4 className="mb-1.5 text-xs font-semibold text-gray-600 dark:text-gray-300">노트</h4>
+                        <div className="rounded-lg border border-gray-200 bg-gray-50 p-3 dark:border-gray-700 dark:bg-gray-800/70">
                           <MarkdownContent
                             content={selectedFullscreenPaper.note_content}
-                            className="text-sm leading-6 text-gray-200"
+                            className="text-sm leading-6 text-gray-700 dark:text-gray-200"
                           />
                         </div>
                       </section>
@@ -525,7 +525,7 @@ export default function DashboardPage() {
                             href={selectedFullscreenPaper.pdf_url}
                             target="_blank"
                             rel="noopener noreferrer"
-                            className="inline-flex flex-1 items-center justify-center gap-1.5 rounded-lg border border-gray-600 px-3 py-2 text-xs font-semibold text-gray-200 transition hover:bg-gray-800"
+                            className="inline-flex flex-1 items-center justify-center gap-1.5 rounded-lg border border-gray-200 px-3 py-2 text-xs font-semibold text-gray-600 transition hover:bg-gray-50 dark:border-gray-600 dark:text-gray-200 dark:hover:bg-gray-800"
                           >
                             <ExternalLink className="h-3.5 w-3.5" />
                             PDF
@@ -536,7 +536,7 @@ export default function DashboardPage() {
                             href={selectedFullscreenPaper.code_url}
                             target="_blank"
                             rel="noopener noreferrer"
-                            className="inline-flex flex-1 items-center justify-center gap-1.5 rounded-lg border border-gray-600 px-3 py-2 text-xs font-semibold text-gray-200 transition hover:bg-gray-800"
+                            className="inline-flex flex-1 items-center justify-center gap-1.5 rounded-lg border border-gray-200 px-3 py-2 text-xs font-semibold text-gray-600 transition hover:bg-gray-50 dark:border-gray-600 dark:text-gray-200 dark:hover:bg-gray-800"
                           >
                             <ExternalLink className="h-3.5 w-3.5" />
                             Code
@@ -560,7 +560,7 @@ export default function DashboardPage() {
             <aside className="fixed right-0 top-16 z-40 flex h-[calc(100vh-4rem)] w-[380px] flex-col overflow-hidden border-l border-gray-200 bg-white shadow-2xl dark:border-gray-700 dark:bg-gray-900">
               <div className="sticky top-0 z-10 border-b border-gray-200 bg-white/95 px-4 py-4 backdrop-blur dark:border-gray-700 dark:bg-gray-900/95">
                 <div className="mb-2 flex items-center justify-between gap-2">
-                  <p className="text-xs font-semibold uppercase tracking-wide text-gray-400 dark:text-gray-500">논문 요약</p>
+                  <p className="text-xs font-semibold uppercase tracking-wide text-gray-400 dark:text-gray-500">선택된 논문</p>
                   <button
                     onClick={() => setSelectedFullscreenPaperId(null)}
                     className="rounded-md border border-gray-200 p-1 text-gray-400 hover:bg-gray-100 dark:border-gray-700 dark:text-gray-500 dark:hover:bg-gray-800"
