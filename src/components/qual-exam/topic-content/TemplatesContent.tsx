@@ -369,7 +369,8 @@ typename T::iterator it;
 // T의 중첩 타입을 명시`}</pre>
             </div>
             <p className="text-xs text-slate-500 dark:text-slate-400">
-              의존 타입에는 반드시 <code className="bg-slate-100 dark:bg-slate-800 px-1 rounded">typename</code>을 써야 합니다.
+              컴파일러는 <code className="bg-slate-100 dark:bg-slate-800 px-1 rounded">T::iterator</code>가 타입인지 정적 멤버인지 알 수 없으므로,{' '}
+              <code className="bg-slate-100 dark:bg-slate-800 px-1 rounded">typename</code>을 붙여 &ldquo;이것은 타입이다&rdquo;라고 명시해야 합니다.
             </p>
           </div>
         </div>
@@ -449,7 +450,8 @@ export default function TemplatesContent({ topic }: Props) {
         <SH icon="⚙️" title="컴파일 타임 인스턴스화" />
         <p className="text-sm text-slate-600 dark:text-slate-400 mb-4 leading-relaxed">
           컴파일러는 T를 실제 타입으로 치환해 <strong>각 타입마다 별도의 코드</strong>를 생성합니다(템플릿 인스턴스화).
-          따라서 템플릿 정의는 반드시 <strong>헤더 파일</strong>에 있어야 하며, 사용된 타입만 인스턴스화됩니다.
+          이 치환은 사용 시점에 발생하므로, 컴파일러가 인스턴스화하려면 <strong>전체 템플릿 정의를 볼 수 있어야</strong> 합니다.
+          그래서 템플릿 구현은 <code className="text-xs bg-slate-100 dark:bg-slate-800 px-1 rounded">.cpp</code>가 아닌 <strong>헤더 파일</strong>에 두어야 하며, 실제로 사용된 타입에 대해서만 코드가 생성됩니다.
         </p>
         <InstantiationSection />
       </section>

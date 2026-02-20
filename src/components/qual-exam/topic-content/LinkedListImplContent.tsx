@@ -427,8 +427,11 @@ export default function LinkedListImplContent({ topic }: Props) {
         <SH icon="🔄" title="reverse — 재귀 vs 반복 비교" />
         <p className="text-sm text-slate-600 dark:text-slate-400 mb-4 leading-relaxed">
           리스트 뒤집기는 각 노드의 next 링크 방향을 반대로 바꾸는 작업입니다.
-          재귀와 반복 두 가지 방법이 있으며 결과는 동일합니다.
-          재귀는 직관적이지만 긴 리스트에서는 스택 오버플로우 위험이 있습니다.
+          <strong>반복적 방법</strong>은 <code className="text-xs bg-slate-100 dark:bg-slate-800 px-1 rounded">prev</code>,{' '}
+          <code className="text-xs bg-slate-100 dark:bg-slate-800 px-1 rounded">curr</code>,{' '}
+          <code className="text-xs bg-slate-100 dark:bg-slate-800 px-1 rounded">next</code> 세 포인터를 순회하며 매 단계 <code className="text-xs bg-slate-100 dark:bg-slate-800 px-1 rounded">curr-&gt;next = prev</code>로 링크를 뒤집습니다.
+          <strong>재귀적 방법</strong>은 리스트 끝까지 내려간 뒤 되돌아오며 링크를 역방향으로 연결합니다.
+          두 방법 모두 O(n)이지만, 재귀는 리스트 길이만큼 호출 스택을 사용하므로 매우 긴 리스트에서 스택 오버플로우 위험이 있습니다.
         </p>
         <ReverseSection />
       </section>

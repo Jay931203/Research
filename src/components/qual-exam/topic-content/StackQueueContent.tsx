@@ -456,9 +456,9 @@ export default function StackQueueContent({ topic }: Props) {
         <p className="text-sm text-slate-600 dark:text-slate-400 mb-4 leading-relaxed">
           Queue는 FIFO(First In, First Out) 자료구조로,{' '}
           <strong>front</strong>(출구)와 <strong>rear</strong>(입구) 두 포인터로 관리합니다.
-          선형 큐는 dequeue 후 앞쪽 공간이 낭비되므로, 실제로는 rear를{' '}
-          <code className="text-xs bg-slate-100 dark:bg-slate-800 px-1 rounded">(rear+1)%MAX</code>로
-          순환시키는 원형 큐를 주로 씁니다.
+          선형 큐는 dequeue 후 앞쪽 공간이 영구 낭비되는 문제가 있습니다.
+          원형 큐는 <code className="text-xs bg-slate-100 dark:bg-slate-800 px-1 rounded">(rear+1)%MAX</code>로 인덱스를 배열 끝에서 0으로 순환시켜 이 낭비를 해결합니다.
+          빈 조건은 <code className="text-xs bg-slate-100 dark:bg-slate-800 px-1 rounded">front == rear</code>, 가득 찬 조건은 <code className="text-xs bg-slate-100 dark:bg-slate-800 px-1 rounded">(rear+1)%MAX == front</code>입니다.
         </p>
         <QueueSection />
       </section>

@@ -593,7 +593,9 @@ export default function VirtualFunctionsContent({ topic }: Props) {
           <code className="text-xs bg-slate-100 dark:bg-slate-800 px-1 rounded">m1</code>이 virtual이라면 포인터 타입이{' '}
           <code className="text-xs bg-slate-100 dark:bg-slate-800 px-1 rounded">Student</code>여도 실제 객체인{' '}
           <code className="text-xs bg-slate-100 dark:bg-slate-800 px-1 rounded">PhD::m1()</code>이 호출됩니다.
-          주의할 점은 <strong>non-virtual 함수 안에서 virtual 함수를 호출해도 동적 바인딩이 적용</strong>된다는 것입니다 — <code className="text-xs bg-slate-100 dark:bg-slate-800 px-1 rounded">this</code>가 실제 객체를 가리키므로 vptr을 통해 조회합니다.
+          한 가지 놓치기 쉬운 점: <strong>non-virtual 함수 안에서 virtual 함수를 호출해도 동적 바인딩이 적용됩니다.</strong>{' '}
+          non-virtual 함수 자체는 정적으로 고정되지만, 그 안에서 호출하는 virtual 함수는{' '}
+          <code className="text-xs bg-slate-100 dark:bg-slate-800 px-1 rounded">this</code>가 실제 객체를 가리키므로 vptr을 통해 파생 클래스 버전이 호출됩니다.
         </p>
         <DispatchDemoSection />
       </section>
@@ -617,8 +619,10 @@ export default function VirtualFunctionsContent({ topic }: Props) {
           복잡한 상속 계층에서 함수 호출을 추적할 때는 규칙 두 가지만 기억하면 됩니다:{' '}
           <strong>virtual 함수는 실제 객체 타입</strong>을 기준으로,{' '}
           <strong>non-virtual 함수는 포인터/참조 선언 타입</strong>을 기준으로 호출됩니다.
-          한 가지 위험한 함정은 <strong>무한 재귀</strong>입니다 — virtual 함수가 non-virtual 함수를 호출하고 그 non-virtual이 다시 같은 virtual 함수를 호출하는 구조라면,{' '}
-          <code className="text-xs bg-slate-100 dark:bg-slate-800 px-1 rounded">this</code>가 그대로이므로 virtual 함수가 다시 파생 클래스 버전으로 호출되어 스택 오버플로우로 이어집니다.
+          주의해야 할 함정은 <strong>무한 재귀</strong>입니다.
+          virtual 함수 A가 non-virtual 함수 B를 호출하고, B가 다시 A를 호출하는 구조에서
+          <code className="text-xs bg-slate-100 dark:bg-slate-800 px-1 rounded">this</code>는 변하지 않으므로 A는 계속 파생 클래스 버전으로 호출됩니다(A → B → A → B → ...).
+          종료 조건 없이 이 패턴이 반복되면 스택 오버플로우로 이어집니다.
         </p>
         <CallTracerSection />
       </section>

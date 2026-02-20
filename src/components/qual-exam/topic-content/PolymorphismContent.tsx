@@ -520,15 +520,21 @@ export default function PolymorphismContent({ topic }: Props) {
 
       <section id="abstract-sec-clone">
         <SH icon="📋" title="clone() 패턴 — 다형적 깊은 복사" />
-        <p className="text-sm text-slate-600 dark:text-slate-400 mb-5 leading-relaxed">
-          <strong>clone() 패턴</strong>은 기반 클래스 포인터/참조만으로 실제 파생 클래스 타입의 복사본을 만드는 설계 패턴입니다.{' '}
-          <code className="text-xs bg-slate-100 dark:bg-slate-800 px-1 rounded">add(const Shape& s)</code>에서{' '}
-          <code className="text-xs bg-slate-100 dark:bg-slate-800 px-1 rounded">s.clone()</code>을 호출하면 동적 디스패치로 실제 타입의{' '}
-          <code className="text-xs bg-slate-100 dark:bg-slate-800 px-1 rounded">clone()</code>이 실행됩니다.
+        <p className="text-sm text-slate-600 dark:text-slate-400 mb-3 leading-relaxed">
+          <strong>clone() 패턴</strong>은 기반 클래스 포인터/참조만으로 실제 파생 클래스 타입의 복사본을 만드는 설계 패턴입니다.
+          문제 상황: <code className="text-xs bg-slate-100 dark:bg-slate-800 px-1 rounded">add(const Shape& s)</code>는{' '}
+          <code className="text-xs bg-slate-100 dark:bg-slate-800 px-1 rounded">s</code>가 어떤 파생 타입인지 컴파일 타임에 알 수 없습니다.
+          그래서 <code className="text-xs bg-slate-100 dark:bg-slate-800 px-1 rounded">s.clone()</code>을 virtual로 호출하면, 동적 디스패치로 실제 타입의 복사 함수가 실행됩니다.
+        </p>
+        <p className="text-sm text-slate-600 dark:text-slate-400 mb-3 leading-relaxed">
           각 파생 클래스는{' '}
           <code className="text-xs bg-slate-100 dark:bg-slate-800 px-1 rounded">{'Shape* clone() const { return new Circle(*this); }'}</code>처럼 자신의 복사본을 반환합니다.
-          함수 인수로 받은 참조를 직접 저장하면 함수 종료 후 객체가 소멸하여 <strong>댕글링 포인터</strong>가 되므로, clone으로 새 객체를 만들어야 합니다.
-          다형성은 항상 포인터/참조로 다루어야 하며, 값 대입(<code className="text-xs bg-slate-100 dark:bg-slate-800 px-1 rounded">Shape s2 = *ptr</code>)은 파생 클래스 정보가 잘려나가는 <strong>객체 슬라이싱</strong>이 발생합니다.
+          인수로 받은 참조 <code className="text-xs bg-slate-100 dark:bg-slate-800 px-1 rounded">&s</code>를 직접 저장하면 함수 종료 후 객체가 소멸해 <strong>댕글링 포인터</strong>가 됩니다.
+          clone()이 힙에 새 객체를 만들어야 하는 이유입니다.
+        </p>
+        <p className="text-sm text-slate-600 dark:text-slate-400 mb-5 leading-relaxed">
+          다형성은 반드시 포인터나 참조로 다루어야 합니다.
+          값으로 대입하면(<code className="text-xs bg-slate-100 dark:bg-slate-800 px-1 rounded">Shape s2 = *circle_ptr</code>) Circle 고유의 멤버가 잘려나가는 <strong>객체 슬라이싱(object slicing)</strong>이 발생합니다.
         </p>
         <ClonePatternSection />
       </section>
@@ -538,15 +544,11 @@ export default function PolymorphismContent({ topic }: Props) {
         <p className="text-sm text-slate-600 dark:text-slate-400 mb-5 leading-relaxed">
           <code className="text-xs bg-slate-100 dark:bg-slate-800 px-1 rounded">Scene</code> 클래스는{' '}
           <code className="text-xs bg-slate-100 dark:bg-slate-800 px-1 rounded">{'vector<Shape*>'}</code>로 다형성 컨테이너를 구현합니다.
-          빈칸 <strong>(A), (B)</strong>는 각 파생 클래스가 자신의 복사본을 반환하는{' '}
-          <code className="text-xs bg-slate-100 dark:bg-slate-800 px-1 rounded">clone()</code>,{' '}
-          <strong>(C)</strong>는 소멸자에서 동적 메모리를 정리하는{' '}
-          <code className="text-xs bg-slate-100 dark:bg-slate-800 px-1 rounded">delete v[i]</code>,{' '}
-          <strong>(D)</strong>는 다형적 복사를 위한{' '}
-          <code className="text-xs bg-slate-100 dark:bg-slate-800 px-1 rounded">s.clone()</code>,{' '}
-          <strong>(E)</strong>는 다형적 넓이 계산을 위한{' '}
-          <code className="text-xs bg-slate-100 dark:bg-slate-800 px-1 rounded">{'v[i]->area()'}</code>입니다.
-          virtual 소멸자가 있으므로 <code className="text-xs bg-slate-100 dark:bg-slate-800 px-1 rounded">delete v[i]</code>는 파생 클래스 소멸자까지 올바르게 호출합니다.
+          빈칸 <strong>(A)</strong>는 Shape에 선언할 순수 가상 면적 함수, <strong>(B)</strong>는 다형적 복사를 위한 순수 가상 clone 함수입니다.
+          <strong>(C)</strong>는 Circle::area()에서 반환할 넓이 공식,{' '}
+          <strong>(D)</strong>는 Circle::clone()이 반환할 자기 자신의 복사본입니다.
+          <strong>(E)</strong>는 Scene::add()에서 인수를 복사해 벡터에 추가하는 호출 — <code className="text-xs bg-slate-100 dark:bg-slate-800 px-1 rounded">s.clone()</code>을 통해 다형적으로 복사합니다.
+          <code className="text-xs bg-slate-100 dark:bg-slate-800 px-1 rounded">{'~Scene()'}</code>은 이미 완성된 코드이며, virtual 소멸자 덕분에 파생 클래스 소멸자까지 올바르게 호출됩니다.
         </p>
         <ExamFillSection />
       </section>

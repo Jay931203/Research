@@ -653,9 +653,9 @@ export default function ConstructorsContent({ topic }: Props) {
       <section id="constructors-sec-order">
         <SH icon="▶️" title="생성자·소멸자 호출 순서 — 스텝 플레이어" />
         <p className="text-sm text-slate-600 dark:text-slate-400 mb-5 leading-relaxed">
-          객체는 선언 순서로 생성되고, 반대 순서(LIFO)로 소멸됩니다.
-          중첩 스코프에서는 안쪽 객체가 바깥쪽보다 먼저 소멸됩니다.
-          상속 시에는 <strong>부모 생성자 → 자식 생성자</strong>,
+          객체는 선언 순서로 생성되고, <strong>반대 순서(LIFO)</strong>로 소멸됩니다.
+          이 역순 소멸은 C++ 자원 해제 보장의 핵심입니다 — 나중에 생성된 객체가 먼저 생성된 객체에 의존할 수 있으므로, 의존하는 쪽이 먼저 정리되어야 합니다.
+          상속 시에는 <strong>부모 생성자 → 자식 생성자</strong> 순으로 생성되고,
           소멸은 역순으로 <strong>자식 소멸자 → 부모 소멸자</strong> 순서입니다.
         </p>
         <OrderStepPlayer />

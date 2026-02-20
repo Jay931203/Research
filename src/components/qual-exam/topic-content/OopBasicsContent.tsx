@@ -649,9 +649,12 @@ export default function OopBasicsContent({ topic }: Props) {
         <p className="text-sm text-slate-600 dark:text-slate-400 mb-5 leading-relaxed">
           초기화 리스트는 생성자 본문{' '}
           <code className="text-xs bg-slate-100 dark:bg-slate-800 px-1 rounded">{'{ }'}</code>{' '}
-          실행 전에 멤버를 직접 초기화하는 C++ 문법입니다. 대입보다 효율적이며,{' '}
-          <strong>const 멤버 · 참조 멤버 · 기본 생성자가 없는 멤버 객체</strong>는 반드시 초기화 리스트를 사용해야 합니다.
-          초기화 순서는 리스트 작성 순서가 아닌 <strong>클래스 내 선언 순서</strong>임에 주의하세요.
+          실행 전에 멤버를 직접 초기화하는 C++ 문법입니다. 단순 대입보다 효율적이며,
+          세 가지 경우는 <strong>반드시</strong> 초기화 리스트를 써야 합니다:
+          ① const 멤버(선언 시점에만 초기화 가능),
+          ② 참조 멤버(대입 불가),
+          ③ 기본 생성자가 없는 멤버 객체.
+          한 가지 함정: 초기화 순서는 리스트 작성 순서가 아닌 <strong>클래스 내 선언 순서</strong>를 따릅니다.
         </p>
         <InitListSection />
       </section>
