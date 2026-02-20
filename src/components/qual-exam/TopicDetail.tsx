@@ -10,6 +10,123 @@ import type { QuizQuestion } from './PracticeList';
 
 const AlgoVisualizer = dynamic(() => import('./AlgoVisualizer'), { ssr: false });
 
+/* ── Theory renderer helpers ── */
+
+/** Renders the body of a ■ section: bullets, code blocks, structured mono text */
+function TheoryBody({ body }: { body: string }) {
+  if (!body.trim()) return null;
+  const lines = body.split('\n');
+  const result: React.ReactNode[] = [];
+  let i = 0;
+
+  while (i < lines.length) {
+    if (!lines[i].trim()) { i++; continue; }
+
+    // Bullet list: consecutive lines starting with •
+    if (lines[i].trimStart().startsWith('•')) {
+      const bullets: string[] = [];
+      while (i < lines.length && lines[i].trimStart().startsWith('•')) {
+        bullets.push(lines[i].trimStart().slice(1).trim());
+        i++;
+      }
+      result.push(
+        <ul key={`b-${i}`} className="space-y-1.5 mb-2">
+          {bullets.map((b, j) => (
+            <li key={j} className="flex items-start gap-2 text-sm">
+              <span className="mt-[6px] h-1.5 w-1.5 flex-shrink-0 rounded-full bg-blue-400" />
+              <span className="text-slate-700 dark:text-slate-300 leading-snug">{b}</span>
+            </li>
+          ))}
+        </ul>
+      );
+      continue;
+    }
+
+    // Collect a block of non-empty, non-bullet lines
+    const blockLines: string[] = [];
+    while (i < lines.length && lines[i].trim() && !lines[i].trimStart().startsWith('•')) {
+      blockLines.push(lines[i]);
+      i++;
+    }
+
+    if (blockLines.length === 0) continue;
+
+    const content = blockLines.join('\n');
+    const isCode = blockLines.some(l =>
+      /^  /.test(l) ||
+      /^\s*(if\s|else|while\s|for\s|return\s|swap\(|def |function |partition|mergesort|quicksort|heapify|tree-insert|let |const )/.test(l.trim())
+    );
+
+    if (isCode) {
+      result.push(
+        <pre key={`code-${i}`} className="overflow-x-auto rounded-lg bg-slate-950 px-3 py-2.5 text-xs leading-relaxed text-slate-200 font-mono mb-2">
+          {content}
+        </pre>
+      );
+    } else {
+      result.push(
+        <div key={`mono-${i}`} className="rounded-lg bg-slate-50 dark:bg-slate-800/60 px-3 py-2.5 border border-slate-100 dark:border-slate-700/50 mb-2">
+          <pre className="whitespace-pre-wrap text-xs leading-[1.8] text-slate-700 dark:text-slate-300 font-mono">
+            {content}
+          </pre>
+        </div>
+      );
+    }
+  }
+
+  return <>{result}</>;
+}
+
+/** Renders the full theory string: splits by ■ into section cards */
+function TheoryRenderer({ theory }: { theory: string }) {
+  // Split by lines starting with ■
+  const rawParts: string[] = [];
+  let current = '';
+  for (const line of theory.split('\n')) {
+    if (line.startsWith('■ ') && current.trim()) {
+      rawParts.push(current);
+      current = line + '\n';
+    } else {
+      current += line + '\n';
+    }
+  }
+  if (current.trim()) rawParts.push(current);
+
+  return (
+    <div className="space-y-2.5">
+      {rawParts.map((raw, si) => {
+        const trimmed = raw.trim();
+        if (!trimmed) return null;
+
+        if (trimmed.startsWith('■ ')) {
+          const nlIdx = trimmed.indexOf('\n');
+          const title = nlIdx > 0 ? trimmed.slice(2, nlIdx).trim() : trimmed.slice(2).trim();
+          const body = nlIdx > 0 ? trimmed.slice(nlIdx + 1) : '';
+
+          return (
+            <div key={si} className="rounded-xl border border-slate-200 dark:border-slate-700 overflow-hidden">
+              <div className="bg-slate-100 dark:bg-slate-800 px-4 py-2.5 flex items-center gap-2">
+                <span className="h-2 w-2 rounded-full bg-blue-500 flex-shrink-0" />
+                <h3 className="text-sm font-bold text-slate-800 dark:text-slate-100">{title}</h3>
+              </div>
+              <div className="px-4 py-3">
+                <TheoryBody body={body} />
+              </div>
+            </div>
+          );
+        }
+
+        // Intro/preamble text (before any ■ section)
+        return (
+          <p key={si} className="text-sm text-slate-600 dark:text-slate-400 leading-relaxed px-1">
+            {trimmed}
+          </p>
+        );
+      })}
+    </div>
+  );
+}
+
 const difficultyLabel = { basic: '기초', intermediate: '중급', advanced: '고급' };
 const difficultyColor = {
   basic: 'bg-emerald-50 text-emerald-700 border border-emerald-200 dark:bg-emerald-900/20 dark:text-emerald-300',
@@ -41,7 +158,14 @@ export default function TopicDetail({ topic, relatedExams, practiceQuestions, on
     <div className="max-w-3xl space-y-8 px-6 py-6">
       {/* ── Header ─────────────────────────────────────── */}
       <div className="flex items-start gap-4">
-        <span className="text-5xl leading-none">{topic.icon}</span>
+        <div className="relative flex-shrink-0">
+          <span className="text-5xl leading-none">{topic.icon}</span>
+          {(topic as { studyOrder?: number }).studyOrder != null && (
+            <span className="absolute -top-1 -right-2 flex h-5 w-5 items-center justify-center rounded-full bg-blue-600 text-[10px] font-black text-white shadow">
+              {(topic as { studyOrder?: number }).studyOrder}
+            </span>
+          )}
+        </div>
         <div>
           <div className="flex flex-wrap items-center gap-2 mb-1">
             <span className={`rounded-full px-2.5 py-0.5 text-[11px] font-bold ${difficultyColor[topic.difficulty]}`}>
@@ -82,33 +206,7 @@ export default function TopicDetail({ topic, relatedExams, practiceQuestions, on
       {/* ── Theory ─────────────────────────────────────── */}
       <section>
         <SectionHeading icon={<BookOpen className="h-3.5 w-3.5" />} title="이론 설명" />
-        <div className="space-y-3 text-sm text-slate-700 dark:text-slate-300 leading-relaxed">
-          {topic.theory.split('\n\n').map((block, i) => {
-            const trimmed = block.trim();
-            if (!trimmed) return null;
-            // Section headers starting with ■
-            if (trimmed.startsWith('■')) {
-              const [header, ...rest] = trimmed.split('\n');
-              return (
-                <div key={i}>
-                  <p className="font-bold text-slate-900 dark:text-slate-100 mt-4 mb-1">
-                    {header.replace('■ ', '')}
-                  </p>
-                  {rest.length > 0 && (
-                    <pre className="whitespace-pre-wrap font-sans text-sm text-slate-700 dark:text-slate-300 leading-relaxed">
-                      {rest.join('\n')}
-                    </pre>
-                  )}
-                </div>
-              );
-            }
-            return (
-              <pre key={i} className="whitespace-pre-wrap font-sans text-sm text-slate-700 dark:text-slate-300 leading-relaxed">
-                {trimmed}
-              </pre>
-            );
-          })}
-        </div>
+        <TheoryRenderer theory={topic.theory} />
       </section>
 
       {/* ── Math Formulas ──────────────────────────────── */}

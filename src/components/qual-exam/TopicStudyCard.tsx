@@ -25,7 +25,7 @@ export interface StudyTopic {
   complexityTable?: { operation: string; complexity: string; note?: string }[];
   codeExample?: string;
   commonPitfalls?: string[];
-  visualizerType?: 'quicksort' | 'minheap' | 'bst' | 'dijkstra';
+  visualizerType?: 'quicksort' | 'minheap' | 'bst' | 'dijkstra' | 'linkedlist';
 }
 
 interface TopicStudyCardProps {

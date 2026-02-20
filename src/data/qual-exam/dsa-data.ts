@@ -529,13 +529,94 @@ dequeue():  head에서 제거 및 반환 → O(1)
 • 스택은 LIFO, 큐는 FIFO — 스택으로 큐 구현 가능하지만 O(n) 비용
 • 이중 연결 리스트의 중간 삽입/삭제: 노드 위치를 알면 O(1), 위치 탐색에 O(n)`,
     complexityTable: [
-      { operation: '배열 임의 접근', complexity: 'O(1)', note: '' },
+      { operation: '배열 임의 접근', complexity: 'O(1)', note: '주소 = base + i × size' },
       { operation: '배열 끝 삽입 (여유 있음)', complexity: 'O(1)', note: '' },
-      { operation: '배열 끝 삽입 (꽉 참)', complexity: 'O(n)', note: 'resize' },
-      { operation: '배열 임의 삽입', complexity: 'O(n)', note: 'shift' },
-      { operation: '단방향 LL 앞 삽입', complexity: 'O(1)', note: '' },
-      { operation: '단방향 LL 끝 삽입 (tail 없음)', complexity: 'O(n)', note: '순회' },
+      { operation: '배열 끝 삽입 (꽉 참)', complexity: 'O(n)', note: 'resize + copy' },
+      { operation: '배열 임의 삽입', complexity: 'O(n)', note: 'idx 이후 shift' },
+      { operation: '단방향 LL 앞 삽입', complexity: 'O(1)', note: 'head 포인터만 변경' },
+      { operation: '단방향 LL 끝 삽입 (tail 없음)', complexity: 'O(n)', note: '끝까지 순회' },
       { operation: '단방향 LL 끝 삽입 (tail 있음)', complexity: 'O(1)', note: '' },
+      { operation: '이중 LL 앞/뒤 삽입', complexity: 'O(1)', note: 'head/tail 포인터' },
+      { operation: '이중 LL 중간 삭제 (노드 알 때)', complexity: 'O(1)', note: '포인터 조작만' },
+      { operation: 'Stack push / pop', complexity: 'O(1)', note: 'LIFO' },
+      { operation: 'Queue enqueue / dequeue', complexity: 'O(1)', note: 'FIFO' },
+    ],
+    visualizerType: 'linkedlist',
+    codeExamples: [
+      {
+        caption: '단방향 연결 리스트 — 앞 삽입 O(1) / 뒤 삽입 O(n)',
+        language: 'python',
+        code: `class Node:
+    def __init__(self, val):
+        self.val = val
+        self.next = None   # 다음 노드 포인터
+
+class SinglyLinkedList:
+    def __init__(self):
+        self.head = None   # head 포인터
+
+    # 앞 삽입 — O(1): head만 변경
+    def prepend(self, val):
+        node = Node(val)
+        node.next = self.head  # 새 노드 → 기존 head
+        self.head = node       # head = 새 노드
+
+    # 뒤 삽입 — O(n): tail까지 순회
+    def append(self, val):
+        node = Node(val)
+        if not self.head:
+            self.head = node; return
+        cur = self.head
+        while cur.next:        # ← O(n) 순회
+            cur = cur.next
+        cur.next = node        # 마지막 노드에 연결`,
+      },
+      {
+        caption: 'Stack (LIFO) — push/pop 모두 O(1)',
+        language: 'python',
+        code: `class Stack:
+    def __init__(self):
+        self.top = None        # head = top
+
+    def push(self, val):       # O(1) — 앞 삽입과 동일
+        node = Node(val)
+        node.next = self.top
+        self.top = node
+
+    def pop(self):             # O(1) — head 삭제
+        if not self.top:
+            raise IndexError("Stack underflow")
+        val = self.top.val
+        self.top = self.top.next
+        return val
+
+    def peek(self):            # O(1) — top 조회 (제거 없음)
+        return self.top.val if self.top else None`,
+      },
+      {
+        caption: 'Queue (FIFO) — enqueue/dequeue 모두 O(1)',
+        language: 'python',
+        code: `class Queue:
+    def __init__(self):
+        self.front = None      # dequeue 쪽
+        self.rear  = None      # enqueue 쪽
+
+    def enqueue(self, val):    # O(1) — rear에 추가
+        node = Node(val)
+        if not self.rear:
+            self.front = self.rear = node; return
+        self.rear.next = node
+        self.rear = node
+
+    def dequeue(self):         # O(1) — front에서 제거
+        if not self.front:
+            raise IndexError("Queue underflow")
+        val = self.front.val
+        self.front = self.front.next
+        if not self.front:
+            self.rear = None   # 큐가 비었으면 rear도 초기화
+        return val`,
+      },
     ],
   },
   {

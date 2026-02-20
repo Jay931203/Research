@@ -19,9 +19,9 @@ function semLabel(s: '1' | '2') { return s === '1' ? '1학기' : '2학기'; }
 /* ─── Sidebar Topic Item ─── */
 function TopicItem({
   topic, active, onClick,
-  examCount,
+  examCount, order,
 }: {
-  topic: StudyTopic; active: boolean; onClick: () => void; examCount: number;
+  topic: StudyTopic; active: boolean; onClick: () => void; examCount: number; order?: number;
 }) {
   return (
     <button
@@ -31,6 +31,12 @@ function TopicItem({
           ? 'bg-blue-600 text-white'
           : 'text-slate-700 dark:text-slate-300 hover:bg-slate-100 dark:hover:bg-slate-800'}`}
     >
+      {order != null && (
+        <span className={`text-[10px] font-black w-5 h-5 flex-shrink-0 flex items-center justify-center rounded-full leading-none
+          ${active ? 'bg-white/20 text-white' : 'bg-slate-200 dark:bg-slate-700 text-slate-500 dark:text-slate-400'}`}>
+          {order}
+        </span>
+      )}
       <span className="text-base flex-shrink-0">{topic.icon}</span>
       <span className="flex-1 min-w-0 text-sm font-medium truncate">{topic.title}</span>
       <div className="flex items-center gap-1 flex-shrink-0">
@@ -193,10 +199,11 @@ export default function QualExamMain() {
             const bo = (b as { studyOrder?: number }).studyOrder ?? 99;
             return ao - bo;
           })
-          .map(t => (
+          .map((t, idx) => (
             <TopicItem
               key={t.id}
               topic={t}
+              order={idx + 1}
               active={view.kind === 'topic' && view.topicId === t.id}
               onClick={() => { setView({ kind: 'topic', topicId: t.id }); setSidebarOpen(false); }}
               examCount={examCountByTopic[t.id] ?? 0}

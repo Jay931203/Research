@@ -173,10 +173,253 @@ function buildBSTPositions(vals: number[]) {
 }
 
 /* ─────────────────────────────────────
+   Linked List / Stack / Queue Visualizer
+───────────────────────────────────── */
+
+type LLTab = 'singly' | 'stack' | 'queue';
+interface LLNode { id: number; val: string; }
+
+function LinkedListVisualizer() {
+  const [tab, setTab] = useState<LLTab>('singly');
+  const [nodes, setNodes] = useState<LLNode[]>([
+    { id: 1, val: '3' }, { id: 2, val: '7' }, { id: 3, val: '1' },
+  ]);
+  const [inputVal, setInputVal] = useState('');
+  const [log, setLog] = useState<{ op: string; complexity: string; detail: string }[]>([]);
+  const [flashId, setFlashId] = useState<number | null>(null);
+  const idRef = useRef(10);
+  const nextId = () => ++idRef.current;
+
+  const flash = (id: number) => {
+    setFlashId(id);
+    setTimeout(() => setFlashId(null), 1200);
+  };
+  const addLog = (op: string, complexity: string, detail: string) =>
+    setLog(prev => [{ op, complexity, detail }, ...prev].slice(0, 5));
+
+  const reset = () => {
+    setNodes([{ id: 1, val: '3' }, { id: 2, val: '7' }, { id: 3, val: '1' }]);
+    setLog([]); setFlashId(null); idRef.current = 10;
+  };
+
+  /* ── Singly LL ops ── */
+  const prepend = () => {
+    const v = inputVal.trim(); if (!v) return;
+    const id = nextId();
+    setNodes(p => [{ id, val: v }, ...p]);
+    addLog(`prepend("${v}")`, 'O(1)', '새 노드.next = head, head = 새 노드');
+    flash(id); setInputVal('');
+  };
+  const append = () => {
+    const v = inputVal.trim(); if (!v) return;
+    const id = nextId(); const n = nodes.length;
+    setNodes(p => [...p, { id, val: v }]);
+    addLog(`append("${v}")`, n > 0 ? 'O(n)' : 'O(1)',
+      n > 0 ? `tail까지 ${n}칸 순회 후 삽입` : '빈 리스트에 삽입');
+    flash(id); setInputVal('');
+  };
+  const deleteHead = () => {
+    if (!nodes.length) return;
+    const { val } = nodes[0]; setNodes(p => p.slice(1));
+    addLog(`deleteHead()`, 'O(1)', `'${val}' 제거, head 포인터 이동`);
+  };
+  const deleteTail = () => {
+    if (!nodes.length) return;
+    const { val } = nodes[nodes.length - 1]; const n = nodes.length;
+    setNodes(p => p.slice(0, -1));
+    addLog(`deleteTail()`, 'O(n)', `${n}칸 순회 후 '${val}' 제거`);
+  };
+
+  /* ── Stack ops ── */
+  const stackPush = () => {
+    const v = inputVal.trim(); if (!v) return;
+    const id = nextId();
+    setNodes(p => [{ id, val: v }, ...p]);
+    addLog(`push("${v}")`, 'O(1)', 'top에 추가 (LIFO)');
+    flash(id); setInputVal('');
+  };
+  const stackPop = () => {
+    if (!nodes.length) return;
+    const { val } = nodes[0]; setNodes(p => p.slice(1));
+    addLog(`pop()`, 'O(1)', `top '${val}' 제거 및 반환`);
+  };
+
+  /* ── Queue ops ── */
+  const enqueue = () => {
+    const v = inputVal.trim(); if (!v) return;
+    const id = nextId();
+    setNodes(p => [...p, { id, val: v }]);
+    addLog(`enqueue("${v}")`, 'O(1)', 'rear(tail)에 추가 (FIFO)');
+    flash(id); setInputVal('');
+  };
+  const dequeue = () => {
+    if (!nodes.length) return;
+    const { val } = nodes[0]; setNodes(p => p.slice(1));
+    addLog(`dequeue()`, 'O(1)', `front '${val}' 제거 및 반환`);
+  };
+
+  /* ── Renders ── */
+  const renderSingly = () => {
+    const nodeW = 44, nodeH = 34, arrowW = 26, padL = 56;
+    const W = padL + nodes.length * (nodeW + arrowW) + 40;
+    return (
+      <svg viewBox={`0 0 ${Math.max(W, 160)} ${nodeH + 12}`} className="w-full" style={{ maxHeight: 64 }}>
+        <defs>
+          <marker id="la" markerWidth="7" markerHeight="5" refX="6" refY="2.5" orient="auto">
+            <polygon points="0 0,7 2.5,0 5" fill="#64748b" />
+          </marker>
+        </defs>
+        <text x="4" y={nodeH / 2 + 6} fontSize="10" fontWeight="700" fill="#64748b">HEAD</text>
+        {nodes.length > 0
+          ? <line x1={42} y1={nodeH / 2 + 2} x2={padL - 4} y2={nodeH / 2 + 2} stroke="#64748b" strokeWidth="1.5" markerEnd="url(#la)" />
+          : <text x={48} y={nodeH / 2 + 6} fontSize="10" fill="#94a3b8">→ NIL (빈 리스트)</text>}
+        {nodes.map((node, i) => {
+          const x = padL + i * (nodeW + arrowW);
+          const hl = flashId === node.id;
+          return (
+            <g key={node.id}>
+              <rect x={x} y={4} width={nodeW} height={nodeH} rx="5"
+                fill={hl ? '#dbeafe' : '#f1f5f9'} stroke={hl ? '#3b82f6' : '#94a3b8'}
+                strokeWidth={hl ? 2 : 1.5} className="transition-all duration-300" />
+              <text x={x + nodeW / 2} y={nodeH / 2 + 6} textAnchor="middle" fontSize="12"
+                fontWeight="600" fill={hl ? '#1d4ed8' : '#1e293b'}>{node.val}</text>
+              {i < nodes.length - 1
+                ? <line x1={x + nodeW} y1={nodeH / 2 + 2} x2={x + nodeW + arrowW - 2} y2={nodeH / 2 + 2}
+                    stroke="#64748b" strokeWidth="1.5" markerEnd="url(#la)" />
+                : <>
+                    <line x1={x + nodeW} y1={nodeH / 2 + 2} x2={x + nodeW + 16} y2={nodeH / 2 + 2}
+                      stroke="#64748b" strokeWidth="1.5" />
+                    <text x={x + nodeW + 18} y={nodeH / 2 + 6} fontSize="9" fill="#94a3b8">NIL</text>
+                  </>}
+            </g>
+          );
+        })}
+      </svg>
+    );
+  };
+
+  const renderStack = () => (
+    <div className="flex flex-col items-center gap-0">
+      <div className="text-[10px] font-bold text-blue-500 mb-1">▲ TOP (가장 최근 push)</div>
+      {nodes.slice(0, 6).map((node, i) => (
+        <div key={node.id} style={{ width: 96 }}
+          className={`h-9 flex items-center justify-center border-2 font-mono font-bold text-sm transition-all
+            ${flashId === node.id ? 'bg-blue-100 border-blue-400 text-blue-700 dark:bg-blue-900/30'
+            : i === 0 ? 'bg-amber-50 border-amber-400 text-amber-700 dark:bg-amber-900/20 dark:text-amber-300'
+            : 'bg-slate-50 border-slate-300 text-slate-700 dark:bg-slate-800 dark:border-slate-600 dark:text-slate-200'}`}>
+          {node.val}
+          {i === 0 && <span className="ml-1.5 text-[9px] font-normal opacity-60">← TOP</span>}
+        </div>
+      ))}
+      {nodes.length > 6 && <div className="w-24 border-x-2 border-slate-300 text-center text-xs text-slate-400 py-0.5">···</div>}
+      {nodes.length === 0 && <div className="text-xs text-slate-400 py-3">빈 스택 (empty)</div>}
+      <div className="text-[10px] font-bold text-slate-400 mt-0.5">▼ BOTTOM</div>
+    </div>
+  );
+
+  const renderQueue = () => (
+    <div className="flex flex-col items-center gap-1.5 w-full">
+      <div className="flex items-center gap-1 overflow-x-auto w-full justify-center py-1">
+        <span className="text-[9px] font-bold text-green-600 whitespace-nowrap">FRONT↑<br/>dequeue</span>
+        <span className="text-slate-300 text-sm px-0.5">→</span>
+        {nodes.slice(0, 8).map((node, i) => (
+          <div key={node.id} style={{ width: 40, height: 40 }}
+            className={`flex-shrink-0 flex items-center justify-center border-2 font-mono font-bold text-sm transition-all
+              ${flashId === node.id ? 'bg-blue-100 border-blue-400 text-blue-700 dark:bg-blue-900/30'
+              : i === 0 ? 'bg-green-50 border-green-400 text-green-700'
+              : i === Math.min(nodes.length, 8) - 1 ? 'bg-orange-50 border-orange-400 text-orange-700'
+              : 'bg-slate-50 border-slate-300 text-slate-700 dark:bg-slate-800 dark:border-slate-600'}`}>
+            {node.val}
+          </div>
+        ))}
+        {nodes.length === 0 && <span className="text-xs text-slate-400 px-6">빈 큐 (empty)</span>}
+        <span className="text-slate-300 text-sm px-0.5">→</span>
+        <span className="text-[9px] font-bold text-orange-600 whitespace-nowrap">REAR↑<br/>enqueue</span>
+      </div>
+    </div>
+  );
+
+  const llTabs: { key: LLTab; label: string }[] = [
+    { key: 'singly', label: '🔗 단방향 연결 리스트' },
+    { key: 'stack', label: '📚 스택 (LIFO)' },
+    { key: 'queue', label: '🚶 큐 (FIFO)' },
+  ];
+
+  return (
+    <div className="rounded-xl border border-slate-200 bg-white p-4 dark:border-slate-700 dark:bg-slate-900 space-y-3">
+      {/* Tabs */}
+      <div className="flex gap-1 rounded-lg border border-slate-200 dark:border-slate-700 p-1">
+        {llTabs.map(({ key, label }) => (
+          <button key={key} onClick={() => { setTab(key); reset(); }}
+            className={`flex-1 rounded py-1.5 text-[11px] font-semibold transition
+              ${tab === key ? 'bg-blue-600 text-white shadow-sm' : 'text-slate-500 hover:bg-slate-100 dark:hover:bg-slate-800'}`}>
+            {label}
+          </button>
+        ))}
+      </div>
+
+      {/* Visualization area */}
+      <div className="flex items-center justify-center rounded-lg bg-slate-50 dark:bg-slate-800/50 p-4 min-h-[100px]">
+        {tab === 'singly' && renderSingly()}
+        {tab === 'stack' && renderStack()}
+        {tab === 'queue' && renderQueue()}
+      </div>
+
+      {/* Controls */}
+      <div className="flex flex-wrap gap-1.5 items-center">
+        <input value={inputVal} onChange={e => setInputVal(e.target.value)}
+          onKeyDown={e => {
+            if (e.key !== 'Enter') return;
+            if (tab === 'stack') stackPush();
+            else if (tab === 'queue') enqueue();
+            else prepend();
+          }}
+          placeholder="값 입력 (Enter)"
+          className="w-24 rounded border border-slate-200 dark:border-slate-600 bg-white dark:bg-slate-800 px-2 py-1 text-xs font-mono dark:text-slate-200" />
+        {tab === 'singly' && <>
+          <button onClick={prepend} className="rounded bg-blue-600 px-2.5 py-1 text-[11px] font-bold text-white hover:bg-blue-500 transition">앞 삽입 O(1)</button>
+          <button onClick={append}  className="rounded bg-slate-600 px-2.5 py-1 text-[11px] font-bold text-white hover:bg-slate-500 transition">뒤 삽입 O(n)</button>
+          <button onClick={deleteHead} className="rounded bg-red-500 px-2.5 py-1 text-[11px] font-bold text-white hover:bg-red-400 transition">head 삭제 O(1)</button>
+          <button onClick={deleteTail} className="rounded bg-red-700 px-2.5 py-1 text-[11px] font-bold text-white hover:bg-red-600 transition">tail 삭제 O(n)</button>
+        </>}
+        {tab === 'stack' && <>
+          <button onClick={stackPush} className="rounded bg-blue-600 px-2.5 py-1 text-[11px] font-bold text-white hover:bg-blue-500 transition">push O(1)</button>
+          <button onClick={stackPop}  className="rounded bg-red-500 px-2.5 py-1 text-[11px] font-bold text-white hover:bg-red-400 transition">pop O(1)</button>
+        </>}
+        {tab === 'queue' && <>
+          <button onClick={enqueue} className="rounded bg-orange-500 px-2.5 py-1 text-[11px] font-bold text-white hover:bg-orange-400 transition">enqueue O(1)</button>
+          <button onClick={dequeue} className="rounded bg-green-600 px-2.5 py-1 text-[11px] font-bold text-white hover:bg-green-500 transition">dequeue O(1)</button>
+        </>}
+        <button onClick={reset} className="ml-auto p-1.5 text-slate-400 hover:bg-slate-100 dark:hover:bg-slate-800 rounded-lg transition">
+          <RotateCcw className="h-3.5 w-3.5" />
+        </button>
+      </div>
+
+      {/* Operation log */}
+      {log.length > 0 && (
+        <div className="space-y-1">
+          {log.map((entry, i) => (
+            <div key={i} className={`flex flex-wrap gap-1.5 items-center rounded-lg px-2.5 py-1.5 text-xs
+              ${i === 0 ? 'bg-blue-50 dark:bg-blue-900/20 border border-blue-200 dark:border-blue-800' : 'bg-slate-50 dark:bg-slate-800/50'}`}>
+              <span className="font-mono font-semibold text-slate-800 dark:text-slate-100">{entry.op}</span>
+              <span className={`rounded px-1.5 py-0.5 text-[10px] font-bold
+                ${entry.complexity === 'O(1)' ? 'bg-emerald-100 text-emerald-700 dark:bg-emerald-900/30 dark:text-emerald-300' : 'bg-amber-100 text-amber-700 dark:bg-amber-900/30 dark:text-amber-300'}`}>
+                {entry.complexity}
+              </span>
+              <span className="text-slate-500 dark:text-slate-400">{entry.detail}</span>
+            </div>
+          ))}
+        </div>
+      )}
+    </div>
+  );
+}
+
+/* ─────────────────────────────────────
    Main AlgoVisualizer Component
 ───────────────────────────────────── */
 
-type VisualizerType = 'quicksort' | 'minheap' | 'bst' | 'dijkstra';
+type VisualizerType = 'quicksort' | 'minheap' | 'bst' | 'dijkstra' | 'linkedlist';
 
 interface AlgoVisualizerProps {
   type: VisualizerType;
@@ -407,6 +650,8 @@ export default function AlgoVisualizer({ type }: AlgoVisualizerProps) {
       </div>
     );
   };
+
+  if (type === 'linkedlist') return <LinkedListVisualizer />;
 
   return (
     <div className="rounded-xl border border-slate-200 bg-white p-4 dark:border-slate-700 dark:bg-slate-900">
