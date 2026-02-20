@@ -1,8 +1,9 @@
 ﻿'use client';
 
 import Link from 'next/link';
-import { useCallback, useEffect, useMemo, useState } from 'react';
+import { useCallback, useMemo, useState } from 'react';
 import { useRouter } from 'next/navigation';
+import { useMapSelectionSync } from '@/hooks/useMapSelectionSync';
 import { usePapersWithNotes } from '@/hooks/useNotes';
 import { filterPapersBySearchFilters, type PaperSearchFilters } from '@/lib/papers/filtering';
 import { upsertNote } from '@/lib/supabase/notes';
@@ -20,13 +21,14 @@ export default function PaperList({ filters }: PaperListProps) {
   const router = useRouter();
   const addToast = useToastStore((state) => state.addToast);
   const mapPaperIds = useAppStore((state) => state.mapPaperIds);
-  const mapSelectionHydrated = useAppStore((state) => state.mapSelectionHydrated);
   const setMapPaperIds = useAppStore((state) => state.setMapPaperIds);
   const addMapPaper = useAppStore((state) => state.addMapPaper);
   const addMapPapers = useAppStore((state) => state.addMapPapers);
   const removeMapPaper = useAppStore((state) => state.removeMapPaper);
 
   const [savingByPaperId, setSavingByPaperId] = useState<Record<string, boolean>>({});
+
+  useMapSelectionSync(papers);
 
   const handleQuickSave = useCallback(
     async (paperId: string, patch: Record<string, unknown>, successMessage: string) => {
@@ -86,13 +88,6 @@ export default function PaperList({ filters }: PaperListProps) {
     () => [...filterPapersBySearchFilters(papers, filters)].sort((a, b) => b.year - a.year),
     [papers, filters]
   );
-
-  useEffect(() => {
-    if (!mapSelectionHydrated) return;
-    if (mapPaperIds !== null) return;
-    if (!papers.length) return;
-    setMapPaperIds(papers.map((paper) => paper.id));
-  }, [mapSelectionHydrated, mapPaperIds, papers, setMapPaperIds]);
 
   const mapPaperIdSet = useMemo(() => new Set(mapPaperIds ?? []), [mapPaperIds]);
 

@@ -3,7 +3,12 @@
 import { useCallback, useEffect, useRef, useState } from 'react';
 import { Star, Tag, X } from 'lucide-react';
 import type { FamiliarityLevel } from '@/types';
-import { upsertNote } from '@/lib/supabase/notes';
+import {
+  hasMapHiddenTag,
+  MAP_HIDDEN_TAG,
+  upsertNote,
+  withMapHiddenTag,
+} from '@/lib/supabase/notes';
 import { useToastStore } from '@/store/useToastStore';
 import FamiliaritySelector from './FamiliaritySelector';
 
@@ -25,6 +30,7 @@ interface LocalNoteState {
   isFavorite: boolean;
   importance: number;
   personalTags: string[];
+  mapHidden: boolean;
 }
 
 function sleep(ms: number) {
@@ -40,11 +46,15 @@ export default function NoteEditor({
   initialTags = [],
   onSave,
 }: NoteEditorProps) {
+  const initialUserTags = initialTags.filter((tag) => tag !== MAP_HIDDEN_TAG);
+  const initialMapHidden = hasMapHiddenTag(initialTags);
+
   const [content, setContent] = useState(initialContent);
   const [familiarity, setFamiliarity] = useState<FamiliarityLevel>(initialFamiliarity);
   const [isFavorite, setIsFavorite] = useState(initialFavorite);
   const [importance, setImportance] = useState(initialImportance);
-  const [personalTags, setPersonalTags] = useState<string[]>(initialTags);
+  const [personalTags, setPersonalTags] = useState<string[]>(initialUserTags);
+  const [mapHidden, setMapHidden] = useState(initialMapHidden);
   const [tagInput, setTagInput] = useState('');
 
   const debounceRef = useRef<ReturnType<typeof setTimeout> | null>(null);
@@ -55,7 +65,8 @@ export default function NoteEditor({
     familiarity: initialFamiliarity,
     isFavorite: initialFavorite,
     importance: initialImportance,
-    personalTags: initialTags,
+    personalTags: initialUserTags,
+    mapHidden: initialMapHidden,
   });
 
   const addToast = useToastStore((s) => s.addToast);
@@ -65,13 +76,15 @@ export default function NoteEditor({
     setFamiliarity(initialFamiliarity);
     setIsFavorite(initialFavorite);
     setImportance(initialImportance);
-    setPersonalTags(initialTags);
+    setPersonalTags(initialUserTags);
+    setMapHidden(initialMapHidden);
     latestStateRef.current = {
       content: initialContent,
       familiarity: initialFamiliarity,
       isFavorite: initialFavorite,
       importance: initialImportance,
-      personalTags: initialTags,
+      personalTags: initialUserTags,
+      mapHidden: initialMapHidden,
     };
   }, [
     paperId,
@@ -80,6 +93,8 @@ export default function NoteEditor({
     initialFavorite,
     initialImportance,
     initialTags,
+    initialUserTags,
+    initialMapHidden,
   ]);
 
   useEffect(() => {
@@ -89,8 +104,9 @@ export default function NoteEditor({
       isFavorite,
       importance,
       personalTags,
+      mapHidden,
     };
-  }, [content, familiarity, isFavorite, importance, personalTags]);
+  }, [content, familiarity, isFavorite, importance, personalTags, mapHidden]);
 
   useEffect(() => {
     return () => {
@@ -112,7 +128,10 @@ export default function NoteEditor({
         (patch.familiarity_level as FamiliarityLevel | undefined) ?? latest.familiarity,
       is_favorite: (patch.is_favorite as boolean | undefined) ?? latest.isFavorite,
       importance_rating: sanitizedImportance,
-      personal_tags: (patch.personal_tags as string[] | undefined) ?? latest.personalTags,
+      personal_tags: withMapHiddenTag(
+        (patch.personal_tags as string[] | undefined) ?? latest.personalTags,
+        latest.mapHidden
+      ),
       last_read_at: new Date().toISOString(),
     };
   }, []);

@@ -25,6 +25,7 @@ import {
   Zap,
 } from 'lucide-react';
 import Header from '@/components/layout/Header';
+import { useMapSelectionSync } from '@/hooks/useMapSelectionSync';
 import { usePapersWithNotes } from '@/hooks/useNotes';
 import { useRelationships } from '@/hooks/useRelationships';
 import {
@@ -248,10 +249,11 @@ export default function PaperStudyPage() {
   const { relationships, isLoading: relsLoading } = useRelationships();
   const { terms: glossaryTerms } = useGlossary();
   const mapPaperIds = useAppStore((state) => state.mapPaperIds);
-  const mapSelectionHydrated = useAppStore((state) => state.mapSelectionHydrated);
   const setMapPaperIds = useAppStore((state) => state.setMapPaperIds);
   const addMapPaper = useAppStore((state) => state.addMapPaper);
   const removeMapPaper = useAppStore((state) => state.removeMapPaper);
+
+  useMapSelectionSync(papers);
 
   /* ---------- derived data ---------- */
 
@@ -307,16 +309,10 @@ export default function PaperStudyPage() {
   const architectureCards = splitArchitectureSections(paper?.architecture_detail ?? '');
   const mapPaperIdSet = useMemo(() => new Set(mapPaperIds ?? []), [mapPaperIds]);
 
-  useEffect(() => {
-    if (!mapSelectionHydrated) return;
-    if (mapPaperIds !== null) return;
-    if (!papers.length) return;
-    setMapPaperIds(papers.map((entry) => entry.id));
-  }, [mapSelectionHydrated, mapPaperIds, papers, setMapPaperIds]);
-
   /* ---------- IntersectionObserver for ToC highlight ---------- */
 
   const [activeSection, setActiveSection] = useState<string>(TOC_SECTIONS[0].id);
+  const [isTocCollapsed, setIsTocCollapsed] = useState(false);
   const observerRef = useRef<IntersectionObserver | null>(null);
 
   useEffect(() => {
@@ -511,8 +507,26 @@ export default function PaperStudyPage() {
       {/* -------- Content Area (ToC + Main) -------- */}
       <div className="flex">
         {/* -------- Left ToC Sidebar (sticky) -------- */}
-        <aside className="sticky top-20 hidden h-[calc(100vh-5rem)] w-64 flex-shrink-0 overflow-y-auto border-r border-gray-200 bg-gray-50/80 p-4 lg:block dark:border-gray-800 dark:bg-gray-900/80">
-          <p className="mb-4 text-xs font-bold uppercase tracking-wider text-gray-400 dark:text-gray-500">목차</p>
+        <aside
+          className={`sticky top-20 hidden h-[calc(100vh-5rem)] flex-shrink-0 overflow-y-auto border-r border-gray-200 bg-gray-50/80 transition-all duration-200 lg:block dark:border-gray-800 dark:bg-gray-900/80 ${
+            isTocCollapsed ? 'w-16 p-2' : 'w-64 p-4'
+          }`}
+        >
+          <div className={`mb-3 flex items-center ${isTocCollapsed ? 'justify-center' : 'justify-between'}`}>
+            {!isTocCollapsed && (
+              <p className="text-xs font-bold uppercase tracking-wider text-gray-400 dark:text-gray-500">목차</p>
+            )}
+            <button
+              type="button"
+              onClick={() => setIsTocCollapsed((prev) => !prev)}
+              className="inline-flex h-7 w-7 items-center justify-center rounded-md border border-gray-200 text-gray-500 transition hover:bg-gray-100 dark:border-gray-700 dark:text-gray-400 dark:hover:bg-gray-800"
+              title={isTocCollapsed ? '목차 펼치기' : '목차 접기'}
+              aria-label={isTocCollapsed ? '목차 펼치기' : '목차 접기'}
+            >
+              <ChevronRight className={`h-4 w-4 transition-transform ${isTocCollapsed ? '' : 'rotate-180'}`} />
+            </button>
+          </div>
+
           <nav className="space-y-1">
             {TOC_SECTIONS.map((section) => {
               const Icon = section.icon;
@@ -521,14 +535,20 @@ export default function PaperStudyPage() {
                 <button
                   key={section.id}
                   onClick={() => scrollToSection(section.id)}
-                  className={`flex w-full items-center gap-2.5 rounded-lg px-3 py-2 text-left text-sm transition ${
+                  title={section.label}
+                  aria-label={section.label}
+                  className={`flex w-full items-center rounded-lg px-3 py-2 text-left text-sm transition ${
+                    isTocCollapsed ? 'justify-center px-2' : 'gap-2.5'
+                  } ${
                     isActive
-                      ? 'border-l-2 border-blue-600 bg-blue-50 font-semibold text-blue-700 dark:bg-blue-900/30 dark:text-blue-300'
+                      ? isTocCollapsed
+                        ? 'bg-blue-50 text-blue-700 dark:bg-blue-900/30 dark:text-blue-300'
+                        : 'border-l-2 border-blue-600 bg-blue-50 font-semibold text-blue-700 dark:bg-blue-900/30 dark:text-blue-300'
                       : 'text-gray-600 hover:bg-gray-100 dark:text-gray-400 dark:hover:bg-gray-800'
                   }`}
                 >
                   <Icon className={`h-4 w-4 flex-shrink-0 ${isActive ? 'text-blue-600 dark:text-blue-400' : 'text-gray-400 dark:text-gray-500'}`} />
-                  {section.label}
+                  {!isTocCollapsed && section.label}
                 </button>
               );
             })}

@@ -2,7 +2,18 @@
 
 import dynamic from 'next/dynamic';
 import { useCallback, useEffect, useMemo, useState } from 'react';
-import { BookOpen, ExternalLink, Link2, Maximize2, Minimize2, Plus, Star, X } from 'lucide-react';
+import {
+  BookOpen,
+  ExternalLink,
+  Link2,
+  Maximize2,
+  Minimize2,
+  Plus,
+  Redo2,
+  Star,
+  Undo2,
+  X,
+} from 'lucide-react';
 import Link from 'next/link';
 import { useRouter } from 'next/navigation';
 import MainLayout from '@/components/layout/MainLayout';
@@ -10,6 +21,7 @@ import ErrorBoundary from '@/components/common/ErrorBoundary';
 import MarkdownContent from '@/components/common/MarkdownContent';
 import PaperEquations from '@/components/papers/PaperEquation';
 import { SkeletonCard, SkeletonBlock } from '@/components/common/Skeleton';
+import { useMapSelectionSync } from '@/hooks/useMapSelectionSync';
 import { usePapersWithNotes } from '@/hooks/useNotes';
 import { useRelationships } from '@/hooks/useRelationships';
 import { countRecentPapers } from '@/lib/papers/insights';
@@ -40,34 +52,24 @@ export default function DashboardPage() {
   const { relationships, isLoading: relationshipsLoading } = useRelationships();
   const graphFilterSettings = useAppStore((state) => state.graphFilterSettings);
   const mapPaperIds = useAppStore((state) => state.mapPaperIds);
-  const mapSelectionHydrated = useAppStore((state) => state.mapSelectionHydrated);
   const setMapPaperIds = useAppStore((state) => state.setMapPaperIds);
   const removeMapPaper = useAppStore((state) => state.removeMapPaper);
+  const undoMapSelection = useAppStore((state) => state.undoMapSelection);
+  const redoMapSelection = useAppStore((state) => state.redoMapSelection);
+  const canUndoMapSelection = useAppStore((state) => state.canUndoMapSelection);
+  const canRedoMapSelection = useAppStore((state) => state.canRedoMapSelection);
 
   const [isMapFullscreen, setIsMapFullscreen] = useState(false);
   const [isFavoritesModalOpen, setIsFavoritesModalOpen] = useState(false);
   const [selectedFullscreenPaperId, setSelectedFullscreenPaperId] = useState<string | null>(null);
+
+  useMapSelectionSync(papers);
 
   const availablePaperIds = useMemo(() => papers.map((paper) => paper.id), [papers]);
   const availablePaperIdSet = useMemo(
     () => new Set(availablePaperIds),
     [availablePaperIds]
   );
-
-  useEffect(() => {
-    if (!mapSelectionHydrated) return;
-    if (mapPaperIds !== null) return;
-    if (!availablePaperIds.length) return;
-    setMapPaperIds(availablePaperIds);
-  }, [mapSelectionHydrated, mapPaperIds, availablePaperIds, setMapPaperIds]);
-
-  useEffect(() => {
-    if (!mapSelectionHydrated || mapPaperIds === null) return;
-    const normalized = mapPaperIds.filter((paperId) => availablePaperIdSet.has(paperId));
-    if (normalized.length !== mapPaperIds.length) {
-      setMapPaperIds(normalized);
-    }
-  }, [mapSelectionHydrated, mapPaperIds, availablePaperIdSet, setMapPaperIds]);
 
   const mapPaperIdSet = useMemo(
     () =>
@@ -260,6 +262,22 @@ export default function DashboardPage() {
                   <span className="hidden text-xs text-gray-500 dark:text-gray-400 lg:block">
                     맵 포함: {mapPapers.length}/{papers.length}
                   </span>
+                  <button
+                    onClick={undoMapSelection}
+                    disabled={!canUndoMapSelection}
+                    className="inline-flex items-center gap-1.5 rounded-md border border-gray-300 px-3 py-1.5 text-xs font-semibold hover:bg-gray-100 disabled:cursor-not-allowed disabled:opacity-50 dark:border-gray-600 dark:hover:bg-gray-700"
+                  >
+                    <Undo2 className="h-3.5 w-3.5" />
+                    되돌리기
+                  </button>
+                  <button
+                    onClick={redoMapSelection}
+                    disabled={!canRedoMapSelection}
+                    className="inline-flex items-center gap-1.5 rounded-md border border-gray-300 px-3 py-1.5 text-xs font-semibold hover:bg-gray-100 disabled:cursor-not-allowed disabled:opacity-50 dark:border-gray-600 dark:hover:bg-gray-700"
+                  >
+                    <Redo2 className="h-3.5 w-3.5" />
+                    다시 실행
+                  </button>
                   <button
                     onClick={() => setMapPaperIds(availablePaperIds)}
                     className="inline-flex items-center gap-1.5 rounded-md border border-gray-300 px-3 py-1.5 text-xs font-semibold hover:bg-gray-100 dark:border-gray-600 dark:hover:bg-gray-700"

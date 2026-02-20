@@ -3,6 +3,29 @@ import type { UserNote, NoteUpsert, PaperWithNote } from '@/types';
 
 // Default session id for anonymous/local usage
 const DEFAULT_SESSION_ID = 'default_user';
+export const MAP_HIDDEN_TAG = '__research_map_hidden__';
+
+function normalizeTagList(tags: string[] | null | undefined): string[] {
+  return Array.from(new Set((tags ?? []).filter((tag) => !!tag)));
+}
+
+export function hasMapHiddenTag(tags: string[] | null | undefined): boolean {
+  return normalizeTagList(tags).includes(MAP_HIDDEN_TAG);
+}
+
+export function withMapHiddenTag(
+  tags: string[] | null | undefined,
+  hidden: boolean
+): string[] {
+  const base = normalizeTagList(tags).filter((tag) => tag !== MAP_HIDDEN_TAG);
+  if (!hidden) return base;
+  return [...base, MAP_HIDDEN_TAG];
+}
+
+interface PaperTagUpsertInput {
+  paperId: string;
+  personalTags: string[];
+}
 
 /**
  * Fetch a single note by paper id
@@ -144,4 +167,33 @@ export async function getFavoritePapers(
   }
 
   return data || [];
+}
+
+/**
+ * Upsert personal tag updates for multiple papers
+ */
+export async function upsertPaperPersonalTags(
+  updates: PaperTagUpsertInput[],
+  sessionId: string = DEFAULT_SESSION_ID
+): Promise<void> {
+  if (!updates.length) return;
+
+  const payload = updates
+    .filter((update) => !!update.paperId)
+    .map((update) => ({
+      paper_id: update.paperId,
+      session_id: sessionId,
+      personal_tags: normalizeTagList(update.personalTags),
+    }));
+
+  if (!payload.length) return;
+
+  const { error } = await supabase.from('user_notes').upsert(payload, {
+    onConflict: 'paper_id,session_id',
+  });
+
+  if (error) {
+    console.error('Error upserting map personal tags:', error);
+    throw error;
+  }
 }
