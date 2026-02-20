@@ -135,7 +135,7 @@ export default function AsymptoticContent({ topic }: Props) {
       </div>
 
       {/* ── Growth Rate Explorer ── */}
-      <section id="sec-growth">
+      <section id={`${topic.id}-sec-growth`}>
         <div className="flex items-center gap-2 mb-4">
           <span className="text-xl">📈</span>
           <h2 className="text-base font-bold text-slate-800 dark:text-slate-100">성장률 비교</h2>
@@ -178,7 +178,7 @@ export default function AsymptoticContent({ topic }: Props) {
       </section>
 
       {/* ── Big-O 5종 ── */}
-      <section id="sec-notations">
+      <section id={`${topic.id}-sec-notations`}>
         <div className="flex items-center gap-2 mb-4">
           <span className="text-xl">📐</span>
           <h2 className="text-base font-bold text-slate-800 dark:text-slate-100">점근 표기법 5종</h2>
@@ -226,7 +226,7 @@ export default function AsymptoticContent({ topic }: Props) {
       </section>
 
       {/* ── 핵심 성질 ── */}
-      <section id="sec-properties">
+      <section id={`${topic.id}-sec-properties`}>
         <div className="flex items-center gap-2 mb-4">
           <span className="text-xl">⚡</span>
           <h2 className="text-base font-bold text-slate-800 dark:text-slate-100">핵심 성질</h2>

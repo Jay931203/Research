@@ -218,7 +218,7 @@ export default function LinkedListContent({ topic }: Props) {
       </div>
 
       {/* ── 배열 vs LL ── */}
-      <section id="sec-compare">
+      <section id={`${topic.id}-sec-compare`}>
         <div className="flex items-center gap-2 mb-4">
           <span className="text-xl">⚖️</span>
           <h2 className="text-base font-bold text-slate-800 dark:text-slate-100">배열 vs 연결 리스트</h2>
@@ -257,7 +257,7 @@ export default function LinkedListContent({ topic }: Props) {
       </section>
 
       {/* ── 배열 시뮬레이터 ── */}
-      <section id="sec-array-sim">
+      <section id={`${topic.id}-sec-array-sim`}>
         <div className="flex items-center gap-2 mb-4">
           <span className="text-xl">🎮</span>
           <h2 className="text-base font-bold text-slate-800 dark:text-slate-100">인터랙티브 배열 시뮬레이터</h2>
@@ -320,7 +320,7 @@ export default function LinkedListContent({ topic }: Props) {
       </section>
 
       {/* ── LL 시각화 ── */}
-      <section id="sec-ll-viz">
+      <section id={`${topic.id}-sec-ll-viz`}>
         <div className="flex items-center gap-2 mb-4">
           <span className="text-xl">🔗</span>
           <h2 className="text-base font-bold text-slate-800 dark:text-slate-100">연결 리스트 / 스택 / 큐 시각화</h2>
@@ -330,7 +330,7 @@ export default function LinkedListContent({ topic }: Props) {
       </section>
 
       {/* ── 스택 vs 큐 ── */}
-      <section id="sec-stack-queue">
+      <section id={`${topic.id}-sec-stack-queue`}>
         <div className="flex items-center gap-2 mb-4">
           <span className="text-xl">🏗️</span>
           <h2 className="text-base font-bold text-slate-800 dark:text-slate-100">스택 vs 큐</h2>
@@ -376,7 +376,7 @@ export default function LinkedListContent({ topic }: Props) {
       </section>
 
       {/* ── 코드 예시 ── */}
-      <section id="sec-code">
+      <section id={`${topic.id}-sec-code`}>
         <div className="flex items-center gap-2 mb-4">
           <span className="text-xl">💻</span>
           <h2 className="text-base font-bold text-slate-800 dark:text-slate-100">코드 예시 (Python)</h2>

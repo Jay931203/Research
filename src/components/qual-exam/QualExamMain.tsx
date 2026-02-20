@@ -15,69 +15,108 @@ import type { ExamProblem } from './ExamProblemCard';
 import type { QuizQuestion } from './PracticeList';
 
 type Subject = 'dsa' | 'prog';
-type View = { kind: 'topic'; topicId: string } | { kind: 'exams' };
+type View = { kind: 'topics' } | { kind: 'exams' };
 
 function semLabel(s: '1' | '2') { return s === '1' ? '1학기' : '2학기'; }
 
-/* ── ToC sections per topic ── */
+/* ── Section definitions per topic (IDs must match what's in the content components) ── */
 const CUSTOM_SECTIONS: Record<string, Array<{ id: string; label: string }>> = {
   'asymptotic': [
-    { id: 'sec-growth',     label: '성장률 비교'   },
-    { id: 'sec-notations',  label: '표기법 5종'    },
-    { id: 'sec-properties', label: '핵심 성질'     },
+    { id: 'asymptotic-sec-growth',     label: '성장률 비교'     },
+    { id: 'asymptotic-sec-notations',  label: '표기법 5종'      },
+    { id: 'asymptotic-sec-properties', label: '핵심 성질'       },
   ],
   'linked-list': [
-    { id: 'sec-compare',     label: '배열 vs LL'   },
-    { id: 'sec-array-sim',   label: '배열 시뮬레이터' },
-    { id: 'sec-ll-viz',      label: 'LL/스택/큐 시각화' },
-    { id: 'sec-stack-queue', label: '스택 vs 큐'   },
-    { id: 'sec-code',        label: '코드 예시'    },
+    { id: 'linked-list-sec-compare',     label: '배열 vs LL'        },
+    { id: 'linked-list-sec-array-sim',   label: '배열 시뮬레이터'    },
+    { id: 'linked-list-sec-ll-viz',      label: 'LL/스택/큐 시각화' },
+    { id: 'linked-list-sec-stack-queue', label: '스택 vs 큐'         },
+    { id: 'linked-list-sec-code',        label: '코드 예시'          },
   ],
 };
 
 function getGenericSections(topic: StudyTopic): Array<{ id: string; label: string }> {
   const secs: Array<{ id: string; label: string }> = [
-    { id: 'sec-keypoints', label: '핵심 포인트' },
-    { id: 'sec-theory',    label: '이론 설명'   },
+    { id: `${topic.id}-sec-keypoints`, label: '핵심 포인트' },
+    { id: `${topic.id}-sec-theory`,    label: '이론 설명'   },
   ];
-  if (topic.complexityTable?.length) secs.push({ id: 'sec-complexity', label: '시간 복잡도' });
+  if (topic.complexityTable?.length)
+    secs.push({ id: `${topic.id}-sec-complexity`, label: '시간 복잡도' });
   if ((topic as { codeExamples?: unknown[] }).codeExamples?.length || topic.codeExample)
-    secs.push({ id: 'sec-code', label: '코드 예시' });
-  if (topic.commonPitfalls?.length) secs.push({ id: 'sec-pitfalls', label: '자주 하는 실수' });
-  if (topic.visualizerType)         secs.push({ id: 'sec-viz',      label: '알고리즘 시각화' });
+    secs.push({ id: `${topic.id}-sec-code`, label: '코드 예시' });
+  if (topic.commonPitfalls?.length)
+    secs.push({ id: `${topic.id}-sec-pitfalls`, label: '자주 하는 실수' });
+  if (topic.visualizerType)
+    secs.push({ id: `${topic.id}-sec-viz`, label: '알고리즘 시각화' });
   return secs;
 }
 
-/* ── Sidebar topic item ── */
-function TopicItem({ topic, active, onClick, examCount }: {
-  topic: StudyTopic; active: boolean; onClick: () => void; examCount: number;
+function getTopicSections(topic: StudyTopic): Array<{ id: string; label: string }> {
+  return CUSTOM_SECTIONS[topic.id] ?? getGenericSections(topic);
+}
+
+/* ── Sidebar topic nav item — numbered with expandable sub-sections ── */
+function TopicNavItem({ topic, idx, isActive, sections, activeSectionId, onTopicClick, onSectionClick }: {
+  topic: StudyTopic;
+  idx: number;
+  isActive: boolean;
+  sections: Array<{ id: string; label: string }>;
+  activeSectionId: string | null;
+  onTopicClick: () => void;
+  onSectionClick: (id: string) => void;
 }) {
+  const examCount = ((topic as { relatedExamIds?: string[] }).relatedExamIds ?? []).length;
   return (
-    <button
-      onClick={onClick}
-      className={`w-full flex items-center gap-2.5 rounded-lg px-3 py-2.5 text-left transition
-        ${active
-          ? 'bg-blue-600 text-white'
-          : 'text-slate-700 dark:text-slate-300 hover:bg-slate-100 dark:hover:bg-slate-800'}`}
-    >
-      <span className="text-base flex-shrink-0">{topic.icon}</span>
-      <span className="flex-1 min-w-0 text-sm font-medium truncate">{topic.title}</span>
-      <div className="flex items-center gap-1 flex-shrink-0">
-        {Array.from({ length: Math.min(topic.examFrequency, 5) }).map((_, i) => (
-          <span key={i} className={`h-1.5 w-1.5 rounded-full ${active ? 'bg-white/60' : 'bg-amber-400'}`} />
-        ))}
-        {examCount > 0 && (
-          <span className={`text-[10px] font-bold px-1.5 py-0.5 rounded-full ml-0.5
-            ${active ? 'bg-white/20 text-white' : 'bg-slate-200 text-slate-600 dark:bg-slate-700 dark:text-slate-300'}`}>
-            {examCount}
-          </span>
-        )}
-      </div>
-    </button>
+    <div>
+      <button
+        onClick={onTopicClick}
+        className={`w-full flex items-center gap-2 rounded-lg px-3 py-2.5 text-left transition
+          ${isActive
+            ? 'bg-blue-600 text-white'
+            : 'text-slate-700 dark:text-slate-300 hover:bg-slate-100 dark:hover:bg-slate-800'}`}
+      >
+        <span className={`flex-shrink-0 text-[11px] font-black w-4 tabular-nums text-right
+          ${isActive ? 'text-white/60' : 'text-slate-400'}`}>
+          {idx + 1}.
+        </span>
+        <span className="text-base flex-shrink-0">{topic.icon}</span>
+        <span className="flex-1 min-w-0 text-sm font-medium truncate">{topic.title}</span>
+        <div className="flex items-center gap-0.5 flex-shrink-0">
+          {Array.from({ length: Math.min(topic.examFrequency, 5) }).map((_, i) => (
+            <span key={i} className={`h-1.5 w-1.5 rounded-full ${isActive ? 'bg-white/60' : 'bg-amber-400'}`} />
+          ))}
+          {examCount > 0 && (
+            <span className={`text-[10px] font-bold px-1.5 py-0.5 rounded-full ml-0.5
+              ${isActive ? 'bg-white/20 text-white' : 'bg-slate-200 text-slate-600 dark:bg-slate-700 dark:text-slate-300'}`}>
+              {examCount}
+            </span>
+          )}
+        </div>
+      </button>
+
+      {/* Sub-sections: only when active */}
+      {isActive && sections.length > 0 && (
+        <div className="ml-8 mt-0.5 mb-1 space-y-0.5">
+          {sections.map(sec => (
+            <button
+              key={sec.id}
+              onClick={() => onSectionClick(sec.id)}
+              className={`w-full text-left flex items-center gap-1.5 px-2 py-1.5 rounded-lg text-xs transition
+                ${activeSectionId === sec.id
+                  ? 'bg-blue-50 text-blue-700 font-semibold dark:bg-blue-950/50 dark:text-blue-300'
+                  : 'text-slate-500 dark:text-slate-400 hover:bg-slate-100 dark:hover:bg-slate-800'}`}
+            >
+              <span className={`leading-none ${activeSectionId === sec.id ? 'text-blue-400' : 'text-slate-300 dark:text-slate-600'}`}>›</span>
+              {sec.label}
+            </button>
+          ))}
+        </div>
+      )}
+    </div>
   );
 }
 
-/* ── Right exam panel ── */
+/* ── Right exam / practice panel ── */
 function RightPanel({ exams, practiceQs, onExamClick, onClose }: {
   exams: ExamProblem[];
   practiceQs: QuizQuestion[];
@@ -113,14 +152,12 @@ function RightPanel({ exams, practiceQs, onExamClick, onClose }: {
             ))}
           </>
         )}
-
         {practiceQs.length > 0 && (
           <div className={exams.length > 0 ? 'pt-3 border-t border-slate-100 dark:border-slate-800' : ''}>
             <p className="px-1 mb-2 text-[10px] font-bold text-slate-400 uppercase tracking-wider">연습 문제 ({practiceQs.length})</p>
             <PracticeList questions={practiceQs} />
           </div>
         )}
-
         {exams.length === 0 && practiceQs.length === 0 && (
           <p className="py-10 text-center text-sm text-slate-400">이 토픽의 기출/연습 문제가 없습니다.</p>
         )}
@@ -173,68 +210,105 @@ function AllExamsPanel({ examProblems, onExamClick }: {
 /* ─── Main ─── */
 export default function QualExamMain() {
   const [subject,           setSubject]           = useState<Subject>('dsa');
-  const [view,              setView]              = useState<View>({ kind: 'topic', topicId: 'asymptotic' });
+  const [view,              setView]              = useState<View>({ kind: 'topics' });
   const [leftCollapsed,     setLeftCollapsed]     = useState(false);
   const [mobileSidebarOpen, setMobileSidebarOpen] = useState(false);
   const [examPanelOpen,     setExamPanelOpen]     = useState(false);
   const [modalExam,         setModalExam]         = useState<ExamProblem | null>(null);
+  const [activeTopicId,     setActiveTopicId]     = useState<string>('');
   const [activeSectionId,   setActiveSectionId]   = useState<string | null>(null);
+  const [pendingScrollId,   setPendingScrollId]   = useState<string | null>(null);
   const mainRef = useRef<HTMLDivElement>(null);
 
-  const topics       = subject === 'dsa' ? DSA_TOPICS        : PROG_TOPICS;
-  const examProblems = subject === 'dsa' ? DSA_EXAM_PROBLEMS  : PROG_EXAM_PROBLEMS;
-  const practiceQs   = subject === 'dsa' ? DSA_PRACTICE_QUESTIONS : PROG_PRACTICE_QUESTIONS;
+  const topics       = subject === 'dsa' ? DSA_TOPICS             : PROG_TOPICS;
+  const examProblems = subject === 'dsa' ? DSA_EXAM_PROBLEMS       : PROG_EXAM_PROBLEMS;
+  const practiceQs   = subject === 'dsa' ? DSA_PRACTICE_QUESTIONS  : PROG_PRACTICE_QUESTIONS;
 
-  const currentTopic = useMemo(
-    () => view.kind === 'topic' ? (topics.find(t => t.id === view.topicId) ?? null) : null,
-    [view, topics]
+  const sortedTopics = useMemo(
+    () => [...topics].sort((a, b) =>
+      ((a as { studyOrder?: number }).studyOrder ?? 99) -
+      ((b as { studyOrder?: number }).studyOrder ?? 99)
+    ),
+    [topics]
+  );
+
+  /* initialise activeTopicId when subject changes */
+  useEffect(() => {
+    setActiveTopicId(sortedTopics[0]?.id ?? '');
+    setActiveSectionId(null);
+    mainRef.current?.scrollTo({ top: 0 });
+  }, [sortedTopics]);
+
+  /* sections map: topicId → sections[] */
+  const allSectionsByTopicId = useMemo(() => {
+    const map = new Map<string, Array<{ id: string; label: string }>>();
+    for (const t of sortedTopics) map.set(t.id, getTopicSections(t));
+    return map;
+  }, [sortedTopics]);
+
+  /* active topic object (follows scroll position) */
+  const activeTopic = useMemo(
+    () => sortedTopics.find(t => t.id === activeTopicId) ?? null,
+    [sortedTopics, activeTopicId]
   );
 
   const relatedExams = useMemo(() => {
-    if (!currentTopic) return [];
-    const ids: string[] = (currentTopic as { relatedExamIds?: string[] }).relatedExamIds ?? [];
+    const ids: string[] = (activeTopic as { relatedExamIds?: string[] } | null)?.relatedExamIds ?? [];
     return examProblems.filter(p => ids.includes(p.id));
-  }, [currentTopic, examProblems]);
+  }, [activeTopic, examProblems]);
 
-  const topicPracticeQs = useMemo(() => {
-    if (!currentTopic) return [];
-    return practiceQs.filter(q => q.topic === currentTopic.title) as QuizQuestion[];
-  }, [currentTopic, practiceQs]);
+  const topicPracticeQs = useMemo(
+    () => practiceQs.filter(q => q.topic === activeTopic?.title) as QuizQuestion[],
+    [activeTopic, practiceQs]
+  );
 
-  const examCountByTopic = useMemo(() => {
-    const counts: Record<string, number> = {};
-    for (const t of topics) {
-      counts[t.id] = ((t as { relatedExamIds?: string[] }).relatedExamIds ?? []).length;
-    }
-    return counts;
-  }, [topics]);
-
-  const tocSections = useMemo(() => {
-    if (!currentTopic) return [];
-    return CUSTOM_SECTIONS[currentTopic.id] ?? getGenericSections(currentTopic);
-  }, [currentTopic]);
-
-  /* ── Scroll spy ── */
+  /* ── Dual-level scroll spy ── */
   useEffect(() => {
     const container = mainRef.current;
-    setActiveSectionId(tocSections[0]?.id ?? null);
-    container?.scrollTo({ top: 0 });
-    if (!container || tocSections.length === 0) return;
+    if (!container || view.kind !== 'topics') return;
 
     const onScroll = () => {
-      const containerTop = container.getBoundingClientRect().top;
-      let found = tocSections[0].id;
-      for (const sec of tocSections) {
-        const el = container.querySelector(`#${sec.id}`) as HTMLElement | null;
-        if (!el) continue;
-        if (el.getBoundingClientRect().top - containerTop < 120) found = sec.id;
+      const top = container.getBoundingClientRect().top;
+
+      /* level 1 — which topic div is at/near top */
+      let newTopicId = sortedTopics[0]?.id ?? '';
+      for (const t of sortedTopics) {
+        const el = container.querySelector(`#topic-${t.id}`) as HTMLElement | null;
+        if (el && el.getBoundingClientRect().top - top < 120) newTopicId = t.id;
       }
-      setActiveSectionId(found);
+      setActiveTopicId(newTopicId);
+
+      /* level 2 — which sub-section within that topic */
+      const secs = allSectionsByTopicId.get(newTopicId) ?? [];
+      let newSecId: string | null = secs[0]?.id ?? null;
+      for (const sec of secs) {
+        const el = container.querySelector(`#${sec.id}`) as HTMLElement | null;
+        if (el && el.getBoundingClientRect().top - top < 120) newSecId = sec.id;
+      }
+      setActiveSectionId(newSecId);
     };
 
     container.addEventListener('scroll', onScroll, { passive: true });
     return () => container.removeEventListener('scroll', onScroll);
-  }, [tocSections]);
+  }, [view.kind, sortedTopics, allSectionsByTopicId]);
+
+  /* ── Execute pending scroll after view switch renders ── */
+  useEffect(() => {
+    if (!pendingScrollId || view.kind !== 'topics') return;
+    const container = mainRef.current;
+    if (!container) return;
+    const el = container.querySelector(`#topic-${pendingScrollId}`) as HTMLElement | null;
+    if (!el) return;
+    const diff = el.getBoundingClientRect().top - container.getBoundingClientRect().top - 80;
+    container.scrollBy({ top: diff, behavior: 'smooth' });
+    setPendingScrollId(null);
+  }, [pendingScrollId, view.kind]);
+
+  const scrollToTopic = useCallback((topicId: string) => {
+    setView({ kind: 'topics' });
+    setPendingScrollId(topicId);
+    setMobileSidebarOpen(false);
+  }, []);
 
   const scrollToSection = useCallback((id: string) => {
     const container = mainRef.current;
@@ -243,33 +317,23 @@ export default function QualExamMain() {
     if (!el) return;
     const diff = el.getBoundingClientRect().top - container.getBoundingClientRect().top - 80;
     container.scrollBy({ top: diff, behavior: 'smooth' });
+    setMobileSidebarOpen(false);
   }, []);
 
   const switchSubject = (s: Subject) => {
     setSubject(s);
-    setView({ kind: 'topic', topicId: (s === 'dsa' ? DSA_TOPICS : PROG_TOPICS)[0].id });
+    setView({ kind: 'topics' });
     setExamPanelOpen(false);
     setMobileSidebarOpen(false);
   };
 
-  const mainContent = useMemo(() => {
-    if (view.kind === 'topic') {
-      const topic = topics.find(t => t.id === view.topicId);
-      return topic ? <TopicDetail topic={topic} /> : null;
-    }
-    if (view.kind === 'exams') {
-      return <AllExamsPanel examProblems={examProblems} onExamClick={setModalExam} />;
-    }
-    return null;
-  }, [view, topics, examProblems]);
-
   const hasPanelContent = relatedExams.length > 0 || topicPracticeQs.length > 0;
 
-  /* ── Sidebar content (shared desktop + mobile) ── */
+  /* ── Sidebar ── */
   const sidebarContent = (
     <div className="flex flex-col h-full min-h-0">
 
-      {/* Collapse toggle row */}
+      {/* Collapse toggle */}
       <div className="flex items-center justify-between px-3 py-2.5 border-b border-slate-200 dark:border-slate-800 flex-shrink-0">
         {!leftCollapsed && (
           <span className="text-[11px] font-bold text-slate-400 uppercase tracking-wider">목차</span>
@@ -277,17 +341,15 @@ export default function QualExamMain() {
         <button
           onClick={() => setLeftCollapsed(c => !c)}
           className="ml-auto p-1.5 rounded-lg hover:bg-slate-100 dark:hover:bg-slate-800 text-slate-500 dark:text-slate-400 transition"
-          title={leftCollapsed ? '사이드바 펼치기' : '사이드바 접기'}
+          title={leftCollapsed ? '펼치기' : '접기'}
         >
-          {leftCollapsed
-            ? <ChevronRight className="h-4 w-4" />
-            : <ChevronLeft className="h-4 w-4" />}
+          {leftCollapsed ? <ChevronRight className="h-4 w-4" /> : <ChevronLeft className="h-4 w-4" />}
         </button>
       </div>
 
       {!leftCollapsed && (
         <>
-          {/* Subject + exam button */}
+          {/* Subject toggle + 기출문제 button */}
           <div className="p-3 border-b border-slate-200 dark:border-slate-800 flex-shrink-0 space-y-2">
             <div className="flex rounded-xl overflow-hidden border border-slate-200 dark:border-slate-700">
               <button
@@ -310,7 +372,6 @@ export default function QualExamMain() {
               </button>
             </div>
 
-            {/* All exams button */}
             <button
               onClick={() => { setView({ kind: 'exams' }); setExamPanelOpen(false); setMobileSidebarOpen(false); }}
               className={`w-full flex items-center gap-2.5 rounded-lg px-3 py-2 text-left transition
@@ -326,45 +387,21 @@ export default function QualExamMain() {
             </button>
           </div>
 
-          {/* Topic list */}
+          {/* Numbered topic list (scrollable) */}
           <div className="flex-1 overflow-y-auto p-3 space-y-0.5 min-h-0">
-            {[...topics]
-              .sort((a, b) =>
-                ((a as { studyOrder?: number }).studyOrder ?? 99) -
-                ((b as { studyOrder?: number }).studyOrder ?? 99)
-              )
-              .map(t => (
-                <TopicItem
-                  key={t.id}
-                  topic={t}
-                  active={view.kind === 'topic' && view.topicId === t.id}
-                  onClick={() => { setView({ kind: 'topic', topicId: t.id }); setMobileSidebarOpen(false); }}
-                  examCount={examCountByTopic[t.id] ?? 0}
-                />
-              ))}
+            {sortedTopics.map((t, idx) => (
+              <TopicNavItem
+                key={t.id}
+                topic={t}
+                idx={idx}
+                isActive={view.kind === 'topics' && activeTopicId === t.id}
+                sections={allSectionsByTopicId.get(t.id) ?? []}
+                activeSectionId={activeSectionId}
+                onTopicClick={() => scrollToTopic(t.id)}
+                onSectionClick={scrollToSection}
+              />
+            ))}
           </div>
-
-          {/* In-page ToC */}
-          {view.kind === 'topic' && tocSections.length > 0 && (
-            <div className="flex-shrink-0 border-t border-slate-200 dark:border-slate-800 p-3">
-              <p className="px-1 mb-2 text-[10px] font-bold text-slate-400 uppercase tracking-wider">이 페이지</p>
-              <div className="space-y-0.5">
-                {tocSections.map(sec => (
-                  <button
-                    key={sec.id}
-                    onClick={() => scrollToSection(sec.id)}
-                    className={`w-full text-left flex items-center gap-1.5 px-2 py-1.5 rounded-lg text-xs transition
-                      ${activeSectionId === sec.id
-                        ? 'bg-blue-50 text-blue-700 font-semibold dark:bg-blue-950/50 dark:text-blue-300'
-                        : 'text-slate-500 dark:text-slate-400 hover:bg-slate-100 dark:hover:bg-slate-800'}`}
-                  >
-                    <span className={`text-base leading-none ${activeSectionId === sec.id ? 'text-blue-400' : 'text-slate-300 dark:text-slate-600'}`}>›</span>
-                    {sec.label}
-                  </button>
-                ))}
-              </div>
-            </div>
-          )}
 
           {/* Footer */}
           <div className="flex-shrink-0 p-3 border-t border-slate-200 dark:border-slate-800">
@@ -413,8 +450,8 @@ export default function QualExamMain() {
 
           {/* Content column */}
           <div className="flex-1 flex flex-col overflow-hidden">
-            {/* Exam panel toggle bar (only when topic view has content) */}
-            {view.kind === 'topic' && hasPanelContent && (
+            {/* Exam panel toggle — only in topics view when there are related exams */}
+            {view.kind === 'topics' && hasPanelContent && (
               <div className="flex items-center justify-end px-4 py-2 border-b border-slate-100 dark:border-slate-800 bg-white dark:bg-slate-900 flex-shrink-0">
                 <button
                   onClick={() => setExamPanelOpen(o => !o)}
@@ -432,20 +469,31 @@ export default function QualExamMain() {
               </div>
             )}
 
-            {/* Main + right panel */}
+            {/* Main area + optional right panel */}
             <div className="flex flex-1 overflow-hidden">
               <main
                 ref={mainRef}
                 className="flex-1 overflow-y-auto bg-slate-50 dark:bg-slate-950"
               >
-                {mainContent ?? (
-                  <div className="flex h-full items-center justify-center text-sm text-slate-400">
-                    왼쪽에서 토픽을 선택하세요
+                {view.kind === 'topics' && (
+                  <div>
+                    {sortedTopics.map((t, idx) => (
+                      <div key={t.id} id={`topic-${t.id}`}>
+                        <TopicDetail topic={t} />
+                        {idx < sortedTopics.length - 1 && (
+                          <div className="mx-6 border-t-2 border-dashed border-slate-200 dark:border-slate-800 my-2" />
+                        )}
+                      </div>
+                    ))}
                   </div>
+                )}
+
+                {view.kind === 'exams' && (
+                  <AllExamsPanel examProblems={examProblems} onExamClick={setModalExam} />
                 )}
               </main>
 
-              {examPanelOpen && view.kind === 'topic' && (
+              {examPanelOpen && view.kind === 'topics' && (
                 <RightPanel
                   exams={relatedExams}
                   practiceQs={topicPracticeQs}

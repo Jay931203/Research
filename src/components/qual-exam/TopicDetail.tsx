@@ -186,7 +186,7 @@ export default function TopicDetail({ topic }: Props) {
       </div>
 
       {/* ── Key Points ── */}
-      <section id="sec-keypoints">
+      <section id={`${topic.id}-sec-keypoints`}>
         <SectionHeading icon={<Zap className="h-3.5 w-3.5" />} title="핵심 포인트" />
         <ul className="space-y-2 rounded-xl border border-blue-100 bg-blue-50 p-4 dark:border-blue-900/30 dark:bg-blue-950/30">
           {topic.keyPoints.map((pt, i) => (
@@ -199,7 +199,7 @@ export default function TopicDetail({ topic }: Props) {
       </section>
 
       {/* ── Theory ── */}
-      <section id="sec-theory">
+      <section id={`${topic.id}-sec-theory`}>
         <SectionHeading icon={<BookOpen className="h-3.5 w-3.5" />} title="이론 설명" />
         <TheoryRenderer theory={topic.theory} />
       </section>
@@ -221,7 +221,7 @@ export default function TopicDetail({ topic }: Props) {
 
       {/* ── Complexity Table ── */}
       {topic.complexityTable && topic.complexityTable.length > 0 && (
-        <section id="sec-complexity">
+        <section id={`${topic.id}-sec-complexity`}>
           <SectionHeading title="시간 복잡도" />
           <div className="overflow-x-auto rounded-xl border border-slate-200 dark:border-slate-700">
             <table className="w-full text-sm">
@@ -256,7 +256,7 @@ export default function TopicDetail({ topic }: Props) {
         const legacy = topic.codeExample;
         if (!examples?.length && !legacy) return null;
         return (
-          <section id="sec-code">
+          <section id={`${topic.id}-sec-code`}>
             <SectionHeading icon={<Code2 className="h-3.5 w-3.5" />} title="코드 예시" />
             <div className="space-y-3">
               {examples?.map((ex, i) => (
@@ -294,7 +294,7 @@ export default function TopicDetail({ topic }: Props) {
 
       {/* ── Common Pitfalls ── */}
       {topic.commonPitfalls && topic.commonPitfalls.length > 0 && (
-        <section id="sec-pitfalls">
+        <section id={`${topic.id}-sec-pitfalls`}>
           <SectionHeading icon={<AlertTriangle className="h-3.5 w-3.5" />} title="자주 하는 실수" />
           <div className="rounded-xl border border-red-200 bg-red-50 p-4 dark:border-red-800/40 dark:bg-red-900/10 space-y-2">
             {topic.commonPitfalls.map((p, i) => (
@@ -308,7 +308,7 @@ export default function TopicDetail({ topic }: Props) {
 
       {/* ── Algorithm Visualizer ── */}
       {topic.visualizerType && (
-        <section id="sec-viz">
+        <section id={`${topic.id}-sec-viz`}>
           <SectionHeading icon={<PlayCircle className="h-3.5 w-3.5" />} title="알고리즘 시각화" />
           <button
             onClick={() => setShowViz(v => !v)}
