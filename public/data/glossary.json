@@ -1515,5 +1515,168 @@
     ],
     "study_classification": {},
     "details_markdown": "### 정의\n- 이미지를 고정 크기 패치 토큰으로 변환해 self-attention으로 시각 표현을 학습하는 구조다.\n\n### 핵심 수식\n$$z_0=[x_{cls};x_p^1E;\\dots;x_p^N E]+E_{pos}$$\n$$z_\\ell=\\mathrm{TransformerBlock}_\\ell(z_{\\ell-1}),\\quad \\hat y=Head(z_L^{cls})$$\n\n### 변수 해석\n- $x_p^i$: $i$번째 패치, $E$: 패치 임베딩 행렬\n- $E_{pos}$: 위치 임베딩, $z_L^{cls}$: 최종 CLS 토큰\n\n### 실무 체크\n- 패치 크기를 줄이면 정확도는 오르지만 비용이 크게 증가\n- 입력 해상도 변경 시 위치 임베딩 보간 방식을 검증"
+  },
+  {
+    "id": "proxy-hessian-approximation",
+    "name": "Proxy Hessian Approximation",
+    "aliases": [
+      "Levenberg-Marquardt Hessian Proxy",
+      "Activation Covariance Hessian"
+    ],
+    "category": "technique",
+    "term_set": "quantization_foundation",
+    "description": "Proxy Hessian 근사는 대규모 모델에서 실제 Hessian을 직접 계산하기 어려울 때, 보정 활성화 통계로 2차 곡률 정보를 근사해 쓰는 방법이다. LLM PTQ에서는 출력 재구성 오차를 2차 형태로 다루기 위해 자주 사용되며, salience 산출과 비트 할당 기준의 핵심이 된다.",
+    "related_paper_titles": [
+      "SliM-LLM: Salience-Driven Mixed-Precision Quantization for Large Language Models",
+      "GPTQ: Accurate Post-Training Quantization for Generative Pre-trained Transformers"
+    ],
+    "hierarchy": [
+      "Optimization",
+      "Second-order Approximation",
+      "Hessian Proxy"
+    ],
+    "study_classification": {
+      "optimization": [
+        "Second-order Approximation",
+        "Hessian Proxy Estimation"
+      ],
+      "quantization_module": [
+        "Sensitivity Estimator"
+      ],
+      "learning_flow": [
+        "Calibration",
+        "Quantizer Design"
+      ]
+    },
+    "details_markdown": "### 정의\n- 보정 데이터 활성화로 Hessian을 근사해 2차 민감도를 추정하는 기법이다.\n\n### 핵심 수식\n$$H\\approx\\frac{1}{P}\\sum_{k=1}^{P}x^{(k)}x^{(k)\\top}$$\n$$\\mathcal{L}(\\hat W)\\approx \\mathrm{tr}\\big((\\hat W-W)H(\\hat W-W)^\\top\\big)$$\n\n### 변수 해석\n- $x^{(k)}$: $k$번째 보정 활성화\n- $H$: 근사 Hessian, $\\hat W$: 양자화 후 가중치\n\n### 실무 체크\n- damping/Cholesky 안정화가 없으면 역행렬 계산이 불안정할 수 있다."
+  },
+  {
+    "id": "salience-determined-bit-allocation",
+    "name": "Salience-Determined Bit Allocation (SBA)",
+    "aliases": [
+      "SBA",
+      "Group-wise Bit Reallocation"
+    ],
+    "category": "technique",
+    "term_set": "quantization_foundation",
+    "description": "SBA는 그룹별 salience 순위를 이용해 혼합 비트폭을 재배치하는 전략이다. 평균 비트 예산을 유지하면서 중요 그룹에 더 높은 비트를 주고 덜 중요한 그룹에서 비트를 회수해 저비트 성능을 개선한다.",
+    "related_paper_titles": [
+      "SliM-LLM: Salience-Driven Mixed-Precision Quantization for Large Language Models"
+    ],
+    "hierarchy": [
+      "Quantization",
+      "Bit Allocation",
+      "Group-wise Mixed Precision"
+    ],
+    "study_classification": {
+      "optimization": [
+        "KL-guided Bit Reallocation",
+        "Constrained Optimization"
+      ],
+      "quantization_module": [
+        "Bit-width Scheduler",
+        "Group-wise Mixed Precision"
+      ],
+      "learning_flow": [
+        "Quantizer Design",
+        "Calibration"
+      ]
+    },
+    "details_markdown": "### 정의\n- 그룹 평균 salience를 기준으로 비트폭을 재분배해 평균 비트를 고정한 채 정확도를 높인다.\n\n### 핵심 수식\n$$\\arg\\min D_{KL}(XW\\,\\|\\,X\\hat W_{SBA})$$\n$$|\\mathcal{G}_{N-1}|=|\\mathcal{G}_{N+1}|$$\n\n### 변수 해석\n- $\\mathcal{G}_{N-1},\\mathcal{G}_{N+1}$: 저/고비트 그룹 집합\n- $N$: 목표 평균 비트폭\n\n### 실무 체크\n- double-pointer 탐색으로 고/저비트 그룹 수를 균형 있게 늘리며 최적점을 찾는다."
+  },
+  {
+    "id": "salience-weighted-quantizer-calibration",
+    "name": "Salience-Weighted Quantizer Calibration (SQC)",
+    "aliases": [
+      "SQC",
+      "Salience-weighted Calibration"
+    ],
+    "category": "technique",
+    "term_set": "quantization_foundation",
+    "description": "SQC는 그룹 내부의 salient 원소와 non-salient 원소를 구분해 양자화 보정 파라미터를 탐색하는 절차다. 평균 오차만 보는 보정 대비 희소 핵심 가중치 손실을 줄여 초저비트에서 품질 붕괴를 완화한다.",
+    "related_paper_titles": [
+      "SliM-LLM: Salience-Driven Mixed-Precision Quantization for Large Language Models"
+    ],
+    "hierarchy": [
+      "Quantization",
+      "Calibration",
+      "Local Salience Preservation"
+    ],
+    "study_classification": {
+      "optimization": [
+        "Grid Search",
+        "Calibration Optimization"
+      ],
+      "quantization_module": [
+        "Scale/Zero-point Calibration"
+      ],
+      "learning_flow": [
+        "Calibration",
+        "Training Stabilization"
+      ]
+    },
+    "details_markdown": "### 정의\n- 그룹 내부 salient/non-salient을 함께 고려해 스케일/제로포인트 보정을 수행한다.\n\n### 핵심 수식\n$$\\tau^*=\\arg\\min_{\\tau}\\|w_i^s-\\hat w_i^s(\\tau)\\|_2^2+\\|w_i^{us}-\\hat w_i^{us}(\\tau)\\|_2^2$$\n\n### 변수 해석\n- $w_i^s$: salient 집합, $w_i^{us}$: non-salient 집합\n- $\\tau$: 보정 파라미터\n\n### 실무 체크\n- $\\tau$ 탐색 범위와 해상도 설정이 과소/과적합을 좌우한다."
+  },
+  {
+    "id": "three-sigma-salience-masking",
+    "name": "3-Sigma Salience Masking",
+    "aliases": [
+      "3-sigma rule",
+      "Salient Masking"
+    ],
+    "category": "technique",
+    "term_set": "quantization_foundation",
+    "description": "3-sigma salience masking은 그룹 내부에서 통계적으로 두드러진 원소를 salient로 분리하는 규칙이다. SQC 같은 국소 보정 단계에서 핵심 가중치를 추적하기 위한 경량 분할 기준으로 쓰인다.",
+    "related_paper_titles": [
+      "SliM-LLM: Salience-Driven Mixed-Precision Quantization for Large Language Models"
+    ],
+    "hierarchy": [
+      "Quantization",
+      "Salience Modeling",
+      "Masking Strategy"
+    ],
+    "study_classification": {
+      "optimization": [
+        "Threshold-based Selection"
+      ],
+      "quantization_module": [
+        "Salience Mask"
+      ],
+      "learning_flow": [
+        "Calibration"
+      ]
+    },
+    "details_markdown": "### 정의\n- 평균 $\\mu$와 표준편차 $\\sigma$를 기준으로 극단값 원소를 salient로 선택하는 규칙이다.\n\n### 핵심 수식\n$$\\text{salient if }\\; w<\\mu-3\\sigma\\;\\text{or}\\;w>\\mu+3\\sigma$$\n\n### 변수 해석\n- $\\mu,\\sigma$: 그룹 내부 통계량\n\n### 실무 체크\n- 분포가 heavy-tail이면 고정 3-sigma 대신 분위수 기반 임계값이 더 안정적일 수 있다."
+  },
+  {
+    "id": "balanced-mixed-bit-constraint",
+    "name": "Balanced Mixed-Bit Constraint",
+    "aliases": [
+      "Average Bitwidth Conservation",
+      "|G_{N-1}| = |G_{N+1}|"
+    ],
+    "category": "technique",
+    "term_set": "quantization_foundation",
+    "description": "Balanced mixed-bit constraint는 평균 비트폭을 고정한 채 고비트 그룹 수와 저비트 그룹 수를 균형시키는 제약이다. 혼합 정밀도 정책이 메모리 예산을 벗어나지 않도록 하는 핵심 안전장치다.",
+    "related_paper_titles": [
+      "SliM-LLM: Salience-Driven Mixed-Precision Quantization for Large Language Models"
+    ],
+    "hierarchy": [
+      "Quantization",
+      "Bit Allocation",
+      "Constraint Design"
+    ],
+    "study_classification": {
+      "optimization": [
+        "Constrained Search"
+      ],
+      "quantization_module": [
+        "Bit-width Scheduler"
+      ],
+      "learning_flow": [
+        "Quantizer Design"
+      ]
+    },
+    "details_markdown": "### 정의\n- 고비트 그룹을 늘릴 때 동일 개수의 저비트 그룹을 함께 배치해 평균 비트를 보존한다.\n\n### 핵심 수식\n$$|\\mathcal{G}_{N-1}|=|\\mathcal{G}_{N+1}|$$\n$$\\bar b = N$$\n\n### 변수 해석\n- $\\mathcal{G}_{N-1},\\mathcal{G}_{N+1}$: 저/고비트 그룹 집합\n- $\\bar b$: 전체 평균 비트폭\n\n### 실무 체크\n- 정수 제약 아래 탐색하므로 후보 수 증가 시 탐색 전략(포인터/빔)이 성능과 시간에 큰 영향을 준다."
   }
 ]
