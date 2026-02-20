@@ -1903,5 +1903,305 @@
     },
     "term_set": "llm_quantization",
     "details_markdown": "### 정의\n- 첫 코드북으로 설명되지 않은 잔차를 다음 코드북이 순차적으로 보정한다.\n\n### 핵심 수식\n$$\\hat x=\\sum_{t=1}^{T}q_t,\\quad q_t=Q_t(r_{t-1}),\\quad r_t=r_{t-1}-q_t$$\n\n### 해석 포인트\n- 같은 기본 코드북을 재사용하며 비트레이트(2→3→4bit)를 유연하게 확장할 수 있다.\n- QuIP#에서는 2-bit E8P 기반을 RVQ로 확장해 고비트 구성까지 연결한다.\n\n### 실무 체크\n- 단계 수 \\(T\\)가 늘수록 정확도는 좋아질 수 있으나 지연과 메모리 접근이 증가한다.\n- 잔차 분포가 급격히 비등방이면 후속 단계 효율이 빠르게 떨어질 수 있다."
+  },
+  {
+    "id": "coherence-measure",
+    "name": "Coherence Measure (μ)",
+    "aliases": [
+      "μ coherence",
+      "Incoherence Index",
+      "비간섭 지수",
+      "μ(W)"
+    ],
+    "category": "metric",
+    "description": "비간섭 지수 μ는 행렬 W의 원소들이 얼마나 균일하게 분포되어 있는지 측정하는 지표다. μ(W) = √n · max|W_ij| / ||W||_F로 정의되며, 1에 가까울수록 비간섭(incoherent)하여 균일 양자화의 오차 상한 보장이 성립한다. QuIP에서 2비트 수학적 보장의 핵심 조건으로 사용되며, 랜덤 직교 변환으로 μ를 O(√(log n / n))으로 낮출 수 있음이 증명되었다.",
+    "related_paper_titles": [
+      "QuIP: 2-bit Quantization of Large Language Models with Guarantees",
+      "QuIP#: Even Better LLM Quantization with Hadamard Incoherence and Lattice Codebooks"
+    ],
+    "hierarchy": [
+      "Quantization",
+      "Theory",
+      "Coherence Analysis"
+    ],
+    "study_classification": {
+      "optimization": [
+        "Incoherence Optimization"
+      ],
+      "quantization_module": [
+        "Quantization Error Bound"
+      ]
+    },
+    "term_set": "llm_quantization",
+    "details_markdown": "### 정의\n- 행렬 W의 비간섭 지수: 최대 원소 크기와 Frobenius 노름의 비로 정의한다.\n\n### 핵심 수식\n$$\\mu(W) = \\sqrt{n} \\cdot \\frac{\\max_{i,j} |W_{ij}|}{\\|W\\|_F}$$\n\n- 비간섭: $\\mu(W) \\approx 1$ (원소 에너지가 균등 분포)\n- Coherent: $\\mu(W) \\gg 1$ (소수 원소가 지배)\n\n### Proxy-to-Actual 연결 정리\n$$\\mathbb{E}_x\\left[\\|Wx - \\hat{W}x\\|^2\\right] \\leq \\frac{n\\sigma_x^2}{\\|W\\|_F^2} \\cdot \\mu^2 \\cdot \\|W - \\hat{W}\\|_F^2$$\n\n- μ가 작을수록 Frobenius 오차가 실제 출력 오차를 tight하게 제어한다.\n\n### 변수 해석\n- $n$: 입력 차원, $\\|W\\|_F$: Frobenius 노름\n- $\\sigma_x^2$: 입력 분산, $\\hat{W}$: 양자화된 가중치\n\n### 실무 체크\n- 변환 전 μ 분포를 레이어별로 측정해 incoherence 수준 확인\n- μ가 여전히 크면 RHT를 적용하거나 레이어 분할 고려"
+  },
+  {
+    "id": "proxy-error",
+    "name": "Proxy Error",
+    "aliases": [
+      "Frobenius Proxy",
+      "Proxy Quantization Error",
+      "Proxy 오차",
+      "Proxy-to-Actual Bound"
+    ],
+    "category": "metric",
+    "description": "Proxy Error는 실제 추론 오차를 대신하는 대리 목적함수로, 가중치의 Frobenius 노름 차이 ||W - Ŵ||²_F를 사용한다. QuIP은 비간섭 조건 하에서 Proxy Error 최소화가 실제 오차 최소화와 이론적으로 동치임을 증명함으로써, 계산 불가능한 추론 오차를 대신해 Frobenius 오차만 줄여도 수학적 보장이 성립하는 근거를 제공했다. GPTQ와 LDLQ의 목적함수 Tr[(W-Ŵ)H(W-Ŵ)ᵀ]는 Proxy Error의 Hessian 가중 형태다.",
+    "related_paper_titles": [
+      "QuIP: 2-bit Quantization of Large Language Models with Guarantees"
+    ],
+    "hierarchy": [
+      "Quantization",
+      "Theory",
+      "Error Analysis"
+    ],
+    "study_classification": {
+      "optimization": [
+        "Surrogate Objective"
+      ],
+      "quantization_module": [
+        "Error Bound"
+      ]
+    },
+    "term_set": "llm_quantization",
+    "details_markdown": "### 정의\n- 실제 추론 오차의 계산 가능한 상한으로서의 Frobenius 노름 오차.\n\n### 핵심 수식\n**실제 오차 (계산 불가):**\n$$E_{\\text{actual}} = \\mathbb{E}_x\\left[\\|Wx - \\hat{W}x\\|^2\\right]$$\n\n**Proxy 오차 (최적화 대상):**\n$$E_{\\text{proxy}} = \\|W - \\hat{W}\\|_F^2$$\n\n**비간섭 조건 하 연결 정리 (QuIP Theorem 1):**\n$$E_{\\text{actual}} \\leq \\frac{n\\sigma_x^2 \\mu^2}{\\|W\\|_F^2} \\cdot E_{\\text{proxy}}$$\n\n- $\\mu \\approx 1$이면 상한이 tight → proxy 최소화 ≡ actual 최소화\n\n### 변수 해석\n- $\\mu$: 비간섭 지수, $n$: 입력 차원\n- $\\sigma_x^2$: 입력 분산\n- Hessian 가중 형태: $\\text{Tr}[(W-\\hat{W})H(W-\\hat{W})^\\top]$ (GPTQ/LDLQ)\n\n### 실무 체크\n- 비간섭 처리 없이 proxy만 줄이면 actual 오차 상한이 느슨해짐\n- H 추정 시 calibration 데이터 수 ≥128 샘플이 권장됨"
+  },
+  {
+    "id": "johnson-lindenstrauss",
+    "name": "Johnson-Lindenstrauss Lemma",
+    "aliases": [
+      "JL Lemma",
+      "JL 보조정리",
+      "Random Projection Theory"
+    ],
+    "category": "technique",
+    "description": "Johnson-Lindenstrauss 보조정리는 n개의 점을 k = O(log n / ε²) 차원으로 랜덤 투영하면 모든 쌍의 거리가 (1±ε) 내로 보존됨을 보장한다. 가우시안, 랜덤 직교, Hadamard 행렬 등 다양한 랜덤 행렬이 동일한 보장을 제공한다. QuIP의 비간섭 처리에서 랜덤 직교 변환이 가중치 에너지를 균등하게 분산시키는 수학적 근거가 되며, WHT가 이와 동등한 점근적 incoherence를 달성함을 뒷받침한다.",
+    "related_paper_titles": [
+      "QuIP: 2-bit Quantization of Large Language Models with Guarantees",
+      "QuIP#: Even Better LLM Quantization with Hadamard Incoherence and Lattice Codebooks"
+    ],
+    "hierarchy": [
+      "Mathematics",
+      "Probability",
+      "Dimension Reduction"
+    ],
+    "study_classification": {
+      "optimization": [
+        "Randomized Methods"
+      ],
+      "quantization_module": [
+        "Incoherence Theory"
+      ]
+    },
+    "term_set": "llm_quantization",
+    "details_markdown": "### 정의\n- n개 점을 k차원으로 랜덤 투영해도 점 간 거리가 (1±ε) 내로 보존된다.\n\n### 핵심 수식\n**거리 보존 (JL Lemma):**\n$$(1-\\varepsilon)\\|u-v\\|^2 \\leq \\|\\Phi(u-v)\\|^2 \\leq (1+\\varepsilon)\\|u-v\\|^2$$\n\n- 확률: $1 - n^{-\\Omega(1)}$\n- 필요 차원: $k = O(\\log n / \\varepsilon^2)$\n\n**에너지 균등 분산 (QuIP 관점):**\n$$\\Phi = \\tfrac{1}{\\sqrt{k}} \\cdot \\text{Gaussian i.i.d.} \\Rightarrow \\mathbb{E}[(\\Phi w)_i^2] = \\frac{\\|w\\|^2}{k}$$\n\n- 어떤 w든 변환 후 각 성분이 동일한 기대 크기를 가짐\n\n### 변수 해석\n- $\\Phi \\in \\mathbb{R}^{k \\times n}$: 랜덤 투영 행렬\n- $\\varepsilon > 0$: 허용 왜곡, $k$: 목표 차원\n\n### 실무 체크\n- 가우시안 Φ 대신 ±1 Rademacher 행렬로도 동일 보장 (Achlioptas 2001)\n- WHT + 랜덤 부호 조합이 O(n log n)으로 JL 보장에 근사"
+  },
+  {
+    "id": "walsh-hadamard-transform",
+    "name": "Walsh-Hadamard Transform",
+    "aliases": [
+      "WHT",
+      "FWHT",
+      "Fast Walsh-Hadamard Transform",
+      "아다마르 변환"
+    ],
+    "category": "technique",
+    "description": "Walsh-Hadamard 변환(WHT)은 ±1 원소로 구성된 Hadamard 행렬을 이용해 n차원 벡터를 O(n log n) 시간에 직교 변환하는 기법이다. FFT와 유사한 나비 알고리즘으로 구현되며, 랜덤 부호 벡터를 전처리로 결합한 RHT는 에너지를 균등하게 분산시켜 incoherence를 달성한다. QuIP#에서 O(n³) QR 분해를 O(n log n)으로 대체하는 핵심 연산으로, 저장 공간도 O(n²) 행렬에서 O(n) 부호 벡터로 절감된다.",
+    "related_paper_titles": [
+      "QuIP#: Even Better LLM Quantization with Hadamard Incoherence and Lattice Codebooks"
+    ],
+    "hierarchy": [
+      "Mathematics",
+      "Linear Transform",
+      "Fast Transform"
+    ],
+    "study_classification": {
+      "optimization": [
+        "Fast Incoherence Processing"
+      ],
+      "quantization_module": [
+        "Preprocessing Transform"
+      ]
+    },
+    "term_set": "llm_quantization",
+    "details_markdown": "### 정의\n- ±1 Hadamard 행렬의 재귀 구조로 O(n log n) 직교 변환을 수행한다.\n\n### 핵심 수식\n**재귀 정의:**\n$$H_1 = [1], \\quad H_{2n} = \\frac{1}{\\sqrt{2}} \\begin{bmatrix} H_n & H_n \\\\ H_n & -H_n \\end{bmatrix}$$\n\n**RHT (QuIP# 형태):**\n$$x' = H_n\\, \\mathrm{diag}(d)\\, x, \\quad d_i \\stackrel{\\mathrm{i.i.d.}}{\\sim} \\{\\pm 1\\}$$\n\n**집중 부등식 (Randomized Hadamard):**\n$$\\Pr\\!\\left[\\max_{i,j}|W'_{ij}| \\geq t\\right] \\leq 2mn \\cdot \\exp\\!\\left(-\\frac{nt^2}{2\\max_r\\|W_{r,:}\\|^2}\\right)$$\n\n### QuIP vs QuIP# 비교\n| 방식 | 복잡도 | 저장 |\n|------|--------|------|\n| QuIP (랜덤 직교) | $O(n^3)$ QR | $O(n^2)$ 행렬 |\n| QuIP# (RHT) | $O(n \\log n)$ WHT | $O(n)$ 부호 벡터 |\n\n### 변수 해석\n- $H_n$: $n \\times n$ 정규화 Hadamard 행렬\n- $d$: 랜덤 ±1 부호 벡터, $m,n$: 행렬 차원\n\n### 실무 체크\n- n이 2의 거듭제곱이 아닐 경우 0 패딩 필요\n- CUDA FWHT 커널 사용 시 대형 레이어에서 3배 이상 속도 향상"
+  },
+  {
+    "id": "normalized-second-moment",
+    "name": "Normalized Second Moment",
+    "aliases": [
+      "NSM",
+      "정규화 2차 적률",
+      "Lattice Quantization Efficiency",
+      "G(Λ)"
+    ],
+    "category": "metric",
+    "description": "NSM(Normalized Second Moment)은 격자 양자화기의 2차 왜곡을 단위 부피로 정규화한 성능 지표다. G(Λ) = σ²_q(Λ) / V(Λ)^{2/n}으로 정의되며, 값이 작을수록 같은 엔트로피에서 왜곡이 낮다. E8 격자의 NSM은 약 0.0717로 스칼라 균일 양자화(0.0833, 즉 1/12)보다 16% 낮아, 8차원 공동 양자화를 통해 약 0.64 dB의 양자화 이득이 이론적으로 보장된다.",
+    "related_paper_titles": [
+      "QuIP#: Even Better LLM Quantization with Hadamard Incoherence and Lattice Codebooks"
+    ],
+    "hierarchy": [
+      "Quantization",
+      "Theory",
+      "Lattice Quantization"
+    ],
+    "study_classification": {
+      "optimization": [
+        "Quantization Efficiency"
+      ],
+      "quantization_module": [
+        "Lattice Codebook Design"
+      ]
+    },
+    "term_set": "llm_quantization",
+    "details_markdown": "### 정의\n- 격자 Λ의 양자화 왜곡을 부피로 정규화해 차원·스케일 무관하게 비교하는 지표.\n\n### 핵심 수식\n$$G(\\Lambda) = \\frac{\\sigma_q^2(\\Lambda)}{V(\\Lambda)^{2/n}}$$\n\n$$\\sigma_q^2(\\Lambda) = \\frac{1}{n \\cdot V(\\Lambda)} \\int_{\\mathcal{V}(\\Lambda)} \\|x\\|^2\\, dx$$\n\n- $V(\\Lambda)$: 격자 단위 셀(Voronoi cell) 부피, $n$: 차원\n\n### 주요 격자 NSM 비교\n| 격자 | 차원 | NSM | 비고 |\n|------|------|-----|------|\n| $\\mathbb{Z}^1$ (스칼라) | 1 | $1/12 \\approx 0.0833$ | 기준 |\n| $A_2$ (육각형) | 2 | $0.0802$ | 최적 2D |\n| $D_4$ | 4 | $0.0766$ | |\n| $E_8$ | 8 | $0.0717$ | 8D 최적 |\n\n### 양자화 이득\n$$\\text{E8 이득} = 10\\log_{10}(0.0833/0.0717) \\approx 0.64\\ \\text{dB}$$\n\n### 실무 체크\n- NSM은 균일 입력 분포 가정이므로 실제 LLM 가중치(가우시안 근사)에서 차이 있을 수 있음\n- RHT로 비간섭 처리 후 입력이 균일에 가까워져 NSM 이득이 실제로 발현됨"
+  },
+  {
+    "id": "kashin-representation",
+    "name": "Kashin Representation",
+    "aliases": [
+      "Kashin 표현",
+      "카신 표현",
+      "ℓ∞/ℓ2 분해"
+    ],
+    "category": "technique",
+    "description": "Kashin 표현은 n차원 벡터를 임베딩할 때 ℓ∞/ℓ2 비율을 O(√(log n / n))으로 줄이는 직교 변환이 존재한다는 수학 결과다. 랜덤 직교 변환이 에너지를 균등하게 분산시킬 수 있음을 보장하는 이론으로, QuIP#에서 WHT가 완전 랜덤 직교 변환과 동일한 점근적 비간섭 품질을 달성함을 이론적으로 뒷받침한다. 이 결과 덕분에 O(n³) 비용 없이 O(n log n) WHT로 동일한 incoherence 보장을 얻을 수 있다.",
+    "related_paper_titles": [
+      "QuIP#: Even Better LLM Quantization with Hadamard Incoherence and Lattice Codebooks"
+    ],
+    "hierarchy": [
+      "Mathematics",
+      "Functional Analysis",
+      "Banach Space Theory"
+    ],
+    "study_classification": {
+      "optimization": [
+        "Incoherence Theory"
+      ],
+      "quantization_module": [
+        "Transform Design"
+      ]
+    },
+    "term_set": "llm_quantization",
+    "details_markdown": "### 정의\n- 충분히 큰 n에서, 랜덤 직교 행렬 Q가 존재해 ℓ∞/ℓ2 비율을 O(√(log n / n))으로 제한한다.\n\n### 핵심 수식\n**Kashin 비율 보장:**\n$$\\frac{\\|Qw\\|_\\infty}{\\|Qw\\|_2} \\leq C \\cdot \\sqrt{\\frac{\\log n}{n}} \\xrightarrow{n \\to \\infty} 0$$\n\n**WHT의 동등성 (QuIP# Theorem):**\n$$\\mu(Q_{\\text{RHT}}\\, W) = O\\!\\left(\\sqrt{\\frac{\\log(mn)}{n}}\\right) \\quad \\text{w.h.p.}$$\n\n- 완전 랜덤 직교 행렬과 점근적으로 동일한 비간섭 품질.\n\n### 직관적 해석\n- 어떤 w_i가 크더라도 Qw에서는 모든 성분에 $\\pm w_i/\\sqrt{n}$씩 기여\n- max 원소가 전체 에너지의 $\\sqrt{\\log n / n}$ 비율로 제한됨\n\n### 변수 해석\n- $C > 0$: 절대 상수 (n 무관)\n- $m, n$: 행렬 행·열 차원\n\n### 실무 체크\n- 이론적 보장은 n → ∞ 점근, 실제 LLM 레이어 (n ≥ 512)에서 안정적으로 성립\n- 이론(Kashin) → 실용(RHT): O(n³) 비용 없이 동일 효과"
+  },
+  {
+    "id": "lattice-quantization",
+    "name": "Lattice Quantization",
+    "aliases": [
+      "격자 양자화",
+      "Lattice Vector Quantization",
+      "LVQ",
+      "격자 코드북"
+    ],
+    "category": "technique",
+    "description": "격자 양자화는 n차원 공간을 주기적인 격자(lattice) 구조의 가장 가까운 격자점으로 벡터를 반올림하는 양자화 기법이다. 스칼라 양자화(Z¹ 정수 격자)의 고차원 일반화로, 잘 설계된 격자는 NSM을 최소화해 동일 비트수에서 더 낮은 왜곡을 달성한다. E8 격자는 8차원에서 NSM이 최적이며, Voronoi 셀의 구에 가까운 형태가 양자화 효율을 결정한다. 실용화를 위해서는 O(1) 복잡도의 최근접 격자점 디코딩 알고리즘의 존재가 필수적이다.",
+    "related_paper_titles": [
+      "QuIP#: Even Better LLM Quantization with Hadamard Incoherence and Lattice Codebooks"
+    ],
+    "hierarchy": [
+      "Quantization",
+      "Vector Quantization",
+      "Lattice Quantization"
+    ],
+    "study_classification": {
+      "optimization": [
+        "Quantization Distortion Minimization"
+      ],
+      "quantization_module": [
+        "Lattice Codebook"
+      ]
+    },
+    "term_set": "llm_quantization",
+    "details_markdown": "### 정의\n- n차원 공간을 주기적 격자 Λ의 가장 가까운 점으로 양자화한다.\n\n### 핵심 수식\n**격자 정의:**\n$$\\Lambda = \\{Bz \\mid z \\in \\mathbb{Z}^n\\}, \\quad B \\in \\mathbb{R}^{n \\times n}$$\n\n**양자화 연산:**\n$$Q_\\Lambda(x) = \\arg\\min_{\\lambda \\in \\Lambda} \\|x - \\lambda\\|_2$$\n\n**E8 격자 구조:**\n$$E_8 = \\left(\\mathbb{Z}^8 \\cup \\left(\\mathbb{Z}^8 + \\tfrac{1}{2}\\right)\\right) \\cap \\left\\{x \\mid \\mathbf{1}^\\top x \\in 2\\mathbb{Z}\\right\\}$$\n\n### 스칼라 대비 장점\n- $n=1$ (스칼라 $\\mathbb{Z}^1$): NSM = $1/12 \\approx 0.0833$\n- $n=8$ ($E_8$): NSM = $0.0717$ → 16% 왜곡 감소, 0.64 dB 이득\n\n### 격자 코드북 크기\n| 구성 | 차원 | 비트/원소 | 코드북 크기 |\n|------|------|-----------|------------|\n| 스칼라 2비트 | 1 | 2 | 4 |\n| $E_8$ 2비트/원소 | 8 | 2 | $2^{16}=65536$ |\n\n### 실무 체크\n- E8 디코딩: 정수/반정수 격자 2번 반올림 + 홀짝 패리티 검사로 O(1)\n- 입력 원소 수를 8의 배수로 맞추기 위해 RHT 패딩 처리 필요"
+  },
+  {
+    "id": "product-quantization",
+    "name": "Product Quantization",
+    "aliases": [
+      "PQ",
+      "곱 양자화",
+      "부분공간 양자화"
+    ],
+    "category": "technique",
+    "description": "Product Quantization(PQ)은 고차원 벡터를 독립적인 저차원 부분공간으로 분할한 뒤 각 부분을 별도 코드북으로 양자화하는 기법이다. d차원 벡터를 m개 d/m차원 부분 벡터로 나누고 각각 K 코드워드로 양자화하면 전체 표현력은 K^m으로 단일 코드북 대비 지수적으로 확장된다. FAISS에서 대규모 근사 최근접 이웃 검색의 표준으로 사용되며, AQLM의 Additive Quantization의 선행 기법이다. PQ는 부분공간을 독립 선택하는 반면 AQ는 코드워드의 합으로 표현해 더 유연한 오차 분포를 허용한다.",
+    "related_paper_titles": [
+      "Extreme Compression of Large Language Models via Additive Quantization (AQLM)"
+    ],
+    "hierarchy": [
+      "Quantization",
+      "Vector Quantization",
+      "Product Quantization"
+    ],
+    "study_classification": {
+      "optimization": [
+        "Approximate Nearest Neighbor"
+      ],
+      "quantization_module": [
+        "Codebook Design"
+      ]
+    },
+    "term_set": "llm_quantization",
+    "details_markdown": "### 정의\n- d차원 벡터를 m개 부분공간으로 분할하고 각 부분을 독립 코드북으로 양자화한다.\n\n### 핵심 수식\n**PQ 표현:**\n$$\\hat{x} = \\left[q_1(x_{1:d/m}),\\; q_2(x_{d/m+1:2d/m}),\\; \\ldots,\\; q_m(x_{(m-1)d/m+1:d})\\right]$$\n\n**표현력:**\n$$\\text{가능한 코드 수} = K^m, \\quad \\text{저장 비트} = m \\cdot \\log_2 K$$\n\n### PQ vs AQ (AQLM) 비교\n| 특성 | PQ | AQ |\n|------|----|----|\n| 표현 방식 | 부분공간 독립 선택 | 코드워드 합산 |\n| 최적화 | 독립 k-means | 교대 최적화 |\n| 오차 전파 | 부분공간 독립 | 전 차원에 걸침 |\n| FAISS 구현 | ✓ (IndexPQ) | ✗ |\n\n### 변수 해석\n- $q_i(\\cdot)$: i번째 부분공간 코드북, $K$: 코드워드 수\n- $m$: 부분공간 수, $d$: 원 벡터 차원\n\n### 실무 체크\n- 부분공간 간 상관이 클 때 PQ 왜곡 증가 → AQ/RVQ 고려\n- LLM 가중치 열(d=128~256)에서 m=2, K=256이 일반적 설정"
+  },
+  {
+    "id": "beam-search-quantization",
+    "name": "Beam Search (Quantization)",
+    "aliases": [
+      "빔 서치 양자화",
+      "AQ Beam Search",
+      "Quantization Beam Decoding"
+    ],
+    "category": "technique",
+    "description": "빔 서치 양자화는 다중 코드북 양자화에서 최적 코드 조합을 효율적으로 탐색하는 알고리즘이다. 완전 탐색의 K^M 조합 폭발을 폭(beam width) B를 사용해 O(M·B·K)로 축소하면서도 좋은 근사 해를 유지한다. AQLM에서 각 가중치 열을 양자화할 때 코드북 깊이 M에 걸쳐 상위 B개 후보를 유지하며 최적 코드 시퀀스를 점진적으로 탐색한다. M=2, K=256, B=8 기준으로 완전 탐색 대비 약 8000배 빠르다.",
+    "related_paper_titles": [
+      "Extreme Compression of Large Language Models via Additive Quantization (AQLM)"
+    ],
+    "hierarchy": [
+      "Algorithm",
+      "Search",
+      "Beam Search"
+    ],
+    "study_classification": {
+      "optimization": [
+        "Combinatorial Optimization",
+        "Heuristic Search"
+      ],
+      "quantization_module": [
+        "Code Selection"
+      ]
+    },
+    "term_set": "llm_quantization",
+    "details_markdown": "### 정의\n- 매 단계마다 상위 B개 후보를 유지하며 최적 코드 시퀀스를 탐색하는 폭 제한 탐색.\n\n### 핵심 수식\n**AQLM 목적함수 (열 j):**\n$$b_j^* = \\arg\\min_{(b_1,\\ldots,b_M)} \\left\\|w_j - \\sum_{m=1}^{M} C_m[b_m]\\right\\|_{H_j}^2$$\n\n**빔 갱신 규칙:**\n$$\\mathcal{B}_{m+1} = \\mathrm{top}\\text{-}B\\left\\{(b_{1:m},\\, b_{m+1}) \\mid b_{1:m} \\in \\mathcal{B}_m,\\; b_{m+1} \\in [K]\\right\\}$$\n\n### 탐색 복잡도 비교\n| 전략 | 복잡도 | 품질 |\n|------|--------|------|\n| 완전 탐색 | $O(K^M)$ | 최적 |\n| 탐욕 ($B=1$) | $O(M \\cdot K)$ | 낮음 |\n| 빔 ($B=8$) | $O(M \\cdot B \\cdot K)$ | 준최적 |\n\n### 변수 해석\n- $B$: 빔 폭, $M$: 코드북 수, $K$: 코드워드 수\n- $H_j$: j번째 열의 Hessian (입력 공분산)\n\n### 실무 체크\n- B를 키울수록 품질 향상, 연산 비용 선형 증가\n- Hessian $H_j$ 반영 시 단순 ℓ2 거리 대비 왜곡 크게 감소"
+  },
+  {
+    "id": "global-ptq-finetuning",
+    "name": "Global Fine-tuning (PTQ)",
+    "aliases": [
+      "전역 미세조정",
+      "End-to-End PTQ Calibration",
+      "Global Calibration",
+      "PTQ 전역 보정"
+    ],
+    "category": "training",
+    "description": "전역 미세조정은 레이어별 독립 PTQ 이후 전체 레이어의 코드북을 소량 보정 데이터로 공동 업데이트하는 단계다. 레이어별 최적화는 각 레이어를 개별적으로 최소화하지만 이전 레이어 오차가 다음 레이어에 전파되는 복합 효과를 무시한다. AQLM은 C4 데이터셋 2048 시퀀스로 AdamW를 이용해 전체 모델 출력 오차를 end-to-end로 최소화함으로써 레이어 간 상호 보정을 달성하며, 이 단계 이후 PPL이 FP16보다 낮아지는 암시적 정규화 효과가 관찰된다.",
+    "related_paper_titles": [
+      "Extreme Compression of Large Language Models via Additive Quantization (AQLM)"
+    ],
+    "hierarchy": [
+      "Training",
+      "Post-Training Quantization",
+      "Calibration"
+    ],
+    "study_classification": {
+      "optimization": [
+        "End-to-End Optimization"
+      ],
+      "learning_flow": [
+        "Calibration",
+        "Global Fine-tuning"
+      ]
+    },
+    "term_set": "llm_quantization",
+    "details_markdown": "### 정의\n- 레이어 독립 PTQ 후 전체 네트워크 코드북을 소량 데이터로 공동 미세조정한다.\n\n### 핵심 수식\n**전역 목적함수:**\n$$\\min_{\\{C_m^{(\\ell)}\\}} \\sum_{\\ell=1}^{L} \\left\\| W^{(\\ell)} X^{(\\ell)} - \\hat{W}^{(\\ell)} X^{(\\ell)} \\right\\|_F^2$$\n\n**코드북 기울기 (STE 적용):**\n$$\\frac{\\partial \\mathcal{L}}{\\partial C_m[k]} = \\sum_{j:\\, b_{jm}=k} \\frac{\\partial \\mathcal{L}}{\\partial \\hat{w}_j}$$\n\n### AQLM 프로토콜\n| 항목 | 값 |\n|------|-----|\n| 데이터셋 | C4 (2048 시퀀스) |\n| 최적화기 | AdamW |\n| 학습률 | $10^{-4}$ |\n| 업데이트 대상 | 코드북 $C$ (인덱스 $B$ 고정) |\n| 스텝 수 | ~5000 |\n\n### 레이어별 vs 전역 비교\n| 방식 | 오차 전파 처리 | 복잡도 |\n|------|--------------|--------|\n| 레이어별 독립 (GPTQ) | ✗ | 낮음 |\n| 전역 미세조정 (AQLM) | ✓ | 높음 |\n\n### 실무 체크\n- 전역 보정 후 PPL < FP16: 양자화가 암시적 드롭아웃 효과로 작용\n- 코드 인덱스 B는 학습 중 고정, STE로만 gradient 통과"
   }
 ]
