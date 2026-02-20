@@ -73,30 +73,34 @@ function looksLikeCode(text: string): boolean {
 function looksLikeFormatted(text: string): boolean {
   if (looksLikeCode(text)) return false;
   return (
-    // 4+ leading spaces on any line → ASCII tree, indented pseudocode
+    // 4+ leading spaces on any line → ASCII tree / indented pseudocode
     /^ {4,}\S/m.test(text) ||
-    // Numbered steps "1:", "2:", … at line start (pseudocode / algorithm steps)
+    // Numbered steps "1:", "2:", … at line start
     /^\d+:/m.test(text) ||
-    // Function definition "Name(args):" pattern (pseudocode header)
+    // Function definition "Name(args):" pattern
     /^[A-Za-z_][A-Za-z0-9_-]*\([^)]*\):/m.test(text) ||
     // "Step N" trace label
     /\bStep\s+\d/i.test(text) ||
-    // Array literal at very start: [1, 3, 7, ...]
+    // Array literal at start
     /^\[[\d,\s]+\]/.test(text.trim())
   );
 }
 
 /* ─────────────────────────────────────────────────────────────
-   Block components
+   Unified code block
+   - lang="C++"  → dark block with language header (C++ source)
+   - lang omitted → dark block without header (algorithm trace / pseudocode)
+   Both are visually consistent — same dark background, same font.
+   overflow-clip preserves border-radius without blocking child overflow-x-auto.
 ───────────────────────────────────────────────────────────── */
-
-/** Dark code block — for C/C++ source */
-function CodeBlock({ text }: { text: string }) {
+function CodeBlock({ text, lang }: { text: string; lang?: string }) {
   return (
-    <div className="rounded-lg overflow-hidden border border-slate-700/40">
-      <div className="flex items-center px-4 py-1.5 bg-slate-800 border-b border-slate-700/40">
-        <span className="text-[10px] font-mono font-semibold text-slate-400 tracking-wider">C++</span>
-      </div>
+    <div className="rounded-lg overflow-clip border border-slate-700/40">
+      {lang && (
+        <div className="flex items-center px-4 py-1.5 bg-slate-800 border-b border-slate-700/40">
+          <span className="text-[10px] font-mono font-semibold text-slate-400 tracking-wider">{lang}</span>
+        </div>
+      )}
       <pre className="overflow-x-auto bg-slate-950 px-4 py-3.5 text-xs leading-6 text-slate-200 font-mono whitespace-pre">
         <code>{text}</code>
       </pre>
@@ -104,37 +108,21 @@ function CodeBlock({ text }: { text: string }) {
   );
 }
 
-/** Light trace block — for pseudocode, algorithm traces, ASCII diagrams */
-function TraceBlock({ text }: { text: string }) {
-  return (
-    <div className="rounded-lg border border-slate-200 dark:border-slate-700 overflow-hidden">
-      <pre className="overflow-x-auto bg-slate-50 dark:bg-slate-800/50 px-4 py-3 text-xs font-mono leading-5 text-slate-700 dark:text-slate-300 whitespace-pre">
-        {text}
-      </pre>
-    </div>
-  );
-}
-
-/** Mixed text + embedded code/trace renderer (splits on blank lines) */
+/* ─────────────────────────────────────────────────────────────
+   Mixed text + embedded code/trace renderer
+───────────────────────────────────────────────────────────── */
 function RichText({ text, className = '' }: { text: string; className?: string }) {
   const parts = text.split(/\n\n+/);
-  if (parts.length === 1) {
-    const t = text.trim();
-    if (looksLikeCode(t))      return <CodeBlock text={t} />;
-    if (looksLikeFormatted(t)) return <TraceBlock text={t} />;
-    return <p className={`text-sm leading-7 whitespace-pre-wrap ${className}`}>{text}</p>;
-  }
-  return (
-    <div className="space-y-3">
-      {parts.map((part, i) => {
-        const t = part.trim();
-        if (!t) return null;
-        if (looksLikeCode(t))      return <CodeBlock key={i} text={t} />;
-        if (looksLikeFormatted(t)) return <TraceBlock key={i} text={t} />;
-        return <p key={i} className={`text-sm leading-7 whitespace-pre-wrap ${className}`}>{t}</p>;
-      })}
-    </div>
-  );
+  const renderChunk = (chunk: string, key: number) => {
+    const t = chunk.trim();
+    if (!t) return null;
+    if (looksLikeCode(t))      return <CodeBlock key={key} text={t} lang="C++" />;
+    if (looksLikeFormatted(t)) return <CodeBlock key={key} text={t} />;
+    return <p key={key} className={`text-sm leading-7 whitespace-pre-wrap ${className}`}>{t}</p>;
+  };
+
+  if (parts.length === 1) return <>{renderChunk(text.trim(), 0)}</>;
+  return <div className="space-y-3">{parts.map((p, i) => renderChunk(p, i))}</div>;
 }
 
 /* ─────────────────────────────────────────────────────────────
@@ -143,7 +131,7 @@ function RichText({ text, className = '' }: { text: string; className?: string }
 function AnswerBlock({ text }: { text: string }) {
   const trimmed = text.trim();
 
-  // T/F 답변 특별 처리
+  /* T/F 답변 특별 처리 */
   if (/^(TRUE|FALSE)\b/.test(trimmed)) {
     const isTrue = trimmed.startsWith('TRUE');
     const explanation = trimmed.replace(/^(TRUE|FALSE)\s*/, '').trim();
@@ -166,14 +154,14 @@ function AnswerBlock({ text }: { text: string }) {
     );
   }
 
-  // 일반 답변: 첫 단락(핵심 답)과 나머지(해설/추가 정보) 분리
+  /* 일반: 첫 단락(핵심 답) + 나머지(해설) */
   const firstBreak = trimmed.indexOf('\n\n');
-  const corePart = firstBreak >= 0 ? trimmed.slice(0, firstBreak).trim() : trimmed;
-  const restPart = firstBreak >= 0 ? trimmed.slice(firstBreak + 2).trim() : null;
+  const corePart   = firstBreak >= 0 ? trimmed.slice(0, firstBreak).trim() : trimmed;
+  const restPart   = firstBreak >= 0 ? trimmed.slice(firstBreak + 2).trim() : null;
 
   const renderPart = (part: string, isCore: boolean) => {
-    if (looksLikeCode(part))      return <CodeBlock text={part} />;
-    if (looksLikeFormatted(part)) return <TraceBlock text={part} />;
+    if (looksLikeCode(part))      return <CodeBlock text={part} lang="C++" />;
+    if (looksLikeFormatted(part)) return <CodeBlock text={part} />;
     if (isCore) {
       return (
         <div className="rounded-lg bg-emerald-50 dark:bg-emerald-900/15 border border-emerald-200 dark:border-emerald-800/50 px-4 py-3">
@@ -211,7 +199,8 @@ function SubItem({
   const visible = forceShow || open;
 
   return (
-    <div className="rounded-xl border border-slate-200 dark:border-slate-700/60 bg-white dark:bg-slate-900 overflow-hidden">
+    /* overflow-clip: clips to rounded corners without blocking child overflow-x-auto */
+    <div className="rounded-xl border border-slate-200 dark:border-slate-700/60 bg-white dark:bg-slate-900 overflow-clip">
       {/* Question */}
       <div className="px-4 pt-4 pb-3.5">
         <div className="flex items-center gap-2 mb-2.5">
@@ -222,11 +211,10 @@ function SubItem({
             {sq.points}점
           </span>
         </div>
-        {/* sub-question text — may contain embedded pseudocode */}
         <RichText text={sq.text} className="text-slate-700 dark:text-slate-300" />
       </div>
 
-      {/* Answer toggle + reveal */}
+      {/* Answer toggle */}
       {sq.answer && (
         <div className="border-t border-slate-100 dark:border-slate-800 px-4 pb-4">
           {!visible ? (
@@ -267,7 +255,7 @@ export default function ExamProblemCard({ problem, defaultExpanded = false }: Ex
   const totalSubPts = problem.subQuestions?.reduce((s, q) => s + q.points, 0) ?? 0;
 
   return (
-    <div className="rounded-xl border border-slate-200 bg-white overflow-hidden dark:border-slate-700 dark:bg-slate-900 shadow-sm">
+    <div className="rounded-xl border border-slate-200 bg-white overflow-clip dark:border-slate-700 dark:bg-slate-900 shadow-sm">
 
       {/* ── Header ── */}
       <button
@@ -300,19 +288,16 @@ export default function ExamProblemCard({ problem, defaultExpanded = false }: Ex
         <div className="border-t border-slate-100 dark:border-slate-800">
 
           {hasSubs ? (
-            /* ── Split layout: description LEFT | sub-questions RIGHT ── */
+            /* ── Split layout ── */
             <div className="flex flex-col lg:flex-row">
 
-              {/* LEFT — description first, then code (sticky while scrolling right) */}
+              {/* LEFT: description → code */}
               <div className="lg:w-[52%] flex-shrink-0 p-5 border-b lg:border-b-0 lg:border-r border-slate-100 dark:border-slate-800 lg:sticky lg:top-0 lg:self-start lg:max-h-[80vh] lg:overflow-y-auto space-y-4">
                 {problem.description && (
-                  <RichText
-                    text={problem.description}
-                    className="text-slate-700 dark:text-slate-300"
-                  />
+                  <RichText text={problem.description} className="text-slate-700 dark:text-slate-300" />
                 )}
                 {problem.codeBlock && (
-                  <CodeBlock text={problem.codeBlock} />
+                  <CodeBlock text={problem.codeBlock} lang="C++" />
                 )}
                 {problem.tags.length > 0 && (
                   <div className="flex flex-wrap gap-1 pt-1">
@@ -325,15 +310,15 @@ export default function ExamProblemCard({ problem, defaultExpanded = false }: Ex
                 )}
               </div>
 
-              {/* RIGHT — sub-questions */}
-              <div className="flex-1 p-5 space-y-3">
+              {/* RIGHT: sub-questions — min-w-0 prevents flex overflow */}
+              <div className="flex-1 min-w-0 p-5 space-y-3">
                 <div className="flex items-center justify-between mb-0.5">
                   <span className="text-[11px] font-semibold text-slate-400 uppercase tracking-wide">
                     소문항 {problem.subQuestions!.length}개 · {totalSubPts}점
                   </span>
                   <button
                     onClick={() => setShowAllAnswers(a => !a)}
-                    className={`rounded-lg px-2.5 py-1 text-xs font-semibold transition-colors ${
+                    className={`rounded-lg px-2.5 py-1 text-xs font-semibold transition-colors flex-shrink-0 ${
                       showAllAnswers
                         ? 'bg-emerald-100 text-emerald-700 dark:bg-emerald-900/30 dark:text-emerald-300'
                         : 'bg-slate-100 text-slate-500 dark:bg-slate-800 dark:text-slate-400 hover:bg-emerald-50 hover:text-emerald-700 dark:hover:bg-emerald-900/20 dark:hover:text-emerald-300'
@@ -350,16 +335,13 @@ export default function ExamProblemCard({ problem, defaultExpanded = false }: Ex
             </div>
 
           ) : (
-            /* ── Single-column layout (no sub-questions) ── */
+            /* ── Single-column layout ── */
             <div className="p-5 space-y-4">
               {problem.description && (
-                <RichText
-                  text={problem.description}
-                  className="text-slate-700 dark:text-slate-300"
-                />
+                <RichText text={problem.description} className="text-slate-700 dark:text-slate-300" />
               )}
               {problem.codeBlock && (
-                <CodeBlock text={problem.codeBlock} />
+                <CodeBlock text={problem.codeBlock} lang="C++" />
               )}
               {problem.answer && (
                 <div>
