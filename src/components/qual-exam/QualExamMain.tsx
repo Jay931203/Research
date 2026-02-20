@@ -156,7 +156,7 @@ interface ExamGroup { year: string; semester: '1' | '2'; probs: ExamProblem[]; k
 
 function AllExamsPanel({ groups }: { groups: ExamGroup[] }) {
   return (
-    <div className="max-w-3xl mx-auto px-6 py-6 space-y-6">
+    <div className="max-w-5xl mx-auto px-6 py-6 space-y-6">
       <div className="flex items-center gap-3">
         <h1 className="text-xl font-black text-slate-900 dark:text-slate-100">기출문제 전체</h1>
         <span className="text-sm text-slate-400">{groups.reduce((s, g) => s + g.probs.length, 0)}문제</span>
@@ -454,7 +454,10 @@ export default function QualExamMain() {
             </div>
 
             <button
-              onClick={() => { setView({ kind: 'exams' }); setExamPanelOpen(false); setMobileSidebarOpen(false); }}
+              onClick={() => {
+                if (view.kind === 'exams') { setView({ kind: 'topics' }); }
+                else { setView({ kind: 'exams' }); setExamPanelOpen(false); setMobileSidebarOpen(false); }
+              }}
               className={`w-full flex items-center gap-2.5 rounded-lg px-3 py-2 text-left transition
                 ${view.kind === 'exams'
                   ? 'bg-slate-900 text-white dark:bg-slate-100 dark:text-slate-900'
@@ -520,7 +523,7 @@ export default function QualExamMain() {
               : <Menu className="h-5 w-5 text-slate-600 dark:text-slate-300" />}
           </button>
           <GraduationCap className="h-5 w-5 text-orange-500" />
-          <span className="text-sm font-bold text-slate-900 dark:text-slate-100">논자시 준비</span>
+          <span className="text-sm font-bold text-slate-900 dark:text-slate-100">논자시</span>
         </div>
 
         <div className="flex flex-1 overflow-hidden">

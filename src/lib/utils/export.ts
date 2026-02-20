@@ -103,7 +103,7 @@ export function exportToMarkdown(
   const sortedPapers = [...papers].sort((a, b) => a.year - b.year);
   const paperMap = new Map(papers.map((paper) => [paper.id, paper.title]));
 
-  lines.push('# Research Graph Notes');
+  lines.push('# Research Workspace Notes');
   lines.push('');
   lines.push(`> Export Date: ${dateStamp()}`);
   lines.push(`> Papers: ${papers.length}, Relationships: ${relationships.length}`);

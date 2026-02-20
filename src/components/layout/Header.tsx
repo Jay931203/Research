@@ -54,9 +54,9 @@ export default function Header({ onSearchClick }: HeaderProps = {}) {
         <Link href="/" className="flex items-center gap-2 transition hover:opacity-85">
           <BookOpen className="h-6 w-6 text-blue-600" />
           <div className="flex flex-col">
-            <p className="text-lg font-bold leading-tight">Research Graph</p>
+            <p className="text-lg font-bold leading-tight">Research Workspace</p>
             <p className="text-[11px] text-gray-500 dark:text-gray-400">
-              논문 학습 맵 & 관계 탐색
+              논문 관리 & 학습 공간
             </p>
           </div>
         </Link>
@@ -80,7 +80,7 @@ export default function Header({ onSearchClick }: HeaderProps = {}) {
             내 연구
           </HeaderLink>
           <HeaderLink href="/qual-exam" active={pathname === '/qual-exam'}>
-            논자시 준비
+            논자시
           </HeaderLink>
           <HeaderLink href="/glossary" active={pathname === '/glossary'}>
             용어집
@@ -171,7 +171,7 @@ export default function Header({ onSearchClick }: HeaderProps = {}) {
               onClick={() => setMobileMenuOpen(false)}
               active={pathname === '/qual-exam'}
             >
-              논자시 준비
+              논자시
             </MobileHeaderLink>
             <MobileHeaderLink
               href="/glossary"

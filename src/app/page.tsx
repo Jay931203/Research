@@ -20,7 +20,7 @@ const cards = [
   },
   {
     href: '/qual-exam',
-    title: '논자시 준비',
+    title: '논자시',
     description: '자료구조·알고리즘 & 프로그래밍 기초 기출문제와 인터랙티브 학습 자료.',
     icon: <GraduationCap className="h-6 w-6 text-orange-600" />,
     accent: 'hover:ring-orange-200/50 dark:hover:ring-orange-500/20',
