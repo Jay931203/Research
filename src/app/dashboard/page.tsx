@@ -569,10 +569,6 @@ export default function DashboardPage() {
 
         {!isMapFullscreen && selectedFullscreenPaper && (
           <>
-            <div
-              className="fixed inset-0 z-30 bg-black/10"
-              onClick={() => setSelectedFullscreenPaperId(null)}
-            />
             <aside className="fixed right-0 top-16 z-40 flex h-[calc(100vh-4rem)] w-[380px] flex-col overflow-hidden border-l border-gray-200 bg-white shadow-2xl dark:border-gray-700 dark:bg-gray-900">
               <div className="sticky top-0 z-10 border-b border-gray-200 bg-white/95 px-4 py-4 backdrop-blur dark:border-gray-700 dark:bg-gray-900/95">
                 <div className="mb-2 flex items-center justify-between gap-2">
