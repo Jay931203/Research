@@ -14,6 +14,7 @@ import {
 } from 'lucide-react';
 import katex from 'katex';
 import IncoherenceViz from './IncoherenceViz';
+import GlossaryText from '@/components/glossary/GlossaryText';
 
 /* ── helpers ─────────────────────────────────────────────────── */
 
@@ -168,6 +169,7 @@ export default function QuIPStudyFull() {
   const toggle = useCallback((id: string) => setCol(c => ({ ...c, [id]: !c[id] })), []);
 
   return (
+    <GlossaryText>
     <div className="space-y-6">
 
       {/* ── Overview ─────────────────────────────────────────── */}
@@ -675,5 +677,6 @@ export default function QuIPStudyFull() {
         </Card>
       </section>
     </div>
+    </GlossaryText>
   );
 }

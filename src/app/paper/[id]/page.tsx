@@ -48,6 +48,7 @@ import NoteEditor from '@/components/notes/NoteEditor';
 import MarkdownContent from '@/components/common/MarkdownContent';
 import { useGlossary, getTermsForPaper } from '@/hooks/useGlossary';
 import GlossaryHighlighter from '@/components/glossary/GlossaryHighlighter';
+import { GlossaryTermsContext } from '@/components/glossary/GlossaryContext';
 import { useAppStore } from '@/store/useAppStore';
 import katex from 'katex';
 
@@ -668,6 +669,7 @@ export default function PaperStudyPage() {
           {/* Main content */}
           <main className="min-w-0 flex-1">
             <div className="mx-auto max-w-5xl px-4 py-8 sm:px-6 lg:px-8">
+              <GlossaryTermsContext.Provider value={paperTerms}>
               <FullStudyComponent />
 
               {/* ===== Section: Shared Techniques (tag cloud) — full study view ===== */}
@@ -701,6 +703,7 @@ export default function PaperStudyPage() {
               )}
 
               <div className="h-16" />
+              </GlossaryTermsContext.Provider>
             </div>
           </main>
         </div>

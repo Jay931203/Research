@@ -12,6 +12,7 @@ import {
 } from 'lucide-react';
 import katex from 'katex';
 import AddQuantViz from './AddQuantViz';
+import GlossaryText from '@/components/glossary/GlossaryText';
 
 /* ── helpers ─────────────────────────────────────────────────── */
 
@@ -112,6 +113,7 @@ export default function AQLMStudyFull() {
   const toggle = useCallback((id: string) => setCol(c => ({ ...c, [id]: !c[id] })), []);
 
   return (
+    <GlossaryText>
     <div className="space-y-6">
 
       {/* ── Overview ─────────────────────────────────────────── */}
@@ -548,5 +550,6 @@ export default function AQLMStudyFull() {
         </Card>
       </section>
     </div>
+    </GlossaryText>
   );
 }
