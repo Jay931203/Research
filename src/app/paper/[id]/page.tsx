@@ -19,6 +19,8 @@ import {
   Layers,
   Link2,
   List,
+  Minus,
+  Plus,
   Star,
   Zap,
 } from 'lucide-react';
@@ -42,6 +44,7 @@ import NoteEditor from '@/components/notes/NoteEditor';
 import MarkdownContent from '@/components/common/MarkdownContent';
 import { useGlossary, getTermsForPaper } from '@/hooks/useGlossary';
 import GlossaryHighlighter from '@/components/glossary/GlossaryHighlighter';
+import { useAppStore } from '@/store/useAppStore';
 import katex from 'katex';
 
 /* ------------------------------------------------------------------ */
@@ -244,6 +247,11 @@ export default function PaperStudyPage() {
   const { papers, isLoading: papersLoading, refresh: refreshPapers } = usePapersWithNotes();
   const { relationships, isLoading: relsLoading } = useRelationships();
   const { terms: glossaryTerms } = useGlossary();
+  const mapPaperIds = useAppStore((state) => state.mapPaperIds);
+  const mapSelectionHydrated = useAppStore((state) => state.mapSelectionHydrated);
+  const setMapPaperIds = useAppStore((state) => state.setMapPaperIds);
+  const addMapPaper = useAppStore((state) => state.addMapPaper);
+  const removeMapPaper = useAppStore((state) => state.removeMapPaper);
 
   /* ---------- derived data ---------- */
 
@@ -297,6 +305,14 @@ export default function PaperStudyPage() {
     [paperTerms],
   );
   const architectureCards = splitArchitectureSections(paper?.architecture_detail ?? '');
+  const mapPaperIdSet = useMemo(() => new Set(mapPaperIds ?? []), [mapPaperIds]);
+
+  useEffect(() => {
+    if (!mapSelectionHydrated) return;
+    if (mapPaperIds !== null) return;
+    if (!papers.length) return;
+    setMapPaperIds(papers.map((entry) => entry.id));
+  }, [mapSelectionHydrated, mapPaperIds, papers, setMapPaperIds]);
 
   /* ---------- IntersectionObserver for ToC highlight ---------- */
 
@@ -391,6 +407,20 @@ export default function PaperStudyPage() {
     }
   }, []);
 
+  const handleMapToggle = useCallback(() => {
+    if (!paper) return;
+    if (mapPaperIds === null) {
+      const fullSet = papers.map((entry) => entry.id);
+      setMapPaperIds(fullSet.filter((id) => id !== paper.id));
+      return;
+    }
+    if (mapPaperIdSet.has(paper.id)) {
+      removeMapPaper(paper.id);
+      return;
+    }
+    addMapPaper(paper.id);
+  }, [paper, mapPaperIds, papers, setMapPaperIds, mapPaperIdSet, removeMapPaper, addMapPaper]);
+
   /* ---------- loading / not found ---------- */
 
   if (papersLoading || relsLoading) {
@@ -419,6 +449,7 @@ export default function PaperStudyPage() {
 
   const familiarityLevel = paper.familiarity_level ?? 'not_started';
   const familiarityColor = FAMILIARITY_COLORS[familiarityLevel] ?? '#9ca3af';
+  const isInMap = mapPaperIds === null || mapPaperIdSet.has(paper.id);
   const algorithms = paper.algorithms ?? [];
   const algorithmSteps = algorithms.map((algo, idx) => parseAlgorithmStep(algo, idx));
   const archTags = (paper.tags ?? []).filter(hasArchKeyword);
@@ -563,32 +594,42 @@ export default function PaperStudyPage() {
                   </div>
                 )}
 
-                {(paper.pdf_url || paper.code_url) && (
-                  <div className="mt-5 flex items-center gap-3">
-                    {paper.pdf_url && (
-                      <a
-                        href={paper.pdf_url}
-                        target="_blank"
-                        rel="noopener noreferrer"
-                        className="inline-flex items-center gap-1.5 rounded-lg bg-blue-600 px-4 py-2 text-xs font-semibold text-white transition hover:bg-blue-700"
-                      >
-                        <ExternalLink className="h-3.5 w-3.5" />
-                        PDF
-                      </a>
-                    )}
-                    {paper.code_url && (
-                      <a
-                        href={paper.code_url}
-                        target="_blank"
-                        rel="noopener noreferrer"
-                        className="inline-flex items-center gap-1.5 rounded-lg bg-gray-700 px-4 py-2 text-xs font-semibold text-white transition hover:bg-gray-800 dark:bg-gray-600 dark:hover:bg-gray-500"
-                      >
-                        <Code className="h-3.5 w-3.5" />
-                        Code
-                      </a>
-                    )}
-                  </div>
-                )}
+                <div className="mt-5 flex flex-wrap items-center gap-3">
+                  <button
+                    type="button"
+                    onClick={handleMapToggle}
+                    className={`inline-flex items-center gap-1.5 rounded-lg px-4 py-2 text-xs font-semibold transition ${
+                      isInMap
+                        ? 'border border-red-300 text-red-600 hover:bg-red-50 dark:border-red-700 dark:text-red-300 dark:hover:bg-red-900/30'
+                        : 'border border-blue-300 text-blue-700 hover:bg-blue-50 dark:border-blue-700 dark:text-blue-300 dark:hover:bg-blue-900/30'
+                    }`}
+                  >
+                    {isInMap ? <Minus className="h-3.5 w-3.5" /> : <Plus className="h-3.5 w-3.5" />}
+                    {isInMap ? '관계 맵에서 제거' : '관계 맵에 추가'}
+                  </button>
+                  {paper.pdf_url && (
+                    <a
+                      href={paper.pdf_url}
+                      target="_blank"
+                      rel="noopener noreferrer"
+                      className="inline-flex items-center gap-1.5 rounded-lg bg-blue-600 px-4 py-2 text-xs font-semibold text-white transition hover:bg-blue-700"
+                    >
+                      <ExternalLink className="h-3.5 w-3.5" />
+                      PDF
+                    </a>
+                  )}
+                  {paper.code_url && (
+                    <a
+                      href={paper.code_url}
+                      target="_blank"
+                      rel="noopener noreferrer"
+                      className="inline-flex items-center gap-1.5 rounded-lg bg-gray-700 px-4 py-2 text-xs font-semibold text-white transition hover:bg-gray-800 dark:bg-gray-600 dark:hover:bg-gray-500"
+                    >
+                      <Code className="h-3.5 w-3.5" />
+                      Code
+                    </a>
+                  )}
+                </div>
               </div>
             </section>
 

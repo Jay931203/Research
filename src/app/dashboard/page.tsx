@@ -7,6 +7,8 @@ import Link from 'next/link';
 import { useRouter } from 'next/navigation';
 import MainLayout from '@/components/layout/MainLayout';
 import ErrorBoundary from '@/components/common/ErrorBoundary';
+import MarkdownContent from '@/components/common/MarkdownContent';
+import PaperEquations from '@/components/papers/PaperEquation';
 import { SkeletonCard, SkeletonBlock } from '@/components/common/Skeleton';
 import { usePapersWithNotes } from '@/hooks/useNotes';
 import { useRelationships } from '@/hooks/useRelationships';
@@ -18,7 +20,7 @@ const MindMap = dynamic(() => import('@/components/visualization/MindMap'), {
   ssr: false,
   loading: () => (
     <div className="flex h-full min-h-[560px] items-center justify-center text-sm text-gray-500">
-      관계 맵을 불러오는 중...
+      ??㉱??嶺뚮씭踰???釉띾쐞????노츎 繞?..
     </div>
   ),
 });
@@ -36,33 +38,60 @@ export default function DashboardPage() {
   const router = useRouter();
   const { papers, isLoading: papersLoading } = usePapersWithNotes();
   const { relationships, isLoading: relationshipsLoading } = useRelationships();
-  const sidebarVisiblePaperIds = useAppStore((state) => state.sidebarVisiblePaperIds);
   const graphFilterSettings = useAppStore((state) => state.graphFilterSettings);
+  const mapPaperIds = useAppStore((state) => state.mapPaperIds);
+  const mapSelectionHydrated = useAppStore((state) => state.mapSelectionHydrated);
+  const setMapPaperIds = useAppStore((state) => state.setMapPaperIds);
+  const removeMapPaper = useAppStore((state) => state.removeMapPaper);
 
   const [isMapFullscreen, setIsMapFullscreen] = useState(false);
   const [isFavoritesModalOpen, setIsFavoritesModalOpen] = useState(false);
   const [selectedFullscreenPaperId, setSelectedFullscreenPaperId] = useState<string | null>(null);
 
-  const visiblePaperIdSet = useMemo(
-    () => (sidebarVisiblePaperIds ? new Set(sidebarVisiblePaperIds) : null),
-    [sidebarVisiblePaperIds]
+  const availablePaperIds = useMemo(() => papers.map((paper) => paper.id), [papers]);
+  const availablePaperIdSet = useMemo(
+    () => new Set(availablePaperIds),
+    [availablePaperIds]
+  );
+
+  useEffect(() => {
+    if (!mapSelectionHydrated) return;
+    if (mapPaperIds !== null) return;
+    if (!availablePaperIds.length) return;
+    setMapPaperIds(availablePaperIds);
+  }, [mapSelectionHydrated, mapPaperIds, availablePaperIds, setMapPaperIds]);
+
+  useEffect(() => {
+    if (!mapSelectionHydrated || mapPaperIds === null) return;
+    const normalized = mapPaperIds.filter((paperId) => availablePaperIdSet.has(paperId));
+    if (normalized.length !== mapPaperIds.length) {
+      setMapPaperIds(normalized);
+    }
+  }, [mapSelectionHydrated, mapPaperIds, availablePaperIdSet, setMapPaperIds]);
+
+  const mapPaperIdSet = useMemo(
+    () =>
+      mapPaperIds === null
+        ? null
+        : new Set(mapPaperIds.filter((paperId) => availablePaperIdSet.has(paperId))),
+    [mapPaperIds, availablePaperIdSet]
   );
 
   const mapPapers = useMemo(
-    () => (visiblePaperIdSet ? papers.filter((paper) => visiblePaperIdSet.has(paper.id)) : papers),
-    [papers, visiblePaperIdSet]
+    () => (mapPaperIdSet ? papers.filter((paper) => mapPaperIdSet.has(paper.id)) : papers),
+    [papers, mapPaperIdSet]
   );
 
   const mapRelationships = useMemo(
     () =>
-      visiblePaperIdSet
+      mapPaperIdSet
         ? relationships.filter(
             (relationship) =>
-              visiblePaperIdSet.has(relationship.from_paper_id) &&
-              visiblePaperIdSet.has(relationship.to_paper_id)
+              mapPaperIdSet.has(relationship.from_paper_id) &&
+              mapPaperIdSet.has(relationship.to_paper_id)
           )
         : relationships,
-    [relationships, visiblePaperIdSet]
+    [relationships, mapPaperIdSet]
   );
 
   useEffect(() => {
@@ -92,6 +121,20 @@ export default function DashboardPage() {
     [isMapFullscreen, router]
   );
 
+  const handleRemovePaperFromMap = useCallback(
+    (paperId: string) => {
+      if (!paperId) return;
+      if (mapPaperIds === null) {
+        const next = availablePaperIds.filter((id) => id !== paperId);
+        setMapPaperIds(next);
+      } else {
+        removeMapPaper(paperId);
+      }
+      setSelectedFullscreenPaperId((current) => (current === paperId ? null : current));
+    },
+    [mapPaperIds, availablePaperIds, removeMapPaper, setMapPaperIds]
+  );
+
   const favoritePapers = useMemo(
     () => papers.filter((paper) => paper.is_favorite),
     [papers]
@@ -101,7 +144,6 @@ export default function DashboardPage() {
     () => mapPapers.find((paper) => paper.id === selectedFullscreenPaperId) ?? null,
     [mapPapers, selectedFullscreenPaperId]
   );
-
   const stats = useMemo<DashboardStat[]>(
     () => [
       {
@@ -136,7 +178,6 @@ export default function DashboardPage() {
     ],
     [papers, relationships, favoritePapers.length]
   );
-
   if (papersLoading || relationshipsLoading) {
     return (
       <MainLayout>
@@ -192,31 +233,35 @@ export default function DashboardPage() {
               <div className="animate-fade-in rounded-lg bg-white p-8 text-center shadow dark:bg-gray-800">
                 <BookOpen className="mx-auto mb-4 h-12 w-12 text-gray-300 dark:text-gray-600" />
                 <h3 className="text-base font-bold text-gray-800 dark:text-gray-100">
-                  아직 등록된 논문이 없습니다
+                  ?熬곣뫗異??繹먮굞夷????寃????怨룸????덈펲
                 </h3>
                 <p className="mt-2 text-sm text-gray-500 dark:text-gray-400">
-                  논문을 추가하면 관계 맵과 복습 큐가 자동으로 구성됩니다.
+                  ??寃???怨뺣뼺???濡?듆 ??㉱??嶺뚮씭踰???곌랜踰????? ???吏??怨쀬Ŧ ??뚮봽???紐껊퉵??
                 </p>
                 <Link
                   href="/import"
                   className="mt-4 inline-flex items-center gap-2 rounded-lg bg-blue-600 px-4 py-2 text-sm font-semibold text-white transition hover:bg-blue-700"
                 >
                   <Plus className="h-4 w-4" />
-                  논문 가져오기
-                </Link>
+                  ??寃??띠럾??筌뤾쑴沅롧뼨?                </Link>
                 <p className="mt-3 text-xs text-gray-400 dark:text-gray-500">
-                  또는 사이드바에서 직접 추가할 수 있습니다
+                  ???裕??????類ㅻ틡?????嶺뚯쉳????怨뺣뼺????????곕????덈펲
                 </p>
               </div>
             )}
 
             <div className="overflow-hidden rounded-lg bg-white shadow-lg dark:bg-gray-800">
               <div className="flex items-center justify-between gap-4 border-b border-gray-200 px-4 py-2.5 dark:border-gray-700">
-                <h2 className="text-sm font-bold text-gray-800 dark:text-gray-100">연구 관계 맵</h2>
+                <h2 className="text-sm font-bold text-gray-800 dark:text-gray-100">?怨뚮럡 ?온??筌?/h2>
                 <div className="flex items-center gap-3">
                   <span className="hidden text-xs text-gray-500 dark:text-gray-400 lg:block">
-                    필터 패널에서 원하는 논문만 선택해 관계선만 볼 수 있습니다.
+                    筌???釉???겆?{mapPapers.length}/{papers.length}
                   </span>
+                  <button
+                    onClick={() => setMapPaperIds(availablePaperIds)}
+                    className="inline-flex items-center gap-1.5 rounded-md border border-gray-300 px-3 py-1.5 text-xs font-semibold hover:bg-gray-100 dark:border-gray-600 dark:hover:bg-gray-700"
+                  >
+                    ?袁⑷퍥 癰귣벊??                  </button>
                   <button
                     onClick={() => {
                       setSelectedFullscreenPaperId(null);
@@ -225,8 +270,7 @@ export default function DashboardPage() {
                     className="inline-flex items-center gap-1.5 rounded-md border border-gray-300 px-3 py-1.5 text-xs font-semibold hover:bg-gray-100 dark:border-gray-600 dark:hover:bg-gray-700"
                   >
                     <Maximize2 className="h-3.5 w-3.5" />
-                    전체화면
-                  </button>
+                    ?熬곣뫕???븐뻼??                  </button>
                 </div>
               </div>
               <div style={{ height: 'calc(100vh - 180px)', minHeight: '560px' }}>
@@ -235,6 +279,7 @@ export default function DashboardPage() {
                   relationships={mapRelationships}
                   graphFilterSettings={graphFilterSettings}
                   onNodeClick={handleNodeClick}
+                  onRemovePaper={handleRemovePaperFromMap}
                 />
               </div>
             </div>
@@ -244,7 +289,7 @@ export default function DashboardPage() {
         {isMapFullscreen && (
           <div className="fixed bottom-0 left-0 right-0 top-16 z-40 bg-gray-950">
             <div className="flex h-12 items-center justify-between border-b border-gray-700 bg-gray-900/95 px-4">
-              <p className="text-sm font-semibold text-gray-100">연구 관계 맵 (몰입 모드)</p>
+              <p className="text-sm font-semibold text-gray-100">??⑤슢????㉱??嶺?(嶺뚮ㅎ???嶺뚮ㅄ維獄?</p>
               <button
                 onClick={() => {
                   setSelectedFullscreenPaperId(null);
@@ -253,7 +298,7 @@ export default function DashboardPage() {
                 className="inline-flex items-center gap-1.5 rounded-md border border-gray-600 px-3 py-1.5 text-xs font-semibold text-gray-200 hover:bg-gray-800"
               >
                 <Minimize2 className="h-3.5 w-3.5" />
-                닫기
+                ???뗢뵛
               </button>
             </div>
             <div className="flex h-[calc(100%-48px)] min-h-0">
@@ -263,10 +308,11 @@ export default function DashboardPage() {
                   relationships={mapRelationships}
                   graphFilterSettings={graphFilterSettings}
                   onNodeClick={handleNodeClick}
+                  onRemovePaper={handleRemovePaperFromMap}
                 />
                 {!selectedFullscreenPaper && (
                   <div className="pointer-events-none absolute bottom-4 right-4 rounded-lg border border-gray-700 bg-gray-900/90 px-3 py-2 text-xs text-gray-300 shadow-lg">
-                    그래프 노드를 클릭하면 우측에 논문 요약이 열립니다.
+                    ?잙갭梨????筌뤾퍓援????????濡?듆 ??⑥?????寃???븐슜??????????덈펲.
                   </div>
                 )}
               </div>
@@ -275,11 +321,11 @@ export default function DashboardPage() {
                 <aside className="h-full w-[420px] shrink-0 overflow-y-auto border-l border-gray-700 bg-gray-900/95 text-gray-100">
                   <div className="sticky top-0 border-b border-gray-700 bg-gray-900/95 px-4 py-4 backdrop-blur">
                     <div className="mb-2 flex items-center justify-between gap-2">
-                      <p className="text-xs font-semibold uppercase tracking-wide text-gray-400">선택된 논문</p>
+                      <p className="text-xs font-semibold uppercase tracking-wide text-gray-400">??ルㅎ臾????寃?/p>
                       <button
                         onClick={() => setSelectedFullscreenPaperId(null)}
                         className="rounded-md border border-gray-600 p-1 text-gray-300 hover:bg-gray-800"
-                        aria-label="패널 닫기"
+                        aria-label="???븐꽢 ???뗢뵛"
                       >
                         <X className="h-4 w-4" />
                       </button>
@@ -288,11 +334,11 @@ export default function DashboardPage() {
                       {selectedFullscreenPaper.title}
                     </h3>
                     <p className="mt-2 text-xs text-gray-400">
-                      {selectedFullscreenPaper.authors?.join(', ') || '저자 정보 없음'}
+                      {selectedFullscreenPaper.authors?.join(', ') || '?????筌먲퐢沅???怨몃쾳'}
                     </p>
                     <p className="mt-1 text-xs text-gray-400">
                       {selectedFullscreenPaper.year}
-                      {selectedFullscreenPaper.venue ? ` · ${selectedFullscreenPaper.venue}` : ''}
+                      {selectedFullscreenPaper.venue ? ` 鸚?${selectedFullscreenPaper.venue}` : ''}
                     </p>
                     <div className="mt-3 flex flex-wrap items-center gap-1.5">
                       <span
@@ -318,18 +364,19 @@ export default function DashboardPage() {
                   <div className="space-y-5 p-4">
                     {selectedFullscreenPaper.abstract && (
                       <section>
-                        <h4 className="mb-1.5 text-xs font-semibold text-gray-300">초록</h4>
-                        <p className="whitespace-pre-wrap text-sm leading-6 text-gray-200">
-                          {selectedFullscreenPaper.abstract}
-                        </p>
+                        <h4 className="mb-1.5 text-xs font-semibold text-gray-300">?貫?꾡빳?/h4>
+                        <MarkdownContent
+                          content={selectedFullscreenPaper.abstract}
+                          className="text-sm leading-6 text-gray-200"
+                        />
                       </section>
                     )}
 
                     {!!selectedFullscreenPaper.key_contributions?.length && (
                       <section>
-                        <h4 className="mb-1.5 text-xs font-semibold text-gray-300">핵심 기여</h4>
+                        <h4 className="mb-1.5 text-xs font-semibold text-gray-300">???堉??リ옇?ｈ굢?/h4>
                         <ul className="space-y-1.5 text-sm text-gray-200">
-                          {selectedFullscreenPaper.key_contributions.slice(0, 6).map((item, idx) => (
+                          {selectedFullscreenPaper.key_contributions.map((item, idx) => (
                             <li key={`fullscreen-contribution-${idx}`} className="flex gap-2">
                               <span className="mt-[7px] h-1.5 w-1.5 flex-shrink-0 rounded-full bg-blue-400" />
                               <span>{item}</span>
@@ -339,22 +386,122 @@ export default function DashboardPage() {
                       </section>
                     )}
 
+                    {!!selectedFullscreenPaper.algorithms?.length && (
+                      <section>
+                        <h4 className="mb-1.5 text-xs font-semibold text-gray-300">?????逾?凉????堉??リ옇?↑떋?/h4>
+                        <ul className="space-y-1.5 text-sm text-gray-200">
+                          {selectedFullscreenPaper.algorithms.map((item, idx) => (
+                            <li key={`fullscreen-algorithm-${idx}`} className="flex gap-2">
+                              <span className="mt-[7px] h-1.5 w-1.5 flex-shrink-0 rounded-full bg-violet-400" />
+                              <span>{item}</span>
+                            </li>
+                          ))}
+                        </ul>
+                      </section>
+                    )}
+
+                    {!!selectedFullscreenPaper.architecture_detail && (
+                      <section>
+                        <h4 className="mb-1.5 text-xs font-semibold text-gray-300">?熬곥굤????고뱱 & 嶺뚮ㅄ維????뚮벣??/h4>
+                        <div className="rounded-lg border border-gray-700 bg-gray-800/60 p-3">
+                          <MarkdownContent
+                            content={selectedFullscreenPaper.architecture_detail}
+                            className="text-sm leading-6 text-gray-100"
+                          />
+                        </div>
+                      </section>
+                    )}
+
+                    {!!selectedFullscreenPaper.key_equations?.length && (
+                      <section>
+                        <h4 className="mb-1.5 text-xs font-semibold text-gray-300">???堉???琉용뻤</h4>
+                        <PaperEquations equations={selectedFullscreenPaper.key_equations as any} />
+                      </section>
+                    )}
+
+                    {(selectedFullscreenPaper.difficulty_level ||
+                      selectedFullscreenPaper.prerequisites?.length ||
+                      selectedFullscreenPaper.learning_objectives?.length ||
+                      selectedFullscreenPaper.self_check_questions?.length) && (
+                      <section className="space-y-3">
+                        <h4 className="text-xs font-semibold text-gray-300">???덈? ?筌먲퐢沅?/h4>
+
+                        {selectedFullscreenPaper.difficulty_level && (
+                          <p className="text-sm text-gray-200">
+                            ??戮곕턄?? <span className="font-semibold">{selectedFullscreenPaper.difficulty_level}</span>
+                          </p>
+                        )}
+
+                        {!!selectedFullscreenPaper.prerequisites?.length && (
+                          <div>
+                            <p className="mb-1 text-xs font-semibold text-gray-400">?醫뤿뻬 筌왖??/p>
+                            <ul className="space-y-1.5 text-sm text-gray-200">
+                              {selectedFullscreenPaper.prerequisites.map((item, idx) => (
+                                <li key={`fullscreen-prereq-${idx}`} className="flex gap-2">
+                                  <span className="mt-[7px] h-1.5 w-1.5 flex-shrink-0 rounded-full bg-emerald-400" />
+                                  <span>{item}</span>
+                                </li>
+                              ))}
+                            </ul>
+                          </div>
+                        )}
+
+                        {!!selectedFullscreenPaper.learning_objectives?.length && (
+                          <div>
+                            <p className="mb-1 text-xs font-semibold text-gray-400">???덈? 嶺뚮ㅄ維싷쭗?/p>
+                            <ul className="space-y-1.5 text-sm text-gray-200">
+                              {selectedFullscreenPaper.learning_objectives.map((item, idx) => (
+                                <li key={`fullscreen-objective-${idx}`} className="flex gap-2">
+                                  <span className="mt-[7px] h-1.5 w-1.5 flex-shrink-0 rounded-full bg-cyan-400" />
+                                  <span>{item}</span>
+                                </li>
+                              ))}
+                            </ul>
+                          </div>
+                        )}
+
+                        {!!selectedFullscreenPaper.self_check_questions?.length && (
+                          <div>
+                            <p className="mb-1 text-xs font-semibold text-gray-400">????嶺뚳퐢?얍칰?嶺뚯쉶?꾣룇</p>
+                            <ul className="space-y-1.5 text-sm text-gray-200">
+                              {selectedFullscreenPaper.self_check_questions.map((item, idx) => (
+                                <li key={`fullscreen-check-${idx}`} className="flex gap-2">
+                                  <span className="mt-[7px] h-1.5 w-1.5 flex-shrink-0 rounded-full bg-amber-400" />
+                                  <span>{item}</span>
+                                </li>
+                              ))}
+                            </ul>
+                          </div>
+                        )}
+                      </section>
+                    )}
+
                     {!!selectedFullscreenPaper.note_content && (
                       <section>
-                        <h4 className="mb-1.5 text-xs font-semibold text-gray-300">내 메모</h4>
-                        <p className="whitespace-pre-wrap rounded-lg border border-gray-700 bg-gray-800/70 p-3 text-sm leading-6 text-gray-200">
-                          {selectedFullscreenPaper.note_content}
-                        </p>
+                        <h4 className="mb-1.5 text-xs font-semibold text-gray-300">??嶺뚮∥???/h4>
+                        <div className="rounded-lg border border-gray-700 bg-gray-800/70 p-3">
+                          <MarkdownContent
+                            content={selectedFullscreenPaper.note_content}
+                            className="text-sm leading-6 text-gray-200"
+                          />
+                        </div>
                       </section>
                     )}
 
                     <section className="space-y-2 pt-1">
+                      <button
+                        type="button"
+                        onClick={() => handleRemovePaperFromMap(selectedFullscreenPaper.id)}
+                        className="inline-flex w-full items-center justify-center gap-2 rounded-lg border border-red-500/60 px-4 py-2.5 text-sm font-semibold text-red-200 transition hover:bg-red-500/10"
+                      >
+                        <X className="h-4 w-4" />
+                        筌띾벊肉????볤탢
+                      </button>
                       <Link
                         href={`/paper/${selectedFullscreenPaper.id}`}
                         className="inline-flex w-full items-center justify-center gap-2 rounded-lg bg-blue-600 px-4 py-2.5 text-sm font-semibold text-white transition hover:bg-blue-500"
                       >
-                        상세보기로 이동
-                      </Link>
+                        ??⑤㈇??솻洹ｋ뼬?깃꼍???????                      </Link>
                       <div className="flex gap-2">
                         {selectedFullscreenPaper.pdf_url && (
                           <a
@@ -392,19 +539,19 @@ export default function DashboardPage() {
             <button
               type="button"
               className="absolute inset-0 bg-black/45"
-              aria-label="닫기"
+              aria-label="???뗢뵛"
               onClick={() => setIsFavoritesModalOpen(false)}
             />
             <div
               role="dialog"
               aria-modal="true"
-              aria-label="즐겨찾기 논문 목록"
+              aria-label="嶺뚯빖횧?곗눦???롡뵛 ??寃?嶺뚮ㅄ維뽨빳?
               className="relative max-h-[80vh] w-full max-w-2xl overflow-hidden rounded-2xl border border-gray-200 bg-white shadow-2xl dark:border-gray-700 dark:bg-gray-900"
             >
               <div className="flex items-center justify-between border-b border-gray-200 px-5 py-3 dark:border-gray-700">
                 <div>
-                  <p className="text-sm font-bold text-gray-900 dark:text-gray-100">즐겨찾기 논문</p>
-                  <p className="text-xs text-gray-500 dark:text-gray-400">{favoritePapers.length}개</p>
+                  <p className="text-sm font-bold text-gray-900 dark:text-gray-100">嶺뚯빖횧?곗눦???롡뵛 ??寃?/p>
+                  <p className="text-xs text-gray-500 dark:text-gray-400">{favoritePapers.length}揶?/p>
                 </div>
                 <button
                   onClick={() => setIsFavoritesModalOpen(false)}
@@ -417,7 +564,7 @@ export default function DashboardPage() {
               <div className="max-h-[calc(80vh-72px)] space-y-2 overflow-auto p-4">
                 {favoritePapers.length === 0 ? (
                   <p className="rounded-lg bg-gray-50 px-4 py-6 text-center text-sm text-gray-500 dark:bg-gray-800 dark:text-gray-400">
-                    등록된 즐겨찾기 논문이 없습니다.
+                    ?繹먮굞夷??嶺뚯빖횧?곗눦???롡뵛 ??寃????怨룸????덈펲.
                   </p>
                 ) : (
                   favoritePapers.map((paper) => (
@@ -433,7 +580,7 @@ export default function DashboardPage() {
                           style={{ backgroundColor: paper.color_hex }}
                         />
                         <span className="text-xs font-semibold text-gray-500 dark:text-gray-400">
-                          {paper.year} · {getPaperCategoryLabel(paper)}
+                          {paper.year} 鸚?{getPaperCategoryLabel(paper)}
                         </span>
                       </div>
                       <p className="line-clamp-2 text-sm font-semibold text-gray-900 dark:text-gray-100">
@@ -450,3 +597,6 @@ export default function DashboardPage() {
     </MainLayout>
   );
 }
+
+
+
