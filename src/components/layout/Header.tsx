@@ -79,9 +79,6 @@ export default function Header({ onSearchClick }: HeaderProps = {}) {
           <HeaderLink href="/my-research" active={pathname === '/my-research'}>
             내 연구
           </HeaderLink>
-          <HeaderLink href="/quant-study" active={pathname === '/quant-study'}>
-            양자화 연구
-          </HeaderLink>
           <HeaderLink href="/qual-exam" active={pathname === '/qual-exam'}>
             논자시 준비
           </HeaderLink>
@@ -165,13 +162,6 @@ export default function Header({ onSearchClick }: HeaderProps = {}) {
               active={pathname === '/my-research'}
             >
               내 연구
-            </MobileHeaderLink>
-            <MobileHeaderLink
-              href="/quant-study"
-              onClick={() => setMobileMenuOpen(false)}
-              active={pathname === '/quant-study'}
-            >
-              양자화 연구
             </MobileHeaderLink>
             <MobileHeaderLink
               href="/qual-exam"

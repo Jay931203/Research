@@ -51,28 +51,35 @@ import { useAppStore } from '@/store/useAppStore';
 import katex from 'katex';
 
 /* ------------------------------------------------------------------ */
-/*  Paper-specific Infographic Registry                                */
+/*  Full rich study components (arxiv_id → full study page content)   */
 /* ------------------------------------------------------------------ */
 
-const IncoherenceVizDynamic = dynamic(
-  () => import('@/components/quant-study/IncoherenceViz'),
+const QuIPStudyFull = dynamic(
+  () => import('@/components/quant-study/QuIPStudyFull'),
   { ssr: false },
 );
-const E8LatticeVizDynamic = dynamic(
-  () => import('@/components/quant-study/E8LatticeViz'),
+const QuIPSharpStudyFull = dynamic(
+  () => import('@/components/quant-study/QuIPSharpStudyFull'),
   { ssr: false },
 );
-const AddQuantVizDynamic = dynamic(
-  () => import('@/components/quant-study/AddQuantViz'),
+const AQLMStudyFull = dynamic(
+  () => import('@/components/quant-study/AQLMStudyFull'),
   { ssr: false },
 );
 
-// arxiv_id → interactive infographic component
-const INFOGRAPHIC_REGISTRY: Record<string, React.ComponentType> = {
-  '2307.13304': IncoherenceVizDynamic,  // QuIP
-  '2402.04396': E8LatticeVizDynamic,   // QuIP#
-  '2401.06118': AddQuantVizDynamic,    // AQLM
+// arxiv_id → full study content (replaces generic template for these papers)
+const FULL_STUDY_REGISTRY: Record<string, React.ComponentType> = {
+  '2307.13304': QuIPStudyFull,       // QuIP
+  '2402.04396': QuIPSharpStudyFull,  // QuIP#
+  '2401.06118': AQLMStudyFull,       // AQLM
 };
+
+/* ------------------------------------------------------------------ */
+/*  Paper-specific Infographic Registry (non-full-study papers)        */
+/* ------------------------------------------------------------------ */
+
+// arxiv_id → small inline infographic component
+const INFOGRAPHIC_REGISTRY: Record<string, React.ComponentType> = {};
 
 /* ------------------------------------------------------------------ */
 /*  ToC Sections config                                                */
@@ -487,6 +494,7 @@ export default function PaperStudyPage() {
   const algorithms = paper.algorithms ?? [];
   const algorithmSteps = algorithms.map((algo, idx) => parseAlgorithmStep(algo, idx));
   const PaperInfographic = paper.arxiv_id ? (INFOGRAPHIC_REGISTRY[paper.arxiv_id] ?? null) : null;
+  const FullStudyComponent = paper.arxiv_id ? (FULL_STUDY_REGISTRY[paper.arxiv_id] ?? null) : null;
   const archTags = (paper.tags ?? []).filter(hasArchKeyword);
   const inferredResearchTopic = inferResearchTopic(paper);
   const categoryArchHint =
@@ -498,6 +506,25 @@ export default function PaperStudyPage() {
   /* ================================================================ */
   /*  Render                                                           */
   /* ================================================================ */
+
+  /* ---- Full rich study view for select papers ---- */
+  if (FullStudyComponent) {
+    return (
+      <div className="min-h-screen bg-gray-50 dark:bg-gray-950">
+        <Header />
+        <div className="fixed left-0 top-16 z-40 h-0.5 bg-blue-500 transition-all" style={{ width: `${scrollProgress}%` }} />
+        <main className="mx-auto max-w-4xl px-4 py-8 sm:px-6">
+          <div className="mb-6">
+            <Link href="/dashboard" className="inline-flex items-center gap-1.5 text-sm text-gray-500 hover:text-gray-900 dark:text-gray-400 dark:hover:text-gray-100">
+              <ArrowLeft className="h-4 w-4" />
+              대시보드로 돌아가기
+            </Link>
+          </div>
+          <FullStudyComponent />
+        </main>
+      </div>
+    );
+  }
 
   return (
     <div className="min-h-screen bg-gray-50 dark:bg-gray-950">

@@ -1,6 +1,7 @@
 'use client';
 
-import { useCallback, useEffect, useMemo, useRef, useState } from 'react';
+import { useCallback, useEffect, useMemo, useRef, useState, Suspense } from 'react';
+import { useSearchParams } from 'next/navigation';
 import {
   BarChart2,
   BookOpen,
@@ -1360,8 +1361,12 @@ function bin(n: number): number { return n; } // just used for & operator
 /*  Main Page                                                    */
 /* ───────────────────────────────────────────────────────────── */
 
-export default function QuantStudyPage() {
-  const [activeTab, setActiveTab] = useState<PaperKey>('quip');
+function QuantStudyPageInner() {
+  const searchParams = useSearchParams();
+  const tabParam = searchParams.get('tab') as PaperKey | null;
+  const [activeTab, setActiveTab] = useState<PaperKey>(
+    tabParam && ['quip', 'quipsharp', 'aqlm', 'compare'].includes(tabParam) ? tabParam : 'quip',
+  );
   const [scrollProgress, setScrollProgress] = useState(0);
   const [isTocCollapsed, setIsTocCollapsed] = useState(false);
   const [collapsed, setCollapsed] = useState<Record<string, boolean>>({});
@@ -1546,5 +1551,13 @@ export default function QuantStudyPage() {
         </main>
       </div>
     </div>
+  );
+}
+
+export default function QuantStudyPage() {
+  return (
+    <Suspense fallback={<div className="min-h-screen bg-gray-50 dark:bg-gray-950" />}>
+      <QuantStudyPageInner />
+    </Suspense>
   );
 }
