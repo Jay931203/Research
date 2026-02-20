@@ -1,5 +1,5 @@
 import Link from 'next/link';
-import { ArrowRight, BookOpen, GitBranch, GraduationCap } from 'lucide-react';
+import { ArrowRight, BookOpen, GitBranch, GraduationCap, Layers } from 'lucide-react';
 
 const cards = [
   {
@@ -27,6 +27,14 @@ const cards = [
     tag: '시험 준비',
     highlight: true,
   },
+  {
+    href: '/coursework',
+    title: '코스웍',
+    description: '수강 과목 목록.',
+    icon: <Layers className="h-6 w-6 text-teal-600" />,
+    accent: 'hover:ring-teal-200/50 dark:hover:ring-teal-500/20',
+    tag: '과목 정리',
+  },
 ];
 
 export default function HomePage() {
@@ -49,7 +57,7 @@ export default function HomePage() {
           </Link>
         </section>
 
-        <section className="grid gap-4 sm:grid-cols-3">
+        <section className="grid gap-4 sm:grid-cols-2">
           {cards.map((card) => (
             <Link
               key={card.href}
