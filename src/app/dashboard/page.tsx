@@ -605,21 +605,23 @@ export default function DashboardPage() {
                 </Link>
               </div>
               <div className="flex-1 overflow-y-auto">
-                <div className="space-y-4 p-4">
+                <div className="space-y-5 p-4">
                   {selectedFullscreenPaper.abstract && (
                     <section>
-                      <h4 className="mb-1.5 text-xs font-semibold text-gray-500 dark:text-gray-400">초록</h4>
-                      <p className="line-clamp-6 text-sm leading-relaxed text-gray-700 dark:text-gray-300">
-                        {selectedFullscreenPaper.abstract}
-                      </p>
+                      <h4 className="mb-1.5 text-xs font-semibold text-gray-600 dark:text-gray-300">초록</h4>
+                      <MarkdownContent
+                        content={selectedFullscreenPaper.abstract}
+                        className="text-sm leading-6 text-gray-700 dark:text-gray-200"
+                      />
                     </section>
                   )}
+
                   {!!selectedFullscreenPaper.key_contributions?.length && (
                     <section>
-                      <h4 className="mb-1.5 text-xs font-semibold text-gray-500 dark:text-gray-400">핵심 기여</h4>
-                      <ul className="space-y-1.5">
-                        {selectedFullscreenPaper.key_contributions.slice(0, 3).map((item, idx) => (
-                          <li key={`nonfs-contrib-${idx}`} className="flex gap-2 text-sm text-gray-700 dark:text-gray-300">
+                      <h4 className="mb-1.5 text-xs font-semibold text-gray-600 dark:text-gray-300">핵심 기여</h4>
+                      <ul className="space-y-1.5 text-sm text-gray-700 dark:text-gray-200">
+                        {selectedFullscreenPaper.key_contributions.map((item, idx) => (
+                          <li key={`nonfs-contribution-${idx}`} className="flex gap-2">
                             <span className="mt-[7px] h-1.5 w-1.5 flex-shrink-0 rounded-full bg-blue-400" />
                             <span>{item}</span>
                           </li>
@@ -627,30 +629,140 @@ export default function DashboardPage() {
                       </ul>
                     </section>
                   )}
-                  <div className="flex gap-2 pt-1">
-                    {selectedFullscreenPaper.pdf_url && (
-                      <a
-                        href={selectedFullscreenPaper.pdf_url}
-                        target="_blank"
-                        rel="noopener noreferrer"
-                        className="inline-flex flex-1 items-center justify-center gap-1.5 rounded-lg border border-gray-200 px-3 py-2 text-xs font-semibold text-gray-600 transition hover:bg-gray-50 dark:border-gray-700 dark:text-gray-300 dark:hover:bg-gray-800"
-                      >
-                        <ExternalLink className="h-3.5 w-3.5" />
-                        PDF
-                      </a>
-                    )}
-                    {selectedFullscreenPaper.code_url && (
-                      <a
-                        href={selectedFullscreenPaper.code_url}
-                        target="_blank"
-                        rel="noopener noreferrer"
-                        className="inline-flex flex-1 items-center justify-center gap-1.5 rounded-lg border border-gray-200 px-3 py-2 text-xs font-semibold text-gray-600 transition hover:bg-gray-50 dark:border-gray-700 dark:text-gray-300 dark:hover:bg-gray-800"
-                      >
-                        <ExternalLink className="h-3.5 w-3.5" />
-                        Code
-                      </a>
-                    )}
-                  </div>
+
+                  {!!selectedFullscreenPaper.algorithms?.length && (
+                    <section>
+                      <h4 className="mb-1.5 text-xs font-semibold text-gray-600 dark:text-gray-300">알고리즘</h4>
+                      <ul className="space-y-1.5 text-sm text-gray-700 dark:text-gray-200">
+                        {selectedFullscreenPaper.algorithms.map((item, idx) => (
+                          <li key={`nonfs-algorithm-${idx}`} className="flex gap-2">
+                            <span className="mt-[7px] h-1.5 w-1.5 flex-shrink-0 rounded-full bg-violet-400" />
+                            <div className="min-w-0 flex-1">
+                              <MarkdownContent
+                                content={item}
+                                className="text-sm leading-6 text-gray-700 dark:text-gray-200"
+                              />
+                            </div>
+                          </li>
+                        ))}
+                      </ul>
+                    </section>
+                  )}
+
+                  {!!selectedFullscreenPaper.architecture_detail && (
+                    <section>
+                      <h4 className="mb-1.5 text-xs font-semibold text-gray-600 dark:text-gray-300">아키텍처 상세</h4>
+                      <div className="rounded-lg border border-gray-200 bg-gray-50 p-3 dark:border-gray-700 dark:bg-gray-800/60">
+                        <MarkdownContent
+                          content={selectedFullscreenPaper.architecture_detail}
+                          className="text-sm leading-6 text-gray-800 dark:text-gray-100"
+                        />
+                      </div>
+                    </section>
+                  )}
+
+                  {!!selectedFullscreenPaper.key_equations?.length && (
+                    <section>
+                      <h4 className="mb-1.5 text-xs font-semibold text-gray-600 dark:text-gray-300">핵심 수식</h4>
+                      <PaperEquations equations={selectedFullscreenPaper.key_equations as any} forceLight />
+                    </section>
+                  )}
+
+                  {(selectedFullscreenPaper.difficulty_level ||
+                    selectedFullscreenPaper.prerequisites?.length ||
+                    selectedFullscreenPaper.learning_objectives?.length ||
+                    selectedFullscreenPaper.self_check_questions?.length) && (
+                    <section className="space-y-3">
+                      <h4 className="text-xs font-semibold text-gray-600 dark:text-gray-300">학습 가이드</h4>
+
+                      {selectedFullscreenPaper.difficulty_level && (
+                        <p className="text-sm text-gray-700 dark:text-gray-200">
+                          난이도: <span className="font-semibold">{selectedFullscreenPaper.difficulty_level}</span>
+                        </p>
+                      )}
+
+                      {!!selectedFullscreenPaper.prerequisites?.length && (
+                        <div>
+                          <p className="mb-1 text-xs font-semibold text-gray-500 dark:text-gray-400">선행 지식</p>
+                          <ul className="space-y-1.5 text-sm text-gray-700 dark:text-gray-200">
+                            {selectedFullscreenPaper.prerequisites.map((item, idx) => (
+                              <li key={`nonfs-prereq-${idx}`} className="flex gap-2">
+                                <span className="mt-[7px] h-1.5 w-1.5 flex-shrink-0 rounded-full bg-emerald-400" />
+                                <span>{item}</span>
+                              </li>
+                            ))}
+                          </ul>
+                        </div>
+                      )}
+
+                      {!!selectedFullscreenPaper.learning_objectives?.length && (
+                        <div>
+                          <p className="mb-1 text-xs font-semibold text-gray-500 dark:text-gray-400">학습 목표</p>
+                          <ul className="space-y-1.5 text-sm text-gray-700 dark:text-gray-200">
+                            {selectedFullscreenPaper.learning_objectives.map((item, idx) => (
+                              <li key={`nonfs-objective-${idx}`} className="flex gap-2">
+                                <span className="mt-[7px] h-1.5 w-1.5 flex-shrink-0 rounded-full bg-cyan-400" />
+                                <span>{item}</span>
+                              </li>
+                            ))}
+                          </ul>
+                        </div>
+                      )}
+
+                      {!!selectedFullscreenPaper.self_check_questions?.length && (
+                        <div>
+                          <p className="mb-1 text-xs font-semibold text-gray-500 dark:text-gray-400">셀프 체크 질문</p>
+                          <ul className="space-y-1.5 text-sm text-gray-700 dark:text-gray-200">
+                            {selectedFullscreenPaper.self_check_questions.map((item, idx) => (
+                              <li key={`nonfs-check-${idx}`} className="flex gap-2">
+                                <span className="mt-[7px] h-1.5 w-1.5 flex-shrink-0 rounded-full bg-amber-400" />
+                                <span>{item}</span>
+                              </li>
+                            ))}
+                          </ul>
+                        </div>
+                      )}
+                    </section>
+                  )}
+
+                  {!!selectedFullscreenPaper.note_content && (
+                    <section>
+                      <h4 className="mb-1.5 text-xs font-semibold text-gray-600 dark:text-gray-300">노트</h4>
+                      <div className="rounded-lg border border-gray-200 bg-gray-50 p-3 dark:border-gray-700 dark:bg-gray-800/70">
+                        <MarkdownContent
+                          content={selectedFullscreenPaper.note_content}
+                          className="text-sm leading-6 text-gray-700 dark:text-gray-200"
+                        />
+                      </div>
+                    </section>
+                  )}
+
+                  <section className="pt-1">
+                    <div className="flex gap-2">
+                      {selectedFullscreenPaper.pdf_url && (
+                        <a
+                          href={selectedFullscreenPaper.pdf_url}
+                          target="_blank"
+                          rel="noopener noreferrer"
+                          className="inline-flex flex-1 items-center justify-center gap-1.5 rounded-lg border border-gray-200 px-3 py-2 text-xs font-semibold text-gray-600 transition hover:bg-gray-50 dark:border-gray-600 dark:text-gray-200 dark:hover:bg-gray-800"
+                        >
+                          <ExternalLink className="h-3.5 w-3.5" />
+                          PDF
+                        </a>
+                      )}
+                      {selectedFullscreenPaper.code_url && (
+                        <a
+                          href={selectedFullscreenPaper.code_url}
+                          target="_blank"
+                          rel="noopener noreferrer"
+                          className="inline-flex flex-1 items-center justify-center gap-1.5 rounded-lg border border-gray-200 px-3 py-2 text-xs font-semibold text-gray-600 transition hover:bg-gray-50 dark:border-gray-600 dark:text-gray-200 dark:hover:bg-gray-800"
+                        >
+                          <ExternalLink className="h-3.5 w-3.5" />
+                          Code
+                        </a>
+                      )}
+                    </div>
+                  </section>
                 </div>
               </div>
             </aside>
