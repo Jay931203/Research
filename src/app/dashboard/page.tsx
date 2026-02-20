@@ -171,7 +171,7 @@ export default function DashboardPage() {
       },
       {
         key: 'recent',
-        label: '최근 2주',
+        label: '최근 2년',
         value: countRecentPapers(papers, 2),
         icon: <Link2 className="h-4 w-4 text-violet-600 dark:text-violet-400" />,
         iconBg: 'bg-violet-100 dark:bg-violet-900/30',
