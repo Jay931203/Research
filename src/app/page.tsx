@@ -1,5 +1,5 @@
 import Link from 'next/link';
-import { ArrowRight, BookOpen, Database, GitBranch } from 'lucide-react';
+import { ArrowRight, BookOpen, GitBranch } from 'lucide-react';
 
 const cards = [
   {
@@ -13,12 +13,6 @@ const cards = [
     title: '용어집',
     description: '핵심 기술 용어의 정의와 관련 논문을 집합별로 빠르게 확인합니다.',
     icon: <BookOpen className="h-6 w-6 text-violet-600" />,
-  },
-  {
-    href: '/import',
-    title: '데이터 관리',
-    description: '논문/관계 데이터를 안전하게 병합하고 상태를 확인합니다.',
-    icon: <Database className="h-6 w-6 text-emerald-600" />,
   },
 ];
 
@@ -46,16 +40,10 @@ export default function HomePage() {
               대시보드 열기
               <ArrowRight className="h-4 w-4" />
             </Link>
-            <Link
-              href="/import"
-              className="inline-flex items-center gap-2 rounded-lg border border-slate-200 bg-white/90 px-4 py-2.5 text-sm font-semibold text-slate-700 shadow-sm transition hover:bg-white hover:border-slate-300 hover:shadow dark:border-slate-700 dark:bg-slate-900/70 dark:text-slate-200 dark:hover:bg-slate-800"
-            >
-              데이터 관리
-            </Link>
           </div>
         </section>
 
-        <section className="grid gap-4 md:grid-cols-3">
+        <section className="grid gap-4 md:grid-cols-2">
           {cards.map((card) => (
             <Link
               key={card.href}
