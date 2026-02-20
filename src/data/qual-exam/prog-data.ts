@@ -1,6 +1,6 @@
 import type { StudyTopic } from '@/components/qual-exam/TopicStudyCard';
 import type { ExamProblem } from '@/components/qual-exam/ExamProblemCard';
-import type { QuizQuestion } from '@/components/qual-exam/PracticeQuiz';
+import type { QuizQuestion } from '@/components/qual-exam/PracticeList';
 
 /* ═══════════════════════════════════════════════════
    PROGRAMMING TOPICS (프로그래밍의 기초)
@@ -13,6 +13,9 @@ export const PROG_TOPICS: StudyTopic[] = [
     icon: '🏗️',
     difficulty: 'basic',
     examFrequency: 3,
+    studyOrder: 1,
+    summary: '클래스는 데이터(멤버 변수)와 동작(멤버 함수)의 묶음. public/private/protected 접근 제어, 생성자 초기화 리스트.',
+    relatedExamIds: ['prog-2025-1-1'],
     keyPoints: [
       '클래스: 데이터(멤버 변수)와 동작(멤버 함수)의 묶음',
       '생성자: 객체 초기화, 소멸자: 자원 해제',
@@ -62,6 +65,9 @@ public:
     icon: '⚙️',
     difficulty: 'intermediate',
     examFrequency: 5,
+    studyOrder: 2,
+    summary: 'Rule of Three: 포인터 멤버 → 소멸자+복사생성자+복사대입 연산자를 직접 정의. 얕은 복사 → double-free 위험!',
+    relatedExamIds: ['prog-2024-2-2', 'prog-2022-2-1'],
     keyPoints: [
       'Rule of Three: 소멸자, 복사 생성자, 복사 대입 연산자 — 셋 중 하나를 정의하면 나머지도 정의해야 함',
       '얕은 복사(Shallow Copy): 포인터만 복사 → 더블 프리(double-free) 위험!',
@@ -122,6 +128,9 @@ Student(const Student& other) : id_(other.id_) {
     icon: '🔄',
     difficulty: 'advanced',
     examFrequency: 5,
+    studyOrder: 4,
+    summary: 'virtual → 런타임 디스패치(vtable). non-virtual → 포인터 타입 기준 정적 바인딩. 가상 소멸자는 필수!',
+    relatedExamIds: ['prog-2024-2-1', 'prog-2020-2-1', 'prog-2021-2-1'],
     keyPoints: [
       'virtual 키워드: 런타임 다형성 지원 (동적 디스패치)',
       '순수 가상 함수: virtual void f() = 0; → 추상 클래스',
@@ -188,6 +197,9 @@ struct Circle : public Shape {
     icon: '💾',
     difficulty: 'intermediate',
     examFrequency: 5,
+    studyOrder: 3,
+    summary: 'new/delete[], 포인터 역참조(*), 포인터 산술. Off-by-one 오류, 포인터 swap 함정에 주의.',
+    relatedExamIds: ['prog-2025-2-2', 'prog-2024-1-1', 'prog-2022-1-1', 'prog-2021-1-1'],
     keyPoints: [
       'new/delete: 힙 메모리 동적 할당/해제',
       'delete vs delete[]: 배열은 반드시 delete[]',
@@ -262,6 +274,9 @@ delete[] arr;  // 배열은 delete[] !`,
     icon: '🧬',
     difficulty: 'advanced',
     examFrequency: 4,
+    studyOrder: 8,
+    summary: 'template<typename T>로 타입 일반화. 컴파일 타임 인스턴스화. T가 필요한 연산(+=, <<)을 지원해야 함.',
+    relatedExamIds: ['prog-2025-1-2'],
     keyPoints: [
       'template<typename T>: 타입 파라미터화',
       '클래스 템플릿: 임의의 타입으로 동작하는 컨테이너',
@@ -321,6 +336,9 @@ public:
     icon: '🔗',
     difficulty: 'intermediate',
     examFrequency: 4,
+    studyOrder: 6,
+    summary: '소멸자에서 모든 노드 delete. append()는 앞에 추가(prepend). reverseHelper()는 재귀로 링크 방향 뒤집기.',
+    relatedExamIds: ['prog-2025-1-1', 'prog-2020-2-1'],
     keyPoints: [
       '소멸자에서 모든 노드 순회하여 delete',
       '재귀적 뒤집기: reverseHelper(node, prev)',
@@ -409,6 +427,9 @@ Node* LinkedList::reverseHelper(Node* node, Node* prev) {
     icon: '📚',
     difficulty: 'basic',
     examFrequency: 4,
+    studyOrder: 7,
+    summary: 'Stack: top=-1, push→arr[++top], pop→arr[top--]. Queue: front/rear, enqueue→arr[rear++], dequeue→arr[front++].',
+    relatedExamIds: ['prog-2025-2-3'],
     keyPoints: [
       'Stack: LIFO, top 포인터 (배열 기반: top=-1)',
       'Queue: FIFO, front/rear 포인터 (배열 기반)',
@@ -498,6 +519,9 @@ int dequeue() {
     icon: '🎭',
     difficulty: 'advanced',
     examFrequency: 5,
+    studyOrder: 5,
+    summary: 'clone() 패턴으로 다형적 깊은 복사. vector<Shape*>에서 add()는 s.clone() 사용. 소멸자에서 delete v[i].',
+    relatedExamIds: ['prog-2025-2-1', 'prog-2021-2-1', 'prog-2022-2-1', 'prog-2023-1-1'],
     keyPoints: [
       'clone() 패턴: 파생 클래스의 동적 복사',
       'Scene 클래스: vector<Shape*>로 다형성 컨테이너',
@@ -1355,6 +1379,580 @@ C = items[0], items[1], ... = 16, 9, 28, 12, 1`
       },
     ],
     tags: ['포인터', '포인터산술', '버블정렬', '포인터배열', 'swap'],
+  },
+
+  /* ── 2020 2학기 ─────────────────────────────── */
+  {
+    id: 'prog-2020-2-1',
+    year: '2020',
+    semester: '2',
+    subject: 'prog',
+    problemNumber: 1,
+    totalPoints: 50,
+    category: '가상 함수 & 포인터',
+    title: '가상 함수 출력 추적 + 연결 리스트 포인터',
+    codeBlock: `// Part A: 가상 함수 추적
+class A {
+public:
+    virtual void foo() { cout << "A::foo" << endl; }
+    void bar() { foo(); cout << "A::bar" << endl; }
+};
+class B : public A {
+public:
+    void foo() { cout << "B::foo" << endl; }
+};
+
+// Part B: 포인터와 연결 리스트
+struct Node { int data; Node* next; };
+
+Node* create(int v) {
+    Node* n = new Node();
+    n->data = v; n->next = nullptr;
+    return n;
+}`,
+    description: '가상 함수 동적 디스패치와 연결 리스트 포인터를 분석합니다.',
+    subQuestions: [
+      {
+        label: 'A', points: 25,
+        text: `[25pts] 다음 코드의 출력을 쓰시오.
+B b;
+A* p = &b;
+p->foo();
+p->bar();`,
+        answer: `출력:
+B::foo
+B::foo
+A::bar
+
+분석:
+■ p->foo():
+  foo()는 virtual → 실제 객체 B의 foo() → "B::foo"
+
+■ p->bar():
+  bar()는 non-virtual → A::bar() 실행
+  A::bar() 내부: foo() 호출 → foo()는 virtual
+  실제 객체가 B이므로 B::foo() → "B::foo"
+  그 다음: "A::bar"`,
+      },
+      {
+        label: 'B', points: 25,
+        text: `[25pts] 연결 리스트 1→2→3을 만들고 역순(3→2→1)으로 출력하는 코드를 작성하시오. (재귀 사용)`,
+        answer: `// 재귀적 역순 출력
+void printReverse(Node* head) {
+    if (head == nullptr) return;
+    printReverse(head->next);  // 나머지를 먼저 출력
+    cout << head->data << " ";
+}
+
+int main() {
+    Node* head = create(1);
+    head->next = create(2);
+    head->next->next = create(3);
+    printReverse(head);  // 출력: 3 2 1
+    return 0;
+}
+
+동작 원리:
+printReverse(1→2→3):
+  printReverse(2→3):
+    printReverse(3→null):
+      printReverse(null): return
+      출력: 3
+    출력: 2
+  출력: 1
+→ 출력 순서: 3 2 1`,
+      },
+    ],
+    tags: ['가상함수', '동적디스패치', '연결리스트', '재귀', '역순출력'],
+  },
+
+  /* ── 2021 1학기 ─────────────────────────────── */
+  {
+    id: 'prog-2021-1-1',
+    year: '2021',
+    semester: '1',
+    subject: 'prog',
+    problemNumber: 1,
+    totalPoints: 50,
+    category: '재귀 & 동적 메모리',
+    title: '파스칼 삼각형 재귀 + 동적 2D 메모리',
+    codeBlock: `// Part A: 파스칼 삼각형
+int pascal(int row, int col) {
+    if (col == 0 || col == row) return 1;
+    return pascal(row-1, col-1) + pascal(row-1, col);
+}
+
+// Part B: 2D 동적 메모리
+int** allocate2D(int rows, int cols) {
+    int** arr = new int*[rows];
+    for (int i = 0; i < rows; i++)
+        arr[i] = new int[cols];
+    return arr;
+}
+
+void deallocate2D(int** arr, int rows) {
+    for (int i = 0; i < rows; i++)
+        delete[] arr[i];
+    delete[] arr;
+}`,
+    description: '파스칼 삼각형 재귀 구현과 2D 동적 메모리 할당/해제 분석.',
+    subQuestions: [
+      {
+        label: '1', points: 20,
+        text: '(1) pascal(4, 2)의 재귀 호출 트리를 그리고 최종 결과를 구하시오.',
+        answer: `pascal(4, 2) = pascal(3, 1) + pascal(3, 2)
+
+pascal(3, 1) = pascal(2, 0) + pascal(2, 1)
+  pascal(2, 0) = 1  (base case)
+  pascal(2, 1) = pascal(1, 0) + pascal(1, 1)
+    pascal(1, 0) = 1
+    pascal(1, 1) = 1
+    → pascal(2, 1) = 2
+  → pascal(3, 1) = 1 + 2 = 3
+
+pascal(3, 2) = pascal(2, 1) + pascal(2, 2)
+  pascal(2, 1) = 2  (위에서 계산)
+  pascal(2, 2) = 1  (base case)
+  → pascal(3, 2) = 2 + 1 = 3
+
+pascal(4, 2) = 3 + 3 = 6
+
+파스칼 삼각형 4행 2열:
+      1
+     1 1
+    1 2 1
+   1 3 3 1
+  1 4 6 4 1  ← 4행 2열 = 6 ✓`,
+      },
+      {
+        label: '2', points: 30,
+        text: '(2) 3×4 2D 동적 배열을 할당하고 값을 채운 뒤, 올바르게 해제하는 전체 코드를 작성하시오. 각 단계에서 발생할 수 있는 메모리 오류를 설명하시오.',
+        answer: `int main() {
+    int rows = 3, cols = 4;
+
+    // 1. 할당
+    int** arr = new int*[rows];    // 포인터 배열
+    for (int i = 0; i < rows; i++)
+        arr[i] = new int[cols];    // 각 행 배열
+
+    // 2. 초기화
+    for (int i = 0; i < rows; i++)
+        for (int j = 0; j < cols; j++)
+            arr[i][j] = i * cols + j;
+
+    // 3. 출력
+    for (int i = 0; i < rows; i++) {
+        for (int j = 0; j < cols; j++)
+            cout << arr[i][j] << " ";
+        cout << endl;
+    }
+
+    // 4. 해제 (역순: 행 배열 먼저, 포인터 배열 마지막)
+    for (int i = 0; i < rows; i++)
+        delete[] arr[i];   // 각 행 해제
+    delete[] arr;          // 포인터 배열 해제
+
+    return 0;
+}
+
+주의사항:
+• delete[] arr[i] 하지 않으면 각 행의 메모리 누수
+• delete arr 대신 delete[] arr 사용해야 함
+• 해제 순서 중요: 행 먼저, arr 나중에 (역순 할당)
+• arr[i] 해제 후 arr 접근 금지 (dangling pointer)`,
+      },
+    ],
+    tags: ['재귀', '파스칼삼각형', '동적메모리', '2D배열', 'delete[]'],
+  },
+
+  /* ── 2021 2학기 ─────────────────────────────── */
+  {
+    id: 'prog-2021-2-1',
+    year: '2021',
+    semester: '2',
+    subject: 'prog',
+    problemNumber: 1,
+    totalPoints: 50,
+    category: '가상 함수 & 타입캐스팅',
+    title: '타입 캐스팅 출력 + Figure/Circle 가상 함수',
+    codeBlock: `// Part A: 타입 캐스팅
+int a = 5, b = 2;
+double result = (double)a / b;
+
+// Part B: Figure/Circle
+class Figure {
+public:
+    virtual void draw() { cout << "Figure::draw" << endl; }
+    void show() { draw(); cout << "Figure::show" << endl; }
+};
+class Circle : public Figure {
+public:
+    double radius;
+    Circle(double r) : radius(r) {}
+    void draw() { cout << "Circle::draw r=" << radius << endl; }
+};`,
+    description: '정수/실수 나눗셈의 타입 캐스팅 결과와 가상 함수 동적 디스패치를 분석합니다.',
+    subQuestions: [
+      {
+        label: 'A', points: 20,
+        text: `[20pts] 다음 코드의 출력을 쓰시오.
+int a = 7, b = 2;
+cout << a / b << endl;          // (1)
+cout << (double)a / b << endl;  // (2)
+cout << (double)(a / b) << endl; // (3)`,
+        answer: `(1) 3
+정수 나눗셈: 7 / 2 = 3 (소수점 버림)
+
+(2) 3.5
+(double)a = 7.0, 7.0 / 2 = 3.5 (부동소수점 나눗셈)
+
+(3) 3
+먼저 a/b = 3 (정수 나눗셈), 그 다음 (double)3 = 3.0
+cout은 소수점 없이 3으로 출력 (기본 cout은 trailing zero 생략)
+※ 실제로는 3.0을 출력하지만 기본 포맷에서 3으로 보임`,
+      },
+      {
+        label: 'B', points: 30,
+        text: `[30pts] 다음 코드의 출력을 분석하시오.
+Circle c(5.0);
+Figure* p = &c;
+p->draw();
+p->show();
+c.show();`,
+        answer: `출력:
+Circle::draw r=5
+Circle::draw r=5
+Figure::show
+Circle::draw r=5
+Figure::show
+
+분석:
+■ p->draw():
+  draw()는 virtual → 실제 객체 Circle::draw() → "Circle::draw r=5"
+
+■ p->show():
+  show()는 non-virtual → Figure::show() 실행
+  내부 draw() 호출 → draw()는 virtual → Circle::draw() → "Circle::draw r=5"
+  → "Figure::show"
+
+■ c.show():
+  Circle* 객체 c에서 show() → non-virtual → Figure::show()
+  내부 draw() → virtual → Circle::draw() → "Circle::draw r=5"
+  → "Figure::show"`,
+      },
+    ],
+    tags: ['타입캐스팅', '정수나눗셈', '가상함수', '동적디스패치', 'non-virtual'],
+  },
+
+  /* ── 2022 1학기 ─────────────────────────────── */
+  {
+    id: 'prog-2022-1-1',
+    year: '2022',
+    semester: '1',
+    subject: 'prog',
+    problemNumber: 1,
+    totalPoints: 40,
+    category: '메모리 관리',
+    title: 'unsigned char 오버플로우 + malloc/free 오류 분석',
+    codeBlock: `#include <stdio.h>
+#include <stdlib.h>
+
+int sum_array(unsigned char* arr, int n) {
+    int total = 0;
+    for (int i = 0; i < n; i++)
+        total += arr[i];
+    return total;
+}
+
+int main() {
+    int N = 300;
+    unsigned char* data = (unsigned char*)malloc(N * sizeof(unsigned char));
+
+    for (int i = 0; i < N; i++)
+        data[i] = (unsigned char)(i % 256);
+
+    printf("Sum = %d\\n", sum_array(data, N));
+
+    free(data);
+    free(data);  // 의도적 오류
+    return 0;
+}`,
+    description: 'unsigned char 값 범위와 이중 해제(double-free) 오류를 분석합니다.',
+    subQuestions: [
+      {
+        label: '1', points: 20,
+        text: '[20pts] N=300일 때 sum_array()의 출력값을 계산하고, unsigned char의 값 범위로 인한 문제를 설명하시오.',
+        answer: `unsigned char 범위: 0 ~ 255
+
+data[i] = i % 256이므로:
+i=0: 0, i=1: 1, ..., i=255: 255,
+i=256: 256%256=0, i=257: 1, ..., i=299: 299%256=43
+
+N=300일 때:
+구간 [0..255]: 값 0~255, 합 = 255×256/2 = 32640
+구간 [256..299] (44개): 값 0~43, 합 = 43×44/2 = 946
+
+총 합 = 32640 + 946 = 33586
+
+하지만 N=100으로 변경하면 data[100]에서 정상 작동:
+합 = 0+1+...+99 = 99×100/2 = 4950
+
+주요 문제:
+• unsigned char의 최대값은 255
+• data[i] = (unsigned char)i → i가 256 이상이면 wrapping (0부터 재시작)
+• malloc에서 N=300이면 300바이트만 할당 → 정상 범위 내
+• 하지만 값이 0~255 사이로 제한됨
+
+N=1000으로 늘리면:
+• malloc(1000) 자체는 가능
+• 값: 0~255가 반복 (1000 % 256 = 232개의 패턴)`,
+      },
+      {
+        label: '2', points: 20,
+        text: '[20pts] 코드의 두 가지 버그를 찾고 수정하시오.',
+        answer: `버그 1: free(data)를 두 번 호출 (Double-Free)
+위치: main()의 마지막 두 줄
+문제: 이미 해제된 메모리를 다시 해제 → Undefined Behavior, 프로그램 크래시
+수정: 두 번째 free(data) 줄 삭제
+또는: free 후 data = NULL 로 안전하게 처리
+
+free(data);
+data = NULL;  // 이중 해제 방지
+
+버그 2: N=1000 시 잠재적 문제
+N이 매우 크면 malloc 실패 가능 (NULL 반환)
+수정: malloc 반환값 확인
+
+unsigned char* data = (unsigned char*)malloc(N * sizeof(unsigned char));
+if (data == NULL) {
+    fprintf(stderr, "malloc failed\\n");
+    return 1;
+}`,
+      },
+    ],
+    tags: ['unsigned char', 'overflow', 'malloc', 'free', 'double-free', '메모리관리'],
+  },
+
+  /* ── 2022 2학기 ─────────────────────────────── */
+  {
+    id: 'prog-2022-2-1',
+    year: '2022',
+    semester: '2',
+    subject: 'prog',
+    problemNumber: 1,
+    totalPoints: 50,
+    category: '상속 & 소멸자',
+    title: 'Cars/ImportedCars/DomesticCars 상속 + CarList 소멸자',
+    codeBlock: `class Cars {
+protected:
+    char* model_;
+    int year_;
+public:
+    Cars(const char* m, int y);
+    virtual ~Cars();
+    virtual void print() const;
+};
+
+class ImportedCars : public Cars {
+    char* country_;
+public:
+    ImportedCars(const char* m, int y, const char* c);
+    virtual ~ImportedCars();
+    void print() const override;
+};
+
+class DomesticCars : public Cars {
+public:
+    DomesticCars(const char* m, int y);
+    void print() const override;
+};
+
+class CarList {
+    Cars** list_;
+    int size_;
+    int capacity_;
+public:
+    CarList(int cap);
+    ~CarList();
+    void add(Cars* c);
+    void printAll() const;
+};`,
+    description: '자동차 상속 계층구조와 포인터 배열을 이용한 CarList 소멸자를 구현합니다.',
+    subQuestions: [
+      {
+        label: 'A', points: 25,
+        text: '[25pts] Cars, ImportedCars, DomesticCars의 생성자와 소멸자를 올바르게 구현하시오. (깊은 복사, 메모리 해제 포함)',
+        answer: `// Cars 생성자/소멸자
+Cars::Cars(const char* m, int y) : year_(y) {
+    model_ = new char[strlen(m) + 1];
+    strcpy(model_, m);
+}
+virtual Cars::~Cars() {
+    delete[] model_;
+}
+void Cars::print() const {
+    cout << "Model: " << model_ << ", Year: " << year_ << endl;
+}
+
+// ImportedCars
+ImportedCars::ImportedCars(const char* m, int y, const char* c) : Cars(m, y) {
+    country_ = new char[strlen(c) + 1];
+    strcpy(country_, c);
+}
+ImportedCars::~ImportedCars() {
+    delete[] country_;
+    // model_은 ~Cars()가 자동으로 해제
+}
+void ImportedCars::print() const {
+    Cars::print();
+    cout << "Country: " << country_ << endl;
+}
+
+// DomesticCars
+DomesticCars::DomesticCars(const char* m, int y) : Cars(m, y) {}
+// 소멸자: ~Cars()에서 model_ 해제하므로 추가 불필요
+void DomesticCars::print() const {
+    Cars::print();
+    cout << "(국산)" << endl;
+}`,
+      },
+      {
+        label: 'B', points: 25,
+        text: '[25pts] CarList 소멸자를 구현하고, add()와 printAll()을 완성하시오.',
+        answer: `CarList::CarList(int cap) : size_(0), capacity_(cap) {
+    list_ = new Cars*[cap];
+}
+
+// 소멸자: 각 Car 객체 delete
+CarList::~CarList() {
+    for (int i = 0; i < size_; i++)
+        delete list_[i];   // 가상 소멸자로 올바른 파생 소멸자 호출
+    delete[] list_;        // 포인터 배열 해제
+}
+
+void CarList::add(Cars* c) {
+    if (size_ < capacity_)
+        list_[size_++] = c;
+}
+
+void CarList::printAll() const {
+    for (int i = 0; i < size_; i++) {
+        list_[i]->print();  // 가상 함수 → 동적 디스패치
+        cout << "---" << endl;
+    }
+}
+
+// 사용 예:
+int main() {
+    CarList cl(10);
+    cl.add(new DomesticCars("Sonata", 2022));
+    cl.add(new ImportedCars("BMW 3", 2021, "Germany"));
+    cl.printAll();
+    return 0;
+}  // cl 소멸자 → 각 Cars* delete → 메모리 정상 해제`,
+      },
+    ],
+    tags: ['상속', '소멸자체인', '포인터배열', '가상소멸자', 'delete', 'Rule of Three'],
+  },
+
+  /* ── 2023 1학기 ─────────────────────────────── */
+  {
+    id: 'prog-2023-1-1',
+    year: '2023',
+    semester: '1',
+    subject: 'prog',
+    problemNumber: 1,
+    totalPoints: 40,
+    category: '재귀 & 포인터',
+    title: '소수 체(Prime Sieve) 출력 + 재귀 분석',
+    codeBlock: `#include <iostream>
+using namespace std;
+
+void sieve(bool* arr, int n) {
+    for (int i = 2; i <= n; i++)
+        arr[i] = true;
+    for (int i = 2; i * i <= n; i++) {
+        if (arr[i]) {
+            for (int j = i * i; j <= n; j += i)
+                arr[j] = false;
+        }
+    }
+}
+
+int countPrimes(bool* arr, int n) {
+    int d = 0;
+    for (int i = 2; i <= n; i++)
+        if (arr[i]) d++;
+    return d;
+}
+
+int main() {
+    const int N = 20;
+    bool arr[N + 1] = {};
+    sieve(arr, N);
+    int d = countPrimes(arr, N);
+    cout << "d = " << d << endl;
+
+    for (int i = 2; i <= N; i++)
+        if (arr[i]) cout << i << " ";
+    cout << endl;
+    return 0;
+}`,
+    description: '에라토스테네스의 체(소수 구하기) 알고리즘의 출력을 분석합니다.',
+    subQuestions: [
+      {
+        label: '1', points: 25,
+        text: '[25pts] N=20일 때 코드의 출력을 쓰시오. sieve() 이후 arr[2..20]의 상태를 표로 나타내시오.',
+        answer: `sieve(arr, 20) 실행:
+
+초기화: arr[2..20] = true
+
+i=2: 2²=4부터 짝수 제거
+  arr[4]=false, arr[6]=false, arr[8]=false, arr[10]=false,
+  arr[12]=false, arr[14]=false, arr[16]=false, arr[18]=false, arr[20]=false
+
+i=3: 3²=9부터 3의 배수 제거
+  arr[9]=false, arr[15]=false (arr[12] 이미 false)
+
+i=4: arr[4]=false → 스킵
+
+i=5: 5²=25>20 → 루프 종료
+
+최종 상태:
+index:  2  3  4  5  6  7  8  9 10 11 12 13 14 15 16 17 18 19 20
+arr[]:  T  T  F  T  F  T  F  F  F  T  F  T  F  F  F  T  F  T  F
+
+소수: 2, 3, 5, 7, 11, 13, 17, 19
+
+d = 8 (20 이하의 소수 개수)
+
+출력:
+d = 8
+2 3 5 7 11 13 17 19`,
+      },
+      {
+        label: '2', points: 15,
+        text: '[15pts] sieve() 알고리즘의 시간 복잡도를 O-notation으로 쓰고 이유를 설명하시오.',
+        answer: `시간 복잡도: O(n log log n)
+
+분석:
+외부 루프: i = 2 ~ √n
+내부 루프: i², i²+i, i²+2i, ... ≤ n → n/i번 실행
+
+총 연산 수:
+Σᵢ (소수) n/i  (i=2,3,5,7,...)
+
+소수 역수의 합: Σ (1/p for prime p ≤ n) = O(log log n)
+
+따라서 전체: n × O(log log n) = O(n log log n)
+
+실용적 의미:
+• n=1,000,000: log log n ≈ log(20) ≈ 4.3
+• 실제로 매우 빠른 알고리즘
+• 이중 루프처럼 보이지만 O(n²)가 아님에 주의!`,
+      },
+    ],
+    tags: ['소수', '에라토스테네스체', 'Sieve', 'O(n log log n)', '이중루프분석'],
   },
 ];
 

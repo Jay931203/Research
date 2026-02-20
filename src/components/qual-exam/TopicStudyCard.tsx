@@ -13,6 +13,13 @@ export interface StudyTopic {
   icon: string;
   difficulty: 'basic' | 'intermediate' | 'advanced';
   examFrequency: number;
+  // NEW fields (optional for backward compat)
+  studyOrder?: number;
+  summary?: string;
+  relatedExamIds?: string[];
+  mathFormulas?: Array<{ label: string; latex: string }>;
+  codeExamples?: Array<{ caption: string; language: string; code: string }>;
+  // existing fields
   keyPoints: string[];
   theory: string;
   complexityTable?: { operation: string; complexity: string; note?: string }[];

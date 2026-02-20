@@ -1,0 +1,256 @@
+'use client';
+import { useState } from 'react';
+import { Zap, BookOpen, Code2, AlertTriangle, FileText, PlayCircle } from 'lucide-react';
+import dynamic from 'next/dynamic';
+import MathBlock from './MathBlock';
+import PracticeList from './PracticeList';
+import ExamProblemCard from './ExamProblemCard';
+import type { StudyTopic } from './TopicStudyCard';
+import type { ExamProblem } from './ExamProblemCard';
+import type { QuizQuestion } from './PracticeList';
+
+const AlgoVisualizer = dynamic(() => import('./AlgoVisualizer'), { ssr: false });
+
+const difficultyLabel = { basic: '기초', intermediate: '중급', advanced: '고급' };
+const difficultyColor = {
+  basic: 'bg-emerald-50 text-emerald-700 border border-emerald-200 dark:bg-emerald-900/20 dark:text-emerald-300',
+  intermediate: 'bg-amber-50 text-amber-700 border border-amber-200 dark:bg-amber-900/20 dark:text-amber-300',
+  advanced: 'bg-red-50 text-red-700 border border-red-200 dark:bg-red-900/20 dark:text-red-300',
+};
+
+function SectionHeading({ icon, title }: { icon?: React.ReactNode; title: string }) {
+  return (
+    <div className="flex items-center gap-2 mb-3">
+      {icon && <span className="text-slate-400">{icon}</span>}
+      <h2 className="text-sm font-bold text-slate-700 dark:text-slate-200 uppercase tracking-wide">{title}</h2>
+      <div className="flex-1 h-px bg-slate-200 dark:bg-slate-700" />
+    </div>
+  );
+}
+
+interface Props {
+  topic: StudyTopic;
+  relatedExams: ExamProblem[];
+  practiceQuestions: QuizQuestion[];
+}
+
+export default function TopicDetail({ topic, relatedExams, practiceQuestions }: Props) {
+  const [showViz, setShowViz] = useState(false);
+
+  return (
+    <div className="max-w-3xl space-y-8 px-6 py-6">
+      {/* ── Header ─────────────────────────────────────── */}
+      <div className="flex items-start gap-4">
+        <span className="text-5xl leading-none">{topic.icon}</span>
+        <div>
+          <div className="flex flex-wrap items-center gap-2 mb-1">
+            <span className={`rounded-full px-2.5 py-0.5 text-[11px] font-bold ${difficultyColor[topic.difficulty]}`}>
+              {difficultyLabel[topic.difficulty]}
+            </span>
+            <div className="flex items-center gap-0.5">
+              {Array.from({ length: 5 }).map((_, i) => (
+                <svg key={i} className={`h-3.5 w-3.5 ${i < topic.examFrequency ? 'fill-amber-400 text-amber-400' : 'fill-slate-200 text-slate-200 dark:fill-slate-700 dark:text-slate-700'}`} viewBox="0 0 20 20">
+                  <path d="M9.049 2.927c.3-.921 1.603-.921 1.902 0l1.07 3.292a1 1 0 00.95.69h3.462c.969 0 1.371 1.24.588 1.81l-2.8 2.034a1 1 0 00-.364 1.118l1.07 3.292c.3.921-.755 1.688-1.54 1.118l-2.8-2.034a1 1 0 00-1.175 0l-2.8 2.034c-.784.57-1.838-.197-1.539-1.118l1.07-3.292a1 1 0 00-.364-1.118L2.98 8.72c-.783-.57-.38-1.81.588-1.81h3.461a1 1 0 00.951-.69l1.07-3.292z" />
+                </svg>
+              ))}
+              <span className="ml-1 text-[10px] text-slate-400">출제빈도</span>
+            </div>
+          </div>
+          <h1 className="text-2xl font-black text-slate-900 dark:text-slate-100">{topic.title}</h1>
+          <p className="text-sm text-slate-500 dark:text-slate-400 mt-0.5">{topic.titleEn}</p>
+          {(topic as { summary?: string }).summary && (
+            <p className="mt-2 text-sm text-slate-600 dark:text-slate-300 leading-relaxed">
+              {(topic as { summary?: string }).summary}
+            </p>
+          )}
+        </div>
+      </div>
+
+      {/* ── Key Points ─────────────────────────────────── */}
+      <section>
+        <SectionHeading icon={<Zap className="h-3.5 w-3.5" />} title="핵심 포인트" />
+        <ul className="space-y-2 rounded-xl border border-blue-100 bg-blue-50 p-4 dark:border-blue-900/30 dark:bg-blue-950/30">
+          {topic.keyPoints.map((pt, i) => (
+            <li key={i} className="flex items-start gap-2.5 text-sm text-blue-900 dark:text-blue-200 leading-relaxed">
+              <span className="mt-2 h-1.5 w-1.5 flex-shrink-0 rounded-full bg-blue-500" />
+              {pt}
+            </li>
+          ))}
+        </ul>
+      </section>
+
+      {/* ── Theory ─────────────────────────────────────── */}
+      <section>
+        <SectionHeading icon={<BookOpen className="h-3.5 w-3.5" />} title="이론 설명" />
+        <div className="space-y-3 text-sm text-slate-700 dark:text-slate-300 leading-relaxed">
+          {topic.theory.split('\n\n').map((block, i) => {
+            const trimmed = block.trim();
+            if (!trimmed) return null;
+            // Section headers starting with ■
+            if (trimmed.startsWith('■')) {
+              const [header, ...rest] = trimmed.split('\n');
+              return (
+                <div key={i}>
+                  <p className="font-bold text-slate-900 dark:text-slate-100 mt-4 mb-1">
+                    {header.replace('■ ', '')}
+                  </p>
+                  {rest.length > 0 && (
+                    <pre className="whitespace-pre-wrap font-sans text-sm text-slate-700 dark:text-slate-300 leading-relaxed">
+                      {rest.join('\n')}
+                    </pre>
+                  )}
+                </div>
+              );
+            }
+            return (
+              <pre key={i} className="whitespace-pre-wrap font-sans text-sm text-slate-700 dark:text-slate-300 leading-relaxed">
+                {trimmed}
+              </pre>
+            );
+          })}
+        </div>
+      </section>
+
+      {/* ── Math Formulas ──────────────────────────────── */}
+      {(topic as { mathFormulas?: Array<{ label: string; latex: string }> }).mathFormulas?.length && (
+        <section>
+          <SectionHeading title="핵심 수식" />
+          <div className="space-y-3">
+            {(topic as { mathFormulas?: Array<{ label: string; latex: string }> }).mathFormulas!.map((f, i) => (
+              <div key={i} className="rounded-xl border border-slate-200 dark:border-slate-700 bg-white dark:bg-slate-900 px-4 py-3">
+                <p className="mb-2 text-[11px] font-semibold text-slate-500 dark:text-slate-400">{f.label}</p>
+                <MathBlock latex={f.latex} block />
+              </div>
+            ))}
+          </div>
+        </section>
+      )}
+
+      {/* ── Complexity Table ───────────────────────────── */}
+      {topic.complexityTable && topic.complexityTable.length > 0 && (
+        <section>
+          <SectionHeading title="시간 복잡도" />
+          <div className="overflow-x-auto rounded-xl border border-slate-200 dark:border-slate-700">
+            <table className="w-full text-sm">
+              <thead className="bg-slate-50 dark:bg-slate-800">
+                <tr>
+                  <th className="px-4 py-2.5 text-left text-xs font-bold text-slate-600 dark:text-slate-300">연산 / 알고리즘</th>
+                  <th className="px-4 py-2.5 text-left text-xs font-bold text-slate-600 dark:text-slate-300">복잡도</th>
+                  {topic.complexityTable.some(r => r.note) && (
+                    <th className="px-4 py-2.5 text-left text-xs font-bold text-slate-600 dark:text-slate-300">비고</th>
+                  )}
+                </tr>
+              </thead>
+              <tbody>
+                {topic.complexityTable.map((row, i) => (
+                  <tr key={i} className="border-t border-slate-100 dark:border-slate-800 hover:bg-slate-50 dark:hover:bg-slate-800/40">
+                    <td className="px-4 py-2.5 text-slate-700 dark:text-slate-300">{row.operation}</td>
+                    <td className="px-4 py-2.5 font-mono font-bold text-blue-700 dark:text-blue-300">{row.complexity}</td>
+                    {topic.complexityTable!.some(r => r.note) && (
+                      <td className="px-4 py-2.5 text-xs text-slate-500 dark:text-slate-400">{row.note ?? ''}</td>
+                    )}
+                  </tr>
+                ))}
+              </tbody>
+            </table>
+          </div>
+        </section>
+      )}
+
+      {/* ── Code Examples ──────────────────────────────── */}
+      {(() => {
+        const examples = (topic as { codeExamples?: Array<{ caption: string; language: string; code: string }> }).codeExamples;
+        const legacy = topic.codeExample;
+        if (!examples?.length && !legacy) return null;
+        return (
+          <section>
+            <SectionHeading icon={<Code2 className="h-3.5 w-3.5" />} title="코드 예시" />
+            <div className="space-y-3">
+              {examples?.map((ex, i) => (
+                <div key={i}>
+                  <p className="mb-1.5 text-xs font-semibold text-slate-500 dark:text-slate-400">{ex.caption}</p>
+                  <div className="relative rounded-xl bg-slate-950 overflow-hidden">
+                    <div className="flex items-center gap-1.5 px-4 py-2 border-b border-slate-800">
+                      <span className="h-2.5 w-2.5 rounded-full bg-red-500/70" />
+                      <span className="h-2.5 w-2.5 rounded-full bg-amber-500/70" />
+                      <span className="h-2.5 w-2.5 rounded-full bg-emerald-500/70" />
+                      <span className="ml-2 text-[11px] font-mono text-slate-500">{ex.language}</span>
+                    </div>
+                    <pre className="overflow-x-auto p-4 text-sm leading-relaxed text-slate-200">
+                      <code>{ex.code}</code>
+                    </pre>
+                  </div>
+                </div>
+              ))}
+              {!examples?.length && legacy && (
+                <div className="relative rounded-xl bg-slate-950 overflow-hidden">
+                  <div className="flex items-center gap-1.5 px-4 py-2 border-b border-slate-800">
+                    <span className="h-2.5 w-2.5 rounded-full bg-red-500/70" />
+                    <span className="h-2.5 w-2.5 rounded-full bg-amber-500/70" />
+                    <span className="h-2.5 w-2.5 rounded-full bg-emerald-500/70" />
+                  </div>
+                  <pre className="overflow-x-auto p-4 text-sm leading-relaxed text-slate-200">
+                    <code>{legacy}</code>
+                  </pre>
+                </div>
+              )}
+            </div>
+          </section>
+        );
+      })()}
+
+      {/* ── Common Pitfalls ────────────────────────────── */}
+      {topic.commonPitfalls && topic.commonPitfalls.length > 0 && (
+        <section>
+          <SectionHeading icon={<AlertTriangle className="h-3.5 w-3.5" />} title="자주 하는 실수" />
+          <div className="rounded-xl border border-red-200 bg-red-50 p-4 dark:border-red-800/40 dark:bg-red-900/10 space-y-2">
+            {topic.commonPitfalls.map((p, i) => (
+              <p key={i} className="flex gap-2 text-sm text-red-700 dark:text-red-300">
+                <span className="flex-shrink-0">⚠</span> {p}
+              </p>
+            ))}
+          </div>
+        </section>
+      )}
+
+      {/* ── Related Exam Problems ──────────────────────── */}
+      {relatedExams.length > 0 && (
+        <section>
+          <SectionHeading icon={<FileText className="h-3.5 w-3.5" />} title={`관련 기출문제 (${relatedExams.length})`} />
+          <div className="space-y-2">
+            {relatedExams.map(exam => (
+              <ExamProblemCard key={exam.id} problem={exam} defaultExpanded={false} />
+            ))}
+          </div>
+        </section>
+      )}
+
+      {/* ── Practice Questions ─────────────────────────── */}
+      {practiceQuestions.length > 0 && (
+        <section>
+          <SectionHeading title={`연습 문제 (${practiceQuestions.length})`} />
+          <PracticeList questions={practiceQuestions} filterByTopic={topic.title} />
+        </section>
+      )}
+
+      {/* ── Algorithm Visualizer ───────────────────────── */}
+      {topic.visualizerType && (
+        <section>
+          <SectionHeading icon={<PlayCircle className="h-3.5 w-3.5" />} title="알고리즘 시각화" />
+          <button
+            onClick={() => setShowViz(v => !v)}
+            className="flex items-center gap-2 rounded-xl bg-indigo-600 px-4 py-2.5 text-sm font-semibold text-white hover:bg-indigo-500 transition"
+          >
+            <PlayCircle className="h-4 w-4" />
+            {showViz ? '시각화 닫기' : '인터랙티브 시각화 열기'}
+          </button>
+          {showViz && (
+            <div className="mt-3">
+              <AlgoVisualizer type={topic.visualizerType} />
+            </div>
+          )}
+        </section>
+      )}
+    </div>
+  );
+}
