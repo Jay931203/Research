@@ -26,6 +26,7 @@ const CUSTOM_SECTIONS: Record<string, Array<{ id: string; label: string }>> = {
     { id: 'asymptotic-sec-notations',  label: '표기법 5종'      },
     { id: 'asymptotic-sec-properties', label: '핵심 성질'       },
     { id: 'asymptotic-sec-master',     label: '마스터 정리'     },
+    { id: 'asymptotic-sec-amortized',  label: '분할 상환 분석'  },
     { id: 'asymptotic-sec-recurrence', label: '점화식 예시'     },
   ],
   'linked-list': [
@@ -40,7 +41,7 @@ const CUSTOM_SECTIONS: Record<string, Array<{ id: string; label: string }>> = {
     { id: 'heap-sec-sim',        label: 'Min-Heap 시뮬레이터'},
     { id: 'heap-sec-build',      label: 'Build-Heap 트레이스'},
     { id: 'heap-sec-heapsort',   label: 'HeapSort 추적'     },
-    { id: 'heap-sec-complexity', label: '복잡도 & 함정'     },
+    { id: 'heap-sec-complexity', label: '복잡도 & 주의사항'  },
   ],
   'bst': [
     { id: 'bst-sec-property',   label: 'BST 속성'          },
@@ -54,7 +55,7 @@ const CUSTOM_SECTIONS: Record<string, Array<{ id: string; label: string }>> = {
     { id: 'hash-sec-chain',    label: '체이닝 시뮬레이터'  },
     { id: 'hash-sec-probe',    label: '선형 프로빙 시뮬레이터'},
     { id: 'hash-sec-compare',  label: '방법 비교표'         },
-    { id: 'hash-sec-perfect',  label: '완전 해시 & 함정'   },
+    { id: 'hash-sec-perfect',  label: '완전 해시 & 유니버설 해싱' },
   ],
   'oop-basics': [
     { id: 'oop-basics-sec-access',   label: '접근 지정자 시뮬레이터' },
@@ -105,7 +106,7 @@ const CUSTOM_SECTIONS: Record<string, Array<{ id: string; label: string }>> = {
     { id: 'sorting-sec-quicksort',  label: 'QuickSort 파티션 시뮬'  },
     { id: 'sorting-sec-mergesort',  label: 'MergeSort 추적'         },
     { id: 'sorting-sec-lowerbound', label: '정렬 하한 & 선형 정렬'  },
-    { id: 'sorting-sec-pitfalls',   label: '시험 함정 퀴즈'         },
+    { id: 'sorting-sec-pitfalls',   label: '주의사항 퀴즈'          },
   ],
   'dp': [
     { id: 'dp-sec-concept',  label: 'DP 핵심 개념'           },
@@ -127,7 +128,7 @@ const CUSTOM_SECTIONS: Record<string, Array<{ id: string; label: string }>> = {
     { id: 'huffman-sec-sim',      label: '트리 빌드 시뮬레이터'},
     { id: 'huffman-sec-codes',    label: '코드 할당 & ABL'    },
     { id: 'huffman-sec-compare',  label: '고정 vs 허프만 비교' },
-    { id: 'huffman-sec-pitfalls', label: '시험 함정 퀴즈'     },
+    { id: 'huffman-sec-pitfalls', label: '주의사항 퀴즈'       },
   ],
 };
 

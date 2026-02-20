@@ -402,6 +402,106 @@ export default function AsymptoticContent({ topic }: Props) {
         </div>
       </section>
 
+      {/* ── 분할 상환 분석 ── */}
+      <section id={`${topic.id}-sec-amortized`}>
+        <div className="flex items-center gap-2 mb-4">
+          <span className="text-xl">🏦</span>
+          <h2 className="text-base font-bold text-slate-800 dark:text-slate-100">분할 상환 분석 (Amortized Analysis)</h2>
+          <div className="flex-1 h-px bg-slate-200 dark:bg-slate-700" />
+        </div>
+
+        <div className="rounded-xl border border-slate-200 dark:border-slate-700 bg-white dark:bg-slate-900 px-5 py-4 mb-5">
+          <p className="text-xs font-bold text-slate-500 dark:text-slate-400 uppercase tracking-wide mb-2">핵심 아이디어</p>
+          <p className="text-sm text-slate-600 dark:text-slate-300 leading-relaxed">
+            일부 연산이 비싸더라도, <span className="font-semibold">연산 전체 시퀀스에 걸쳐 평균 비용</span>이 작으면 전체 알고리즘은 효율적이다.
+            최악 케이스 분석보다 정밀하게 실질적 성능을 표현할 수 있다.
+          </p>
+        </div>
+
+        {/* 3가지 방법 */}
+        <div className="space-y-3 mb-5">
+          {[
+            {
+              name: '집계법 (Aggregate Analysis)',
+              badge: 'bg-blue-100 text-blue-800 dark:bg-blue-900/60 dark:text-blue-200',
+              border: 'border-blue-200 dark:border-blue-800/40',
+              bg: 'bg-blue-50 dark:bg-blue-950/20',
+              desc: 'n번 연산의 전체 비용 T(n)을 계산하고, 분할 상환 비용 = T(n)/n 으로 정의.',
+              example: 'Dynamic Array push_back: 대부분 O(1), 가끔 O(n) 복사 → 전체 n번 push_back 비용 = O(n) → 분할 상환 O(1)',
+            },
+            {
+              name: '회계법 (Accounting Method)',
+              badge: 'bg-purple-100 text-purple-800 dark:bg-purple-900/60 dark:text-purple-200',
+              border: 'border-purple-200 dark:border-purple-800/40',
+              bg: 'bg-purple-50 dark:bg-purple-950/20',
+              desc: '각 연산에 "분할 상환 비용(amortized cost)"을 부여. 실제 비용보다 많이 낼 때는 크레딧을 저축하고, 비싼 연산 시 크레딧을 소비.',
+              example: 'push_back: 분할 상환 3 부여 (삽입 1 + 미래 복사 대비 2 저축). 복사 시 저축된 크레딧으로 충당 → 총 비용 O(n)',
+            },
+            {
+              name: '잠재법 (Potential Method)',
+              badge: 'bg-amber-100 text-amber-800 dark:bg-amber-900/60 dark:text-amber-200',
+              border: 'border-amber-200 dark:border-amber-800/40',
+              bg: 'bg-amber-50 dark:bg-amber-950/20',
+              desc: '자료구조의 "잠재 에너지" Φ를 정의. 분할 상환 비용 = 실제 비용 + ΔΦ (잠재 에너지 변화량).',
+              example: 'Φ = 현재 원소 수로 정의. push_back 분할 상환 비용 = 1 + 1 = 2 = O(1). 복사 시 Φ 절반 감소해 실제 비용 상쇄.',
+            },
+          ].map(m => (
+            <div key={m.name} className={`rounded-xl border-2 ${m.border} overflow-hidden bg-white dark:bg-slate-900`}>
+              <div className={`${m.bg} px-4 py-3 flex items-center gap-3`}>
+                <span className={`rounded-lg px-3 py-1 text-xs font-black ${m.badge} flex-shrink-0`}>{m.name}</span>
+              </div>
+              <div className="px-4 py-3 space-y-2 border-t border-slate-100 dark:border-slate-800">
+                <p className="text-sm text-slate-700 dark:text-slate-300">{m.desc}</p>
+                <div className="rounded-lg bg-slate-50 dark:bg-slate-800 border border-slate-200 dark:border-slate-700 px-3 py-2">
+                  <p className="text-xs font-semibold text-slate-500 dark:text-slate-400 mb-0.5">예시:</p>
+                  <p className="text-xs text-slate-600 dark:text-slate-300">{m.example}</p>
+                </div>
+              </div>
+            </div>
+          ))}
+        </div>
+
+        {/* Dynamic Array 핵심 */}
+        <div className="rounded-xl border border-emerald-200 dark:border-emerald-800/40 bg-emerald-50 dark:bg-emerald-950/20 px-4 py-3 mb-4">
+          <p className="text-xs font-bold text-emerald-700 dark:text-emerald-300 mb-2 uppercase tracking-wide">
+            대표 예시 — Dynamic Array (동적 배열)
+          </p>
+          <div className="space-y-1.5 text-xs text-emerald-700 dark:text-emerald-400">
+            <p>• 배열이 꽉 차면 크기를 <span className="font-semibold">2배로 확장</span>하고 모든 원소를 복사 (비용 O(n))</p>
+            <p>• n번 push_back 전체 복사 비용: n/2 + n/4 + n/8 + ... ≤ n → <span className="font-semibold">분할 상환 O(1)</span></p>
+            <p>• 크기를 2배 대신 상수 k씩 늘리면? → 전체 비용 O(n²) → 분할 상환 O(n) — 지수 성장이 핵심!</p>
+          </div>
+        </div>
+
+        {/* Worst vs Amortized */}
+        <div className="overflow-x-auto rounded-xl border border-slate-200 dark:border-slate-700 bg-white dark:bg-slate-900">
+          <table className="w-full text-sm">
+            <thead className="bg-slate-50 dark:bg-slate-800">
+              <tr>
+                {['자료구조 / 연산', '최악 케이스', '분할 상환'].map(h => (
+                  <th key={h} className="px-4 py-2.5 text-left text-xs font-bold text-slate-600 dark:text-slate-300">{h}</th>
+                ))}
+              </tr>
+            </thead>
+            <tbody>
+              {[
+                { ds: 'Dynamic Array push_back', worst: 'O(n)', amort: 'O(1)' },
+                { ds: 'Splay Tree 탐색',         worst: 'O(n)', amort: 'O(log n)' },
+                { ds: 'Union-Find (경로 압축)',   worst: 'O(log n)', amort: 'O(α(n)) ≈ O(1)' },
+                { ds: 'Fibonacci Heap 삽입',      worst: 'O(1)', amort: 'O(1)' },
+                { ds: 'Fibonacci Heap decrease-key', worst: 'O(log n)', amort: 'O(1)' },
+              ].map((row, i) => (
+                <tr key={i} className="border-t border-slate-100 dark:border-slate-800 hover:bg-slate-50 dark:hover:bg-slate-800/40">
+                  <td className="px-4 py-2.5 text-slate-700 dark:text-slate-300 font-medium text-xs">{row.ds}</td>
+                  <td className="px-4 py-2.5 font-mono text-xs text-slate-500 dark:text-slate-400">{row.worst}</td>
+                  <td className="px-4 py-2.5 font-mono font-bold text-emerald-700 dark:text-emerald-300 text-xs">{row.amort}</td>
+                </tr>
+              ))}
+            </tbody>
+          </table>
+        </div>
+      </section>
+
       {/* ── 점화식 예시 테이블 ── */}
       <section id={`${topic.id}-sec-recurrence`}>
         <div className="flex items-center gap-2 mb-4">

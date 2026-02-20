@@ -313,14 +313,6 @@ export default function HashContent({ topic }: Props) {
             </div>
           ))}
         </div>
-        <div className="rounded-xl border border-violet-200 bg-violet-50 dark:border-violet-800/40 dark:bg-violet-950/20 p-4 mb-5">
-          <p className="text-xs font-bold text-violet-700 dark:text-violet-300 mb-3 uppercase tracking-wide">좋은 해시 함수 조건</p>
-          <div className="grid grid-cols-2 sm:grid-cols-4 gap-2 text-center text-xs">
-            {['균일 분포', '빠른 계산', '결정적(동일 입력→동일 출력)', 'm은 소수 권장'].map(c => (
-              <div key={c} className="rounded-lg bg-white dark:bg-slate-800 px-2 py-2 shadow-sm font-semibold text-slate-700 dark:text-slate-300">{c}</div>
-            ))}
-          </div>
-        </div>
         <ul className="space-y-2 rounded-xl border border-blue-100 bg-blue-50 p-4 dark:border-blue-900/30 dark:bg-blue-950/30">
           {[
             '평균 O(1) 탐색 — 최악은 O(n), 좋은 해시 함수와 낮은 부하율 유지가 핵심',
@@ -520,6 +512,23 @@ export default function HashContent({ topic }: Props) {
               ))}
             </tbody>
           </table>
+        </div>
+      </section>
+
+      {/* 4b. 이중 해싱 설명 */}
+      <section>
+        <div className="rounded-xl border border-emerald-200 bg-emerald-50 dark:border-emerald-800/40 dark:bg-emerald-950/20 p-4 mb-5">
+          <p className="text-sm font-bold text-emerald-800 dark:text-emerald-300 mb-2">이중 해싱 (Double Hashing)</p>
+          <p className="text-sm text-emerald-700 dark:text-emerald-400 leading-relaxed mb-2">
+            두 번째 해시 함수로 보폭(step size)을 결정해 Primary Clustering과 Secondary Clustering을 모두 방지:
+          </p>
+          <code className="block rounded-lg bg-white dark:bg-slate-800 px-3 py-2 text-xs font-mono text-slate-800 dark:text-slate-200 mb-2">
+            h(k, i) = (h₁(k) + i · h₂(k)) mod m
+          </code>
+          <ul className="space-y-1 text-xs text-emerald-700 dark:text-emerald-400">
+            <li>• h₂(k)는 m과 서로소이어야 모든 슬롯 탐침 가능 — 실용적으로 <span className="font-mono">h₂(k) = 1 + (k mod (m−1))</span> 형태 사용 (m은 소수)</li>
+            <li>• 선형 프로빙보다 탐침 경로가 분산되어 군집화 거의 없음 — 단, 두 번의 해시 계산이 필요해 구현이 복잡</li>
+          </ul>
         </div>
       </section>
 
