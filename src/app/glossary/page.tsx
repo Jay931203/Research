@@ -1,6 +1,6 @@
 'use client';
 
-import { useEffect, useMemo, useRef, useState } from 'react';
+import { useCallback, useEffect, useMemo, useRef, useState } from 'react';
 import Link from 'next/link';
 import {
   BookOpen,
@@ -15,6 +15,7 @@ import {
   Zap,
 } from 'lucide-react';
 import Header from '@/components/layout/Header';
+import CommandPalette from '@/components/common/CommandPalette';
 import MarkdownContent from '@/components/common/MarkdownContent';
 import { useGlossary } from '@/hooks/useGlossary';
 import { usePapersWithNotes } from '@/hooks/useNotes';
@@ -143,6 +144,19 @@ export default function GlossaryPage() {
   const [selectedTermId, setSelectedTermId] = useState<string | null>(null);
   const [expandedIds, setExpandedIds] = useState<string[]>([]);
   const initialExpandedRef = useRef(false);
+  const [isCommandPaletteOpen, setIsCommandPaletteOpen] = useState(false);
+
+  useEffect(() => {
+    const handleKeyDown = (e: KeyboardEvent) => {
+      if ((e.metaKey || e.ctrlKey) && e.key === 'k') {
+        e.preventDefault();
+        setIsCommandPaletteOpen((prev) => !prev);
+      }
+      if (e.key === 'Escape') setIsCommandPaletteOpen(false);
+    };
+    document.addEventListener('keydown', handleKeyDown);
+    return () => document.removeEventListener('keydown', handleKeyDown);
+  }, []);
 
   // Default: expand all terms when data first loads
   useEffect(() => {
@@ -368,7 +382,7 @@ export default function GlossaryPage() {
   if (isLoading) {
     return (
       <div className="min-h-screen bg-gray-50 dark:bg-gray-950">
-        <Header />
+        <Header onSearchClick={() => setIsCommandPaletteOpen(true)} />
         <main className="mx-auto max-w-4xl space-y-4 px-4 pt-8">
           {Array.from({ length: 6 }).map((_, i) => (
             <div key={i} className="h-24 animate-pulse rounded-xl bg-white dark:bg-gray-900" />
@@ -380,7 +394,8 @@ export default function GlossaryPage() {
 
   return (
     <div className="min-h-screen bg-gray-50 dark:bg-gray-950">
-      <Header />
+      <Header onSearchClick={() => setIsCommandPaletteOpen(true)} />
+      <CommandPalette isOpen={isCommandPaletteOpen} onClose={() => setIsCommandPaletteOpen(false)} />
 
       <main className="mx-auto max-w-[1600px] px-4 pb-16 pt-8 sm:px-6 lg:px-8">
         <h1 className="mb-2 text-xl font-bold text-gray-800 dark:text-gray-200">용어집</h1>
