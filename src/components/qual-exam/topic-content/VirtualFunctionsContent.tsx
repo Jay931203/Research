@@ -21,28 +21,6 @@ function SH({ icon, title, id }: { icon: string; title: string; id?: string }) {
   );
 }
 
-function ConceptBox({ what, rules, caution }: { what: string; rules: string[]; caution?: string }) {
-  return (
-    <div className="mb-5 rounded-xl border border-blue-100 dark:border-blue-900/40 bg-blue-50/60 dark:bg-blue-950/20 p-4 space-y-2.5">
-      <p className="text-sm text-blue-900 dark:text-blue-100 leading-relaxed">{what}</p>
-      <ul className="space-y-1.5">
-        {rules.map((r, i) => (
-          <li key={i} className="flex gap-2 text-xs text-blue-800 dark:text-blue-200 leading-relaxed">
-            <span className="mt-0.5 flex-shrink-0 h-4 w-4 rounded bg-blue-400/70 flex items-center justify-center text-[9px] font-black text-white">{i + 1}</span>
-            <span>{r}</span>
-          </li>
-        ))}
-      </ul>
-      {caution && (
-        <div className="flex gap-2 rounded-lg bg-amber-50 dark:bg-amber-900/20 border border-amber-200 dark:border-amber-700/40 px-3 py-2 text-xs text-amber-800 dark:text-amber-200 leading-relaxed">
-          <span className="flex-shrink-0 font-bold">⚠</span>
-          <span>{caution}</span>
-        </div>
-      )}
-    </div>
-  );
-}
-
 /* ══════════════════════════════════════════════════════
    SECTION 1 — 정적 vs 동적 바인딩 데모
 ══════════════════════════════════════════════════════ */
@@ -607,56 +585,56 @@ export default function VirtualFunctionsContent({ topic }: Props) {
 
       <section id="virtual-sec-dispatch">
         <SH icon="🔀" title="정적 vs 동적 바인딩 — 인터랙티브 데모" />
-        <ConceptBox
-          what="가상 함수(virtual)는 '어떤 버전의 함수를 호출할지'를 결정하는 방식을 바꿉니다. non-virtual = 포인터 타입 기준(컴파일 타임 고정), virtual = 실제 객체 타입 기준(런타임 결정)."
-          rules={[
-            '정적 바인딩(static): non-virtual 함수 → 컴파일 시 포인터 선언 타입 기준으로 고정',
-            '동적 바인딩(dynamic): virtual 함수 → 런타임에 실제 객체 타입(vptr 조회)으로 결정',
-            '예: Student* ss = new PhD(); ss->m1() → m1이 virtual이면 PhD::m1() 호출 (포인터 타입 Student가 아닌 실제 객체 PhD 기준)',
-          ]}
-          caution="함정: non-virtual 함수 안에서 virtual 함수를 호출해도 동적 바인딩! this가 실제 객체를 가리키므로 vptr을 통해 virtual 함수를 조회합니다."
-        />
+        <p className="text-sm text-slate-600 dark:text-slate-400 mb-5 leading-relaxed">
+          <strong>가상 함수(virtual)</strong>는 &ldquo;어떤 버전의 함수를 호출할지&rdquo;를 결정하는 방식을 바꿉니다.{' '}
+          <code className="text-xs bg-slate-100 dark:bg-slate-800 px-1 rounded">non-virtual</code> 함수는 <strong>정적 바인딩</strong>으로 컴파일 타임에 포인터 선언 타입 기준으로 고정되고,{' '}
+          <code className="text-xs bg-slate-100 dark:bg-slate-800 px-1 rounded">virtual</code> 함수는 <strong>동적 바인딩</strong>으로 런타임에 실제 객체 타입(vptr 조회)을 기준으로 결정됩니다.
+          예를 들어 <code className="text-xs bg-slate-100 dark:bg-slate-800 px-1 rounded">{'Student* ss = new PhD(); ss->m1()'}</code>에서{' '}
+          <code className="text-xs bg-slate-100 dark:bg-slate-800 px-1 rounded">m1</code>이 virtual이라면 포인터 타입이{' '}
+          <code className="text-xs bg-slate-100 dark:bg-slate-800 px-1 rounded">Student</code>여도 실제 객체인{' '}
+          <code className="text-xs bg-slate-100 dark:bg-slate-800 px-1 rounded">PhD::m1()</code>이 호출됩니다.
+          주의할 점은 <strong>non-virtual 함수 안에서 virtual 함수를 호출해도 동적 바인딩이 적용</strong>된다는 것입니다 — <code className="text-xs bg-slate-100 dark:bg-slate-800 px-1 rounded">this</code>가 실제 객체를 가리키므로 vptr을 통해 조회합니다.
+        </p>
         <DispatchDemoSection />
       </section>
 
       <section id="virtual-sec-vtable">
         <SH icon="📋" title="vtable 시각화" />
-        <ConceptBox
-          what="virtual 함수를 가진 클래스마다 가상 함수 테이블(vtable)이 하나 생성됩니다. 각 객체는 자신의 클래스 vtable을 가리키는 vptr을 가집니다."
-          rules={[
-            'vtable: 클래스당 하나 — virtual 함수 포인터 배열. 오버라이드 시 해당 슬롯이 파생 클래스 함수로 교체됨',
-            'vptr: 객체당 하나 — 생성자 시작 시 자신의 클래스 vtable로 설정됨',
-            '동적 디스패치 과정: obj->vptr → vtable[슬롯] → 실제 함수 호출',
-          ]}
-        />
+        <p className="text-sm text-slate-600 dark:text-slate-400 mb-5 leading-relaxed">
+          <code className="text-xs bg-slate-100 dark:bg-slate-800 px-1 rounded">virtual</code> 함수를 가진 클래스마다{' '}
+          <strong>가상 함수 테이블(vtable)</strong>이 하나 생성됩니다.
+          vtable은 virtual 함수 포인터들의 배열로, 파생 클래스가 함수를 오버라이드하면 해당 슬롯이 파생 클래스의 구현으로 교체됩니다.
+          각 객체는 생성자 시작 시 자신의 클래스 vtable을 가리키는 <strong>vptr</strong>을 갖게 됩니다.
+          동적 디스패치 과정은{' '}
+          <code className="text-xs bg-slate-100 dark:bg-slate-800 px-1 rounded">obj-&gt;vptr → vtable[슬롯] → 실제 함수</code> 순으로 진행됩니다.
+        </p>
         <VTableSection />
       </section>
 
       <section id="virtual-sec-tracer">
         <SH icon="🔬" title="함수 호출 추적기" />
-        <ConceptBox
-          what="복잡한 상속 계층에서 함수 호출을 추적할 때 규칙 두 개만 기억하세요: virtual → 실제 객체, non-virtual → 포인터 타입."
-          rules={[
-            'virtual 함수 → 가장 파생된 클래스(실제 객체 타입)의 구현을 찾아 올라감',
-            'non-virtual 함수 → 선언된 포인터/참조 타입의 함수를 고정 호출',
-            '무한 재귀 위험: virtual m3가 non-virtual m4를 호출하고 m4가 다시 m3를 호출 → m3가 virtual이므로 다시 파생 클래스 m3 → 무한 반복',
-          ]}
-          caution="mina->m3() 시나리오: PhD::m3(virtual)이 Student::m4(non-virtual)를 호출 → m4 안에서 m3() 호출 → m3는 virtual이므로 PhD::m3() 재호출 → 무한 재귀 → 스택 오버플로우!"
-        />
+        <p className="text-sm text-slate-600 dark:text-slate-400 mb-5 leading-relaxed">
+          복잡한 상속 계층에서 함수 호출을 추적할 때는 규칙 두 가지만 기억하면 됩니다:{' '}
+          <strong>virtual 함수는 실제 객체 타입</strong>을 기준으로,{' '}
+          <strong>non-virtual 함수는 포인터/참조 선언 타입</strong>을 기준으로 호출됩니다.
+          한 가지 위험한 함정은 <strong>무한 재귀</strong>입니다 — virtual 함수가 non-virtual 함수를 호출하고 그 non-virtual이 다시 같은 virtual 함수를 호출하는 구조라면,{' '}
+          <code className="text-xs bg-slate-100 dark:bg-slate-800 px-1 rounded">this</code>가 그대로이므로 virtual 함수가 다시 파생 클래스 버전으로 호출되어 스택 오버플로우로 이어집니다.
+        </p>
         <CallTracerSection />
       </section>
 
       <section id="virtual-sec-dtor">
         <SH icon="🗑️" title="가상 소멸자의 중요성" />
-        <ConceptBox
-          what="기반 클래스 포인터로 파생 클래스 객체를 delete할 때, 기반 클래스 소멸자가 virtual이 아니면 파생 클래스 소멸자가 호출되지 않습니다."
-          rules={[
-            '문제: Base* ptr = new Derived(); delete ptr; → ~Base()가 virtual 없으면 ~Derived() 미호출',
-            '결과: Derived에서 할당한 자원(동적 메모리 등)이 해제되지 않음 → 메모리 누수',
-            '해결: 기반 클래스에 virtual ~Base() {} 선언 — 구현은 빈 본문도 OK',
-          ]}
-          caution="다형성을 사용하는 기반 클래스라면 항상 virtual 소멸자를 선언하세요. 비용은 거의 없지만 버그 예방 효과는 큽니다."
-        />
+        <p className="text-sm text-slate-600 dark:text-slate-400 mb-5 leading-relaxed">
+          기반 클래스 포인터로 파생 클래스 객체를{' '}
+          <code className="text-xs bg-slate-100 dark:bg-slate-800 px-1 rounded">delete</code>할 때, 기반 클래스 소멸자가{' '}
+          <code className="text-xs bg-slate-100 dark:bg-slate-800 px-1 rounded">virtual</code>이 아니면 파생 클래스 소멸자가 호출되지 않습니다.
+          결과적으로 파생 클래스에서{' '}
+          <code className="text-xs bg-slate-100 dark:bg-slate-800 px-1 rounded">new</code>로 할당한 자원이 해제되지 않아 메모리 누수가 발생합니다.
+          해결책은 기반 클래스에{' '}
+          <code className="text-xs bg-slate-100 dark:bg-slate-800 px-1 rounded">{'virtual ~Base() {}'}</code>를 선언하는 것입니다.
+          <strong>다형성을 사용하는 기반 클래스라면 항상 virtual 소멸자를 선언하세요</strong> — 비용은 거의 없지만 버그 예방 효과는 큽니다.
+        </p>
         <VirtualDtorSection />
       </section>
     </div>

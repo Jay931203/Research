@@ -21,28 +21,6 @@ function SH({ icon, title, id }: { icon: string; title: string; id?: string }) {
   );
 }
 
-function ConceptBox({ what, rules, caution }: { what: string; rules: string[]; caution?: string }) {
-  return (
-    <div className="mb-5 rounded-xl border border-blue-100 dark:border-blue-900/40 bg-blue-50/60 dark:bg-blue-950/20 p-4 space-y-2.5">
-      <p className="text-sm text-blue-900 dark:text-blue-100 leading-relaxed">{what}</p>
-      <ul className="space-y-1.5">
-        {rules.map((r, i) => (
-          <li key={i} className="flex gap-2 text-xs text-blue-800 dark:text-blue-200 leading-relaxed">
-            <span className="mt-0.5 flex-shrink-0 h-4 w-4 rounded bg-blue-400/70 flex items-center justify-center text-[9px] font-black text-white">{i + 1}</span>
-            <span>{r}</span>
-          </li>
-        ))}
-      </ul>
-      {caution && (
-        <div className="flex gap-2 rounded-lg bg-amber-50 dark:bg-amber-900/20 border border-amber-200 dark:border-amber-700/40 px-3 py-2 text-xs text-amber-800 dark:text-amber-200 leading-relaxed">
-          <span className="flex-shrink-0 font-bold">⚠</span>
-          <span>{caution}</span>
-        </div>
-      )}
-    </div>
-  );
-}
-
 /* ══════════════════════════════════════════════════════
    SECTION 1 — Stack vs Heap 메모리 레이아웃 스텝 플레이어
 ══════════════════════════════════════════════════════ */
@@ -590,56 +568,53 @@ export default function MemoryManagementContent({ topic }: Props) {
 
       <section id="memory-sec-layout">
         <SH icon="🧠" title="스택 vs 힙 — 메모리 영역 시각화" />
-        <ConceptBox
-          what="C++ 메모리는 스택(Stack)과 힙(Heap)으로 나뉩니다. 스택은 선언 시 자동 관리, 힙은 new/delete로 수동 관리합니다."
-          rules={[
-            '스택: 지역 변수 저장. 스코프(}) 종료 시 자동 해제. 크기 제한 있음 (보통 수 MB)',
-            '힙: new로 할당, delete로 수동 해제. 크기 제한 적음. 해제 안 하면 메모리 누수(memory leak)',
-            '포인터 변수 자체는 스택에 / 포인터가 가리키는 데이터(new로 할당)는 힙에 위치',
-          ]}
-          caution="힙 메모리는 스코프가 끝나도 자동 해제되지 않습니다. delete를 빠뜨리면 포인터는 사라지지만 힙 데이터는 영원히 남습니다 (메모리 누수)."
-        />
+        <p className="text-sm text-slate-600 dark:text-slate-400 mb-5 leading-relaxed">
+          C++ 메모리는 크게 <strong>스택(Stack)</strong>과 <strong>힙(Heap)</strong> 두 영역으로 나뉩니다.
+          스택은 지역 변수가 저장되는 곳으로, 스코프가 닫히면 자동으로 해제됩니다.
+          반면 힙은 <code className="text-xs bg-slate-100 dark:bg-slate-800 px-1 rounded">new</code>로 할당하고{' '}
+          <code className="text-xs bg-slate-100 dark:bg-slate-800 px-1 rounded">delete</code>로 수동 해제해야 합니다.
+          포인터 변수 <em>자체</em>는 스택에 있지만, 그 포인터가 가리키는 데이터는 힙에 위치합니다.
+          <strong>delete를 빠뜨리면</strong> 포인터는 사라지지만 힙 데이터는 영원히 남아 메모리 누수가 발생합니다.
+        </p>
         <MemoryLayoutSection />
       </section>
 
       <section id="memory-sec-pointer">
         <SH icon="🔍" title="포인터 연산 인터랙티브 탐색기" />
-        <ConceptBox
-          what="포인터는 메모리 주소를 저장하는 변수입니다. & 연산자로 주소를 얻고, * 연산자로 해당 주소의 값에 접근(역참조)합니다."
-          rules={[
-            '& (주소 연산자): int x = 5; int* p = &x; → p에 x의 주소 저장',
-            '* (역참조 연산자): *p = 10; → p가 가리키는 주소의 값을 10으로 변경. x도 10이 됨',
-            '포인터 산술: ptr + n → n번째 요소의 주소 (sizeof(T) × n 바이트 이동)',
-          ]}
-          caution="배열 범위 밖 접근(arr[n] 등)은 Undefined Behavior — 어떤 결과가 나와도 비정상입니다. 컴파일 오류 없이 런타임에 충돌하거나 조용히 잘못된 값을 반환합니다."
-        />
+        <p className="text-sm text-slate-600 dark:text-slate-400 mb-5 leading-relaxed">
+          포인터는 <strong>메모리 주소를 저장하는 변수</strong>입니다.{' '}
+          <code className="text-xs bg-slate-100 dark:bg-slate-800 px-1 rounded">&amp;</code>는 변수의 주소를 얻는 연산자이고,{' '}
+          <code className="text-xs bg-slate-100 dark:bg-slate-800 px-1 rounded">*</code>는 그 주소의 값에 접근하는 역참조 연산자입니다.
+          포인터 산술 <code className="text-xs bg-slate-100 dark:bg-slate-800 px-1 rounded">ptr + n</code>은{' '}
+          <code className="text-xs bg-slate-100 dark:bg-slate-800 px-1 rounded">sizeof(T) × n</code> 바이트만큼 이동해 n번째 요소의 주소를 가리킵니다.
+          배열 범위 밖 접근(<code className="text-xs bg-slate-100 dark:bg-slate-800 px-1 rounded">arr[n]</code> 등)은 컴파일 오류 없이 통과하지만 런타임에 충돌하거나 잘못된 값을 반환하는 <strong>미정의 동작(UB)</strong>이니 반드시 주의해야 합니다.
+        </p>
         <PointerOpsSection />
       </section>
 
       <section id="memory-sec-offbyone">
         <SH icon="🐛" title="Off-by-One 버그 시뮬레이터" />
-        <ConceptBox
-          what="Off-by-One 오류: 배열 인덱스는 0~n-1이므로 반복 조건을 하나 잘못 쓰면 범위를 벗어납니다."
-          rules={[
-            '올바른 패턴: for (int i = 0; i < n; i++) — i < n이 정확합니다',
-            '잘못된 패턴: for (int i = 0; i <= n; i++) — i == n일 때 arr[n] 접근 → UB',
-            '적용 범위: 배열 순회 외에도 버퍼 크기 계산, 이진 탐색 mid, 문자열 null 종료에서 자주 발생',
-          ]}
-        />
+        <p className="text-sm text-slate-600 dark:text-slate-400 mb-5 leading-relaxed">
+          <strong>Off-by-One 오류</strong>는 배열 인덱스가{' '}
+          <code className="text-xs bg-slate-100 dark:bg-slate-800 px-1 rounded">0~n-1</code>인데 반복 조건을 하나 잘못 쓸 때 발생합니다.
+          올바른 패턴은 <code className="text-xs bg-slate-100 dark:bg-slate-800 px-1 rounded">{'i < n'}</code>이며,{' '}
+          <code className="text-xs bg-slate-100 dark:bg-slate-800 px-1 rounded">{'i <= n'}</code>으로 쓰면 마지막 단계에서{' '}
+          <code className="text-xs bg-slate-100 dark:bg-slate-800 px-1 rounded">arr[n]</code>에 접근해 UB가 됩니다.
+          배열 순회뿐만 아니라 이진 탐색의 mid 계산, 문자열의 null 종료 처리에서도 같은 함정이 자주 등장합니다.
+        </p>
         <OffByOneSection />
       </section>
 
       <section id="memory-sec-swap">
         <SH icon="🔄" title="포인터 Swap 함정" />
-        <ConceptBox
-          what="함수에 포인터를 값으로 전달하면 포인터 변수 자체가 복사됩니다. 함수 내에서 포인터를 교환해도 원본 포인터에는 영향이 없습니다."
-          rules={[
-            '잘못된 swap: void swap(int* a, int* b) { int* tmp=a; a=b; b=tmp; } → a, b는 지역 복사, 원본 불변',
-            '올바른 swap: *a와 *b의 값을 직접 교환 — 역참조로 값에 접근해야 원본 변경',
-            '포인터 주소 비교 함정: if (p1 > p2) — 이는 값 비교가 아닌 메모리 주소 비교!',
-          ]}
-          caution="'포인터를 전달했으니 원본이 바뀌겠지'는 오해입니다. 포인터 변수 자체는 복사됩니다. 원본 값을 바꾸려면 *p를 통해 역참조해야 합니다."
-        />
+        <p className="text-sm text-slate-600 dark:text-slate-400 mb-5 leading-relaxed">
+          함수에 포인터를 전달하면 포인터 변수 <em>자체</em>가 복사됩니다.{' '}
+          <code className="text-xs bg-slate-100 dark:bg-slate-800 px-1 rounded">void swap(int* a, int* b)</code> 안에서{' '}
+          <code className="text-xs bg-slate-100 dark:bg-slate-800 px-1 rounded">a = b</code>처럼 포인터를 교환해도 원본 포인터에는 영향이 없습니다.
+          원본 값을 바꾸려면 반드시 <strong>역참조</strong>(<code className="text-xs bg-slate-100 dark:bg-slate-800 px-1 rounded">*a</code>,{' '}
+          <code className="text-xs bg-slate-100 dark:bg-slate-800 px-1 rounded">*b</code>)를 통해 값에 접근해야 합니다.
+          추가로 <code className="text-xs bg-slate-100 dark:bg-slate-800 px-1 rounded">{'if (p1 > p2)'}</code>는 값 비교가 아닌 <strong>메모리 주소 비교</strong>라는 점도 주의하세요.
+        </p>
         <SwapSection />
       </section>
     </div>

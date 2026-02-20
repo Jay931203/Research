@@ -21,28 +21,6 @@ function SH({ icon, title, id }: { icon: string; title: string; id?: string }) {
   );
 }
 
-function ConceptBox({ what, rules, caution }: { what: string; rules: string[]; caution?: string }) {
-  return (
-    <div className="mb-5 rounded-xl border border-blue-100 dark:border-blue-900/40 bg-blue-50/60 dark:bg-blue-950/20 p-4 space-y-2.5">
-      <p className="text-sm text-blue-900 dark:text-blue-100 leading-relaxed">{what}</p>
-      <ul className="space-y-1.5">
-        {rules.map((r, i) => (
-          <li key={i} className="flex gap-2 text-xs text-blue-800 dark:text-blue-200 leading-relaxed">
-            <span className="mt-0.5 flex-shrink-0 h-4 w-4 rounded bg-blue-400/70 flex items-center justify-center text-[9px] font-black text-white">{i + 1}</span>
-            <span>{r}</span>
-          </li>
-        ))}
-      </ul>
-      {caution && (
-        <div className="flex gap-2 rounded-lg bg-amber-50 dark:bg-amber-900/20 border border-amber-200 dark:border-amber-700/40 px-3 py-2 text-xs text-amber-800 dark:text-amber-200 leading-relaxed">
-          <span className="flex-shrink-0 font-bold">⚠</span>
-          <span>{caution}</span>
-        </div>
-      )}
-    </div>
-  );
-}
-
 /* ══════════════════════════════════════════════════════
    SECTION 1 — 순수 가상 함수와 추상 클래스
 ══════════════════════════════════════════════════════ */
@@ -529,41 +507,47 @@ export default function PolymorphismContent({ topic }: Props) {
 
       <section id="abstract-sec-concepts">
         <SH icon="🎯" title="순수 가상 함수와 추상 클래스 — 인터랙티브 체크" />
-        <ConceptBox
-          what="순수 가상 함수(= 0)를 하나라도 가진 클래스를 추상 클래스라고 합니다. 직접 인스턴스화할 수 없으며, 파생 클래스가 특정 인터페이스를 구현하도록 강제합니다."
-          rules={[
-            '순수 가상 함수: virtual void area() const = 0; — 구현 없이 선언만 (본문 없음)',
-            '추상 클래스: 직접 인스턴스화 불가 → Shape s; 는 컴파일 에러',
-            '파생 클래스 인스턴스화 조건: 모든 순수 가상 함수를 override해야 인스턴스화 가능',
-          ]}
-        />
+        <p className="text-sm text-slate-600 dark:text-slate-400 mb-5 leading-relaxed">
+          <strong>순수 가상 함수</strong>(<code className="text-xs bg-slate-100 dark:bg-slate-800 px-1 rounded">= 0</code>)를 하나라도 가진 클래스를{' '}
+          <strong>추상 클래스</strong>라고 합니다.{' '}
+          <code className="text-xs bg-slate-100 dark:bg-slate-800 px-1 rounded">{'virtual void area() const = 0;'}</code>처럼 본문 없이 선언만 존재합니다.
+          추상 클래스는 직접 인스턴스화할 수 없으며(<code className="text-xs bg-slate-100 dark:bg-slate-800 px-1 rounded">Shape s;</code>는 컴파일 에러),{' '}
+          파생 클래스가 <strong>모든 순수 가상 함수를 override해야</strong> 비로소 인스턴스화가 가능합니다.
+          이 제약을 통해 특정 인터페이스 구현을 강제할 수 있습니다.
+        </p>
         <AbstractClassSection />
       </section>
 
       <section id="abstract-sec-clone">
         <SH icon="📋" title="clone() 패턴 — 다형적 깊은 복사" />
-        <ConceptBox
-          what="clone() 패턴은 기반 클래스 포인터/참조만으로 실제 파생 클래스 타입의 복사본을 만드는 설계 패턴입니다."
-          rules={[
-            'add(const Shape& s): s는 Shape 참조 → s.clone() 호출 → 실제 타입의 clone()이 동적 디스패치',
-            '각 파생 클래스: Shape* clone() const { return new Circle(*this); } — 자신의 복사본 반환',
-            'void add에서 &s를 직접 저장하면 안 되는 이유: 임시 인수 객체가 함수 종료 후 소멸 → dangling pointer',
-          ]}
-          caution="객체 슬라이싱(object slicing): Shape s2 = *circle_ptr; 처럼 값 대입하면 Circle 고유 정보가 잘려나감. 다형성은 항상 포인터/참조로!"
-        />
+        <p className="text-sm text-slate-600 dark:text-slate-400 mb-5 leading-relaxed">
+          <strong>clone() 패턴</strong>은 기반 클래스 포인터/참조만으로 실제 파생 클래스 타입의 복사본을 만드는 설계 패턴입니다.{' '}
+          <code className="text-xs bg-slate-100 dark:bg-slate-800 px-1 rounded">add(const Shape& s)</code>에서{' '}
+          <code className="text-xs bg-slate-100 dark:bg-slate-800 px-1 rounded">s.clone()</code>을 호출하면 동적 디스패치로 실제 타입의{' '}
+          <code className="text-xs bg-slate-100 dark:bg-slate-800 px-1 rounded">clone()</code>이 실행됩니다.
+          각 파생 클래스는{' '}
+          <code className="text-xs bg-slate-100 dark:bg-slate-800 px-1 rounded">{'Shape* clone() const { return new Circle(*this); }'}</code>처럼 자신의 복사본을 반환합니다.
+          함수 인수로 받은 참조를 직접 저장하면 함수 종료 후 객체가 소멸하여 <strong>댕글링 포인터</strong>가 되므로, clone으로 새 객체를 만들어야 합니다.
+          다형성은 항상 포인터/참조로 다루어야 하며, 값 대입(<code className="text-xs bg-slate-100 dark:bg-slate-800 px-1 rounded">Shape s2 = *ptr</code>)은 파생 클래스 정보가 잘려나가는 <strong>객체 슬라이싱</strong>이 발생합니다.
+        </p>
         <ClonePatternSection />
       </section>
 
       <section id="abstract-sec-exam">
         <SH icon="📝" title="빈칸 채우기 — Scene 패턴" />
-        <ConceptBox
-          what="Scene 클래스는 vector&lt;Shape*&gt;로 다형성 컨테이너를 구현합니다. 각 빈칸은 다형성과 clone() 패턴의 핵심을 묻습니다."
-          rules={[
-            '(A),(B): clone() — 파생 클래스가 자신의 타입으로 new Circle(*this) / new Rect(*this) 반환',
-            '(C): 소멸자에서 delete v[i] — 가상 소멸자 덕분에 파생 소멸자도 호출',
-            '(D): s.clone() — 다형적 복사 / (E): v[i]->area() — 다형적 넓이 계산',
-          ]}
-        />
+        <p className="text-sm text-slate-600 dark:text-slate-400 mb-5 leading-relaxed">
+          <code className="text-xs bg-slate-100 dark:bg-slate-800 px-1 rounded">Scene</code> 클래스는{' '}
+          <code className="text-xs bg-slate-100 dark:bg-slate-800 px-1 rounded">{'vector<Shape*>'}</code>로 다형성 컨테이너를 구현합니다.
+          빈칸 <strong>(A), (B)</strong>는 각 파생 클래스가 자신의 복사본을 반환하는{' '}
+          <code className="text-xs bg-slate-100 dark:bg-slate-800 px-1 rounded">clone()</code>,{' '}
+          <strong>(C)</strong>는 소멸자에서 동적 메모리를 정리하는{' '}
+          <code className="text-xs bg-slate-100 dark:bg-slate-800 px-1 rounded">delete v[i]</code>,{' '}
+          <strong>(D)</strong>는 다형적 복사를 위한{' '}
+          <code className="text-xs bg-slate-100 dark:bg-slate-800 px-1 rounded">s.clone()</code>,{' '}
+          <strong>(E)</strong>는 다형적 넓이 계산을 위한{' '}
+          <code className="text-xs bg-slate-100 dark:bg-slate-800 px-1 rounded">{'v[i]->area()'}</code>입니다.
+          virtual 소멸자가 있으므로 <code className="text-xs bg-slate-100 dark:bg-slate-800 px-1 rounded">delete v[i]</code>는 파생 클래스 소멸자까지 올바르게 호출합니다.
+        </p>
         <ExamFillSection />
       </section>
     </div>
