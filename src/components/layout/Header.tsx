@@ -76,9 +76,6 @@ export default function Header({ onSearchClick }: HeaderProps = {}) {
           >
             대시보드
           </HeaderLink>
-          <HeaderLink href="/glossary" active={pathname === '/glossary'}>
-            용어집
-          </HeaderLink>
           <HeaderLink href="/my-research" active={pathname === '/my-research'}>
             내 연구
           </HeaderLink>
@@ -158,13 +155,6 @@ export default function Header({ onSearchClick }: HeaderProps = {}) {
               active={pathname === '/dashboard' || pathname.startsWith('/paper/')}
             >
               대시보드
-            </MobileHeaderLink>
-            <MobileHeaderLink
-              href="/glossary"
-              onClick={() => setMobileMenuOpen(false)}
-              active={pathname === '/glossary'}
-            >
-              용어집
             </MobileHeaderLink>
             <MobileHeaderLink
               href="/my-research"

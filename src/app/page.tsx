@@ -1,35 +1,27 @@
 import Link from 'next/link';
-import { ArrowRight, BookOpen, GitBranch, GraduationCap, Layers } from 'lucide-react';
+import { ArrowRight, BookOpen, GitBranch, GraduationCap } from 'lucide-react';
 
 const cards = [
   {
     href: '/dashboard',
     title: '연구 대시보드',
-    description: '논문 관계 그래프를 한눈에 탐색하고 학습 페이지로 바로 이동합니다.',
+    description: '논문 관계 그래프를 탐색하고 각 논문의 학습 페이지로 이동합니다.',
     icon: <GitBranch className="h-6 w-6 text-blue-600" />,
     accent: 'hover:ring-blue-200/50 dark:hover:ring-blue-500/20',
     tag: '논문 탐색',
   },
   {
-    href: '/glossary',
-    title: '용어집',
-    description: '핵심 기술 용어의 정의와 관련 논문을 집합별로 빠르게 확인합니다.',
+    href: '/my-research',
+    title: '내 연구',
+    description: 'CSI AutoEncoder 압축 연구의 흐름과 핵심 논문을 정리한 페이지입니다.',
     icon: <BookOpen className="h-6 w-6 text-violet-600" />,
     accent: 'hover:ring-violet-200/50 dark:hover:ring-violet-500/20',
-    tag: '용어 정리',
-  },
-  {
-    href: '/quant-study',
-    title: '양자화 공부',
-    description: 'QuIP, QuIP#, AQLM 논문의 핵심 개념을 인터랙티브 시각화로 학습합니다.',
-    icon: <Layers className="h-6 w-6 text-emerald-600" />,
-    accent: 'hover:ring-emerald-200/50 dark:hover:ring-emerald-500/20',
-    tag: '연구 학습',
+    tag: '연구 정리',
   },
   {
     href: '/qual-exam',
     title: '논자시 준비',
-    description: '자료구조·알고리즘 & 프로그래밍의 기초 기출문제와 인터랙티브 학습 자료.',
+    description: '자료구조·알고리즘 & 프로그래밍 기초 기출문제와 인터랙티브 학습 자료.',
     icon: <GraduationCap className="h-6 w-6 text-orange-600" />,
     accent: 'hover:ring-orange-200/50 dark:hover:ring-orange-500/20',
     tag: '시험 준비',
@@ -40,38 +32,24 @@ const cards = [
 export default function HomePage() {
   return (
     <main className="relative min-h-screen overflow-hidden bg-[radial-gradient(circle_at_10%_15%,#dbeafe_0%,transparent_50%),radial-gradient(circle_at_90%_10%,#e0e7ff_0%,transparent_45%),radial-gradient(circle_at_50%_80%,#cffafe_0%,transparent_40%),linear-gradient(160deg,#f8fafc_0%,#eef2ff_35%,#f0f9ff_65%,#fafbfd_100%)] px-4 py-16 dark:bg-[radial-gradient(circle_at_20%_20%,#172554_0%,transparent_45%),radial-gradient(circle_at_80%_10%,#083344_0%,transparent_42%),linear-gradient(135deg,#020617_0%,#0f172a_50%,#111827_100%)] sm:px-6 lg:px-8">
-      <div className="mx-auto w-full max-w-6xl space-y-10">
-        <section className="space-y-4 text-center">
+      <div className="mx-auto w-full max-w-4xl space-y-10">
+        <section className="space-y-5 text-center">
           <p className="inline-flex rounded-full border border-blue-200/80 bg-white/90 px-3 py-1 text-xs font-semibold tracking-[0.14em] text-blue-600 shadow-sm backdrop-blur dark:border-blue-800 dark:bg-slate-900/70 dark:text-blue-200">
             RESEARCH GRAPH WORKSPACE
           </p>
-          <h1 className="mx-auto max-w-4xl text-4xl font-black leading-tight text-slate-900 dark:text-slate-100 sm:text-5xl lg:text-6xl">
-            논문 핵심을 빠르게 기억하고
-            <br />
-            연계 흐름을 한 번에 읽는 연구 그래프
+          <h1 className="text-4xl font-black leading-tight text-slate-900 dark:text-slate-100 sm:text-5xl">
+            개인 연구 허브
           </h1>
-          <p className="mx-auto max-w-2xl text-sm text-slate-600 dark:text-slate-300 sm:text-base">
-            논문 관계 그래프, 용어 팝업, 복습 큐를 통해 연구 맥락을 추적합니다.
-          </p>
-          <div className="flex items-center justify-center gap-3 pt-2">
-            <Link
-              href="/dashboard"
-              className="inline-flex items-center gap-2 rounded-lg bg-blue-600 px-4 py-2.5 text-sm font-semibold text-white shadow-md shadow-blue-600/25 transition hover:bg-blue-500 hover:shadow-lg hover:shadow-blue-600/30 dark:bg-blue-600 dark:hover:bg-blue-500"
-            >
-              대시보드 열기
-              <ArrowRight className="h-4 w-4" />
-            </Link>
-            <Link
-              href="/qual-exam"
-              className="inline-flex items-center gap-2 rounded-lg border border-orange-200 bg-orange-50 px-4 py-2.5 text-sm font-semibold text-orange-700 shadow-sm transition hover:bg-orange-100 dark:border-orange-800 dark:bg-orange-950/40 dark:text-orange-300 dark:hover:bg-orange-900/30"
-            >
-              논자시 준비
-              <GraduationCap className="h-4 w-4" />
-            </Link>
-          </div>
+          <Link
+            href="/dashboard"
+            className="inline-flex items-center gap-2 rounded-lg bg-blue-600 px-5 py-2.5 text-sm font-semibold text-white shadow-md shadow-blue-600/25 transition hover:bg-blue-500"
+          >
+            대시보드 열기
+            <ArrowRight className="h-4 w-4" />
+          </Link>
         </section>
 
-        <section className="grid gap-4 sm:grid-cols-2 lg:grid-cols-4">
+        <section className="grid gap-4 sm:grid-cols-3">
           {cards.map((card) => (
             <Link
               key={card.href}
