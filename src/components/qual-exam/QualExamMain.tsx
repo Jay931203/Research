@@ -7,6 +7,7 @@ import {
 import TopicDetail from './TopicDetail';
 import ExamProblemCard from './ExamProblemCard';
 import ExamProblemModal from './ExamProblemModal';
+import PracticeModal from './PracticeModal';
 import PracticeList from './PracticeList';
 import { DSA_TOPICS, DSA_EXAM_PROBLEMS, DSA_PRACTICE_QUESTIONS } from '@/data/qual-exam/dsa-data';
 import { PROG_TOPICS, PROG_EXAM_PROBLEMS, PROG_PRACTICE_QUESTIONS } from '@/data/qual-exam/prog-data';
@@ -277,46 +278,68 @@ function AllExamsPanel({ groups }: { groups: ExamGroup[] }) {
 }
 
 /* ── Right exam / practice panel ── */
-function RightPanel({ exams, practiceQs, onExamClick, onClose }: {
+function RightPanel({ exams, practiceQs, onExamClick, onPracticeClick, collapsed, onToggleCollapse }: {
   exams: ExamProblem[]; practiceQs: QuizQuestion[];
-  onExamClick: (e: ExamProblem) => void; onClose: () => void;
+  onExamClick: (e: ExamProblem) => void;
+  onPracticeClick: () => void;
+  collapsed: boolean;
+  onToggleCollapse: () => void;
 }) {
   return (
-    <aside className="w-72 flex-shrink-0 border-l border-slate-200 dark:border-slate-800 bg-white dark:bg-slate-900 flex flex-col overflow-hidden">
-      <div className="flex items-center justify-between px-4 py-3 border-b border-slate-200 dark:border-slate-800 flex-shrink-0">
-        <p className="text-sm font-bold text-slate-700 dark:text-slate-200">기출 / 연습 문제</p>
-        <button onClick={onClose} className="p-1 rounded-lg hover:bg-slate-100 dark:hover:bg-slate-800 transition">
-          <X className="h-4 w-4 text-slate-500" />
+    <aside className={`flex-shrink-0 border-l border-slate-200 dark:border-slate-800 bg-white dark:bg-slate-900 flex flex-col overflow-hidden transition-all duration-200 ${collapsed ? 'w-10' : 'w-64'}`}>
+      <div className="flex items-center justify-between px-3 py-2.5 border-b border-slate-200 dark:border-slate-800 flex-shrink-0">
+        {!collapsed && (
+          <span className="text-[11px] font-bold text-slate-400 uppercase tracking-wider">연관 문제</span>
+        )}
+        <button
+          onClick={onToggleCollapse}
+          className="ml-auto p-1.5 rounded-lg hover:bg-slate-100 dark:hover:bg-slate-800 text-slate-500 dark:text-slate-400 transition"
+          title={collapsed ? '펼치기' : '접기'}
+        >
+          {collapsed ? <ChevronLeft className="h-4 w-4" /> : <ChevronRight className="h-4 w-4" />}
         </button>
       </div>
-      <div className="flex-1 overflow-y-auto overscroll-contain p-3 space-y-2">
-        {exams.length > 0 && (
-          <>
-            <p className="px-1 text-[10px] font-bold text-slate-400 uppercase tracking-wider">기출문제 ({exams.length})</p>
-            {exams.map(exam => (
-              <button key={exam.id} onClick={() => onExamClick(exam)}
-                className="w-full text-left rounded-xl border border-slate-200 dark:border-slate-700 bg-slate-50 dark:bg-slate-800 hover:bg-blue-50 dark:hover:bg-blue-950/30 hover:border-blue-300 dark:hover:border-blue-700 p-3 transition">
-                <div className="flex items-center gap-2 mb-1">
-                  <span className="rounded bg-slate-900 dark:bg-slate-100 px-2 py-0.5 text-[10px] font-black text-white dark:text-slate-900">
-                    {exam.year}-{semLabel(exam.semester)}
+
+      {!collapsed && (
+        <div className="flex-1 overflow-y-auto overscroll-contain p-3 space-y-0.5 min-h-0">
+          {exams.length > 0 && (
+            <>
+              <p className="px-1 pb-1 text-[10px] font-bold text-slate-400 uppercase tracking-wider">기출문제 ({exams.length})</p>
+              {exams.map(exam => (
+                <button
+                  key={exam.id}
+                  onClick={() => onExamClick(exam)}
+                  className="w-full flex items-center gap-2 rounded-lg px-3 py-2.5 text-left transition text-slate-700 dark:text-slate-300 hover:bg-slate-100 dark:hover:bg-slate-800"
+                >
+                  <span className="flex-shrink-0 rounded bg-slate-900 dark:bg-slate-100 px-1.5 py-0.5 text-[10px] font-black text-white dark:text-slate-900 whitespace-nowrap">
+                    {exam.year}·{semLabel(exam.semester)}
                   </span>
-                  <span className="text-[10px] text-slate-400">{exam.totalPoints}점</span>
-                </div>
-                <p className="text-xs font-semibold text-slate-700 dark:text-slate-200 leading-snug">{exam.title}</p>
+                  <span className="flex-1 min-w-0 text-xs font-medium truncate">{exam.title}</span>
+                  <span className="flex-shrink-0 text-[10px] text-slate-400 whitespace-nowrap">{exam.totalPoints}점</span>
+                </button>
+              ))}
+            </>
+          )}
+
+          {practiceQs.length > 0 && (
+            <div className={exams.length > 0 ? 'pt-2 mt-1 border-t border-slate-100 dark:border-slate-800' : ''}>
+              <p className="px-1 pb-1 text-[10px] font-bold text-slate-400 uppercase tracking-wider">연습문제</p>
+              <button
+                onClick={onPracticeClick}
+                className="w-full flex items-center gap-2 rounded-lg px-3 py-2.5 text-left transition text-slate-700 dark:text-slate-300 hover:bg-slate-100 dark:hover:bg-slate-800"
+              >
+                <span className="text-sm flex-shrink-0">✏️</span>
+                <span className="flex-1 min-w-0 text-sm font-medium">연습 문제 전체</span>
+                <span className="flex-shrink-0 text-[10px] font-semibold text-violet-500">{practiceQs.length}문제</span>
               </button>
-            ))}
-          </>
-        )}
-        {practiceQs.length > 0 && (
-          <div className={exams.length > 0 ? 'pt-3 border-t border-slate-100 dark:border-slate-800' : ''}>
-            <p className="px-1 mb-2 text-[10px] font-bold text-slate-400 uppercase tracking-wider">연습 문제 ({practiceQs.length})</p>
-            <PracticeList questions={practiceQs} />
-          </div>
-        )}
-        {exams.length === 0 && practiceQs.length === 0 && (
-          <p className="py-10 text-center text-sm text-slate-400">기출/연습 문제가 없습니다.</p>
-        )}
-      </div>
+            </div>
+          )}
+
+          {exams.length === 0 && practiceQs.length === 0 && (
+            <p className="py-10 text-center text-sm text-slate-400">연관 문제가 없습니다.</p>
+          )}
+        </div>
+      )}
     </aside>
   );
 }
@@ -327,8 +350,9 @@ export default function QualExamMain() {
   const [view,              setView]              = useState<View>({ kind: 'topics' });
   const [leftCollapsed,     setLeftCollapsed]     = useState(false);
   const [mobileSidebarOpen, setMobileSidebarOpen] = useState(false);
-  const [examPanelOpen,     setExamPanelOpen]     = useState(true);
+  const [rightCollapsed,    setRightCollapsed]    = useState(false);
   const [modalExam,         setModalExam]         = useState<ExamProblem | null>(null);
+  const [practiceModalOpen, setPracticeModalOpen] = useState(false);
 
   // topics scroll spy
   const [activeTopicId,   setActiveTopicId]   = useState<string>('');
@@ -501,8 +525,8 @@ export default function QualExamMain() {
 
   const switchSubject = (s: Subject) => {
     setSubject(s);
-    // preserve current view (topics or exams) when switching subject
-    setExamPanelOpen(true);
+    setView({ kind: 'topics' });
+    setRightCollapsed(false);
     setMobileSidebarOpen(false);
   };
 
@@ -551,7 +575,7 @@ export default function QualExamMain() {
             <button
               onClick={() => {
                 if (view.kind === 'exams') { setView({ kind: 'topics' }); }
-                else { setView({ kind: 'exams' }); setExamPanelOpen(false); setMobileSidebarOpen(false); }
+                else { setView({ kind: 'exams' }); setMobileSidebarOpen(false); }
               }}
               className={`w-full flex items-center gap-2.5 rounded-lg px-3 py-2 text-left transition
                 ${view.kind === 'exams'
@@ -606,6 +630,11 @@ export default function QualExamMain() {
   return (
     <>
       <ExamProblemModal problem={modalExam} onClose={() => setModalExam(null)} />
+      <PracticeModal
+        questions={topicPracticeQs}
+        topicTitle={practiceModalOpen ? (activeTopic?.title ?? null) : null}
+        onClose={() => setPracticeModalOpen(false)}
+      />
 
       <div className="flex flex-col overflow-hidden" style={{ height: 'calc(100vh - 64px)' }}>
         <div className="flex items-center gap-3 px-4 py-2.5 border-b border-slate-200 dark:border-slate-800 bg-white dark:bg-slate-900 sm:hidden flex-shrink-0">
@@ -636,49 +665,33 @@ export default function QualExamMain() {
             </div>
           )}
 
-          <div className="flex-1 flex flex-col overflow-hidden">
-            {view.kind === 'topics' && hasPanelContent && (
-              <div className="flex items-center justify-end px-4 py-2 border-b border-slate-100 dark:border-slate-800 bg-white dark:bg-slate-900 flex-shrink-0">
-                <button
-                  onClick={() => setExamPanelOpen(o => !o)}
-                  className={`flex items-center gap-1.5 rounded-full px-3 py-1.5 text-xs font-semibold transition
-                    ${examPanelOpen
-                      ? 'bg-slate-200 dark:bg-slate-700 text-slate-700 dark:text-slate-200'
-                      : 'bg-blue-600 hover:bg-blue-500 text-white shadow-sm'}`}
-                >
-                  <FileText className="h-3.5 w-3.5" />
-                  기출 {relatedExams.length} · 연습 {topicPracticeQs.length}
-                  {examPanelOpen ? <ChevronRight className="h-3 w-3" /> : <ChevronLeft className="h-3 w-3" />}
-                </button>
-              </div>
-            )}
-
-            <div className="flex flex-1 overflow-hidden">
-              <main ref={mainRef} className="flex-1 overflow-y-auto overscroll-contain bg-slate-50 dark:bg-slate-950">
-                {view.kind === 'topics' && (
-                  <div>
-                    {sortedTopics.map((t, idx) => (
-                      <div key={t.id} id={`topic-${t.id}`}>
-                        <TopicDetail topic={t} />
-                        {idx < sortedTopics.length - 1 && (
-                          <div className="mx-6 border-t-2 border-dashed border-slate-200 dark:border-slate-800 my-2" />
-                        )}
-                      </div>
-                    ))}
-                  </div>
-                )}
-                {view.kind === 'exams' && <AllExamsPanel groups={examGroups} />}
-              </main>
-
-              {examPanelOpen && view.kind === 'topics' && (
-                <RightPanel
-                  exams={relatedExams}
-                  practiceQs={topicPracticeQs}
-                  onExamClick={setModalExam}
-                  onClose={() => setExamPanelOpen(false)}
-                />
+          <div className="flex-1 flex overflow-hidden">
+            <main ref={mainRef} className="flex-1 overflow-y-auto overscroll-contain bg-slate-50 dark:bg-slate-950">
+              {view.kind === 'topics' && (
+                <div>
+                  {sortedTopics.map((t, idx) => (
+                    <div key={t.id} id={`topic-${t.id}`}>
+                      <TopicDetail topic={t} />
+                      {idx < sortedTopics.length - 1 && (
+                        <div className="mx-6 border-t-2 border-dashed border-slate-200 dark:border-slate-800 my-2" />
+                      )}
+                    </div>
+                  ))}
+                </div>
               )}
-            </div>
+              {view.kind === 'exams' && <AllExamsPanel groups={examGroups} />}
+            </main>
+
+            {view.kind === 'topics' && hasPanelContent && (
+              <RightPanel
+                exams={relatedExams}
+                practiceQs={topicPracticeQs}
+                onExamClick={setModalExam}
+                onPracticeClick={() => setPracticeModalOpen(true)}
+                collapsed={rightCollapsed}
+                onToggleCollapse={() => setRightCollapsed(c => !c)}
+              />
+            )}
           </div>
         </div>
       </div>
