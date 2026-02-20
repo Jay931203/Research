@@ -18,6 +18,7 @@ export interface ExamProblem {
     points: number;
     text: string;
     answer?: string;
+    answerTable?: { headers: string[]; rows: string[][]; caption?: string };
   }[];
   answer?: string;
   codeBlock?: string;
@@ -91,11 +92,10 @@ function looksLikeFormatted(text: string): boolean {
    - lang="C++"  → dark block with language header (C++ source)
    - lang omitted → dark block without header (algorithm trace / pseudocode)
    Both are visually consistent — same dark background, same font.
-   overflow-clip preserves border-radius without blocking child overflow-x-auto.
 ───────────────────────────────────────────────────────────── */
 function CodeBlock({ text, lang }: { text: string; lang?: string }) {
   return (
-    <div className="rounded-lg overflow-clip border border-slate-700/40">
+    <div className="rounded-lg overflow-hidden border border-slate-700/40">
       {lang && (
         <div className="flex items-center px-4 py-1.5 bg-slate-800 border-b border-slate-700/40">
           <span className="text-[10px] font-mono font-semibold text-slate-400 tracking-wider">{lang}</span>
@@ -104,6 +104,43 @@ function CodeBlock({ text, lang }: { text: string; lang?: string }) {
       <pre className="overflow-x-auto bg-slate-950 px-4 py-3.5 text-xs leading-6 text-slate-200 font-mono whitespace-pre">
         <code>{text}</code>
       </pre>
+    </div>
+  );
+}
+
+/* ─────────────────────────────────────────────────────────────
+   Table block — horizontally scrollable data table
+───────────────────────────────────────────────────────────── */
+function TableBlock({ headers, rows, caption }: { headers: string[]; rows: string[][]; caption?: string }) {
+  return (
+    <div className="overflow-x-auto rounded-lg border border-slate-200 dark:border-slate-700/60">
+      <table className="w-full text-xs text-left">
+        <thead>
+          <tr className="bg-slate-100 dark:bg-slate-800">
+            {headers.map((h, i) => (
+              <th key={i} className="px-3 py-2 font-bold text-slate-700 dark:text-slate-200 whitespace-nowrap border-b border-slate-200 dark:border-slate-700/60">
+                {h}
+              </th>
+            ))}
+          </tr>
+        </thead>
+        <tbody>
+          {rows.map((row, ri) => (
+            <tr key={ri} className={ri % 2 === 0 ? 'bg-white dark:bg-slate-900' : 'bg-slate-50 dark:bg-slate-800/40'}>
+              {row.map((cell, ci) => (
+                <td key={ci} className="px-3 py-2 font-mono text-slate-700 dark:text-slate-300 border-b border-slate-100 dark:border-slate-800 whitespace-pre">
+                  {cell}
+                </td>
+              ))}
+            </tr>
+          ))}
+        </tbody>
+      </table>
+      {caption && (
+        <div className="px-3 py-1.5 text-[10px] text-slate-400 bg-slate-50 dark:bg-slate-800/40 border-t border-slate-100 dark:border-slate-800">
+          {caption}
+        </div>
+      )}
     </div>
   );
 }
@@ -199,8 +236,7 @@ function SubItem({
   const visible = forceShow || open;
 
   return (
-    /* overflow-clip: clips to rounded corners without blocking child overflow-x-auto */
-    <div className="rounded-xl border border-slate-200 dark:border-slate-700/60 bg-white dark:bg-slate-900 overflow-clip">
+    <div className="rounded-xl border border-slate-200 dark:border-slate-700/60 bg-white dark:bg-slate-900 overflow-hidden">
       {/* Question */}
       <div className="px-4 pt-4 pb-3.5">
         <div className="flex items-center gap-2 mb-2.5">
@@ -215,7 +251,7 @@ function SubItem({
       </div>
 
       {/* Answer toggle */}
-      {sq.answer && (
+      {(sq.answer || sq.answerTable) && (
         <div className="border-t border-slate-100 dark:border-slate-800 px-4 pb-4">
           {!visible ? (
             <button
@@ -226,7 +262,12 @@ function SubItem({
             </button>
           ) : (
             <>
-              <AnswerBlock text={sq.answer} />
+              {sq.answerTable && (
+                <div className="mt-3">
+                  <TableBlock {...sq.answerTable} />
+                </div>
+              )}
+              {sq.answer && <AnswerBlock text={sq.answer} />}
               {!forceShow && (
                 <button
                   onClick={() => setOpen(false)}
@@ -255,7 +296,7 @@ export default function ExamProblemCard({ problem, defaultExpanded = false }: Ex
   const totalSubPts = problem.subQuestions?.reduce((s, q) => s + q.points, 0) ?? 0;
 
   return (
-    <div className="rounded-xl border border-slate-200 bg-white overflow-clip dark:border-slate-700 dark:bg-slate-900 shadow-sm">
+    <div className="rounded-xl border border-slate-200 bg-white overflow-hidden dark:border-slate-700 dark:bg-slate-900 shadow-sm">
 
       {/* ── Header ── */}
       <button
