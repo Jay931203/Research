@@ -1,15 +1,12 @@
 'use client';
 
 import { useState } from 'react';
-import { ChevronDown, ChevronRight, FileText } from 'lucide-react';
+import { ChevronDown, ChevronRight } from 'lucide-react';
 import MathBlock from '../MathBlock';
 import type { StudyTopic } from '../TopicStudyCard';
-import type { ExamProblem } from '../ExamProblemCard';
 
 interface Props {
   topic: StudyTopic;
-  relatedExams: ExamProblem[];
-  onExamClick?: (exam: ExamProblem) => void;
 }
 
 /* ── Growth rate functions ── */
@@ -29,63 +26,63 @@ const notations = [
   {
     symbol: 'O',
     name: 'Big-O (상한)',
-    color: 'border-blue-400',
-    headerBg: 'bg-blue-50 dark:bg-blue-950/40',
-    badge: 'bg-blue-100 text-blue-700 dark:bg-blue-900/40 dark:text-blue-300',
+    borderColor: 'border-blue-400',
+    headerBg: 'bg-blue-50 dark:bg-blue-900/30',
+    badge: 'bg-blue-100 text-blue-800 dark:bg-blue-900/60 dark:text-blue-200',
     latex: 'f(n) = O(g(n)) \\iff \\exists\\, c > 0,\\, n_0 : \\forall n \\ge n_0,\\; f(n) \\le c \\cdot g(n)',
     example: 'T(n) = 3n² + 5 → O(n²)',
-    desc: '최악의 경우 상한을 표현. "이 속도보다 빠르다".',
+    desc: '최악의 경우 상한. "이보다 빠르거나 같다".',
   },
   {
     symbol: 'Ω',
     name: 'Big-Omega (하한)',
-    color: 'border-emerald-400',
-    headerBg: 'bg-emerald-50 dark:bg-emerald-950/40',
-    badge: 'bg-emerald-100 text-emerald-700 dark:bg-emerald-900/40 dark:text-emerald-300',
+    borderColor: 'border-emerald-400',
+    headerBg: 'bg-emerald-50 dark:bg-emerald-900/30',
+    badge: 'bg-emerald-100 text-emerald-800 dark:bg-emerald-900/60 dark:text-emerald-200',
     latex: 'f(n) = \\Omega(g(n)) \\iff \\exists\\, c > 0,\\, n_0 : \\forall n \\ge n_0,\\; f(n) \\ge c \\cdot g(n)',
     example: 'T(n) = 3n² + 5 → Ω(n²)',
-    desc: '최선의 경우 하한을 표현. "이 속도보다 느리다".',
+    desc: '최선의 경우 하한. "이보다 느리거나 같다".',
   },
   {
     symbol: 'Θ',
     name: 'Big-Theta (정확한 점근)',
-    color: 'border-purple-400',
-    headerBg: 'bg-purple-50 dark:bg-purple-950/40',
-    badge: 'bg-purple-100 text-purple-700 dark:bg-purple-900/40 dark:text-purple-300',
+    borderColor: 'border-purple-400',
+    headerBg: 'bg-purple-50 dark:bg-purple-900/30',
+    badge: 'bg-purple-100 text-purple-800 dark:bg-purple-900/60 dark:text-purple-200',
     latex: 'f(n) = \\Theta(g(n)) \\iff f(n) = O(g(n)) \\text{ and } f(n) = \\Omega(g(n))',
     example: 'T(n) = 3n² + 5 → Θ(n²)',
-    desc: '상한과 하한이 같을 때. 알고리즘의 정확한 성장률.',
+    desc: '상한 = 하한. 정확한 성장률.',
   },
   {
     symbol: 'o',
     name: 'Little-o (strict 상한)',
-    color: 'border-orange-400',
-    headerBg: 'bg-orange-50 dark:bg-orange-950/40',
-    badge: 'bg-orange-100 text-orange-700 dark:bg-orange-900/40 dark:text-orange-300',
+    borderColor: 'border-orange-400',
+    headerBg: 'bg-orange-50 dark:bg-orange-900/30',
+    badge: 'bg-orange-100 text-orange-800 dark:bg-orange-900/60 dark:text-orange-200',
     latex: 'f(n) = o(g(n)) \\iff \\lim_{n \\to \\infty} \\frac{f(n)}{g(n)} = 0',
-    example: 'n = o(n²), 2n = o(n²)',
-    desc: '엄격한 상한. f가 g보다 진짜로 더 빠름 (같은 속도 X).',
+    example: 'n = o(n²)',
+    desc: '엄격한 상한. f가 g보다 진짜로 더 빠름.',
   },
   {
     symbol: 'ω',
     name: 'Little-omega (strict 하한)',
-    color: 'border-rose-400',
-    headerBg: 'bg-rose-50 dark:bg-rose-950/40',
-    badge: 'bg-rose-100 text-rose-700 dark:bg-rose-900/40 dark:text-rose-300',
+    borderColor: 'border-rose-400',
+    headerBg: 'bg-rose-50 dark:bg-rose-900/30',
+    badge: 'bg-rose-100 text-rose-800 dark:bg-rose-900/60 dark:text-rose-200',
     latex: 'f(n) = \\omega(g(n)) \\iff \\lim_{n \\to \\infty} \\frac{f(n)}{g(n)} = \\infty',
-    example: 'n² = ω(n), n³ = ω(n²)',
-    desc: '엄격한 하한. f가 g보다 진짜로 더 느림 (같은 속도 X).',
+    example: 'n² = ω(n)',
+    desc: '엄격한 하한. f가 g보다 진짜로 더 느림.',
   },
 ];
 
 /* ── Key properties ── */
 const properties = [
-  { rule: '전이성 (Transitivity)',   latex: 'f = O(g),\\; g = O(h) \\Rightarrow f = O(h)' },
-  { rule: '합의 법칙 (Sum Rule)',    latex: 'O(f) + O(g) = O(\\max(f, g))' },
-  { rule: '곱의 법칙 (Product)',     latex: 'O(f) \\cdot O(g) = O(f \\cdot g)' },
-  { rule: '다항식 (Polynomial)',     latex: 'a_k n^k + \\cdots + a_0 = O(n^k)' },
-  { rule: '로그 법칙 (Log base)',    latex: '\\log_a n = \\Theta(\\log_b n)' },
-  { rule: '지수 vs 다항 (Exp>Poly)', latex: 'n^k = o(2^n) \\text{ for any fixed } k' },
+  { rule: '전이성',         latex: 'f = O(g),\\; g = O(h) \\Rightarrow f = O(h)' },
+  { rule: '합의 법칙',      latex: 'O(f) + O(g) = O(\\max(f, g))' },
+  { rule: '곱의 법칙',      latex: 'O(f) \\cdot O(g) = O(f \\cdot g)' },
+  { rule: '다항식',         latex: 'a_k n^k + \\cdots + a_0 = O(n^k)' },
+  { rule: '로그 밑 변환',   latex: '\\log_a n = \\Theta(\\log_b n)' },
+  { rule: '지수 > 다항',    latex: 'n^k = o(2^n) \\text{ for any fixed } k' },
 ];
 
 const difficultyLabel = { basic: '기초', intermediate: '중급', advanced: '고급' };
@@ -95,7 +92,7 @@ const difficultyColor = {
   advanced: 'bg-red-50 text-red-700 border border-red-200 dark:bg-red-900/20 dark:text-red-300',
 };
 
-export default function AsymptoticContent({ topic, relatedExams, onExamClick }: Props) {
+export default function AsymptoticContent({ topic }: Props) {
   const [n, setN] = useState(10);
   const [openCard, setOpenCard] = useState<string | null>(null);
 
@@ -105,7 +102,7 @@ export default function AsymptoticContent({ topic, relatedExams, onExamClick }: 
   return (
     <div className="max-w-3xl space-y-10 px-6 py-6">
 
-      {/* ── Hero ─────────────────────────────────── */}
+      {/* ── Hero ── */}
       <div className="flex items-start gap-4">
         <div className="relative flex-shrink-0">
           <span className="text-5xl leading-none">{topic.icon}</span>
@@ -137,92 +134,71 @@ export default function AsymptoticContent({ topic, relatedExams, onExamClick }: 
         </div>
       </div>
 
-      {/* ── Motivating card ─────────────────────── */}
-      <div className="rounded-xl border border-purple-200 bg-purple-50 px-5 py-4 dark:border-purple-800/40 dark:bg-purple-950/30">
-        <p className="text-sm font-bold text-purple-800 dark:text-purple-200 mb-1">왜 점근 분석인가?</p>
-        <p className="text-sm text-purple-700 dark:text-purple-300 leading-relaxed">
-          알고리즘의 <strong>실행 시간을 정확히 계산하면 하드웨어·언어·상수에 의존</strong>하게 되어 비교가 어렵습니다.
-          점근 분석은 입력 크기 n이 커질 때 <em>지배적인 항만 남겨</em> 알고리즘의 본질적인 효율성을 비교합니다.
-        </p>
-      </div>
-
-      {/* ── Growth Rate Explorer ─────────────────── */}
-      <section>
+      {/* ── Growth Rate Explorer ── */}
+      <section id="sec-growth">
         <div className="flex items-center gap-2 mb-4">
           <span className="text-xl">📈</span>
-          <h2 className="text-base font-bold text-slate-800 dark:text-slate-100">성장률 비교 (Growth Rate Explorer)</h2>
+          <h2 className="text-base font-bold text-slate-800 dark:text-slate-100">성장률 비교</h2>
           <div className="flex-1 h-px bg-slate-200 dark:bg-slate-700" />
         </div>
 
         <div className="rounded-xl border border-slate-200 dark:border-slate-700 bg-white dark:bg-slate-900 p-5">
-          {/* Slider */}
           <div className="flex items-center gap-4 mb-6">
-            <label className="text-sm font-semibold text-slate-600 dark:text-slate-300 flex-shrink-0">
-              n =
-            </label>
+            <label className="text-sm font-semibold text-slate-600 dark:text-slate-300 flex-shrink-0 w-8">n =</label>
             <input
-              type="range"
-              min={1}
-              max={30}
-              value={n}
+              type="range" min={1} max={30} value={n}
               onChange={e => setN(Number(e.target.value))}
               className="flex-1 accent-blue-600"
             />
             <span className="w-8 text-center font-mono font-bold text-blue-600 dark:text-blue-400">{n}</span>
           </div>
 
-          {/* Bar chart */}
           <div className="flex items-end gap-3 h-48">
             {growthData.map(d => {
               const heightPct = maxVal > 0 ? Math.max(2, (d.value / maxVal) * 100) : 2;
+              const display = d.value >= 1e9 ? '>1B'
+                : d.value >= 1e6 ? (d.value / 1e6).toFixed(1) + 'M'
+                : d.value >= 1000 ? (d.value / 1000).toFixed(1) + 'K'
+                : d.value.toFixed(d.value < 10 ? 2 : 0);
               return (
                 <div key={d.name} className="flex flex-col items-center gap-1 flex-1 min-w-0">
-                  <span className="text-[10px] font-mono text-slate-500 dark:text-slate-400 truncate">
-                    {d.value >= 1e9 ? '>1B' : d.value >= 1e6 ? (d.value / 1e6).toFixed(1) + 'M' : d.value >= 1000 ? (d.value / 1000).toFixed(1) + 'K' : d.value.toFixed(d.value < 10 ? 2 : 0)}
-                  </span>
-                  <div className="relative w-full flex items-end" style={{ height: '160px' }}>
-                    <div
-                      className={`w-full rounded-t-md ${d.color} transition-all duration-300`}
-                      style={{ height: `${heightPct}%` }}
-                    />
+                  <span className="text-[10px] font-mono text-slate-500 dark:text-slate-400 truncate w-full text-center">{display}</span>
+                  <div className="relative w-full" style={{ height: '160px', display: 'flex', alignItems: 'flex-end' }}>
+                    <div className={`w-full rounded-t-md ${d.color} transition-all duration-300`} style={{ height: `${heightPct}%` }} />
                   </div>
-                  <span className="text-[11px] font-semibold text-slate-600 dark:text-slate-300">{d.name}</span>
+                  <span className="text-[11px] font-semibold text-slate-600 dark:text-slate-300 truncate w-full text-center">{d.name}</span>
                 </div>
               );
             })}
           </div>
-
-          <p className="mt-3 text-xs text-slate-400 dark:text-slate-500 text-center">
-            색상: <span className="text-emerald-500 font-semibold">녹색(빠름)</span> → <span className="text-red-500 font-semibold">빨강(느림)</span>
+          <p className="mt-3 text-xs text-slate-400 text-center">
+            <span className="text-emerald-500 font-semibold">녹색</span> (빠름) → <span className="text-red-500 font-semibold">빨강</span> (느림)
           </p>
         </div>
       </section>
 
-      {/* ── Big-O 5종 카드 ──────────────────────── */}
-      <section>
+      {/* ── Big-O 5종 ── */}
+      <section id="sec-notations">
         <div className="flex items-center gap-2 mb-4">
           <span className="text-xl">📐</span>
           <h2 className="text-base font-bold text-slate-800 dark:text-slate-100">점근 표기법 5종</h2>
           <div className="flex-1 h-px bg-slate-200 dark:bg-slate-700" />
         </div>
-        <div className="space-y-3">
-          {notations.map(n => {
-            const isOpen = openCard === n.symbol;
+        <div className="space-y-2">
+          {notations.map(nt => {
+            const isOpen = openCard === nt.symbol;
             return (
-              <div
-                key={n.symbol}
-                className={`rounded-xl border-2 overflow-hidden transition-all ${n.color} bg-white dark:bg-slate-900`}
-              >
+              <div key={nt.symbol} className={`rounded-xl border-2 overflow-hidden ${nt.borderColor} bg-white dark:bg-slate-900`}>
                 <button
-                  onClick={() => setOpenCard(isOpen ? null : n.symbol)}
-                  className={`w-full flex items-center gap-3 px-4 py-3 text-left ${n.headerBg} hover:brightness-95 dark:hover:brightness-110 transition`}
+                  onClick={() => setOpenCard(isOpen ? null : nt.symbol)}
+                  className={`w-full flex items-center gap-3 px-4 py-3 text-left ${nt.headerBg} transition`}
                 >
-                  <span className={`rounded-lg px-2.5 py-1 text-base font-black font-mono ${n.badge} flex-shrink-0`}>
-                    {n.symbol}
+                  <span className={`rounded-lg px-3 py-1 text-sm font-black font-mono ${nt.badge} flex-shrink-0`}>
+                    {nt.symbol}
                   </span>
                   <div className="flex-1 min-w-0">
-                    <p className="font-bold text-slate-800 dark:text-slate-100 text-sm">{n.name}</p>
-                    <p className="text-xs text-slate-500 dark:text-slate-400 truncate">{n.desc}</p>
+                    <p className="font-bold text-slate-800 dark:text-slate-100 text-sm">{nt.name}</p>
+                    <p className="text-xs text-slate-500 dark:text-slate-400">{nt.desc}</p>
                   </div>
                   {isOpen
                     ? <ChevronDown className="h-4 w-4 flex-shrink-0 text-slate-400" />
@@ -230,14 +206,15 @@ export default function AsymptoticContent({ topic, relatedExams, onExamClick }: 
                   }
                 </button>
                 {isOpen && (
-                  <div className="px-5 py-4 space-y-3 border-t border-slate-100 dark:border-slate-800">
-                    <div className="rounded-lg bg-slate-950 px-4 py-3 overflow-x-auto">
-                      <MathBlock latex={n.latex} block />
+                  <div className="px-5 py-4 space-y-3 border-t border-slate-100 dark:border-slate-800 bg-white dark:bg-slate-900">
+                    {/* KaTeX on light bg so it's visible in both modes */}
+                    <div className="rounded-lg bg-slate-50 dark:bg-slate-800 border border-slate-200 dark:border-slate-700 px-4 py-3 overflow-x-auto text-slate-900 dark:text-slate-100">
+                      <MathBlock latex={nt.latex} block />
                     </div>
                     <div className="flex items-center gap-2">
                       <span className="text-xs font-semibold text-slate-500">예시:</span>
                       <code className="rounded bg-slate-100 dark:bg-slate-800 px-2 py-0.5 text-xs font-mono text-slate-700 dark:text-slate-200">
-                        {n.example}
+                        {nt.example}
                       </code>
                     </div>
                   </div>
@@ -248,18 +225,18 @@ export default function AsymptoticContent({ topic, relatedExams, onExamClick }: 
         </div>
       </section>
 
-      {/* ── 핵심 성질 ─────────────────────────────── */}
-      <section>
+      {/* ── 핵심 성질 ── */}
+      <section id="sec-properties">
         <div className="flex items-center gap-2 mb-4">
           <span className="text-xl">⚡</span>
           <h2 className="text-base font-bold text-slate-800 dark:text-slate-100">핵심 성질</h2>
           <div className="flex-1 h-px bg-slate-200 dark:bg-slate-700" />
         </div>
-        <div className="overflow-x-auto rounded-xl border border-slate-200 dark:border-slate-700">
+        <div className="overflow-x-auto rounded-xl border border-slate-200 dark:border-slate-700 bg-white dark:bg-slate-900">
           <table className="w-full text-sm">
             <thead className="bg-slate-50 dark:bg-slate-800">
               <tr>
-                <th className="px-4 py-2.5 text-left text-xs font-bold text-slate-600 dark:text-slate-300">성질</th>
+                <th className="px-4 py-2.5 text-left text-xs font-bold text-slate-600 dark:text-slate-300 whitespace-nowrap">성질</th>
                 <th className="px-4 py-2.5 text-left text-xs font-bold text-slate-600 dark:text-slate-300">수식</th>
               </tr>
             </thead>
@@ -267,7 +244,7 @@ export default function AsymptoticContent({ topic, relatedExams, onExamClick }: 
               {properties.map((p, i) => (
                 <tr key={i} className="border-t border-slate-100 dark:border-slate-800 hover:bg-slate-50 dark:hover:bg-slate-800/40">
                   <td className="px-4 py-2.5 text-slate-700 dark:text-slate-300 font-medium text-xs whitespace-nowrap">{p.rule}</td>
-                  <td className="px-4 py-2.5 overflow-x-auto">
+                  <td className="px-4 py-2.5 text-slate-900 dark:text-slate-100 overflow-x-auto">
                     <MathBlock latex={p.latex} />
                   </td>
                 </tr>
@@ -276,36 +253,6 @@ export default function AsymptoticContent({ topic, relatedExams, onExamClick }: 
           </table>
         </div>
       </section>
-
-      {/* ── 기출 연결 ─────────────────────────────── */}
-      {relatedExams.length > 0 && (
-        <section>
-          <div className="flex items-center gap-2 mb-3">
-            <FileText className="h-4 w-4 text-slate-400" />
-            <h2 className="text-sm font-bold text-slate-700 dark:text-slate-200 uppercase tracking-wide">
-              관련 기출문제 ({relatedExams.length})
-            </h2>
-            <div className="flex-1 h-px bg-slate-200 dark:bg-slate-700" />
-          </div>
-          <div className="flex flex-wrap gap-2">
-            {relatedExams.map(exam => (
-              <button
-                key={exam.id}
-                onClick={() => onExamClick?.(exam)}
-                className="flex items-center gap-2 rounded-xl border border-slate-200 bg-white hover:border-blue-300 hover:bg-blue-50 dark:border-slate-700 dark:bg-slate-900 dark:hover:border-blue-700 dark:hover:bg-blue-950/30 px-3 py-2 text-left transition group"
-              >
-                <span className="rounded bg-slate-900 dark:bg-slate-100 px-2 py-0.5 text-[10px] font-black text-white dark:text-slate-900 flex-shrink-0">
-                  {exam.year}-{exam.semester === '1' ? '1학기' : '2학기'}
-                </span>
-                <span className="text-xs font-semibold text-slate-700 dark:text-slate-200 group-hover:text-blue-700 dark:group-hover:text-blue-300 truncate max-w-[200px]">
-                  {exam.title}
-                </span>
-                <span className="text-[10px] text-slate-400 flex-shrink-0">팝업 보기 →</span>
-              </button>
-            ))}
-          </div>
-        </section>
-      )}
     </div>
   );
 }

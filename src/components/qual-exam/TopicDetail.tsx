@@ -1,12 +1,9 @@
 'use client';
 import { useState } from 'react';
-import { Zap, BookOpen, Code2, AlertTriangle, FileText, PlayCircle } from 'lucide-react';
+import { Zap, BookOpen, Code2, AlertTriangle, PlayCircle } from 'lucide-react';
 import dynamic from 'next/dynamic';
 import MathBlock from './MathBlock';
-import PracticeList from './PracticeList';
 import type { StudyTopic } from './TopicStudyCard';
-import type { ExamProblem } from './ExamProblemCard';
-import type { QuizQuestion } from './PracticeList';
 import AsymptoticContent from './topic-content/AsymptoticContent';
 import LinkedListContent from './topic-content/LinkedListContent';
 
@@ -14,7 +11,6 @@ const AlgoVisualizer = dynamic(() => import('./AlgoVisualizer'), { ssr: false })
 
 /* ── Theory renderer helpers ── */
 
-/** Renders the body of a ■ section: bullets, code blocks, structured mono text */
 function TheoryBody({ body }: { body: string }) {
   if (!body.trim()) return null;
   const lines = body.split('\n');
@@ -24,7 +20,6 @@ function TheoryBody({ body }: { body: string }) {
   while (i < lines.length) {
     if (!lines[i].trim()) { i++; continue; }
 
-    // Bullet list: consecutive lines starting with •
     if (lines[i].trimStart().startsWith('•')) {
       const bullets: string[] = [];
       while (i < lines.length && lines[i].trimStart().startsWith('•')) {
@@ -44,13 +39,11 @@ function TheoryBody({ body }: { body: string }) {
       continue;
     }
 
-    // Collect a block of non-empty, non-bullet lines
     const blockLines: string[] = [];
     while (i < lines.length && lines[i].trim() && !lines[i].trimStart().startsWith('•')) {
       blockLines.push(lines[i]);
       i++;
     }
-
     if (blockLines.length === 0) continue;
 
     const content = blockLines.join('\n');
@@ -79,9 +72,7 @@ function TheoryBody({ body }: { body: string }) {
   return <>{result}</>;
 }
 
-/** Renders the full theory string: splits by ■ into section cards */
 function TheoryRenderer({ theory }: { theory: string }) {
-  // Split by lines starting with ■
   const rawParts: string[] = [];
   let current = '';
   for (const line of theory.split('\n')) {
@@ -104,7 +95,6 @@ function TheoryRenderer({ theory }: { theory: string }) {
           const nlIdx = trimmed.indexOf('\n');
           const title = nlIdx > 0 ? trimmed.slice(2, nlIdx).trim() : trimmed.slice(2).trim();
           const body = nlIdx > 0 ? trimmed.slice(nlIdx + 1) : '';
-
           return (
             <div key={si} className="rounded-xl border border-slate-200 dark:border-slate-700 overflow-hidden">
               <div className="bg-slate-100 dark:bg-slate-800 px-4 py-2.5 flex items-center gap-2">
@@ -117,8 +107,6 @@ function TheoryRenderer({ theory }: { theory: string }) {
             </div>
           );
         }
-
-        // Intro/preamble text (before any ■ section)
         return (
           <p key={si} className="text-sm text-slate-600 dark:text-slate-400 leading-relaxed px-1">
             {trimmed}
@@ -148,25 +136,22 @@ function SectionHeading({ icon, title }: { icon?: React.ReactNode; title: string
 
 interface Props {
   topic: StudyTopic;
-  relatedExams: ExamProblem[];
-  practiceQuestions: QuizQuestion[];
-  onExamClick?: (exam: ExamProblem) => void;
 }
 
-export default function TopicDetail({ topic, relatedExams, practiceQuestions, onExamClick }: Props) {
+export default function TopicDetail({ topic }: Props) {
   const [showViz, setShowViz] = useState(false);
 
   // Route to custom per-topic pages
   if (topic.id === 'asymptotic') {
-    return <AsymptoticContent topic={topic} relatedExams={relatedExams} onExamClick={onExamClick} />;
+    return <AsymptoticContent topic={topic} />;
   }
   if (topic.id === 'linked-list') {
-    return <LinkedListContent topic={topic} relatedExams={relatedExams} onExamClick={onExamClick} />;
+    return <LinkedListContent topic={topic} />;
   }
 
   return (
     <div className="max-w-3xl space-y-8 px-6 py-6">
-      {/* ── Header ─────────────────────────────────────── */}
+      {/* ── Header ── */}
       <div className="flex items-start gap-4">
         <div className="relative flex-shrink-0">
           <span className="text-5xl leading-none">{topic.icon}</span>
@@ -200,8 +185,8 @@ export default function TopicDetail({ topic, relatedExams, practiceQuestions, on
         </div>
       </div>
 
-      {/* ── Key Points ─────────────────────────────────── */}
-      <section>
+      {/* ── Key Points ── */}
+      <section id="sec-keypoints">
         <SectionHeading icon={<Zap className="h-3.5 w-3.5" />} title="핵심 포인트" />
         <ul className="space-y-2 rounded-xl border border-blue-100 bg-blue-50 p-4 dark:border-blue-900/30 dark:bg-blue-950/30">
           {topic.keyPoints.map((pt, i) => (
@@ -213,13 +198,13 @@ export default function TopicDetail({ topic, relatedExams, practiceQuestions, on
         </ul>
       </section>
 
-      {/* ── Theory ─────────────────────────────────────── */}
-      <section>
+      {/* ── Theory ── */}
+      <section id="sec-theory">
         <SectionHeading icon={<BookOpen className="h-3.5 w-3.5" />} title="이론 설명" />
         <TheoryRenderer theory={topic.theory} />
       </section>
 
-      {/* ── Math Formulas ──────────────────────────────── */}
+      {/* ── Math Formulas ── */}
       {(topic as { mathFormulas?: Array<{ label: string; latex: string }> }).mathFormulas?.length && (
         <section>
           <SectionHeading title="핵심 수식" />
@@ -234,9 +219,9 @@ export default function TopicDetail({ topic, relatedExams, practiceQuestions, on
         </section>
       )}
 
-      {/* ── Complexity Table ───────────────────────────── */}
+      {/* ── Complexity Table ── */}
       {topic.complexityTable && topic.complexityTable.length > 0 && (
-        <section>
+        <section id="sec-complexity">
           <SectionHeading title="시간 복잡도" />
           <div className="overflow-x-auto rounded-xl border border-slate-200 dark:border-slate-700">
             <table className="w-full text-sm">
@@ -265,13 +250,13 @@ export default function TopicDetail({ topic, relatedExams, practiceQuestions, on
         </section>
       )}
 
-      {/* ── Code Examples ──────────────────────────────── */}
+      {/* ── Code Examples ── */}
       {(() => {
         const examples = (topic as { codeExamples?: Array<{ caption: string; language: string; code: string }> }).codeExamples;
         const legacy = topic.codeExample;
         if (!examples?.length && !legacy) return null;
         return (
-          <section>
+          <section id="sec-code">
             <SectionHeading icon={<Code2 className="h-3.5 w-3.5" />} title="코드 예시" />
             <div className="space-y-3">
               {examples?.map((ex, i) => (
@@ -307,9 +292,9 @@ export default function TopicDetail({ topic, relatedExams, practiceQuestions, on
         );
       })()}
 
-      {/* ── Common Pitfalls ────────────────────────────── */}
+      {/* ── Common Pitfalls ── */}
       {topic.commonPitfalls && topic.commonPitfalls.length > 0 && (
-        <section>
+        <section id="sec-pitfalls">
           <SectionHeading icon={<AlertTriangle className="h-3.5 w-3.5" />} title="자주 하는 실수" />
           <div className="rounded-xl border border-red-200 bg-red-50 p-4 dark:border-red-800/40 dark:bg-red-900/10 space-y-2">
             {topic.commonPitfalls.map((p, i) => (
@@ -321,41 +306,9 @@ export default function TopicDetail({ topic, relatedExams, practiceQuestions, on
         </section>
       )}
 
-      {/* ── Related Exam Problems ──────────────────────── */}
-      {relatedExams.length > 0 && (
-        <section>
-          <SectionHeading icon={<FileText className="h-3.5 w-3.5" />} title={`관련 기출문제 (${relatedExams.length})`} />
-          <div className="flex flex-wrap gap-2">
-            {relatedExams.map(exam => (
-              <button
-                key={exam.id}
-                onClick={() => onExamClick?.(exam)}
-                className="flex items-center gap-2 rounded-xl border border-slate-200 bg-white hover:border-blue-300 hover:bg-blue-50 dark:border-slate-700 dark:bg-slate-900 dark:hover:border-blue-700 dark:hover:bg-blue-950/30 px-3 py-2 text-left transition group"
-              >
-                <span className="rounded bg-slate-900 dark:bg-slate-100 px-2 py-0.5 text-[10px] font-black text-white dark:text-slate-900 flex-shrink-0">
-                  {exam.year}-{exam.semester === '1' ? '1학기' : '2학기'}
-                </span>
-                <span className="text-xs font-semibold text-slate-700 dark:text-slate-200 group-hover:text-blue-700 dark:group-hover:text-blue-300 truncate max-w-[200px]">
-                  {exam.title}
-                </span>
-                <span className="text-[10px] text-slate-400 flex-shrink-0">팝업 보기 →</span>
-              </button>
-            ))}
-          </div>
-        </section>
-      )}
-
-      {/* ── Practice Questions ─────────────────────────── */}
-      {practiceQuestions.length > 0 && (
-        <section>
-          <SectionHeading title={`연습 문제 (${practiceQuestions.length})`} />
-          <PracticeList questions={practiceQuestions} filterByTopic={topic.title} />
-        </section>
-      )}
-
-      {/* ── Algorithm Visualizer ───────────────────────── */}
+      {/* ── Algorithm Visualizer ── */}
       {topic.visualizerType && (
-        <section>
+        <section id="sec-viz">
           <SectionHeading icon={<PlayCircle className="h-3.5 w-3.5" />} title="알고리즘 시각화" />
           <button
             onClick={() => setShowViz(v => !v)}
