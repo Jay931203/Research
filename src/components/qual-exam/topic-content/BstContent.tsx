@@ -378,6 +378,39 @@ export default function BstContent({ topic }: Props) {
             ))}
           </div>
         </div>
+        <div className="rounded-xl border border-slate-200 dark:border-slate-700 bg-white dark:bg-slate-900/50 p-4 mb-4">
+          <p className="text-sm font-bold text-slate-700 dark:text-slate-300 mb-3">BST 탐색 알고리즘</p>
+          <ol className="space-y-2 mb-3">
+            {[
+              '루트에서 시작',
+              '찾는 값 < 현재 노드 → 왼쪽 자식으로',
+              '찾는 값 > 현재 노드 → 오른쪽 자식으로',
+              '찾는 값 == 현재 노드 → 탐색 성공',
+              'null 도달 → 탐색 실패',
+            ].map((step, i) => (
+              <li key={i} className="flex items-start gap-3 text-sm text-slate-600 dark:text-slate-400">
+                <span className="flex-shrink-0 w-5 h-5 rounded-full bg-blue-600 text-white text-xs flex items-center justify-center font-bold mt-0.5">{i + 1}</span>
+                <span>{step}</span>
+              </li>
+            ))}
+          </ol>
+          <div className="space-y-1.5 text-sm text-slate-600 dark:text-slate-400">
+            <p className="font-mono text-xs bg-slate-100 dark:bg-slate-800 rounded px-3 py-2">
+              예: 위 트리(루트=50)에서 60 탐색: 50(루트) → 70 → 60 (2번 비교로 발견)
+            </p>
+            <p className="font-mono text-xs bg-slate-100 dark:bg-slate-800 rounded px-3 py-2">
+              예: 40 탐색: 50 → 30 → 40 (2번 비교로 발견)
+            </p>
+          </div>
+        </div>
+        <div className="rounded-xl border border-amber-200 bg-amber-50 dark:border-amber-700/40 dark:bg-amber-900/10 p-4 mb-4">
+          <p className="text-sm font-bold text-amber-800 dark:text-amber-300 mb-1.5">BST 최악 케이스 (편향 트리)</p>
+          <p className="text-sm text-amber-700 dark:text-amber-400 leading-relaxed">
+            1, 2, 3, 4, 5 순서로 삽입하면 오른쪽으로만 뻗는 선형 구조가 된다. 탐색이 O(n)으로 저하.
+            이를 막기 위해 <span className="font-bold">AVL Tree</span>(높이차 ≤1 유지, rotation으로 균형)와{' '}
+            <span className="font-bold">Red-Black Tree</span>(색깔 규칙으로 균형 유지) 등 균형 BST가 등장했다.
+          </p>
+        </div>
         <ul className="space-y-2 rounded-xl border border-blue-100 bg-blue-50 p-4 dark:border-blue-900/30 dark:bg-blue-950/30">
           {[
             '중위 순회(Inorder)는 항상 오름차순 — 이 성질로 정렬된 출력 가능',

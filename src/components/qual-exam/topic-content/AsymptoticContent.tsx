@@ -297,8 +297,10 @@ export default function AsymptoticContent({ topic }: Props) {
               {properties.map((p, i) => (
                 <tr key={i} className="border-t border-slate-100 dark:border-slate-800 hover:bg-slate-50 dark:hover:bg-slate-800/40">
                   <td className="px-4 py-2.5 text-slate-700 dark:text-slate-300 font-medium text-xs whitespace-nowrap">{p.rule}</td>
-                  <td className="px-4 py-2.5 text-slate-900 dark:text-slate-100 overflow-x-auto">
-                    <MathBlock latex={p.latex} />
+                  <td className="px-4 py-2.5 text-slate-900 dark:text-slate-100">
+                    <div className="overflow-x-auto">
+                      <MathBlock latex={p.latex} block />
+                    </div>
                   </td>
                 </tr>
               ))}
@@ -355,8 +357,8 @@ export default function AsymptoticContent({ topic }: Props) {
                 </span>
                 <div className="flex-1 min-w-0">
                   <p className="font-bold text-sm text-slate-800 dark:text-slate-100 mb-1">{mc.conditionText}</p>
-                  <div className="text-xs overflow-x-auto">
-                    <MathBlock latex={mc.conditionLatex} />
+                  <div className="overflow-x-auto mt-1 rounded bg-white/60 dark:bg-slate-900/60 px-2 py-1">
+                    <MathBlock latex={mc.conditionLatex} block />
                   </div>
                 </div>
               </div>

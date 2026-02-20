@@ -474,6 +474,40 @@ export default function DpContent({ topic }: Props) {
               className="px-3 py-1.5 rounded-lg text-sm font-semibold bg-blue-600 text-white disabled:opacity-40 hover:bg-blue-500 transition">다음 ▶</button>
           </div>
         </div>
+        <div className="rounded-xl border border-amber-200 bg-amber-50 dark:border-amber-700/40 dark:bg-amber-900/10 p-4 mt-4">
+          <p className="text-sm font-bold text-amber-800 dark:text-amber-300 mb-2">공간 최적화 (1D DP)</p>
+          <p className="text-sm text-amber-700 dark:text-amber-400 leading-relaxed mb-3">
+            2D 테이블 dp[n+1][W+1] &rarr; 1D 배열 dp[W+1]로 줄일 수 있다.
+          </p>
+          <div className="font-mono text-xs bg-amber-100/60 dark:bg-amber-900/20 rounded-lg px-3 py-2 mb-3 text-amber-800 dark:text-amber-200">
+            <p className="mb-1 font-bold">핵심 조건: 역순(오른쪽&rarr;왼쪽)으로 갱신해야 같은 물건을 두 번 쓰지 않음</p>
+            <p>for i in range(1, n+1):</p>
+            <p className="pl-4">for w in range(W, w_i-1, -1):  # &larr; 역순!</p>
+            <p className="pl-8">dp[w] = max(dp[w], dp[w - w_i] + v_i)</p>
+          </div>
+          <p className="text-sm font-bold text-amber-800 dark:text-amber-300 mb-1">왜 역순인가?</p>
+          <ul className="space-y-1 text-sm text-amber-700 dark:text-amber-400 mb-3">
+            <li>&bull; 순방향으로 갱신하면 dp[w-w_i]가 이미 이번 물건을 포함한 값이 될 수 있음</li>
+            <li>&bull; 역순이면 dp[w-w_i]는 반드시 이전 행(물건 i-1까지)의 값</li>
+          </ul>
+          <p className="text-sm font-bold text-amber-700 dark:text-amber-300">
+            &#9888; 시험 포인트: 이 트릭은 0-1 Knapsack에만 적용. Unbounded Knapsack(같은 물건 여러 번 허용)은 순방향으로 갱신.
+          </p>
+        </div>
+        <div className="rounded-xl border border-slate-200 dark:border-slate-700 bg-white dark:bg-slate-900/50 p-4 mt-4">
+          <p className="text-sm font-bold text-slate-700 dark:text-slate-300 mb-2">Coin Change (동전 거스름돈) — DP 빈출 패턴</p>
+          <p className="text-sm text-slate-600 dark:text-slate-400 leading-relaxed mb-2">
+            동전 종류 리스트와 목표 금액 amount가 주어질 때, 최소 동전 개수를 구하는 문제.
+          </p>
+          <div className="font-mono text-xs bg-slate-100 dark:bg-slate-800 rounded-lg px-3 py-2 text-slate-700 dark:text-slate-300 space-y-0.5 mb-2">
+            <p>dp[0] = 0</p>
+            <p>dp[i] = min(dp[i], dp[i - coin] + 1)  for each coin</p>
+            <p>dp[amount]가 최종 답</p>
+          </div>
+          <p className="text-xs text-slate-500 dark:text-slate-400">
+            시간 복잡도: O(amount &times; coins). 메모이제이션(top-down)과 타뷸레이션(bottom-up) 모두 동일한 복잡도.
+          </p>
+        </div>
       </section>
 
       {/* 4. 편집 거리 */}

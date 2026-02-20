@@ -500,6 +500,42 @@ export default function HeapContent({ topic }: Props) {
       {/* 5. 시간 복잡도 */}
       <section>
         <SH emoji="⏱" title="시간 복잡도 표 + 시험 함정" id={`${topic.id}-sec-complexity`} />
+        <div className="rounded-xl border border-amber-200 bg-amber-50 dark:border-amber-700/40 dark:bg-amber-900/10 p-4 mb-5">
+          <p className="text-sm font-bold text-amber-800 dark:text-amber-300 mb-2">Min-Heap vs Max-Heap 언제 무엇을?</p>
+          <div className="grid grid-cols-1 md:grid-cols-2 gap-3 mb-3">
+            <div>
+              <p className="text-xs font-bold text-blue-700 dark:text-blue-300 mb-1.5">Min-Heap: 최솟값을 빠르게 꺼내야 할 때</p>
+              <ul className="space-y-1 text-xs text-amber-700 dark:text-amber-400">
+                <li>&bull; Dijkstra (최단거리 노드 추출)</li>
+                <li>&bull; Prim MST (최소 가중치 간선 추출)</li>
+                <li>&bull; CPU 스케줄링 (우선순위 낮은 것부터)</li>
+                <li>&bull; 이벤트 시뮬레이션 (시각 순 처리)</li>
+              </ul>
+            </div>
+            <div>
+              <p className="text-xs font-bold text-orange-700 dark:text-orange-300 mb-1.5">Max-Heap: 최댓값을 빠르게 꺼내야 할 때</p>
+              <ul className="space-y-1 text-xs text-amber-700 dark:text-amber-400">
+                <li>&bull; HeapSort (내림차순 정렬)</li>
+                <li>&bull; 실시간 중앙값 계산 (max-heap + min-heap)</li>
+                <li>&bull; Top-K 문제 (가장 큰 K개 유지)</li>
+              </ul>
+            </div>
+          </div>
+          <p className="text-sm font-bold text-amber-800 dark:text-amber-300 mb-1.5">HeapSort가 Max-Heap을 쓰는 이유</p>
+          <ol className="space-y-1 text-sm text-amber-700 dark:text-amber-400">
+            {[
+              'Build-Max-Heap으로 최대값을 루트에 위치시킴',
+              '루트(최대값)를 배열 끝으로 보내고 힙 크기 -1',
+              '새 루트에 Heapify 적용 → 반복',
+            ].map((step, i) => (
+              <li key={i} className="flex items-start gap-2">
+                <span className="flex-shrink-0 w-4 h-4 rounded-full bg-amber-600 text-white flex items-center justify-center font-bold mt-0.5" style={{ fontSize: '9px' }}>{i + 1}</span>
+                <span>{step}</span>
+              </li>
+            ))}
+          </ol>
+          <p className="text-xs text-amber-600 dark:text-amber-500 mt-2 font-semibold">결과: 배열 앞부분부터 오름차순 정렬 완성</p>
+        </div>
         <div className="overflow-hidden rounded-xl border border-slate-200 dark:border-slate-700 mb-5">
           <table className="w-full text-sm">
             <thead>

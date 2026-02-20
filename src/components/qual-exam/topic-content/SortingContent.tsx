@@ -192,6 +192,26 @@ export default function SortingContent({ topic }: Props) {
             ))}
           </ol>
         </div>
+        {/* InsertionSort detail */}
+        <div className="rounded-xl border border-amber-200 bg-amber-50 dark:border-amber-700/40 dark:bg-amber-900/10 p-4 mb-4">
+          <p className="text-sm font-bold text-amber-800 dark:text-amber-300 mb-1.5">InsertionSort 동작 원리</p>
+          <p className="text-sm text-amber-700 dark:text-amber-400 leading-relaxed mb-3">
+            카드를 한 장씩 손패에 삽입하는 것처럼, i번째 원소를 이미 정렬된 앞부분 [0..i-1]의 올바른 위치에 끼워 넣는다.
+          </p>
+          <div className="space-y-1 font-mono text-xs bg-amber-100/60 dark:bg-amber-900/20 rounded-lg px-3 py-2 mb-3 text-amber-800 dark:text-amber-200">
+            <p>배열: [5, 3, 8, 1, 9, 2]</p>
+            <p>i=1: [3, 5 | 8, 1, 9, 2]  → 3을 5 앞에 삽입</p>
+            <p>i=2: [3, 5, 8 | 1, 9, 2]  → 8은 제자리</p>
+            <p>i=3: [1, 3, 5, 8 | 9, 2]  → 1을 맨 앞에 삽입</p>
+            <p>...</p>
+          </div>
+          <p className="text-sm font-bold text-amber-800 dark:text-amber-300 mb-1">왜 &quot;거의 정렬된 데이터&quot;에 강한가?</p>
+          <ul className="space-y-1 text-sm text-amber-700 dark:text-amber-400">
+            <li>&bull; 이미 정렬 완료 시 swap 0번 &rarr; O(n) (최선)</li>
+            <li>&bull; 각 삽입이 1~2번 비교로 끝남 &rarr; 상수가 작아 실제 빠름</li>
+            <li>&bull; 이 때문에 TimSort(Python/Java 내장)는 소규모 부분배열에 InsertionSort 적용</li>
+          </ul>
+        </div>
         {/* Callout */}
         <div className="rounded-xl border border-amber-200 bg-amber-50 dark:border-amber-700/40 dark:bg-amber-900/10 p-4">
           <p className="text-sm font-bold text-amber-800 dark:text-amber-300 mb-1">비교 기반 정렬 하한 (Information-Theoretic Lower Bound)</p>
@@ -235,6 +255,13 @@ export default function SortingContent({ topic }: Props) {
             <li className="text-sm text-red-700 dark:text-red-300">&bull; 최악의 경우 O(n&sup2;): 이미 정렬된 배열에서 항상 최솟값/최댓값을 피벗으로 선택할 때</li>
             <li className="text-sm text-red-700 dark:text-red-300">&bull; 평균 O(n log n): 랜덤 피벗이면 기대값</li>
             <li className="text-sm text-red-700 dark:text-red-300">&bull; 안정하지 않다 (같은 값의 상대 순서 바뀔 수 있음)</li>
+          </ul>
+        </div>
+        <div className="rounded-xl border border-red-200 bg-red-50 dark:border-red-800/40 dark:bg-red-900/10 p-4 mb-4">
+          <p className="text-sm font-bold text-red-800 dark:text-red-300 mb-2">QuickSort 최악 케이스 상세</p>
+          <ul className="space-y-1.5 text-sm text-red-700 dark:text-red-300">
+            <li>&bull; <span className="font-bold">이미 오름차순 정렬된 배열 + Lomuto 파티션(마지막 원소를 pivot)</span>: pivot이 항상 최대값 &rarr; 한쪽에 n-1개, 다른쪽 0개로 분할 &rarr; 재귀 깊이 n &rarr; O(n&sup2;)</li>
+            <li>&bull; <span className="font-bold">해결책</span>: Median-of-Three (앞/중간/뒤 중 중앙값을 pivot 선택), Randomized Quicksort (무작위 pivot)</li>
           </ul>
         </div>
         <div className="rounded-xl border border-slate-200 dark:border-slate-700 bg-slate-50 dark:bg-slate-800/50 p-5">

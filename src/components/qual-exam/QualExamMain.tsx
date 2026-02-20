@@ -118,6 +118,7 @@ const CUSTOM_SECTIONS: Record<string, Array<{ id: string; label: string }>> = {
     { id: 'graph-sec-bfsdfs',    label: 'BFS/DFS 시각화'     },
     { id: 'graph-sec-dijkstra',  label: 'Dijkstra 추적'      },
     { id: 'graph-sec-bellman',   label: 'Bellman-Ford'       },
+    { id: 'graph-sec-topo',      label: '위상 정렬'          },
     { id: 'graph-sec-mst',       label: 'MST (Kruskal/Prim)' },
     { id: 'graph-sec-complexity', label: '복잡도 요약'        },
   ],

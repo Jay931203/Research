@@ -478,6 +478,83 @@ export default function GraphContent({ topic }: Props) {
         </div>
       </section>
 
+      {/* 3.5 Topological Sort */}
+      <section>
+        <SH emoji="📋" title="위상 정렬 (Topological Sort)" id={`${topic.id}-sec-topo`} />
+        <div className="rounded-xl border border-amber-200 bg-amber-50 dark:border-amber-700/40 dark:bg-amber-900/10 p-4 mb-4">
+          <p className="text-sm font-bold text-amber-800 dark:text-amber-300 mb-1.5">위상 정렬이란?</p>
+          <p className="text-sm text-amber-700 dark:text-amber-400 leading-relaxed">
+            DAG(방향 비순환 그래프)에서 모든 간선 u&rarr;v에 대해 u가 v보다 앞에 오도록 노드를 나열하는 것.
+          </p>
+          <ul className="space-y-1 mt-2 text-sm text-amber-700 dark:text-amber-400">
+            <li>&bull; 선수과목 &rarr; 과목 수강 순서 결정</li>
+            <li>&bull; Make 빌드 의존성 해결</li>
+            <li>&bull; 작업 스케줄링 (의존성이 있는 태스크 순서)</li>
+          </ul>
+        </div>
+        <div className="rounded-xl border border-slate-200 dark:border-slate-700 bg-white dark:bg-slate-900/50 p-4 mb-4">
+          <p className="text-sm font-bold text-slate-700 dark:text-slate-300 mb-3">두 가지 구현 방법</p>
+          <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+            <div>
+              <p className="text-xs font-bold text-blue-700 dark:text-blue-300 mb-2">1. Kahn&apos;s Algorithm (BFS 기반)</p>
+              <ol className="space-y-1.5">
+                {[
+                  '진입차수(in-degree) = 0인 노드를 큐에 넣음',
+                  '큐에서 꺼내 출력, 인접 노드의 진입차수 -1',
+                  '진입차수가 0이 되면 큐에 추가',
+                  '처리된 노드 수 < V이면 사이클 존재',
+                ].map((step, i) => (
+                  <li key={i} className="flex items-start gap-2 text-xs text-slate-600 dark:text-slate-400">
+                    <span className="flex-shrink-0 w-4 h-4 rounded-full bg-blue-600 text-white flex items-center justify-center font-bold mt-0.5" style={{ fontSize: '9px' }}>{i + 1}</span>
+                    <span>{step}</span>
+                  </li>
+                ))}
+              </ol>
+            </div>
+            <div>
+              <p className="text-xs font-bold text-emerald-700 dark:text-emerald-300 mb-2">2. DFS 기반</p>
+              <ol className="space-y-1.5">
+                {[
+                  'DFS 수행',
+                  'DFS 완료(post-order) 시 스택에 push',
+                  '모든 노드 처리 후 스택을 역순으로 출력',
+                  '사이클 있으면 back edge 발견으로 감지',
+                ].map((step, i) => (
+                  <li key={i} className="flex items-start gap-2 text-xs text-slate-600 dark:text-slate-400">
+                    <span className="flex-shrink-0 w-4 h-4 rounded-full bg-emerald-600 text-white flex items-center justify-center font-bold mt-0.5" style={{ fontSize: '9px' }}>{i + 1}</span>
+                    <span>{step}</span>
+                  </li>
+                ))}
+              </ol>
+            </div>
+          </div>
+        </div>
+        <div className="rounded-xl border border-slate-200 dark:border-slate-700 bg-white dark:bg-slate-900/50 p-4 mb-4">
+          <p className="text-sm font-bold text-slate-700 dark:text-slate-300 mb-3">Kahn&apos;s Algorithm 예시</p>
+          <p className="text-xs text-slate-500 dark:text-slate-400 mb-2">과목 의존성 DAG: A&rarr;C, B&rarr;C, B&rarr;D, C&rarr;E, D&rarr;F, E&rarr;F</p>
+          <div className="font-mono text-xs bg-slate-100 dark:bg-slate-800 rounded-lg px-3 py-3 space-y-1 text-slate-700 dark:text-slate-300">
+            <p>초기 in-degree: A=0, B=0, C=2, D=1, E=1, F=2</p>
+            <p>큐: [A, B]</p>
+            <p>A 출력 &rarr; C의 in-degree=1. 큐: [B]</p>
+            <p>B 출력 &rarr; C의 in-degree=0, D의 in-degree=0. 큐: [C, D]</p>
+            <p>C 출력 &rarr; E의 in-degree=0. 큐: [D, E]</p>
+            <p>D 출력 &rarr; F의 in-degree=1. 큐: [E]</p>
+            <p>E 출력 &rarr; F의 in-degree=0. 큐: [F]</p>
+            <p>F 출력. 완료!</p>
+            <p className="text-emerald-600 dark:text-emerald-400 font-bold">결과: A, B, C, D, E, F</p>
+          </div>
+        </div>
+        <div className="rounded-xl border border-red-200 bg-red-50 dark:border-red-800/40 dark:bg-red-900/10 p-4">
+          <p className="text-sm font-bold text-red-800 dark:text-red-300 mb-2">시험 포인트</p>
+          <ul className="space-y-1.5 text-sm text-red-700 dark:text-red-300">
+            <li>&bull; 위상 정렬은 <span className="font-bold">DAG에서만 가능</span> (사이클 있으면 불가)</li>
+            <li>&bull; <span className="font-bold">Kahn&apos;s Algorithm</span>: 사이클 감지 가능 (처리된 노드 수 &lt; V이면 사이클)</li>
+            <li>&bull; <span className="font-bold">결과가 유일하지 않을 수 있음</span> (진입차수 0인 노드가 여러 개면 순서 선택 가능)</li>
+            <li>&bull; 시간 복잡도: <span className="font-mono font-bold">O(V+E)</span></li>
+          </ul>
+        </div>
+      </section>
+
       {/* 4. MST */}
       <section>
         <SH emoji="🌲" title="MST — Kruskal & Prim" id={`${topic.id}-sec-mst`} />
