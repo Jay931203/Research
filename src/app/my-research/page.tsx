@@ -310,7 +310,7 @@ export default function MyResearchPage() {
 
       {/* Breadcrumb */}
       <div className="border-b border-gray-200 bg-white px-4 py-2 dark:border-gray-800 dark:bg-gray-900">
-        <div className="mx-auto flex max-w-[calc(16rem+56rem)] items-center gap-2 text-sm">
+        <div className="mx-auto flex max-w-[calc(16rem+64rem)] items-center gap-2 text-sm">
           <span className="text-gray-500 dark:text-gray-400">대시보드</span>
           <ChevronRight className="h-3 w-3 text-gray-400" />
           <span className="font-medium text-gray-800 dark:text-gray-200">내 연구 논문</span>
@@ -379,7 +379,7 @@ export default function MyResearchPage() {
 
         {/* Main content */}
         <main className="min-w-0 flex-1">
-          <div className="mx-auto max-w-4xl space-y-8 px-4 py-8 sm:px-6 lg:px-8">
+          <div className="mx-auto max-w-5xl space-y-8 px-4 py-8 sm:px-6 lg:px-8">
 
             {/* ===== Section 1: Overview ===== */}
             <section id="section-overview" className="scroll-mt-20">

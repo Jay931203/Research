@@ -2,34 +2,21 @@
 import { useState } from 'react';
 import type { StudyTopic } from '../TopicStudyCard';
 
+interface Props { topic: StudyTopic; }
+
+const difficultyLabel = { basic: '기초', intermediate: '중급', advanced: '고급' };
+const difficultyColor = {
+  basic: 'bg-emerald-50 text-emerald-700 border border-emerald-200 dark:bg-emerald-900/20 dark:text-emerald-300',
+  intermediate: 'bg-amber-50 text-amber-700 border border-amber-200 dark:bg-amber-900/20 dark:text-amber-300',
+  advanced: 'bg-red-50 text-red-700 border border-red-200 dark:bg-red-900/20 dark:text-red-300',
+};
+
 function SH({ icon, title }: { icon: string; title: string }) {
   return (
-    <div className="flex items-center gap-2 mb-3">
-      <span className="text-lg">{icon}</span>
-      <h2 className="text-sm font-bold text-slate-700 dark:text-slate-200 uppercase tracking-wide">{title}</h2>
+    <div className="flex items-center gap-2 mb-5">
+      <span className="text-xl">{icon}</span>
+      <h2 className="text-base font-bold text-slate-800 dark:text-slate-100">{title}</h2>
       <div className="flex-1 h-px bg-slate-200 dark:bg-slate-700" />
-    </div>
-  );
-}
-
-function ConceptBox({ what, rules, caution }: { what: string; rules: string[]; caution?: string }) {
-  return (
-    <div className="mb-4 rounded-xl border border-blue-100 dark:border-blue-900/40 bg-blue-50/60 dark:bg-blue-950/20 p-4 space-y-2.5">
-      <p className="text-sm text-blue-900 dark:text-blue-100 leading-relaxed">{what}</p>
-      <ul className="space-y-1.5">
-        {rules.map((r, i) => (
-          <li key={i} className="flex gap-2 text-xs text-blue-800 dark:text-blue-200 leading-relaxed">
-            <span className="mt-0.5 flex-shrink-0 h-4 w-4 rounded bg-blue-400/70 flex items-center justify-center text-[9px] font-black text-white">{i + 1}</span>
-            <span>{r}</span>
-          </li>
-        ))}
-      </ul>
-      {caution && (
-        <div className="flex gap-2 rounded-lg bg-amber-50 dark:bg-amber-900/20 border border-amber-200 dark:border-amber-700/40 px-3 py-2 text-xs text-amber-800 dark:text-amber-200 leading-relaxed">
-          <span className="flex-shrink-0 font-bold">⚠</span>
-          <span>{caution}</span>
-        </div>
-      )}
     </div>
   );
 }
@@ -86,6 +73,8 @@ const PAIR_STEPS = [
     highlight: [0, 2],
   },
 ];
+
+void INITIAL_DATA; // suppress unused warning
 
 function PairTraceSection() {
   const [step, setStep] = useState(0);
@@ -390,49 +379,78 @@ typename T::iterator it;
 }
 
 /* ── Main export ── */
-export default function TemplatesContent({ topic }: { topic: StudyTopic }) {
-  void topic;
+export default function TemplatesContent({ topic }: Props) {
   return (
-    <div className="max-w-5xl mx-auto space-y-8 px-6 py-6">
+    <div className="max-w-5xl mx-auto space-y-10 px-6 py-6">
+
+      {/* Hero */}
+      <div className="flex items-start gap-4">
+        <div className="relative flex-shrink-0">
+          <span className="text-5xl leading-none">{topic.icon}</span>
+          {topic.studyOrder != null && (
+            <span className="absolute -top-1 -right-2 flex h-5 w-5 items-center justify-center rounded-full bg-blue-600 text-[10px] font-black text-white shadow">
+              {topic.studyOrder}
+            </span>
+          )}
+        </div>
+        <div className="flex-1 min-w-0">
+          <div className="flex items-center gap-2 flex-wrap mb-2">
+            <h1 className="text-xl font-black text-slate-900 dark:text-slate-100">{topic.title}</h1>
+            <span className={`text-xs font-bold rounded-full px-2.5 py-1 ${difficultyColor[topic.difficulty]}`}>
+              {difficultyLabel[topic.difficulty]}
+            </span>
+          </div>
+          <p className="text-sm text-slate-600 dark:text-slate-300 leading-relaxed">{topic.summary}</p>
+        </div>
+      </div>
+
+      {/* Key points */}
+      <section>
+        <div className="flex items-center gap-2 mb-3">
+          <span className="text-lg">⚡</span>
+          <h2 className="text-base font-bold text-slate-800 dark:text-slate-100">핵심 포인트</h2>
+          <div className="flex-1 h-px bg-slate-200 dark:bg-slate-700" />
+        </div>
+        <ul className="space-y-2 rounded-xl border border-blue-100 bg-blue-50 p-4 dark:border-blue-900/30 dark:bg-blue-950/30">
+          {topic.keyPoints.map((pt, i) => (
+            <li key={i} className="flex items-start gap-2.5 text-sm text-blue-900 dark:text-blue-200 leading-relaxed">
+              <span className="mt-2 h-1.5 w-1.5 flex-shrink-0 rounded-full bg-blue-500" />
+              {pt}
+            </li>
+          ))}
+        </ul>
+      </section>
+
       <section id="templates-sec-trace">
-        <SH icon="🧬" title="Pair<int> add() 추적" />
-        <ConceptBox
-          what="Pair&lt;T&gt;는 T 타입 값을 가리키는 두 포인터(first, second)를 가집니다. add()는 포인터를 통해 원본 배열의 값을 직접 수정합니다."
-          rules={[
-            'Pair a(data, data+2): a.first = &data[0](값=1), a.second = &data[2](값=3) — 배열 원소를 가리킴',
-            'a.add(b): *a.first += *b.first → data[0] += data[1] → 원본 배열 직접 수정!',
-            'a.print(): (*a.first, *a.second) = (data[0], data[2]) = 수정된 값 출력 → (3, 7)',
-          ]}
-          caution="a와 b가 같은 data[] 배열의 원소를 가리키므로 add() 후 data[0], data[2]가 변합니다. a.print()는 수정된 원본 배열 값을 출력합니다."
-        />
+        <SH icon="🧬" title="Pair&lt;int&gt; add() 추적" />
+        <p className="text-sm text-slate-600 dark:text-slate-400 mb-4 leading-relaxed">
+          <code className="text-xs bg-slate-100 dark:bg-slate-800 px-1 rounded">Pair&lt;T&gt;</code>는
+          두 포인터(first, second)로 원본 배열의 원소를 직접 가리킵니다.{' '}
+          <code className="text-xs bg-slate-100 dark:bg-slate-800 px-1 rounded">add()</code>는
+          역참조를 통해 <strong>원본 값을 직접 수정</strong>하므로,{' '}
+          <code className="text-xs bg-slate-100 dark:bg-slate-800 px-1 rounded">a.print()</code>는
+          add 후 변경된 배열 값을 출력합니다.
+        </p>
         <PairTraceSection />
       </section>
 
       <section id="templates-sec-constraints">
         <SH icon="🔒" title="T 타입 제약 체커" />
-        <ConceptBox
-          what="클래스 템플릿에서 T가 가진 연산(+=, &lt;&lt;, 복사 생성자 등)이 충분해야 컴파일됩니다. 오류는 Pair&lt;T&gt;를 실제로 사용(인스턴스화)하는 시점에 발생합니다."
-          rules={[
-            'add() 사용 시: T에 operator+=가 있어야 함 (*first += *(other.first))',
-            'print() 사용 시: T에 operator<<가 있어야 함 (cout << *first)',
-            'Pair&lt;LinkedList&gt;의 add()를 호출하지 않으면: 컴파일 가능 (사용하지 않는 함수는 인스턴스화 안 됨)',
-          ]}
-          caution="해결책: LinkedList에 operator+= 선언만 추가하면 됩니다 — 구현 없이 선언만으로 컴파일 통과 (add()를 실제 호출하지 않으면 링크 에러도 없음)."
-        />
+        <p className="text-sm text-slate-600 dark:text-slate-400 mb-4 leading-relaxed">
+          클래스 템플릿에서 T가 필요한 연산(<code className="text-xs bg-slate-100 dark:bg-slate-800 px-1 rounded">+=</code>,{' '}
+          <code className="text-xs bg-slate-100 dark:bg-slate-800 px-1 rounded">&lt;&lt;</code> 등)을 지원해야 컴파일됩니다.
+          오류는 <code className="text-xs bg-slate-100 dark:bg-slate-800 px-1 rounded">Pair&lt;T&gt;</code>를{' '}
+          <strong>실제로 사용(인스턴스화)하는 시점</strong>에 발생합니다. 아래에서 T를 바꿔보세요.
+        </p>
         <TypeConstraintSection />
       </section>
 
       <section id="templates-sec-instantiation">
         <SH icon="⚙️" title="컴파일 타임 인스턴스화" />
-        <ConceptBox
-          what="컴파일러는 T를 실제 타입으로 치환하여 각 타입마다 별도의 구체 코드를 생성합니다. 이를 템플릿 인스턴스화(template instantiation)라고 합니다."
-          rules={[
-            'Pair&lt;int&gt; → 컴파일 시 int용 코드 생성 / Pair&lt;double&gt; → double용 코드 별도 생성',
-            '헤더 파일 정의 필수: 컴파일러가 인스턴스화 시 템플릿 코드를 볼 수 있어야 함 (분리 컴파일 불가)',
-            'typename과 class는 템플릿 파라미터에서 동일. 단, 의존 타입(typename T::iterator)에는 typename 필수',
-          ]}
-          caution="코드 팽창(code bloat): 타입마다 별도 코드가 생성되어 실행 파일 크기가 커질 수 있습니다. 자주 쓰는 타입만 인스턴스화되도록 설계하세요."
-        />
+        <p className="text-sm text-slate-600 dark:text-slate-400 mb-4 leading-relaxed">
+          컴파일러는 T를 실제 타입으로 치환해 <strong>각 타입마다 별도의 코드</strong>를 생성합니다(템플릿 인스턴스화).
+          따라서 템플릿 정의는 반드시 <strong>헤더 파일</strong>에 있어야 하며, 사용된 타입만 인스턴스화됩니다.
+        </p>
         <InstantiationSection />
       </section>
     </div>

@@ -2,34 +2,21 @@
 import { useState } from 'react';
 import type { StudyTopic } from '../TopicStudyCard';
 
+interface Props { topic: StudyTopic; }
+
+const difficultyLabel = { basic: '기초', intermediate: '중급', advanced: '고급' };
+const difficultyColor = {
+  basic: 'bg-emerald-50 text-emerald-700 border border-emerald-200 dark:bg-emerald-900/20 dark:text-emerald-300',
+  intermediate: 'bg-amber-50 text-amber-700 border border-amber-200 dark:bg-amber-900/20 dark:text-amber-300',
+  advanced: 'bg-red-50 text-red-700 border border-red-200 dark:bg-red-900/20 dark:text-red-300',
+};
+
 function SH({ icon, title }: { icon: string; title: string }) {
   return (
-    <div className="flex items-center gap-2 mb-3">
-      <span className="text-lg">{icon}</span>
-      <h2 className="text-sm font-bold text-slate-700 dark:text-slate-200 uppercase tracking-wide">{title}</h2>
+    <div className="flex items-center gap-2 mb-5">
+      <span className="text-xl">{icon}</span>
+      <h2 className="text-base font-bold text-slate-800 dark:text-slate-100">{title}</h2>
       <div className="flex-1 h-px bg-slate-200 dark:bg-slate-700" />
-    </div>
-  );
-}
-
-function ConceptBox({ what, rules, caution }: { what: string; rules: string[]; caution?: string }) {
-  return (
-    <div className="mb-4 rounded-xl border border-blue-100 dark:border-blue-900/40 bg-blue-50/60 dark:bg-blue-950/20 p-4 space-y-2.5">
-      <p className="text-sm text-blue-900 dark:text-blue-100 leading-relaxed">{what}</p>
-      <ul className="space-y-1.5">
-        {rules.map((r, i) => (
-          <li key={i} className="flex gap-2 text-xs text-blue-800 dark:text-blue-200 leading-relaxed">
-            <span className="mt-0.5 flex-shrink-0 h-4 w-4 rounded bg-blue-400/70 flex items-center justify-center text-[9px] font-black text-white">{i + 1}</span>
-            <span>{r}</span>
-          </li>
-        ))}
-      </ul>
-      {caution && (
-        <div className="flex gap-2 rounded-lg bg-amber-50 dark:bg-amber-900/20 border border-amber-200 dark:border-amber-700/40 px-3 py-2 text-xs text-amber-800 dark:text-amber-200 leading-relaxed">
-          <span className="flex-shrink-0 font-bold">⚠</span>
-          <span>{caution}</span>
-        </div>
-      )}
     </div>
   );
 }
@@ -339,7 +326,7 @@ function ReverseSection() {
       <div className="grid grid-cols-1 md:grid-cols-2 gap-3">
         <div className="rounded-xl overflow-hidden border border-purple-200 dark:border-purple-800/40">
           <div className="bg-purple-900 px-4 py-2 border-b border-purple-700">
-            <p className="text-xs text-purple-200 font-bold">재귀 (기출)</p>
+            <p className="text-xs text-purple-200 font-bold">재귀</p>
           </div>
           <pre className="bg-slate-950 text-xs p-4 text-slate-200 overflow-x-auto leading-relaxed">{`Node* reverseHelper(
         Node* node, Node* prev) {
@@ -374,47 +361,75 @@ void reverse() {
 }
 
 /* ── Main export ── */
-export default function LinkedListImplContent({ topic }: { topic: StudyTopic }) {
-  void topic;
+export default function LinkedListImplContent({ topic }: Props) {
   return (
-    <div className="max-w-5xl mx-auto space-y-8 px-6 py-6">
+    <div className="max-w-5xl mx-auto space-y-10 px-6 py-6">
+
+      {/* Hero */}
+      <div className="flex items-start gap-4">
+        <div className="relative flex-shrink-0">
+          <span className="text-5xl leading-none">{topic.icon}</span>
+          {topic.studyOrder != null && (
+            <span className="absolute -top-1 -right-2 flex h-5 w-5 items-center justify-center rounded-full bg-blue-600 text-[10px] font-black text-white shadow">
+              {topic.studyOrder}
+            </span>
+          )}
+        </div>
+        <div className="flex-1 min-w-0">
+          <div className="flex items-center gap-2 flex-wrap mb-2">
+            <h1 className="text-xl font-black text-slate-900 dark:text-slate-100">{topic.title}</h1>
+            <span className={`text-xs font-bold rounded-full px-2.5 py-1 ${difficultyColor[topic.difficulty]}`}>
+              {difficultyLabel[topic.difficulty]}
+            </span>
+          </div>
+          <p className="text-sm text-slate-600 dark:text-slate-300 leading-relaxed">{topic.summary}</p>
+        </div>
+      </div>
+
+      {/* Key points */}
+      <section>
+        <div className="flex items-center gap-2 mb-3">
+          <span className="text-lg">⚡</span>
+          <h2 className="text-base font-bold text-slate-800 dark:text-slate-100">핵심 포인트</h2>
+          <div className="flex-1 h-px bg-slate-200 dark:bg-slate-700" />
+        </div>
+        <ul className="space-y-2 rounded-xl border border-blue-100 bg-blue-50 p-4 dark:border-blue-900/30 dark:bg-blue-950/30">
+          {topic.keyPoints.map((pt, i) => (
+            <li key={i} className="flex items-start gap-2.5 text-sm text-blue-900 dark:text-blue-200 leading-relaxed">
+              <span className="mt-2 h-1.5 w-1.5 flex-shrink-0 rounded-full bg-blue-500" />
+              {pt}
+            </li>
+          ))}
+        </ul>
+      </section>
+
       <section id="linked-list-impl-sec-builder">
         <SH icon="🔗" title="append() — 앞 삽입 시뮬레이터" />
-        <ConceptBox
-          what="append(val)는 이름과 달리 사실 prepend(앞에 삽입)처럼 동작합니다. head = new Node(val, head)에서 새 노드가 기존 head를 next로 가리키고 새 head가 됩니다."
-          rules={[
-            'head = new Node(val, head): 새 노드 생성, 기존 head가 새 노드의 next가 됨, 새 노드가 head가 됨',
-            'append(1) → append(2) → append(3) 결과: 3→2→1→null (마지막 추가가 맨 앞!)',
-            '직관과 반대: 호출 순서와 리스트 순서가 반전됨 — 시험에서 자주 출력 결과를 묻는 포인트',
-          ]}
-        />
+        <p className="text-sm text-slate-600 dark:text-slate-400 mb-4 leading-relaxed">
+          <code className="text-xs bg-slate-100 dark:bg-slate-800 px-1 rounded">append(val)</code>는 이름과 달리 실제로는 리스트 <strong>맨 앞</strong>에 삽입합니다.{' '}
+          <code className="text-xs bg-slate-100 dark:bg-slate-800 px-1 rounded">head = new Node(val, head)</code>에서 새 노드가 기존 head를 next로 품고 새 head가 됩니다.
+          따라서 호출 순서와 리스트 순서가 역전됩니다.
+        </p>
         <ListBuilderSection />
       </section>
 
       <section id="linked-list-impl-sec-dtor">
         <SH icon="🗑️" title="소멸자 — 순회 삭제 step-by-step" />
-        <ConceptBox
-          what="링크드 리스트의 노드들은 모두 힙에 할당됩니다. 소멸자에서 직접 순회하며 모든 노드를 delete해야 메모리 누수가 없습니다."
-          rules={[
-            '순서 절대 준수: Node* next = current->next; 저장 먼저 → delete current → current = next',
-            'delete current 후 current->next 접근은 해제된 메모리 접근 → Undefined Behavior',
-            'while (current)는 current가 nullptr(null)가 될 때까지 반복 — 마지막 노드의 next는 nullptr',
-          ]}
-          caution="'먼저 next 저장, 그다음 delete' 순서를 절대 바꾸지 마세요! delete 후엔 그 메모리에 접근하면 안 됩니다."
-        />
+        <p className="text-sm text-slate-600 dark:text-slate-400 mb-4 leading-relaxed">
+          링크드 리스트의 노드는 모두 힙에 할당되므로 소멸자에서 순회하며 직접{' '}
+          <code className="text-xs bg-slate-100 dark:bg-slate-800 px-1 rounded">delete</code>해야 합니다.
+          핵심은 순서입니다: <strong>next 포인터를 먼저 저장</strong>한 뒤 현재 노드를 삭제해야 다음 노드를 잃지 않습니다.
+        </p>
         <DestructorStepSection />
       </section>
 
       <section id="linked-list-impl-sec-reverse">
         <SH icon="🔄" title="reverse — 재귀 vs 반복 비교" />
-        <ConceptBox
-          what="리스트 뒤집기는 각 노드의 next 링크 방향을 반대로 바꾸는 작업입니다. 재귀와 반복 두 가지 방법이 있습니다."
-          rules={[
-            '재귀: reverseHelper(node, prev) — node.next를 prev로 변경 후 재귀. base case: node==null이면 prev가 새 head',
-            '반복: 세 포인터(prev=null, curr=head, next) — 매 단계마다 하나씩 방향 전환 후 전진',
-            '두 방법의 결과는 동일. 재귀는 직관적이나 깊은 리스트에서 스택 오버플로우 위험 있음',
-          ]}
-        />
+        <p className="text-sm text-slate-600 dark:text-slate-400 mb-4 leading-relaxed">
+          리스트 뒤집기는 각 노드의 next 링크 방향을 반대로 바꾸는 작업입니다.
+          재귀와 반복 두 가지 방법이 있으며 결과는 동일합니다.
+          재귀는 직관적이지만 긴 리스트에서는 스택 오버플로우 위험이 있습니다.
+        </p>
         <ReverseSection />
       </section>
     </div>

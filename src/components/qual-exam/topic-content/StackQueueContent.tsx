@@ -2,36 +2,23 @@
 import { useState } from 'react';
 import type { StudyTopic } from '../TopicStudyCard';
 
+interface Props { topic: StudyTopic; }
+
 const MAX = 6;
+
+const difficultyLabel = { basic: '기초', intermediate: '중급', advanced: '고급' };
+const difficultyColor = {
+  basic: 'bg-emerald-50 text-emerald-700 border border-emerald-200 dark:bg-emerald-900/20 dark:text-emerald-300',
+  intermediate: 'bg-amber-50 text-amber-700 border border-amber-200 dark:bg-amber-900/20 dark:text-amber-300',
+  advanced: 'bg-red-50 text-red-700 border border-red-200 dark:bg-red-900/20 dark:text-red-300',
+};
 
 function SH({ icon, title }: { icon: string; title: string }) {
   return (
-    <div className="flex items-center gap-2 mb-3">
-      <span className="text-lg">{icon}</span>
-      <h2 className="text-sm font-bold text-slate-700 dark:text-slate-200 uppercase tracking-wide">{title}</h2>
+    <div className="flex items-center gap-2 mb-5">
+      <span className="text-xl">{icon}</span>
+      <h2 className="text-base font-bold text-slate-800 dark:text-slate-100">{title}</h2>
       <div className="flex-1 h-px bg-slate-200 dark:bg-slate-700" />
-    </div>
-  );
-}
-
-function ConceptBox({ what, rules, caution }: { what: string; rules: string[]; caution?: string }) {
-  return (
-    <div className="mb-4 rounded-xl border border-blue-100 dark:border-blue-900/40 bg-blue-50/60 dark:bg-blue-950/20 p-4 space-y-2.5">
-      <p className="text-sm text-blue-900 dark:text-blue-100 leading-relaxed">{what}</p>
-      <ul className="space-y-1.5">
-        {rules.map((r, i) => (
-          <li key={i} className="flex gap-2 text-xs text-blue-800 dark:text-blue-200 leading-relaxed">
-            <span className="mt-0.5 flex-shrink-0 h-4 w-4 rounded bg-blue-400/70 flex items-center justify-center text-[9px] font-black text-white">{i + 1}</span>
-            <span>{r}</span>
-          </li>
-        ))}
-      </ul>
-      {caution && (
-        <div className="flex gap-2 rounded-lg bg-amber-50 dark:bg-amber-900/20 border border-amber-200 dark:border-amber-700/40 px-3 py-2 text-xs text-amber-800 dark:text-amber-200 leading-relaxed">
-          <span className="flex-shrink-0 font-bold">⚠</span>
-          <span>{caution}</span>
-        </div>
-      )}
     </div>
   );
 }
@@ -410,47 +397,79 @@ function TraceSection() {
 }
 
 /* ── Main export ── */
-export default function StackQueueContent({ topic }: { topic: StudyTopic }) {
-  void topic;
+export default function StackQueueContent({ topic }: Props) {
   return (
-    <div className="max-w-5xl mx-auto space-y-8 px-6 py-6">
+    <div className="max-w-5xl mx-auto space-y-10 px-6 py-6">
+
+      {/* Hero */}
+      <div className="flex items-start gap-4">
+        <div className="relative flex-shrink-0">
+          <span className="text-5xl leading-none">{topic.icon}</span>
+          {topic.studyOrder != null && (
+            <span className="absolute -top-1 -right-2 flex h-5 w-5 items-center justify-center rounded-full bg-blue-600 text-[10px] font-black text-white shadow">
+              {topic.studyOrder}
+            </span>
+          )}
+        </div>
+        <div className="flex-1 min-w-0">
+          <div className="flex items-center gap-2 flex-wrap mb-2">
+            <h1 className="text-xl font-black text-slate-900 dark:text-slate-100">{topic.title}</h1>
+            <span className={`text-xs font-bold rounded-full px-2.5 py-1 ${difficultyColor[topic.difficulty]}`}>
+              {difficultyLabel[topic.difficulty]}
+            </span>
+          </div>
+          <p className="text-sm text-slate-600 dark:text-slate-300 leading-relaxed">{topic.summary}</p>
+        </div>
+      </div>
+
+      {/* Key points */}
+      <section>
+        <div className="flex items-center gap-2 mb-3">
+          <span className="text-lg">⚡</span>
+          <h2 className="text-base font-bold text-slate-800 dark:text-slate-100">핵심 포인트</h2>
+          <div className="flex-1 h-px bg-slate-200 dark:bg-slate-700" />
+        </div>
+        <ul className="space-y-2 rounded-xl border border-blue-100 bg-blue-50 p-4 dark:border-blue-900/30 dark:bg-blue-950/30">
+          {topic.keyPoints.map((pt, i) => (
+            <li key={i} className="flex items-start gap-2.5 text-sm text-blue-900 dark:text-blue-200 leading-relaxed">
+              <span className="mt-2 h-1.5 w-1.5 flex-shrink-0 rounded-full bg-blue-500" />
+              {pt}
+            </li>
+          ))}
+        </ul>
+      </section>
+
       <section id="stack-queue-sec-stack">
         <SH icon="📦" title="Stack 시뮬레이터 (LIFO)" />
-        <ConceptBox
-          what="Stack은 LIFO(Last In, First Out) 자료구조입니다. 나중에 push한 데이터를 먼저 pop합니다. top 포인터(-1이 초기값)로 스택 꼭대기를 추적합니다."
-          rules={[
-            'push(x): top < MAX-1 확인(overflow 체크) → arr[++top] = x (top 먼저 증가, 그다음 저장)',
-            'pop(): top == -1이면 언더플로우. return arr[top--] (값 반환 후 top 감소)',
-            'isEmpty(): top == -1 (top이 -1이면 아무것도 없음)',
-          ]}
-          caution="함정: arr[top++]가 아닌 arr[++top] — push 전에 top을 먼저 증가시켜야 올바른 인덱스에 저장됩니다. 순서를 바꾸면 인덱스가 어긋납니다."
-        />
+        <p className="text-sm text-slate-600 dark:text-slate-400 mb-4 leading-relaxed">
+          Stack은 LIFO(Last In, First Out) 자료구조입니다.{' '}
+          <code className="text-xs bg-slate-100 dark:bg-slate-800 px-1 rounded">top</code>의 초기값은{' '}
+          <code className="text-xs bg-slate-100 dark:bg-slate-800 px-1 rounded">-1</code>이며,
+          push 시 <code className="text-xs bg-slate-100 dark:bg-slate-800 px-1 rounded">arr[++top] = x</code>처럼
+          top을 먼저 증가시킨 뒤 저장합니다. 이 순서를 바꾸면 인덱스가 어긋납니다.
+        </p>
         <StackSection />
       </section>
 
       <section id="stack-queue-sec-queue">
         <SH icon="🚶" title="Queue 시뮬레이터 (FIFO)" />
-        <ConceptBox
-          what="Queue는 FIFO(First In, First Out) 자료구조입니다. 먼저 enqueue한 데이터를 먼저 dequeue합니다. front(출구)와 rear(입구) 두 포인터로 관리합니다."
-          rules={[
-            'enqueue(x): rear < MAX 확인(overflow 체크) → arr[rear++] = x (저장 후 rear 증가)',
-            'dequeue(): front == rear이면 비어있음. return arr[front++] (값 반환 후 front 증가)',
-            'isEmpty(): front == rear (두 포인터가 같으면 비어있음)',
-          ]}
-          caution="선형 큐의 한계: dequeue 후 front 앞의 공간이 낭비됩니다. 원형 큐(Circular Queue)는 rear = (rear+1)%MAX로 이를 해결합니다."
-        />
+        <p className="text-sm text-slate-600 dark:text-slate-400 mb-4 leading-relaxed">
+          Queue는 FIFO(First In, First Out) 자료구조로,{' '}
+          <strong>front</strong>(출구)와 <strong>rear</strong>(입구) 두 포인터로 관리합니다.
+          선형 큐는 dequeue 후 앞쪽 공간이 낭비되므로, 실제로는 rear를{' '}
+          <code className="text-xs bg-slate-100 dark:bg-slate-800 px-1 rounded">(rear+1)%MAX</code>로
+          순환시키는 원형 큐를 주로 씁니다.
+        </p>
         <QueueSection />
       </section>
 
       <section id="stack-queue-sec-trace">
         <SH icon="🔍" title="실행 결과 추적" />
-        <ConceptBox
-          what="Stack과 Queue의 출력 결과를 추적할 때 핵심은 'LIFO냐 FIFO냐'입니다. push/enqueue 순서를 기억하고 pop/dequeue 순서를 예측하세요."
-          rules={[
-            'Stack 출력 순서: LIFO — 가장 나중에 push한 것이 먼저 pop. 예: push(10,20,30) → pop 결과: 30, 20',
-            'Queue 출력 순서: FIFO — 가장 먼저 enqueue한 것이 먼저 dequeue. 예: enqueue(5,6,7) → dequeue 결과: 5, 6',
-          ]}
-        />
+        <p className="text-sm text-slate-600 dark:text-slate-400 mb-4 leading-relaxed">
+          Stack 출력 순서는 LIFO — <strong>마지막에 push한 값이 먼저</strong> 나옵니다.
+          Queue 출력 순서는 FIFO — <strong>처음에 enqueue한 값이 먼저</strong> 나옵니다.
+          아래에서 직접 결과를 예측한 뒤 확인해보세요.
+        </p>
         <TraceSection />
       </section>
     </div>
