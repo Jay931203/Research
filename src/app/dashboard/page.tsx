@@ -53,6 +53,7 @@ export default function DashboardPage() {
   const graphFilterSettings = useAppStore((state) => state.graphFilterSettings);
   const mapPaperIds = useAppStore((state) => state.mapPaperIds);
   const setMapPaperIds = useAppStore((state) => state.setMapPaperIds);
+  const addMapPaper = useAppStore((state) => state.addMapPaper);
   const removeMapPaper = useAppStore((state) => state.removeMapPaper);
   const undoMapSelection = useAppStore((state) => state.undoMapSelection);
   const redoMapSelection = useAppStore((state) => state.redoMapSelection);
@@ -62,6 +63,7 @@ export default function DashboardPage() {
   const [isMapFullscreen, setIsMapFullscreen] = useState(false);
   const [isFavoritesModalOpen, setIsFavoritesModalOpen] = useState(false);
   const [selectedFullscreenPaperId, setSelectedFullscreenPaperId] = useState<string | null>(null);
+  const [focusTarget, setFocusTarget] = useState<{ paperId: string } | null>(null);
 
   useMapSelectionSync(papers);
 
@@ -117,6 +119,18 @@ export default function DashboardPage() {
       setSelectedFullscreenPaperId(paperId);
     },
     []
+  );
+
+  const handleSidebarPaperClick = useCallback(
+    (paperId: string) => {
+      // Add to map if it has a specific selection and doesn't include this paper
+      if (mapPaperIds !== null && !mapPaperIdSet?.has(paperId)) {
+        addMapPaper(paperId);
+      }
+      setSelectedFullscreenPaperId(paperId);
+      setFocusTarget({ paperId });
+    },
+    [mapPaperIds, mapPaperIdSet, addMapPaper]
   );
 
   const handleRemovePaperFromMap = useCallback(
@@ -194,7 +208,7 @@ export default function DashboardPage() {
   }
 
   return (
-    <MainLayout>
+    <MainLayout onSidebarPaperClick={handleSidebarPaperClick}>
       <ErrorBoundary>
         {!isMapFullscreen && (
           <div className="space-y-3">
@@ -299,6 +313,7 @@ export default function DashboardPage() {
                   graphFilterSettings={graphFilterSettings}
                   onNodeClick={handleNodeClick}
                   onRemovePaper={handleRemovePaperFromMap}
+                  focusTarget={focusTarget}
                 />
               </div>
             </div>
@@ -328,6 +343,7 @@ export default function DashboardPage() {
                   graphFilterSettings={graphFilterSettings}
                   onNodeClick={handleNodeClick}
                   onRemovePaper={handleRemovePaperFromMap}
+                  focusTarget={focusTarget}
                 />
                 {!selectedFullscreenPaper && (
                   <div className="pointer-events-none absolute bottom-4 right-4 rounded-lg border border-gray-200 bg-white/90 px-3 py-2 text-xs text-gray-600 shadow-lg dark:border-gray-700 dark:bg-gray-900/90 dark:text-gray-300">

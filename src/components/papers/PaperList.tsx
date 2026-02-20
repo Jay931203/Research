@@ -14,9 +14,10 @@ import PaperCard from './PaperCard';
 
 interface PaperListProps {
   filters: PaperSearchFilters;
+  onPaperClick?: (paperId: string) => void;
 }
 
-export default function PaperList({ filters }: PaperListProps) {
+export default function PaperList({ filters, onPaperClick }: PaperListProps) {
   const { papers, isLoading, isError, refresh } = usePapersWithNotes();
   const router = useRouter();
   const addToast = useToastStore((state) => state.addToast);
@@ -168,7 +169,7 @@ export default function PaperList({ filters }: PaperListProps) {
         <PaperCard
           key={paper.id}
           paper={paper}
-          onClick={() => router.push(`/paper/${paper.id}`)}
+          onClick={() => onPaperClick ? onPaperClick(paper.id) : router.push(`/paper/${paper.id}`)}
           onFavoriteToggle={handleFavoriteToggle}
           onFamiliarityChange={handleFamiliarityChange}
           onMapToggle={handleMapToggle}

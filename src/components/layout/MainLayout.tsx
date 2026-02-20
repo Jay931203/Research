@@ -9,9 +9,10 @@ import { useKeyboardShortcuts } from '@/hooks/useKeyboardShortcuts';
 
 interface MainLayoutProps {
   children: React.ReactNode;
+  onSidebarPaperClick?: (paperId: string) => void;
 }
 
-export default function MainLayout({ children }: MainLayoutProps) {
+export default function MainLayout({ children, onSidebarPaperClick }: MainLayoutProps) {
   const [sidebarOpen, setSidebarOpen] = useState(true);
   const {
     isHelpOpen,
@@ -24,7 +25,7 @@ export default function MainLayout({ children }: MainLayoutProps) {
   return (
     <div className="min-h-screen bg-gray-50 dark:bg-gray-950">
       <Header onSearchClick={openCommandPalette} />
-      <Sidebar isOpen={sidebarOpen} onToggle={() => setSidebarOpen((prev) => !prev)} />
+      <Sidebar isOpen={sidebarOpen} onToggle={() => setSidebarOpen((prev) => !prev)} onPaperClick={onSidebarPaperClick} />
 
       <main
         className={`pt-16 transition-all duration-300 ${

@@ -35,6 +35,7 @@ interface MindMapProps {
   graphFilterSettings: GraphFilterSettings;
   onNodeClick?: (paperId: string) => void;
   onRemovePaper?: (paperId: string) => void;
+  focusTarget?: { paperId: string } | null;
 }
 
 function TopicLabelNode({ data }: { data: { label: string; color: string } }) {
@@ -81,11 +82,20 @@ function MindMapInner({
   graphFilterSettings,
   onNodeClick,
   onRemovePaper,
+  focusTarget,
 }: MindMapProps) {
   const { fitView } = useReactFlow();
   const [direction, setDirection] = useState<'TB' | 'LR'>('TB');
   const [zoomLevel, setZoomLevel] = useState(1);
   const hasAutoFittedRef = useRef(false);
+  const pendingFocusRef = useRef<string | null>(null);
+
+  // When focusTarget changes (new object ref = new click), store the paperId as pending
+  useEffect(() => {
+    if (focusTarget?.paperId) {
+      pendingFocusRef.current = focusTarget.paperId;
+    }
+  }, [focusTarget]);
 
   useEffect(() => {
     hasAutoFittedRef.current = false;
@@ -260,6 +270,19 @@ function MindMapInner({
   useEffect(() => {
     setEdges(labeledEdges);
   }, [labeledEdges, setEdges]);
+
+  // When nodes update, apply any pending focus (triggered by sidebar paper click)
+  useEffect(() => {
+    const id = pendingFocusRef.current;
+    if (!id) return;
+    const match = nodes.filter((n) => n.id === id && n.type !== 'topicLabel');
+    if (!match.length) return;
+    pendingFocusRef.current = null;
+    const raf = window.requestAnimationFrame(() => {
+      fitView({ nodes: match, duration: 500, padding: 0.5, maxZoom: 1.5 });
+    });
+    return () => window.cancelAnimationFrame(raf);
+  }, [nodes, fitView]);
 
   useEffect(() => {
     if (!layeredNodes.length) return;

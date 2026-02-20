@@ -19,6 +19,7 @@ import type { FamiliarityLevel, RelationshipType } from '@/types';
 interface SidebarProps {
   isOpen: boolean;
   onToggle: () => void;
+  onPaperClick?: (paperId: string) => void;
 }
 
 const SIDEBAR_FILTERS_STORAGE_KEY = 'sidebar-paper-search-filters-v1';
@@ -53,7 +54,7 @@ function normalizeGraphFilterSettings(
   };
 }
 
-export default function Sidebar({ isOpen, onToggle }: SidebarProps) {
+export default function Sidebar({ isOpen, onToggle, onPaperClick }: SidebarProps) {
   const currentYear = new Date().getFullYear();
   const [showAddModal, setShowAddModal] = useState(false);
   const { papers, refresh } = usePapersWithNotes();
@@ -347,7 +348,7 @@ export default function Sidebar({ isOpen, onToggle }: SidebarProps) {
           </div>
 
           <div className="flex-1 overflow-y-auto">
-            <PaperList filters={searchFilters} />
+            <PaperList filters={searchFilters} onPaperClick={onPaperClick} />
           </div>
 
           <div className="border-t border-gray-200 p-3 dark:border-gray-700">
