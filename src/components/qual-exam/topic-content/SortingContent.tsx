@@ -250,7 +250,7 @@ export default function SortingContent({ topic }: Props) {
           </ol>
         </div>
         <div className="rounded-xl border border-red-200 bg-red-50 dark:border-red-800/40 dark:bg-red-900/10 p-3 mb-4">
-          <p className="text-sm font-bold text-red-800 dark:text-red-300 mb-1">시험 포인트</p>
+          <p className="text-sm font-bold text-slate-700 dark:text-slate-200 mb-1">핵심 포인트</p>
           <ul className="space-y-1">
             <li className="text-sm text-red-700 dark:text-red-300">&bull; 최악의 경우 O(n&sup2;): 이미 정렬된 배열에서 항상 최솟값/최댓값을 피벗으로 선택할 때</li>
             <li className="text-sm text-red-700 dark:text-red-300">&bull; 평균 O(n log n): 랜덤 피벗이면 기대값</li>
@@ -358,7 +358,7 @@ export default function SortingContent({ topic }: Props) {
           </ol>
         </div>
         <div className="rounded-xl border border-red-200 bg-red-50 dark:border-red-800/40 dark:bg-red-900/10 p-3 mb-4">
-          <p className="text-sm font-bold text-red-800 dark:text-red-300 mb-1">시험 포인트</p>
+          <p className="text-sm font-bold text-slate-700 dark:text-slate-200 mb-1">핵심 포인트</p>
           <ul className="space-y-1">
             <li className="text-sm text-red-700 dark:text-red-300">&bull; 항상 O(n log n) - 입력 상태와 무관</li>
             <li className="text-sm text-red-700 dark:text-red-300">&bull; O(n) 추가 메모리 필요 (in-place 아님)</li>
@@ -494,7 +494,7 @@ export default function SortingContent({ topic }: Props) {
 
       {/* 5. 시험 함정 + T/F Quiz */}
       <section>
-        <SH emoji="⚠️" title="시험 함정 & True/False 퀴즈" id={`${topic.id}-sec-pitfalls`} />
+        <SH emoji="⚠️" title="흔한 오해 & True/False 퀴즈" id={`${topic.id}-sec-pitfalls`} />
         <div className="rounded-xl border border-red-200 bg-red-50 p-4 dark:border-red-800/40 dark:bg-red-900/10 space-y-2 mb-5">
           {[
             'QuickSort는 평균 O(n log n)이지만 최악은 O(n²) — 이미 정렬된 배열 + 고정 피벗 조심!',

@@ -7,9 +7,9 @@ const QualExamMain = dynamic(() => import('@/components/qual-exam/QualExamMain')
 
 export default function QualExamPage() {
   return (
-    <div className="flex min-h-screen flex-col bg-slate-50 dark:bg-slate-950">
+    <div className="flex h-screen flex-col overflow-hidden bg-slate-50 dark:bg-slate-950">
       <Header />
-      <main className="flex-1">
+      <main className="flex-1 overflow-hidden">
         <QualExamMain />
       </main>
     </div>

@@ -388,10 +388,9 @@ export default function HeapContent({ topic }: Props) {
           </p>
         </div>
         <div className="rounded-xl border border-red-200 bg-red-50 dark:border-red-800/40 dark:bg-red-900/10 p-3 mb-4">
-          <p className="text-sm font-bold text-red-800 dark:text-red-300 mb-1">시험 포인트</p>
+          <p className="text-sm font-bold text-slate-700 dark:text-slate-200 mb-1">핵심 포인트</p>
           <ul className="space-y-1">
             <li className="text-sm text-red-700 dark:text-red-300">&bull; 반직관: &quot;n번 삽입하면 O(n log n)&quot;이지만 Build-Heap은 O(n) — bottom-up heapify를 사용하기 때문</li>
-            <li className="text-sm text-red-700 dark:text-red-300">&bull; Build-Heap은 bottom-up heapify를 사용하기 때문에 가능</li>
           </ul>
         </div>
         <div className="rounded-xl border border-slate-200 dark:border-slate-700 bg-slate-50 dark:bg-slate-800/50 p-5">
@@ -499,7 +498,7 @@ export default function HeapContent({ topic }: Props) {
 
       {/* 5. 시간 복잡도 */}
       <section>
-        <SH emoji="⏱" title="시간 복잡도 표 + 시험 함정" id={`${topic.id}-sec-complexity`} />
+        <SH emoji="⏱" title="시간 복잡도 표 + 주의사항" id={`${topic.id}-sec-complexity`} />
         <div className="rounded-xl border border-amber-200 bg-amber-50 dark:border-amber-700/40 dark:bg-amber-900/10 p-4 mb-5">
           <p className="text-sm font-bold text-amber-800 dark:text-amber-300 mb-2">Min-Heap vs Max-Heap 언제 무엇을?</p>
           <div className="grid grid-cols-1 md:grid-cols-2 gap-3 mb-3">

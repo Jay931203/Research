@@ -324,7 +324,7 @@ export default function GraphContent({ topic }: Props) {
           </p>
         </div>
         <div className="rounded-xl border border-red-200 bg-red-50 dark:border-red-800/40 dark:bg-red-900/10 p-3 mb-4">
-          <p className="text-sm font-bold text-red-800 dark:text-red-300 mb-1">시험 포인트</p>
+          <p className="text-sm font-bold text-slate-700 dark:text-slate-200 mb-1">핵심 포인트</p>
           <ul className="space-y-1">
             <li className="text-sm text-red-700 dark:text-red-300">&bull; 음수 간선 있으면 Dijkstra 실패! &rarr; Bellman-Ford 사용</li>
             <li className="text-sm text-red-700 dark:text-red-300">&bull; 시간 복잡도: O((V+E) log V) with min-heap</li>
@@ -545,7 +545,7 @@ export default function GraphContent({ topic }: Props) {
           </div>
         </div>
         <div className="rounded-xl border border-red-200 bg-red-50 dark:border-red-800/40 dark:bg-red-900/10 p-4">
-          <p className="text-sm font-bold text-red-800 dark:text-red-300 mb-2">시험 포인트</p>
+          <p className="text-sm font-bold text-slate-700 dark:text-slate-200 mb-2">핵심 포인트</p>
           <ul className="space-y-1.5 text-sm text-red-700 dark:text-red-300">
             <li>&bull; 위상 정렬은 <span className="font-bold">DAG에서만 가능</span> (사이클 있으면 불가)</li>
             <li>&bull; <span className="font-bold">Kahn&apos;s Algorithm</span>: 사이클 감지 가능 (처리된 노드 수 &lt; V이면 사이클)</li>
@@ -572,7 +572,7 @@ export default function GraphContent({ topic }: Props) {
           </ul>
         </div>
         <div className="rounded-xl border border-red-200 bg-red-50 dark:border-red-800/40 dark:bg-red-900/10 p-3 mb-4">
-          <p className="text-sm font-bold text-red-800 dark:text-red-300 mb-1">시험 포인트</p>
+          <p className="text-sm font-bold text-slate-700 dark:text-slate-200 mb-1">핵심 포인트</p>
           <ul className="space-y-1">
             <li className="text-sm text-red-700 dark:text-red-300">&bull; 두 알고리즘 모두 같은 MST를 구하지만 접근 방식이 다름 (기출에 자주 나옴)</li>
             <li className="text-sm text-red-700 dark:text-red-300">&bull; MST는 유일하지 않을 수 있음 — 동일 가중치 간선이 여러 개면 여러 MST 존재</li>
@@ -653,7 +653,7 @@ export default function GraphContent({ topic }: Props) {
 
       {/* 5. 복잡도 표 + 함정 */}
       <section>
-        <SH emoji="⏱" title="복잡도 요약 + 시험 함정" id={`${topic.id}-sec-complexity`} />
+        <SH emoji="⏱" title="복잡도 요약" id={`${topic.id}-sec-complexity`} />
         <div className="overflow-x-auto rounded-xl border border-slate-200 dark:border-slate-700 mb-5">
           <table className="w-full text-sm">
             <thead>
@@ -682,6 +682,20 @@ export default function GraphContent({ topic }: Props) {
               ))}
             </tbody>
           </table>
+        </div>
+        <div className="rounded-xl border border-amber-200 bg-amber-50 dark:border-amber-700/40 dark:bg-amber-900/10 p-4 mb-4">
+          <p className="text-sm font-bold text-amber-800 dark:text-amber-300 mb-2">Floyd-Warshall — 모든 쌍 최단경로 (All-Pairs Shortest Path)</p>
+          <p className="text-sm text-amber-700 dark:text-amber-400 leading-relaxed mb-2">
+            V×V 거리 행렬 dp[i][j]를 DP로 채움. 중간 노드 k를 0→V-1까지 순서대로 고려하며 갱신:
+          </p>
+          <code className="block rounded-lg bg-white dark:bg-slate-800 px-3 py-2 text-xs font-mono text-slate-800 dark:text-slate-200 mb-2">
+            dp[i][j] = min(dp[i][j], dp[i][k] + dp[k][j])
+          </code>
+          <ul className="space-y-1 text-xs text-amber-700 dark:text-amber-400">
+            <li>• <span className="font-semibold">시간 O(V³), 공간 O(V²)</span> — V가 작을 때 실용적 (V ≤ ~500)</li>
+            <li>• 음수 간선 허용, 음수 사이클 탐지: 수렴 후 대각선 dp[i][i] &lt; 0이면 존재</li>
+            <li>• 단일 출발 최단경로 → Dijkstra/Bellman-Ford. 전체 쌍 → Floyd-Warshall</li>
+          </ul>
         </div>
         <div className="rounded-xl border border-red-200 bg-red-50 p-4 dark:border-red-800/40 dark:bg-red-900/10 space-y-2">
           {[

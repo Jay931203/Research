@@ -519,7 +519,7 @@ export default function HuffmanContent({ topic }: Props) {
 
       {/* 5. 시험 함정 + T/F */}
       <section>
-        <SH emoji="⚠️" title="시험 함정 & True/False 퀴즈" id={`${topic.id}-sec-pitfalls`} />
+        <SH emoji="⚠️" title="흔한 오해 & True/False 퀴즈" id={`${topic.id}-sec-pitfalls`} />
         <div className="rounded-xl border border-red-200 bg-red-50 p-4 dark:border-red-800/40 dark:bg-red-900/10 space-y-2 mb-5">
           {[
             '허프만 트리는 동률 빈도 처리 방식에 따라 여러 가지가 될 수 있음 (모두 최적)',
