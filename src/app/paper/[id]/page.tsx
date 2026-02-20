@@ -82,6 +82,48 @@ const FULL_STUDY_REGISTRY: Record<string, React.ComponentType> = {
 const INFOGRAPHIC_REGISTRY: Record<string, React.ComponentType> = {};
 
 /* ------------------------------------------------------------------ */
+/*  Full Study ToC Registry (section IDs per arxiv_id)                */
+/* ------------------------------------------------------------------ */
+
+const FULL_STUDY_TOC_REGISTRY: Record<
+  string,
+  Array<{ id: string; label: string; icon: React.ComponentType<{ className?: string }> }>
+> = {
+  '2307.13304': [
+    { id: 'quip-overview',    label: '개요',           icon: BookOpen },
+    { id: 'quip-background',  label: '2비트의 어려움',  icon: FileText },
+    { id: 'quip-theory',      label: '이론적 보장',     icon: GraduationCap },
+    { id: 'quip-incoherence', label: '비간섭 처리',     icon: Zap },
+    { id: 'quip-ldlq',        label: 'LDLQ 알고리즘',  icon: Cpu },
+    { id: 'quip-equations',   label: '핵심 수식',       icon: Hash },
+    { id: 'quip-results',     label: '실험 결과',       icon: List },
+    { id: 'quip-limits',      label: '한계 & 전망',     icon: CheckCircle2 },
+    { id: 'quip-quiz',        label: '자기 점검',       icon: FlaskConical },
+  ],
+  '2402.04396': [
+    { id: 'qs-overview',        label: '개요',              icon: BookOpen },
+    { id: 'qs-quip-limits',     label: 'QuIP 한계',         icon: FileText },
+    { id: 'qs-hadamard',        label: 'Hadamard 비간섭',   icon: Zap },
+    { id: 'qs-hadamard-theory', label: 'Hadamard 이론',     icon: GraduationCap },
+    { id: 'qs-e8',              label: 'E8 격자',           icon: Layers },
+    { id: 'qs-lattice-theory',  label: '격자 양자화 이론',  icon: Hash },
+    { id: 'qs-equations',       label: '핵심 수식',         icon: Hash },
+    { id: 'qs-results',         label: '실험 결과',         icon: List },
+    { id: 'qs-quiz',            label: '자기 점검',         icon: FlaskConical },
+  ],
+  '2401.06118': [
+    { id: 'aqlm-overview',    label: '개요',            icon: BookOpen },
+    { id: 'aqlm-background',  label: '고전적 AQ 배경',  icon: FileText },
+    { id: 'aqlm-idea',        label: '가산 양자화',      icon: Zap },
+    { id: 'aqlm-algorithm',   label: '빔서치 + SGD',    icon: Cpu },
+    { id: 'aqlm-finetuning',  label: '전역 미세조정',   icon: GraduationCap },
+    { id: 'aqlm-equations',   label: '핵심 수식',        icon: Hash },
+    { id: 'aqlm-results',     label: '실험 결과',        icon: List },
+    { id: 'aqlm-quiz',        label: '자기 점검',        icon: FlaskConical },
+  ],
+};
+
+/* ------------------------------------------------------------------ */
 /*  ToC Sections config                                                */
 /* ------------------------------------------------------------------ */
 
@@ -374,7 +416,12 @@ export default function PaperStudyPage() {
       { rootMargin: '-80px 0px -60% 0px', threshold: 0.1 },
     );
 
-    for (const section of TOC_SECTIONS) {
+    const sectionsToWatch =
+      (paper?.arxiv_id && FULL_STUDY_TOC_REGISTRY[paper.arxiv_id])
+        ? FULL_STUDY_TOC_REGISTRY[paper.arxiv_id]
+        : TOC_SECTIONS;
+
+    for (const section of sectionsToWatch) {
       const el = document.getElementById(section.id);
       if (el) observer.observe(el);
     }
@@ -509,19 +556,111 @@ export default function PaperStudyPage() {
 
   /* ---- Full rich study view for select papers ---- */
   if (FullStudyComponent) {
+    const fullStudyTocItems = paper.arxiv_id ? (FULL_STUDY_TOC_REGISTRY[paper.arxiv_id] ?? []) : [];
+
     return (
       <div className="min-h-screen bg-gray-50 dark:bg-gray-950">
         <Header />
+
+        {/* Reading progress bar */}
         <div className="fixed left-0 top-16 z-40 h-0.5 bg-blue-500 transition-all" style={{ width: `${scrollProgress}%` }} />
-        <main className="mx-auto max-w-4xl px-4 py-8 sm:px-6">
-          <div className="mb-6">
-            <Link href="/dashboard" className="inline-flex items-center gap-1.5 text-sm text-gray-500 hover:text-gray-900 dark:text-gray-400 dark:hover:text-gray-100">
-              <ArrowLeft className="h-4 w-4" />
-              대시보드로 돌아가기
-            </Link>
+
+        {/* Breadcrumb bar (같은 위치, 같은 디자인) */}
+        <div className="border-b border-gray-200 bg-white px-4 py-2 dark:border-gray-800 dark:bg-gray-900">
+          <div className="mx-auto flex max-w-[calc(16rem+56rem)] items-center justify-between gap-4">
+            <div className="flex min-w-0 items-center gap-2 text-sm">
+              <Link
+                href="/dashboard"
+                className="flex-shrink-0 text-gray-500 transition hover:text-blue-600 dark:text-gray-400 dark:hover:text-blue-400"
+              >
+                대시보드
+              </Link>
+              <ChevronRight className="h-3 w-3 flex-shrink-0 text-gray-400" />
+              <span className="truncate font-medium text-gray-800 dark:text-gray-200">
+                {paper.title}
+              </span>
+            </div>
+            <div className="flex flex-shrink-0 items-center gap-1">
+              <button
+                onClick={() => prevPaper && router.push(`/paper/${prevPaper.id}`)}
+                disabled={!prevPaper}
+                className="rounded-lg p-1.5 text-gray-500 transition hover:bg-gray-100 disabled:opacity-30 dark:text-gray-400 dark:hover:bg-gray-800"
+                title={prevPaper ? `이전: ${prevPaper.title}` : '이전 논문 없음'}
+              >
+                <ArrowLeft className="h-4 w-4" />
+              </button>
+              <button
+                onClick={() => nextPaper && router.push(`/paper/${nextPaper.id}`)}
+                disabled={!nextPaper}
+                className="rounded-lg p-1.5 text-gray-500 transition hover:bg-gray-100 disabled:opacity-30 dark:text-gray-400 dark:hover:bg-gray-800"
+                title={nextPaper ? `다음: ${nextPaper.title}` : '다음 논문 없음'}
+              >
+                <ArrowRight className="h-4 w-4" />
+              </button>
+            </div>
           </div>
-          <FullStudyComponent />
-        </main>
+        </div>
+
+        {/* Content area */}
+        <div className="flex">
+          {/* Left ToC sidebar */}
+          {fullStudyTocItems.length > 0 && (
+            <aside
+              className={`sticky top-20 hidden h-[calc(100vh-5rem)] flex-shrink-0 overflow-y-auto border-r border-gray-200 bg-gray-50/80 transition-all duration-200 lg:block dark:border-gray-800 dark:bg-gray-900/80 ${
+                isTocCollapsed ? 'w-16 p-2' : 'w-64 p-4'
+              }`}
+            >
+              <div className={`mb-3 flex items-center ${isTocCollapsed ? 'justify-center' : 'justify-between'}`}>
+                {!isTocCollapsed && (
+                  <p className="text-xs font-bold uppercase tracking-wider text-gray-400 dark:text-gray-500">목차</p>
+                )}
+                <button
+                  type="button"
+                  onClick={() => setIsTocCollapsed((prev) => !prev)}
+                  className="inline-flex h-7 w-7 items-center justify-center rounded-md border border-gray-200 text-gray-500 transition hover:bg-gray-100 dark:border-gray-700 dark:text-gray-400 dark:hover:bg-gray-800"
+                  title={isTocCollapsed ? '목차 펼치기' : '목차 접기'}
+                  aria-label={isTocCollapsed ? '목차 펼치기' : '목차 접기'}
+                >
+                  <ChevronRight className={`h-4 w-4 transition-transform ${isTocCollapsed ? '' : 'rotate-180'}`} />
+                </button>
+              </div>
+              <nav className="space-y-1">
+                {fullStudyTocItems.map((section) => {
+                  const Icon = section.icon;
+                  const isActive = activeSection === section.id;
+                  return (
+                    <button
+                      key={section.id}
+                      onClick={() => scrollToSection(section.id)}
+                      title={section.label}
+                      aria-label={section.label}
+                      className={`flex w-full items-center rounded-lg px-3 py-2 text-left text-sm transition ${
+                        isTocCollapsed ? 'justify-center px-2' : 'gap-2.5'
+                      } ${
+                        isActive
+                          ? isTocCollapsed
+                            ? 'bg-blue-50 text-blue-700 dark:bg-blue-900/30 dark:text-blue-300'
+                            : 'border-l-2 border-blue-600 bg-blue-50 font-semibold text-blue-700 dark:bg-blue-900/30 dark:text-blue-300'
+                          : 'text-gray-600 hover:bg-gray-100 dark:text-gray-400 dark:hover:bg-gray-800'
+                      }`}
+                    >
+                      <Icon className={`h-4 w-4 flex-shrink-0 ${isActive ? 'text-blue-600 dark:text-blue-400' : 'text-gray-400 dark:text-gray-500'}`} />
+                      {!isTocCollapsed && section.label}
+                    </button>
+                  );
+                })}
+              </nav>
+            </aside>
+          )}
+
+          {/* Main content */}
+          <main className="min-w-0 flex-1">
+            <div className="mx-auto max-w-4xl px-4 py-8 sm:px-6 lg:px-8">
+              <FullStudyComponent />
+              <div className="h-16" />
+            </div>
+          </main>
+        </div>
       </div>
     );
   }
