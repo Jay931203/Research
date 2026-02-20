@@ -54,7 +54,11 @@ const categoryColor: Record<string, string> = {
   'MST & 트리 순회 & TSP': 'bg-blue-50 text-blue-700 border-blue-200 dark:bg-blue-900/20 dark:text-blue-300',
 };
 
-/* ── Code detection heuristic ── */
+/* ─────────────────────────────────────────────────────────────
+   Detection heuristics
+───────────────────────────────────────────────────────────── */
+
+/** C/C++ source code */
 function looksLikeCode(text: string): boolean {
   const firstLine = text.split('\n')[0].trim();
   return (
@@ -65,7 +69,28 @@ function looksLikeCode(text: string): boolean {
   );
 }
 
-/* ── Code block UI ── */
+/** Algorithm pseudocode / trace / ASCII art — needs monospace rendering */
+function looksLikeFormatted(text: string): boolean {
+  if (looksLikeCode(text)) return false;
+  return (
+    // 4+ leading spaces on any line → ASCII tree, indented pseudocode
+    /^ {4,}\S/m.test(text) ||
+    // Numbered steps "1:", "2:", … at line start (pseudocode / algorithm steps)
+    /^\d+:/m.test(text) ||
+    // Function definition "Name(args):" pattern (pseudocode header)
+    /^[A-Za-z_][A-Za-z0-9_-]*\([^)]*\):/m.test(text) ||
+    // "Step N" trace label
+    /\bStep\s+\d/i.test(text) ||
+    // Array literal at very start: [1, 3, 7, ...]
+    /^\[[\d,\s]+\]/.test(text.trim())
+  );
+}
+
+/* ─────────────────────────────────────────────────────────────
+   Block components
+───────────────────────────────────────────────────────────── */
+
+/** Dark code block — for C/C++ source */
 function CodeBlock({ text }: { text: string }) {
   return (
     <div className="rounded-lg overflow-hidden border border-slate-700/40">
@@ -79,29 +104,42 @@ function CodeBlock({ text }: { text: string }) {
   );
 }
 
-/* ── Mixed text + embedded code renderer ── */
+/** Light trace block — for pseudocode, algorithm traces, ASCII diagrams */
+function TraceBlock({ text }: { text: string }) {
+  return (
+    <div className="rounded-lg border border-slate-200 dark:border-slate-700 overflow-hidden">
+      <pre className="overflow-x-auto bg-slate-50 dark:bg-slate-800/50 px-4 py-3 text-xs font-mono leading-5 text-slate-700 dark:text-slate-300 whitespace-pre">
+        {text}
+      </pre>
+    </div>
+  );
+}
+
+/** Mixed text + embedded code/trace renderer (splits on blank lines) */
 function RichText({ text, className = '' }: { text: string; className?: string }) {
-  // Split on blank lines; render code chunks as CodeBlock, prose as <p>
   const parts = text.split(/\n\n+/);
   if (parts.length === 1) {
-    return looksLikeCode(text.trim())
-      ? <CodeBlock text={text.trim()} />
-      : <p className={`text-sm leading-7 whitespace-pre-wrap ${className}`}>{text}</p>;
+    const t = text.trim();
+    if (looksLikeCode(t))      return <CodeBlock text={t} />;
+    if (looksLikeFormatted(t)) return <TraceBlock text={t} />;
+    return <p className={`text-sm leading-7 whitespace-pre-wrap ${className}`}>{text}</p>;
   }
   return (
     <div className="space-y-3">
       {parts.map((part, i) => {
         const t = part.trim();
         if (!t) return null;
-        return looksLikeCode(t)
-          ? <CodeBlock key={i} text={t} />
-          : <p key={i} className={`text-sm leading-7 whitespace-pre-wrap ${className}`}>{t}</p>;
+        if (looksLikeCode(t))      return <CodeBlock key={i} text={t} />;
+        if (looksLikeFormatted(t)) return <TraceBlock key={i} text={t} />;
+        return <p key={i} className={`text-sm leading-7 whitespace-pre-wrap ${className}`}>{t}</p>;
       })}
     </div>
   );
 }
 
-/* ── Answer renderer ── */
+/* ─────────────────────────────────────────────────────────────
+   Answer renderer
+───────────────────────────────────────────────────────────── */
 function AnswerBlock({ text }: { text: string }) {
   const trimmed = text.trim();
 
@@ -128,37 +166,41 @@ function AnswerBlock({ text }: { text: string }) {
     );
   }
 
-  // 일반 답변: 첫 단락(핵심 답)과 나머지(해설) 분리
+  // 일반 답변: 첫 단락(핵심 답)과 나머지(해설/추가 정보) 분리
   const firstBreak = trimmed.indexOf('\n\n');
   const corePart = firstBreak >= 0 ? trimmed.slice(0, firstBreak).trim() : trimmed;
   const restPart = firstBreak >= 0 ? trimmed.slice(firstBreak + 2).trim() : null;
 
-  return (
-    <div className="mt-3 space-y-3">
-      {/* 핵심 답 — 코드면 code block, 텍스트면 emerald 박스 */}
-      {looksLikeCode(corePart) ? (
-        <CodeBlock text={corePart} />
-      ) : (
+  const renderPart = (part: string, isCore: boolean) => {
+    if (looksLikeCode(part))      return <CodeBlock text={part} />;
+    if (looksLikeFormatted(part)) return <TraceBlock text={part} />;
+    if (isCore) {
+      return (
         <div className="rounded-lg bg-emerald-50 dark:bg-emerald-900/15 border border-emerald-200 dark:border-emerald-800/50 px-4 py-3">
           <p className="text-sm font-semibold text-emerald-900 dark:text-emerald-200 whitespace-pre-wrap leading-7">
-            {corePart}
+            {part}
           </p>
         </div>
-      )}
+      );
+    }
+    return (
+      <p className="text-sm text-slate-600 dark:text-slate-400 whitespace-pre-wrap leading-7 px-0.5">
+        {part}
+      </p>
+    );
+  };
 
-      {/* 해설 — 코드 혼합 가능 */}
-      {restPart && (
-        looksLikeCode(restPart)
-          ? <CodeBlock text={restPart} />
-          : <p className="text-sm text-slate-600 dark:text-slate-400 whitespace-pre-wrap leading-7 px-0.5">
-              {restPart}
-            </p>
-      )}
+  return (
+    <div className="mt-3 space-y-3">
+      {renderPart(corePart, true)}
+      {restPart && renderPart(restPart, false)}
     </div>
   );
 }
 
-/* ── Sub-question item ── */
+/* ─────────────────────────────────────────────────────────────
+   Sub-question item
+───────────────────────────────────────────────────────────── */
 function SubItem({
   sq, forceShow,
 }: {
@@ -180,11 +222,8 @@ function SubItem({
             {sq.points}점
           </span>
         </div>
-        {/* question text — may contain embedded code */}
-        <RichText
-          text={sq.text}
-          className="text-slate-700 dark:text-slate-300"
-        />
+        {/* sub-question text — may contain embedded pseudocode */}
+        <RichText text={sq.text} className="text-slate-700 dark:text-slate-300" />
       </div>
 
       {/* Answer toggle + reveal */}
@@ -216,7 +255,9 @@ function SubItem({
   );
 }
 
-/* ── Main component ── */
+/* ─────────────────────────────────────────────────────────────
+   Main component
+───────────────────────────────────────────────────────────── */
 export default function ExamProblemCard({ problem, defaultExpanded = false }: ExamProblemCardProps) {
   const [expanded,       setExpanded]      = useState(defaultExpanded);
   const [showAllAnswers, setShowAllAnswers] = useState(false);
@@ -262,19 +303,17 @@ export default function ExamProblemCard({ problem, defaultExpanded = false }: Ex
             /* ── Split layout: description LEFT | sub-questions RIGHT ── */
             <div className="flex flex-col lg:flex-row">
 
-              {/* LEFT — description first, then code */}
+              {/* LEFT — description first, then code (sticky while scrolling right) */}
               <div className="lg:w-[52%] flex-shrink-0 p-5 border-b lg:border-b-0 lg:border-r border-slate-100 dark:border-slate-800 lg:sticky lg:top-0 lg:self-start lg:max-h-[80vh] lg:overflow-y-auto space-y-4">
-                {/* 문제 설명 먼저 */}
                 {problem.description && (
-                  <p className="text-sm text-slate-700 dark:text-slate-300 leading-7 whitespace-pre-wrap">
-                    {problem.description}
-                  </p>
+                  <RichText
+                    text={problem.description}
+                    className="text-slate-700 dark:text-slate-300"
+                  />
                 )}
-                {/* 코드 나중 */}
                 {problem.codeBlock && (
                   <CodeBlock text={problem.codeBlock} />
                 )}
-                {/* Tags */}
                 {problem.tags.length > 0 && (
                   <div className="flex flex-wrap gap-1 pt-1">
                     {problem.tags.slice(0, 5).map(tag => (
@@ -313,13 +352,12 @@ export default function ExamProblemCard({ problem, defaultExpanded = false }: Ex
           ) : (
             /* ── Single-column layout (no sub-questions) ── */
             <div className="p-5 space-y-4">
-              {/* 문제 설명 먼저 */}
               {problem.description && (
-                <p className="text-sm text-slate-700 dark:text-slate-300 leading-7 whitespace-pre-wrap">
-                  {problem.description}
-                </p>
+                <RichText
+                  text={problem.description}
+                  className="text-slate-700 dark:text-slate-300"
+                />
               )}
-              {/* 코드 나중 */}
               {problem.codeBlock && (
                 <CodeBlock text={problem.codeBlock} />
               )}

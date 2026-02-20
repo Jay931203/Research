@@ -380,7 +380,7 @@ export default function QualExamMain() {
     mainRef.current?.scrollTo({ top: 0 });
   }, [sortedTopics]);
 
-  /* initialise exams scroll state when entering exams view */
+  /* initialise exams scroll state when entering exams view or switching subject */
   useEffect(() => {
     if (view.kind !== 'exams') return;
     const first = examGroups[0];
@@ -390,7 +390,7 @@ export default function QualExamMain() {
     }
     mainRef.current?.scrollTo({ top: 0 });
   // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [view.kind]);
+  }, [view.kind, subject]);
 
   /* active topic object */
   const activeTopic = useMemo(
@@ -501,7 +501,7 @@ export default function QualExamMain() {
 
   const switchSubject = (s: Subject) => {
     setSubject(s);
-    setView({ kind: 'topics' });
+    // preserve current view (topics or exams) when switching subject
     setExamPanelOpen(true);
     setMobileSidebarOpen(false);
   };
