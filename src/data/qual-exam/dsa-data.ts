@@ -1023,9 +1023,7 @@ export const DSA_EXAM_PROBLEMS: ExamProblem[] = [
     totalPoints: 40,
     category: '점근 분석',
     title: '점근 표기법 T/F 테이블 채우기',
-    description: `For each pair of expressions (A, B) in the table below, where A is O, o, Ω, ω, or Θ of B (e.g., A = O(B)), each empty cell (from a-1 to d-5) represents the asymptotic relationship between A and B.
-
-Assuming k ≥ 1, ε > 0, and c > 1 are constants, fill all the 20 empty cells with either "T" or "F". For example, (a-1) is "T" if lg^k(n) = O(n^ε) is true, "F" otherwise.`,
+    description: `아래 표에서 각 함수 쌍 (A, B)에 대해 A가 B의 O, o, Ω, ω, Θ 관계인지 판단하시오 (k ≥ 1, ε > 0, c > 1은 상수). 각 빈칸(a-1 ~ d-5)에 T(참) 또는 F(거짓)를 채우시오.`,
     subQuestions: [
       {
         label: 'a',
@@ -1071,7 +1069,6 @@ lg(n^n) = n·lg(n) = Θ(n·lg n)
       },
     ],
     tags: ['점근분석', 'Big-O', 'Big-Omega', 'Big-Theta', 'little-o', '로그', '지수'],
-    hint: '핵심: 로그 < 다항식 < 지수 성장률 순서를 기억하세요. lim 계산으로 확인!',
   },
   {
     id: 'dsa-2024-2-2',
@@ -1082,10 +1079,10 @@ lg(n^n) = n·lg(n) = Θ(n·lg n)
     totalPoints: 30,
     category: '그래프 알고리즘',
     title: 'Dijkstra 최단 경로 알고리즘',
-    description: `You want to find the shortest path for the given graph using Dijkstra's algorithm.
+    description: `다음 무방향 가중치 그래프에서 Dijkstra 알고리즘으로 최단 경로를 구하시오.
 
-Graph vertices: A, B, C, D, E, F, G
-Edges (undirected): A-B=4, A-G=1, A-F=5, B-C=3, G-C=9, G-F=7, G-E=12, C-D=2, D-E=1`,
+정점: A, B, C, D, E, F, G
+간선 (무방향): A-B=4, A-G=1, A-F=5, B-C=3, G-C=9, G-F=7, G-E=12, C-D=2, D-E=1`,
     subQuestions: [
       {
         label: 'a',
@@ -1125,7 +1122,6 @@ Edges (undirected): A-B=4, A-G=1, A-F=5, B-C=3, G-C=9, G-F=7, G-E=12, C-D=2, D-E
       },
     ],
     tags: ['Dijkstra', '최단경로', '그래프', '우선순위큐'],
-    hint: 'D의 인접 노드를 확인하세요. D-C=2, D-E=1이 직접 연결됩니다.',
   },
   {
     id: 'dsa-2024-2-3',
@@ -1136,7 +1132,7 @@ Edges (undirected): A-B=4, A-G=1, A-F=5, B-C=3, G-C=9, G-F=7, G-E=12, C-D=2, D-E
     totalPoints: 30,
     category: '힙',
     title: 'Binary Min Heap 삽입과 추출',
-    description: `Answer the following questions related to the binary min heap.`,
+    description: `이진 최소 힙(Binary Min-Heap)에 관한 다음 문항들에 답하시오.`,
     subQuestions: [
       {
         label: 'a',
@@ -1211,16 +1207,16 @@ Edges (undirected): A-B=4, A-G=1, A-F=5, B-C=3, G-C=9, G-F=7, G-E=12, C-D=2, D-E
     totalPoints: 40,
     category: '복잡도',
     title: 'True or False — 자료구조·알고리즘 기본 개념',
-    description: `For each statement below, write True or False. You do not need to justify your answers.`,
+    description: `각 문장에 대해 참(True) 또는 거짓(False)을 답하시오. 이유는 쓰지 않아도 됩니다.`,
     subQuestions: [
-      { label: 'a', points: 5, text: 'If the implementation A\'s algorithm has a time complexity of O(n²) and the implementation B\'s algorithm has O(n³), the runtime of A is always faster than that of B for all input sizes.', answer: 'FALSE\n\n해설: 점근적 표기법은 충분히 큰 n에 대한 상한이므로, 작은 n에서는 O(n³) 알고리즘이 더 빠를 수 있습니다. 상수 계수를 무시하기 때문에 실제 런타임은 다를 수 있습니다.' },
-      { label: 'b', points: 5, text: 'A stack supports both LIFO (Last-In-First-Out) and FIFO (First-In-First-Out) operations.', answer: 'FALSE\n\n해설: 스택은 LIFO만 지원합니다. FIFO는 큐(Queue)의 특성입니다. 스택에서 push/pop은 항상 맨 위에서만 이루어집니다.' },
-      { label: 'c', points: 5, text: 'Inserting an element at the front of a singly linked list always takes O(1) time.', answer: 'TRUE\n\n해설: 단방향 연결 리스트에서 앞 삽입은 새 노드를 만들고 head를 업데이트하기만 하면 됩니다. 리스트 길이에 무관하게 O(1)입니다.' },
-      { label: 'd', points: 5, text: 'Dijkstra\'s algorithm can handle graphs with negative weight edges without any modifications.', answer: 'FALSE\n\n해설: Dijkstra는 음수 가중치 간선에서 올바르지 않은 결과를 낼 수 있습니다. 음수 간선이 있을 때는 Bellman-Ford 알고리즘을 사용해야 합니다.' },
-      { label: 'e', points: 5, text: 'The QuickSort algorithm is an in-place sorting algorithm, while MergeSort is not.', answer: 'TRUE\n\n해설: QuickSort는 추가 배열 없이 제자리에서 정렬합니다 (O(log n) 재귀 스택만 사용). MergeSort는 합병 시 O(n) 추가 공간이 필요합니다.' },
-      { label: 'f', points: 5, text: 'A perfect hash function ensures that no two keys map to the same index in the hash table.', answer: 'TRUE\n\n해설: 완전 해시 함수(Perfect Hash Function)는 정의상 충돌(collision)이 없습니다. 모든 서로 다른 키는 서로 다른 버킷에 매핑됩니다.' },
-      { label: 'g', points: 5, text: 'In a Red-Black Tree, the root node must always be black.', answer: 'TRUE\n\n해설: Red-Black Tree의 성질 중 하나: 루트는 항상 검정(Black)입니다. Red 노드가 루트가 되면 Black으로 색상을 변경합니다.' },
-      { label: 'h', points: 5, text: 'A minimum spanning tree (MST) of a graph is always unique.', answer: 'FALSE\n\n해설: MST는 모든 간선의 가중치가 서로 다를 때만 유일합니다. 같은 가중치의 간선이 여러 개 있으면 MST가 여러 개일 수 있습니다.' },
+      { label: 'a', points: 5, text: '알고리즘 A의 시간 복잡도가 O(n²)이고 B가 O(n³)이면, 모든 입력 크기에 대해 A의 실행 시간이 항상 더 빠르다.', answer: 'FALSE\n\n해설: 점근적 표기법은 충분히 큰 n에 대한 상한이므로, 작은 n에서는 O(n³) 알고리즘이 더 빠를 수 있습니다. 상수 계수를 무시하기 때문에 실제 런타임은 다를 수 있습니다.' },
+      { label: 'b', points: 5, text: '스택은 LIFO(후입선출)와 FIFO(선입선출) 연산을 모두 지원한다.', answer: 'FALSE\n\n해설: 스택은 LIFO만 지원합니다. FIFO는 큐(Queue)의 특성입니다. 스택에서 push/pop은 항상 맨 위에서만 이루어집니다.' },
+      { label: 'c', points: 5, text: '단방향 연결 리스트의 맨 앞에 원소를 삽입하는 연산은 항상 O(1) 시간이 걸린다.', answer: 'TRUE\n\n해설: 단방향 연결 리스트에서 앞 삽입은 새 노드를 만들고 head를 업데이트하기만 하면 됩니다. 리스트 길이에 무관하게 O(1)입니다.' },
+      { label: 'd', points: 5, text: 'Dijkstra 알고리즘은 음수 가중치 간선이 있는 그래프에서도 수정 없이 올바르게 동작한다.', answer: 'FALSE\n\n해설: Dijkstra는 음수 가중치 간선에서 올바르지 않은 결과를 낼 수 있습니다. 음수 간선이 있을 때는 Bellman-Ford 알고리즘을 사용해야 합니다.' },
+      { label: 'e', points: 5, text: 'QuickSort는 제자리(in-place) 정렬이지만, MergeSort는 그렇지 않다.', answer: 'TRUE\n\n해설: QuickSort는 추가 배열 없이 제자리에서 정렬합니다 (O(log n) 재귀 스택만 사용). MergeSort는 합병 시 O(n) 추가 공간이 필요합니다.' },
+      { label: 'f', points: 5, text: '완전 해시 함수(perfect hash function)는 두 키가 같은 슬롯에 해시되지 않음을 보장한다.', answer: 'TRUE\n\n해설: 완전 해시 함수(Perfect Hash Function)는 정의상 충돌(collision)이 없습니다. 모든 서로 다른 키는 서로 다른 버킷에 매핑됩니다.' },
+      { label: 'g', points: 5, text: '레드-블랙 트리에서 루트 노드는 항상 검정(Black)이어야 한다.', answer: 'TRUE\n\n해설: Red-Black Tree의 성질 중 하나: 루트는 항상 검정(Black)입니다. Red 노드가 루트가 되면 Black으로 색상을 변경합니다.' },
+      { label: 'h', points: 5, text: '그래프의 최소 신장 트리(MST)는 항상 유일하다.', answer: 'FALSE\n\n해설: MST는 모든 간선의 가중치가 서로 다를 때만 유일합니다. 같은 가중치의 간선이 여러 개 있으면 MST가 여러 개일 수 있습니다.' },
     ],
     tags: ['T/F', 'Stack', 'LinkedList', 'Dijkstra', 'QuickSort', 'MergeSort', 'Hash', 'RedBlackTree', 'MST'],
   },
@@ -1233,16 +1229,16 @@ Edges (undirected): A-B=4, A-G=1, A-F=5, B-C=3, G-C=9, G-F=7, G-E=12, C-D=2, D-E
     totalPoints: 30,
     category: 'BST',
     title: 'BST + BFS 순회로 트리 재구성',
-    description: `Consider a scenario where you are given a binary search tree (BST). If you traverse this BST using breadth-first search (BFS), the nodes are visited in the following order:
+    description: `이진 탐색 트리(BST)를 너비 우선 탐색(BFS)으로 순회했을 때, 방문 순서가 다음과 같았다.
 
 30, 20, 40, 10, 35, 42, 37, 50, 36
 
-Based on such visit orders, reconstruct the BST.`,
+이 방문 순서를 바탕으로 BST를 재구성하시오.`,
     subQuestions: [
-      { label: 'a', points: 5, text: '(5 pts) Identify the root node of the BST', answer: '루트: 30\n\nBFS의 첫 번째 방문 노드가 루트입니다.' },
-      { label: 'b', points: 5, text: '(5 pts) Identify the left and right children of the root node accordingly.', answer: '30의 왼쪽 자식: 20, 오른쪽 자식: 40\n\nBFS 순서에서 루트 다음에 오는 두 노드가 루트의 왼쪽/오른쪽 자식입니다.\n20 < 30 이므로 왼쪽, 40 > 30 이므로 오른쪽.' },
+      { label: 'a', points: 5, text: 'BST의 루트 노드를 구하시오. [5점]', answer: '루트: 30\n\nBFS의 첫 번째 방문 노드가 루트입니다.' },
+      { label: 'b', points: 5, text: '루트 노드의 왼쪽 자식과 오른쪽 자식을 구하시오. [5점]', answer: '30의 왼쪽 자식: 20, 오른쪽 자식: 40\n\nBFS 순서에서 루트 다음에 오는 두 노드가 루트의 왼쪽/오른쪽 자식입니다.\n20 < 30 이므로 왼쪽, 40 > 30 이므로 오른쪽.' },
       {
-        label: 'c', points: 10, text: '(10pts) Draw the complete layout of the BST.',
+        label: 'c', points: 10, text: 'BST의 전체 구조를 그리시오. [10점]',
         answer: `전체 BST 구조:
 
          30
@@ -1273,22 +1269,21 @@ Based on such visit orders, reconstruct the BST.`,
     totalPoints: 30,
     category: '복잡도',
     title: 'Array/List 삽입 시간 복잡도 분석',
-    description: `Consider the following code, where "array" is a standard (i.e., one-ended) array, and "list" is a singly or doubly linked list. Both array and list implement the insert method, which inserts the value at the position "idx" into either array or list, respectively.
+    description: `"array"는 일반 배열, "list"는 단방향 또는 양방향 연결 리스트이다. 두 자료구조 모두 insert(idx, value) 메서드를 지원하며, 지정 위치에 값을 삽입한다.
 
-Three possible insert calls:
+세 가지 삽입 호출:
 • C1: array.insert(idx=array.length(), value="a")  // 배열 끝에 삽입
-• C2: array.insert(idx=x, value="b")               // 임의 위치에 삽입 (x는 모름)
+• C2: array.insert(idx=x, value="b")               // 임의 위치에 삽입 (x 미지)
 • C3: list.insert(idx=list.length(), value="c")    // 리스트 끝에 삽입
 
-Note 1: use the big-O notation.
-Note 2: 'list' maintains head and tail pointers.`,
+※ Big-O 표기로 답하시오. list는 head와 tail 포인터를 모두 유지한다.`,
     subQuestions: [
-      { label: 'a', points: 5, text: '(a) What is the worst-case runtime of C1 above if we assume that the underlying array is not full?', answer: 'O(1)\n\n해설: 배열이 꽉 차지 않았다면, 끝에 삽입은 그냥 새 위치에 값을 쓰면 됩니다. shift 필요 없음.' },
-      { label: 'b', points: 5, text: '(b) How does your answer in (a) change if we cannot assume that the underlying array is not full?', answer: 'O(n)\n\n해설: 배열이 꽉 찼을 수 있다면, resize(새 배열 할당 + 전체 복사)가 필요하므로 O(n)이 됩니다.' },
-      { label: 'c', points: 5, text: '(c) What is the worst-case runtime of C2 above if we assume that the underlying array is not full?', answer: 'O(n)\n\n해설: 임의 위치 삽입은 해당 위치 이후의 모든 원소를 한 칸씩 오른쪽으로 shift해야 합니다. 최악의 경우 idx=0이면 n개를 shift → O(n).' },
-      { label: 'd', points: 5, text: '(d) How does your answer in (c) change if we cannot assume that the underlying array is not full?', answer: 'O(n)\n\n해설: 꽉 찼더라도 shift 자체가 O(n)이므로 복잡도는 동일합니다 (resize도 O(n)이지만 이미 shift가 O(n)).' },
-      { label: 'e', points: 5, text: '(e) What is the worst-case runtime of C3 above if the list is a singly linked list?', answer: 'O(1)\n\n해설: list가 tail pointer를 유지한다면(Note 2), 끝 삽입은 tail.next = new node, tail = new node로 O(1)입니다.\n\n만약 tail pointer가 없다면 O(n)이지만, Note 2에서 head and tail pointers를 유지한다고 명시.' },
-      { label: 'f', points: 5, text: '(f) What is the worst-case runtime of C3 above if the list is a doubly linked list?', answer: 'O(1)\n\n해설: 양방향 연결 리스트도 tail pointer를 유지하므로 끝 삽입은 O(1)입니다.' },
+      { label: 'a', points: 5, text: '배열이 꽉 차지 않았다고 가정할 때, C1의 최악 시간 복잡도는?', answer: 'O(1)\n\n해설: 배열이 꽉 차지 않았다면, 끝에 삽입은 그냥 새 위치에 값을 쓰면 됩니다. shift 필요 없음.' },
+      { label: 'b', points: 5, text: '배열이 꽉 찼을 수도 있다면, (a)의 답이 어떻게 달라지는가?', answer: 'O(n)\n\n해설: 배열이 꽉 찼을 수 있다면, resize(새 배열 할당 + 전체 복사)가 필요하므로 O(n)이 됩니다.' },
+      { label: 'c', points: 5, text: '배열이 꽉 차지 않았다고 가정할 때, C2의 최악 시간 복잡도는?', answer: 'O(n)\n\n해설: 임의 위치 삽입은 해당 위치 이후의 모든 원소를 한 칸씩 오른쪽으로 shift해야 합니다. 최악의 경우 idx=0이면 n개를 shift → O(n).' },
+      { label: 'd', points: 5, text: '배열이 꽉 찼을 수도 있다면, (c)의 답이 어떻게 달라지는가?', answer: 'O(n)\n\n해설: 꽉 찼더라도 shift 자체가 O(n)이므로 복잡도는 동일합니다 (resize도 O(n)이지만 이미 shift가 O(n)).' },
+      { label: 'e', points: 5, text: 'list가 단방향 연결 리스트일 때, C3의 최악 시간 복잡도는?', answer: 'O(1)\n\n해설: list가 tail pointer를 유지한다면(Note 2), 끝 삽입은 tail.next = new node, tail = new node로 O(1)입니다.\n\n만약 tail pointer가 없다면 O(n)이지만, Note 2에서 head and tail pointers를 유지한다고 명시.' },
+      { label: 'f', points: 5, text: 'list가 양방향 연결 리스트일 때, C3의 최악 시간 복잡도는?', answer: 'O(1)\n\n해설: 양방향 연결 리스트도 tail pointer를 유지하므로 끝 삽입은 O(1)입니다.' },
     ],
     tags: ['배열', '연결리스트', '시간복잡도', '삽입', '복잡도분석'],
   },
@@ -1301,25 +1296,25 @@ Note 2: 'list' maintains head and tail pointers.`,
     totalPoints: 50,
     category: '정렬',
     title: 'QuickSort Partition 추적 테이블',
-    description: `The following pseudocode defines the partition function used in Quicksort. It assumes that the last element A[r] is chosen as the pivot. (List index starts from 1. A[0] will return -inf)
+    description: `다음 의사 코드는 퀵소트에서 사용하는 partition 함수를 정의한다. 피벗은 항상 마지막 원소 A[r]로 선택하며, 인덱스는 1부터 시작한다. (A[0]은 -∞를 반환)
 
 partition(A, p, r):
-1:  pivot ← A[r]           // rename A[r] as pivot for clarity
-2:  i ← p - 1              // boundary of (max index of) smaller-than-pivot zone
-3:  for j = p to r - 1 do  // for loop includes "r-1"
+1:  pivot ← A[r]           // 피벗으로 이름 변경
+2:  i ← p - 1              // 피벗보다 작은 구역의 마지막 인덱스
+3:  for j = p to r - 1 do  // j는 r-1까지 포함
 4:    if A[j] <= pivot then
 5:      i ← i + 1
-6:      swap A[i] and A[j]  // if i=j, skip swap.
-7:  swap A[i + 1] and A[r]  // place pivot in final position
-8:  return i + 1            // pivot index
+6:      swap A[i] and A[j]  // i=j이면 swap 생략
+7:  swap A[i + 1] and A[r]  // 피벗을 최종 위치로
+8:  return i + 1            // 피벗 인덱스 반환
 
-Given array: A = [37, 22, 81, 63, 19, 97, 53, 47, 73, 55]
-Call: partition(A, p=1, r=10), pivot = A[10] = 55`,
+주어진 배열: A = [37, 22, 81, 63, 19, 97, 53, 47, 73, 55]
+partition(A, p=1, r=10) 호출, 피벗 = A[10] = 55`,
     subQuestions: [
       {
         label: 'a',
         points: 40,
-        text: '(a) Fill the trace table showing indices i and j as well as the array contents after each swap (skip if i=j).\n\nGiven: Step 1 → i=3, j=5, Array=[37, 22, 19, 63, 81, 97, 53, 47, 73, 55]\nFind (A), (B), (C), (D), (E)',
+        text: '추적 테이블에서 스왑이 일어날 때마다(i=j이면 생략) i, j 값과 배열 상태를 채우시오.\n\n주어진 정보: 1단계 → i=3, j=5, 배열=[37, 22, 19, 63, 81, 97, 53, 47, 73, 55]\n(A), (B), (C), (D), (E)를 구하시오.',
         answer: `Step 1: j=3→A[3]=81>55, j=4→A[4]=63>55... wait
 피벗=55, 초기 i=0
 
@@ -1350,7 +1345,7 @@ pivot swap: swap(A[6],A[10]): A=[37,22,19,53,47,55,63,81,73,97]
       {
         label: 'b',
         points: 10,
-        text: '(b) From the results of calling partition() in (a), state the final pivot index q returned by partition() and write the two sub-arrays that the next recursive Quicksort calls will handle.',
+        text: '(a)의 partition() 결과로부터, 반환되는 피벗 최종 인덱스 q를 구하고, 다음 재귀 호출에서 처리할 두 서브배열을 쓰시오.',
         answer: `피벗 최종 위치: q = 6
 
 pivot swap 후 배열: [37, 22, 19, 53, 47, 55, 63, 81, 73, 97]
@@ -1362,7 +1357,6 @@ pivot swap 후 배열: [37, 22, 19, 53, 47, 55, 63, 81, 73, 97]
       },
     ],
     tags: ['QuickSort', 'partition', '정렬', 'pivot', '추적'],
-    hint: '피벗=55, 인덱스 1-based. i는 55보다 작거나 같은 원소들의 마지막 위치.',
   },
   {
     id: 'dsa-2025-2-2',
@@ -1373,19 +1367,19 @@ pivot swap 후 배열: [37, 22, 19, 53, 47, 55, 63, 81, 73, 97]
     totalPoints: 20,
     category: '그래프 알고리즘',
     title: "Prim's Algorithm MST Relaxation 분석",
-    description: `In Prim's algorithm for finding the Minimum Spanning Tree (MST) of a connected, undirected graph with N vertices, relaxation refers to updating the minimum edge weight required to connect a vertex to the growing MST. At the beginning of the algorithm, we choose the starting vertex randomly.
+    description: `N개 정점을 가진 연결된 무방향 그래프에서 최소 신장 트리(MST)를 구하는 Prim 알고리즘에서, "relaxation"이란 새 정점을 MST에 연결하는 최소 간선 비용을 갱신하는 과정을 말한다. 시작 정점은 임의로 선택한다.
 
-Prim(v): // v is a vertex chosen randomly
-1: Mark v as visited and include it in the m.s.t. (S)
-2: while (there are unvisited vertices) // each iteration is one relaxation
-3:   Find a least-cost edge (x-u) from a visited vertex x to an unvisited vertex u
-4:   Mark u as visited
-5:   Add the vertex u and the edge (x-u) to the m.s.t.`,
+Prim(v): // v: 임의로 선택한 시작 정점
+1: v를 방문 처리하고 MST(S)에 추가
+2: while (미방문 정점이 남아 있는 동안) // 반복 1회 = relaxation 1회
+3:   방문한 정점 x에서 미방문 정점 u로 가는 최소 비용 간선 (x-u) 선택
+4:   u를 방문 처리
+5:   정점 u와 간선 (x-u)를 MST에 추가`,
     subQuestions: [
       {
         label: 'a',
         points: 10,
-        text: '(a) Suppose the input graph is a star graph with N vertices (one central vertex connected directly to all others, e.g., N=6). How many key updates (relaxations) will Prim\'s algorithm perform in total? Express your answer as a function of N and justify.',
+        text: 'N개 정점을 가진 스타 그래프(하나의 중심 정점이 나머지 모두와 직접 연결, 예: N=6)를 입력으로 받을 때, Prim 알고리즘의 총 relaxation 횟수를 N의 함수로 나타내고 이유를 서술하시오.',
         answer: `답: N - 1
 
 해설 (Star graph, N=6):
@@ -1403,7 +1397,7 @@ Prim(v): // v is a vertex chosen randomly
       {
         label: 'b',
         points: 10,
-        text: '(b) Suppose the input graph is a path graph with N vertices (i.e., a graph as a simple line, N=6: 5-4-3-2-1-0). How many key updates (relaxations) will Prim\'s algorithm perform in total? Express your answer as a function of N and justify.',
+        text: 'N개 정점을 가진 경로 그래프(직선 형태, 예: 5-4-3-2-1-0)를 입력으로 받을 때, Prim 알고리즘의 총 relaxation 횟수를 N의 함수로 나타내고 이유를 서술하시오.',
         answer: `답: N - 1
 
 해설 (Path graph):
@@ -1426,16 +1420,15 @@ Star와 Path 모두 N-1번이지만 이유가 다름:
     totalPoints: 30,
     category: '동적 프로그래밍',
     title: 'LCS — Greedy vs Dynamic Programming',
-    description: `Given two strings X and Y, the Longest Common Subsequence (LCS) problem asks for the longest sequence of characters that appear in both X and Y in the same relative order (not necessarily contiguous).`,
+    description: `두 문자열 X와 Y가 주어질 때, 최장 공통 부분 수열(LCS, Longest Common Subsequence) 문제는 X와 Y 양쪽에 같은 상대적 순서로 등장하는 가장 긴 부분 수열을 구하는 것이다 (연속할 필요는 없음).`,
     subQuestions: [
       {
         label: 'a',
         points: 10,
-        text: `(a) Consider the following Greedy algorithm:
-Scan strings X and Y from left to right simultaneously. Whenever the same character is found in both, add it to the subsequence and continue with remaining suffixes.
-When characters differ, skip and continue with remaining suffixes of X and Y.
+        text: `다음 그리디 알고리즘을 생각해보자:
+X와 Y를 왼쪽에서 오른쪽으로 동시에 스캔한다. 같은 문자가 발견되면 부분 수열에 추가하고 각 문자열의 나머지 suffix로 계속 진행한다. 문자가 다르면 건너뛰고 양쪽 suffix로 계속 진행한다.
 
-For X = "ACDBE" and Y = "ABCDE", compute the subsequence found by this Greedy algorithm and compare it with the actual LCS.`,
+X = "ACDBE", Y = "ABCDE"에 대해, 이 그리디 알고리즘이 구하는 부분 수열을 계산하고, 실제 LCS와 비교하시오.`,
         answer: `Greedy 결과:
 X="ACDBE", Y="ABCDE"
 - A=A → 추가 "A", X="CDBE", Y="BCDE"
@@ -1453,7 +1446,7 @@ Greedy 결과: "AE" (길이 2)
       {
         label: 'b',
         points: 20,
-        text: '(b) Present a dynamic programming recurrence relation for solving the LCS problem. Write the base case and recurrent equation. Analyze the time complexity.',
+        text: 'LCS 문제를 풀기 위한 DP 점화식을 제시하시오. 기저 조건과 점화식을 쓰고, 시간 복잡도를 분석하시오.',
         answer: `DP 정의: dp[i][j] = X의 앞 i글자와 Y의 앞 j글자의 LCS 길이
 
 (1) Base case:
@@ -1479,14 +1472,14 @@ else:             dp[i][j] = max(dp[i-1][j], dp[i][j-1])
     totalPoints: 50,
     category: '허프만 코딩',
     title: 'Huffman Coding — Prefix Codes & ABL',
-    description: `Answer the following questions about the Huffman coding based on the frequency table below.
+    description: `아래 빈도표에 기반한 허프만 코딩에 관한 다음 문항들에 답하시오.
 
-Characters: a, b, c, d with frequencies f₁, f₂, f₃, f₄ where f₁ ≥ f₂ ≥ f₃ ≥ f₄`,
+문자: a, b, c, d, 빈도: f₁ ≥ f₂ ≥ f₃ ≥ f₄`,
     subQuestions: [
       {
         label: 'a',
         points: 10,
-        text: '(a) [10 pts] Suppose that f₁ ≥ f₂ ≥ f₃ ≥ f₄. What are the possible code lengths (n₁, n₂, n₃, n₄) of the prefix codes minimizing ABL? ABL(c) = Σ fₓ · |c(x)| where S is the set of characters.',
+        text: 'f₁ ≥ f₂ ≥ f₃ ≥ f₄일 때, ABL을 최소화하는 접두사 코드의 가능한 코드 길이 (n₁, n₂, n₃, n₄)를 모두 구하시오. [10점]\nABL(c) = Σ fₓ · |c(x)|  (S는 문자 집합)',
         answer: `ABL 최소화 접두사 코드에서 빈도 높은 문자는 짧은 코드를 받습니다.
 f₁ ≥ f₂ ≥ f₃ ≥ f₄ 이므로 n₁ ≤ n₂ ≤ n₃ ≤ n₄
 
@@ -1503,7 +1496,7 @@ f₁ ≥ f₂ ≥ f₃ ≥ f₄ 이므로 n₁ ≤ n₂ ≤ n₃ ≤ n₄
       {
         label: 'b',
         points: 10,
-        text: '(b) [10 pts] The fixed-length code is a coding scheme in which all characters are encoded with the code having the same length. Let the least ABL of the fixed-length code be ABL(T_F). Express ABL(T_F) using f₁, f₂, f₃, f₄.',
+        text: '고정 길이 코드는 모든 문자를 같은 길이의 코드로 인코딩하는 방식이다. 고정 길이 코드의 최소 ABL을 ABL(T_F)라 할 때, f₁, f₂, f₃, f₄를 이용해 ABL(T_F)를 나타내시오. [10점]',
         answer: `4개 문자를 고정 길이로 인코딩하려면 ⌈log₂ 4⌉ = 2 비트 필요
 
 ABL(T_F) = 2 · (f₁ + f₂ + f₃ + f₄) / (f₁ + f₂ + f₃ + f₄) = 2
@@ -1513,7 +1506,7 @@ ABL(T_F) = 2 · (f₁ + f₂ + f₃ + f₄) / (f₁ + f₂ + f₃ + f₄) = 2
       {
         label: 'd',
         points: 15,
-        text: '(d) [15 pts] Make a Huffman code using the following frequency table:\na:11, b:10, c:4, d:17, e:13, f:45',
+        text: '다음 빈도표로 허프만 코드를 구성하시오. [15점]\na:11, b:10, c:4, d:17, e:13, f:45',
         answer: `허프만 트리 구축:
 힙: c(4), b(10), a(11), e(13), d(17), f(45)
 
@@ -1557,11 +1550,11 @@ ABL = (45·1 + 11·3 + 13·3 + 4·4 + 10·4 + 17·3) / 100
     totalPoints: 30,
     category: '힙 & 정렬',
     title: 'Max-Heap 구축 및 HeapSort',
-    description: `Given array A = [1, 12, 4, 9, 2, 6, 7, 3, 8, 11] (1-indexed).`,
+    description: `배열 A = [1, 12, 4, 9, 2, 6, 7, 3, 8, 11]이 주어진다 (1-indexed).`,
     subQuestions: [
       {
         label: 'a', points: 15,
-        text: '(a) Build a Max-Heap from the array using the BUILD-MAX-HEAP procedure (bottom-up). Show the resulting array representation.',
+        text: 'BUILD-MAX-HEAP 알고리즘(bottom-up)으로 이 배열을 Max-Heap으로 변환하시오. 결과 배열을 보이시오.',
         answer: `BUILD-MAX-HEAP: 아래서부터 MAX-HEAPIFY 수행 (인덱스 ⌊n/2⌋=5 부터 1까지)
 
 초기: [1, 12, 4, 9, 2, 6, 7, 3, 8, 11]
@@ -1601,7 +1594,7 @@ Sift-down from idx 5: A[5]=1, children A[10]=2 → 1<2 → swap
       },
       {
         label: 'b', points: 15,
-        text: '(b) Perform HeapSort on the resulting Max-Heap. Show the sorted array after all extractions.',
+        text: '(a)에서 구한 Max-Heap으로 HeapSort를 수행하시오. 모든 추출 후 정렬된 배열을 보이시오.',
         answer: `HeapSort: Max-Heap에서 최댓값을 반복 추출
 
 Max-Heap: [12,11,7,9,2,6,4,3,8,1]
