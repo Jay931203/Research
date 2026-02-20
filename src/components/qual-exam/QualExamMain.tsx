@@ -25,6 +25,8 @@ const CUSTOM_SECTIONS: Record<string, Array<{ id: string; label: string }>> = {
     { id: 'asymptotic-sec-growth',     label: '성장률 비교'     },
     { id: 'asymptotic-sec-notations',  label: '표기법 5종'      },
     { id: 'asymptotic-sec-properties', label: '핵심 성질'       },
+    { id: 'asymptotic-sec-master',     label: '마스터 정리'     },
+    { id: 'asymptotic-sec-recurrence', label: '점화식 예시'     },
   ],
   'linked-list': [
     { id: 'linked-list-sec-compare',     label: '배열 vs LL'        },
@@ -154,7 +156,7 @@ interface ExamGroup { year: string; semester: '1' | '2'; probs: ExamProblem[]; k
 
 function AllExamsPanel({ groups }: { groups: ExamGroup[] }) {
   return (
-    <div className="max-w-3xl px-6 py-6 space-y-6">
+    <div className="max-w-3xl mx-auto px-6 py-6 space-y-6">
       <div className="flex items-center gap-3">
         <h1 className="text-xl font-black text-slate-900 dark:text-slate-100">기출문제 전체</h1>
         <span className="text-sm text-slate-400">{groups.reduce((s, g) => s + g.probs.length, 0)}문제</span>

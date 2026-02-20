@@ -150,7 +150,7 @@ export default function TopicDetail({ topic }: Props) {
   }
 
   return (
-    <div className="max-w-3xl space-y-8 px-6 py-6">
+    <div className="max-w-3xl mx-auto space-y-8 px-6 py-6">
       {/* ── Header ── */}
       <div className="flex items-start gap-4">
         <div className="relative flex-shrink-0">

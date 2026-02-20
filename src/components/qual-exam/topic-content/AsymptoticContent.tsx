@@ -75,6 +75,59 @@ const notations = [
   },
 ];
 
+/* ── Master Theorem cases ── */
+const masterCases = [
+  {
+    num: 1,
+    conditionText: 'f(n)이 n^(log_b a)보다 다항식적으로 작을 때',
+    conditionLatex: 'f(n) = O\\!\\left(n^{\\log_b a - \\varepsilon}\\right),\\quad \\varepsilon > 0',
+    resultLatex: 'T(n) = \\Theta\\!\\left(n^{\\log_b a}\\right)',
+    examples: [
+      { name: 'Strassen 행렬곱', rec: 'T(n) = 7T(n/2) + n²', expl: 'log₂7 ≈ 2.807 > 2 → f(n)=n² < n^2.807', result: 'Θ(n^2.807)' },
+    ],
+    border: 'border-blue-400 dark:border-blue-600',
+    header: 'bg-blue-50 dark:bg-blue-950/40',
+    badge: 'bg-blue-100 text-blue-800 dark:bg-blue-900/60 dark:text-blue-200',
+  },
+  {
+    num: 2,
+    conditionText: 'f(n)이 n^(log_b a)와 같은 차수일 때',
+    conditionLatex: 'f(n) = \\Theta\\!\\left(n^{\\log_b a}\\right)',
+    resultLatex: 'T(n) = \\Theta\\!\\left(n^{\\log_b a} \\cdot \\log n\\right)',
+    examples: [
+      { name: 'MergeSort', rec: 'T(n) = 2T(n/2) + n', expl: 'a=2, b=2, log₂2=1 → f(n)=Θ(n¹)=Θ(n^log₂2)', result: 'Θ(n log n)' },
+      { name: '이진 탐색', rec: 'T(n) = T(n/2) + 1', expl: 'a=1, b=2, log₂1=0 → f(n)=Θ(1)=Θ(n⁰)', result: 'Θ(log n)' },
+    ],
+    border: 'border-purple-400 dark:border-purple-600',
+    header: 'bg-purple-50 dark:bg-purple-950/40',
+    badge: 'bg-purple-100 text-purple-800 dark:bg-purple-900/60 dark:text-purple-200',
+  },
+  {
+    num: 3,
+    conditionText: 'f(n)이 n^(log_b a)보다 다항식적으로 크고 정칙 조건 만족',
+    conditionLatex: 'f(n) = \\Omega\\!\\left(n^{\\log_b a + \\varepsilon}\\right),\\quad a\\,f(n/b) \\le c\\,f(n) \\text{ for some } c<1',
+    resultLatex: 'T(n) = \\Theta(f(n))',
+    examples: [
+      { name: '임의 분할', rec: 'T(n) = T(n/2) + n', expl: 'a=1, b=2, log₂1=0 → f(n)=Θ(n)=Ω(n^1) > n⁰', result: 'Θ(n)' },
+      { name: 'T(n) = 2T(n/2) + n²', rec: '', expl: 'a=2, b=2, log₂2=1 → f(n)=n² > n¹', result: 'Θ(n²)' },
+    ],
+    border: 'border-amber-400 dark:border-amber-600',
+    header: 'bg-amber-50 dark:bg-amber-950/40',
+    badge: 'bg-amber-100 text-amber-800 dark:bg-amber-900/60 dark:text-amber-200',
+  },
+] as const;
+
+/* ── Recurrence reference table ── */
+const recurrenceRows = [
+  { algo: '이진 탐색 (Binary Search)', rec: 'T(n) = T(n/2) + 1',      params: 'a=1, b=2, log₂1=0', caseNum: 2, result: 'Θ(log n)' },
+  { algo: 'MergeSort',                  rec: 'T(n) = 2T(n/2) + n',      params: 'a=2, b=2, log₂2=1', caseNum: 2, result: 'Θ(n log n)' },
+  { algo: 'Build-Heap',                 rec: 'T(n) = 2T(n/2) + log n',  params: 'log n = o(n), Case 1', caseNum: 1, result: 'Θ(n)' },
+  { algo: 'Strassen 행렬곱',            rec: 'T(n) = 7T(n/2) + n²',     params: 'log₂7 ≈ 2.807 > 2', caseNum: 1, result: 'Θ(n^2.807)' },
+  { algo: '임의 분할 알고리즘',        rec: 'T(n) = T(n/2) + n',        params: 'log₂1=0, f(n)=n > n⁰', caseNum: 3, result: 'Θ(n)' },
+  { algo: 'QuickSort (최악)',           rec: 'T(n) = T(n-1) + n',        params: '마스터 정리 미적용', caseNum: -1, result: 'Θ(n²)' },
+  { algo: '피보나치 재귀',              rec: 'T(n) = T(n-1) + T(n-2)',   params: '마스터 정리 미적용', caseNum: -1, result: 'Θ(φⁿ) ≈ Θ(1.618ⁿ)' },
+];
+
 /* ── Key properties ── */
 const properties = [
   { rule: '전이성',         latex: 'f = O(g),\\; g = O(h) \\Rightarrow f = O(h)' },
@@ -100,7 +153,7 @@ export default function AsymptoticContent({ topic }: Props) {
   const maxVal = Math.max(...growthData.map(d => d.value));
 
   return (
-    <div className="max-w-3xl space-y-10 px-6 py-6">
+    <div className="max-w-3xl mx-auto space-y-10 px-6 py-6">
 
       {/* ── Hero ── */}
       <div className="flex items-start gap-4">
@@ -252,6 +305,143 @@ export default function AsymptoticContent({ topic }: Props) {
             </tbody>
           </table>
         </div>
+      </section>
+
+      {/* ── 마스터 정리 ── */}
+      <section id={`${topic.id}-sec-master`}>
+        <div className="flex items-center gap-2 mb-4">
+          <span className="text-xl">👑</span>
+          <h2 className="text-base font-bold text-slate-800 dark:text-slate-100">마스터 정리 (Master Theorem)</h2>
+          <div className="flex-1 h-px bg-slate-200 dark:bg-slate-700" />
+        </div>
+
+        {/* 기본 형태 */}
+        <div className="rounded-xl border border-slate-200 dark:border-slate-700 bg-white dark:bg-slate-900 px-5 py-4 mb-5">
+          <p className="text-xs font-bold text-slate-500 dark:text-slate-400 uppercase tracking-wide mb-3">
+            분할 정복 점화식 일반형 (a ≥ 1, b &gt; 1)
+          </p>
+          <div className="rounded-lg bg-slate-50 dark:bg-slate-800 border border-slate-200 dark:border-slate-700 px-4 py-3 overflow-x-auto">
+            <MathBlock latex="T(n) = a\,T\\!\\left(\\tfrac{n}{b}\\right) + f(n)" block />
+          </div>
+          <div className="mt-3 grid grid-cols-3 gap-2 text-center">
+            <div className="rounded-lg bg-blue-50 dark:bg-blue-950/30 border border-blue-100 dark:border-blue-900/40 px-3 py-2">
+              <p className="text-base font-black text-blue-600 dark:text-blue-400 font-mono">a</p>
+              <p className="text-[11px] text-slate-500 dark:text-slate-400">부분문제 수</p>
+            </div>
+            <div className="rounded-lg bg-purple-50 dark:bg-purple-950/30 border border-purple-100 dark:border-purple-900/40 px-3 py-2">
+              <p className="text-base font-black text-purple-600 dark:text-purple-400 font-mono">n/b</p>
+              <p className="text-[11px] text-slate-500 dark:text-slate-400">각 부분문제 크기</p>
+            </div>
+            <div className="rounded-lg bg-amber-50 dark:bg-amber-950/30 border border-amber-100 dark:border-amber-900/40 px-3 py-2">
+              <p className="text-base font-black text-amber-600 dark:text-amber-400 font-mono">f(n)</p>
+              <p className="text-[11px] text-slate-500 dark:text-slate-400">분할+합병 비용</p>
+            </div>
+          </div>
+          <div className="mt-3 rounded-lg bg-yellow-50 dark:bg-yellow-900/20 border border-yellow-200 dark:border-yellow-800/40 px-3 py-2">
+            <p className="text-xs text-yellow-800 dark:text-yellow-300">
+              <span className="font-bold">핵심 기준값:</span>{' '}
+              <span className="font-mono">n^(log_b a)</span> 와 <span className="font-mono">f(n)</span> 의 크기를 비교하여 3가지 케이스 중 하나를 적용
+            </p>
+          </div>
+        </div>
+
+        {/* 3 Cases */}
+        <div className="space-y-3">
+          {masterCases.map(mc => (
+            <div key={mc.num} className={`rounded-xl border-2 overflow-hidden ${mc.border} bg-white dark:bg-slate-900`}>
+              <div className={`${mc.header} px-4 py-3 flex items-start gap-3`}>
+                <span className={`flex-shrink-0 rounded-lg px-3 py-1 text-sm font-black ${mc.badge}`}>
+                  Case {mc.num}
+                </span>
+                <div className="flex-1 min-w-0">
+                  <p className="font-bold text-sm text-slate-800 dark:text-slate-100 mb-1">{mc.conditionText}</p>
+                  <div className="text-xs overflow-x-auto">
+                    <MathBlock latex={mc.conditionLatex} />
+                  </div>
+                </div>
+              </div>
+              <div className="px-4 py-3 space-y-3 border-t border-slate-100 dark:border-slate-800">
+                <div className="rounded-lg bg-slate-50 dark:bg-slate-800 border border-slate-200 dark:border-slate-700 px-4 py-2 overflow-x-auto">
+                  <MathBlock latex={mc.resultLatex} block />
+                </div>
+                {mc.examples.length > 0 && (
+                  <div className="space-y-1.5">
+                    {mc.examples.map((ex, i) => (
+                      <div key={i} className="flex items-start gap-2 text-xs text-slate-600 dark:text-slate-300">
+                        <span className="text-slate-400 flex-shrink-0 mt-0.5">예)</span>
+                        <div className="leading-relaxed">
+                          <span className="font-semibold text-slate-700 dark:text-slate-200">{ex.name}</span>
+                          {ex.rec && (
+                            <code className="ml-1 font-mono bg-slate-100 dark:bg-slate-800 px-1.5 py-0.5 rounded text-slate-700 dark:text-slate-200">
+                              {ex.rec}
+                            </code>
+                          )}
+                          <span className="ml-1 text-slate-400">— {ex.expl}</span>
+                          <span className="ml-1 font-bold text-blue-600 dark:text-blue-400">→ {ex.result}</span>
+                        </div>
+                      </div>
+                    ))}
+                  </div>
+                )}
+              </div>
+            </div>
+          ))}
+        </div>
+
+        {/* 주의사항 */}
+        <div className="mt-4 rounded-xl border border-orange-200 dark:border-orange-800/40 bg-orange-50 dark:bg-orange-900/10 px-4 py-3">
+          <p className="text-xs font-bold text-orange-700 dark:text-orange-400 mb-1.5">⚠ 마스터 정리 적용 불가 경우</p>
+          <ul className="space-y-1 text-xs text-orange-700 dark:text-orange-300">
+            <li>• <code className="font-mono">T(n) = T(n-1) + n</code> — 부분문제 크기가 n/b 형태가 아님 (등차 감소)</li>
+            <li>• <code className="font-mono">T(n) = T(n-1) + T(n-2)</code> — 피보나치, 비균등 분할</li>
+            <li>• f(n)이 3가지 케이스 어느 것에도 해당 안 될 때 (gap 존재 시)</li>
+            <li>• a &lt; 1 또는 b ≤ 1 일 때</li>
+          </ul>
+        </div>
+      </section>
+
+      {/* ── 점화식 예시 테이블 ── */}
+      <section id={`${topic.id}-sec-recurrence`}>
+        <div className="flex items-center gap-2 mb-4">
+          <span className="text-xl">🔁</span>
+          <h2 className="text-base font-bold text-slate-800 dark:text-slate-100">주요 알고리즘 점화식 정리</h2>
+          <div className="flex-1 h-px bg-slate-200 dark:bg-slate-700" />
+        </div>
+        <div className="overflow-x-auto rounded-xl border border-slate-200 dark:border-slate-700 bg-white dark:bg-slate-900">
+          <table className="w-full text-sm">
+            <thead className="bg-slate-50 dark:bg-slate-800">
+              <tr>
+                <th className="px-4 py-2.5 text-left text-xs font-bold text-slate-600 dark:text-slate-300">알고리즘</th>
+                <th className="px-4 py-2.5 text-left text-xs font-bold text-slate-600 dark:text-slate-300">점화식</th>
+                <th className="px-4 py-2.5 text-center text-xs font-bold text-slate-600 dark:text-slate-300">케이스</th>
+                <th className="px-4 py-2.5 text-left text-xs font-bold text-slate-600 dark:text-slate-300">결과</th>
+              </tr>
+            </thead>
+            <tbody>
+              {recurrenceRows.map((row, i) => (
+                <tr key={i} className="border-t border-slate-100 dark:border-slate-800 hover:bg-slate-50 dark:hover:bg-slate-800/40">
+                  <td className="px-4 py-2.5 text-slate-700 dark:text-slate-300 font-medium text-xs whitespace-nowrap">{row.algo}</td>
+                  <td className="px-4 py-2.5 font-mono text-xs text-slate-600 dark:text-slate-400">{row.rec}</td>
+                  <td className="px-4 py-2.5 text-center">
+                    {row.caseNum > 0 ? (
+                      <span className={`rounded-full px-2 py-0.5 text-[11px] font-bold ${
+                        row.caseNum === 1 ? 'bg-blue-100 text-blue-700 dark:bg-blue-900/40 dark:text-blue-300' :
+                        row.caseNum === 2 ? 'bg-purple-100 text-purple-700 dark:bg-purple-900/40 dark:text-purple-300' :
+                        'bg-amber-100 text-amber-700 dark:bg-amber-900/40 dark:text-amber-300'
+                      }`}>Case {row.caseNum}</span>
+                    ) : (
+                      <span className="text-xs text-slate-400 italic">미적용</span>
+                    )}
+                  </td>
+                  <td className="px-4 py-2.5 font-mono font-bold text-blue-700 dark:text-blue-300 text-xs">{row.result}</td>
+                </tr>
+              ))}
+            </tbody>
+          </table>
+        </div>
+        <p className="mt-2 text-xs text-slate-400 text-right">
+          케이스 색: <span className="text-blue-600 font-semibold">파랑=1</span> · <span className="text-purple-600 font-semibold">보라=2</span> · <span className="text-amber-600 font-semibold">주황=3</span>
+        </p>
       </section>
     </div>
   );

@@ -145,19 +145,47 @@ HeapSort   | O(n log n) | O(n log n) | O(n log n)| O(1)  | 불안정
 InsertSort | O(n)       | O(n²)      | O(n²)     | O(1)  | 안정
 BubbleSort | O(n)       | O(n²)      | O(n²)     | O(1)  | 안정
 
+■ InsertionSort — 거의 정렬된 데이터에 유리
+insertion-sort(A):
+  for i = 1 to n-1:
+    key ← A[i]
+    j ← i - 1
+    while j ≥ 0 and A[j] > key:
+      A[j+1] ← A[j]   // 한 칸씩 뒤로 밀기
+      j ← j - 1
+    A[j+1] ← key
+
+최선: O(n) — 이미 정렬 (while 루프가 한 번도 실행 안 됨)
+최악: O(n²) — 역정렬 (매 원소마다 앞으로 다 이동)
+in-place, 안정(stable)
+
+■ 비교 기반 정렬의 하한 (Lower Bound)
+정리: 어떤 비교 기반 정렬 알고리즘도 최악 Ω(n log n) 비교 필요
+증명 개요: n개 원소의 순열 수 = n!, 이진 결정 트리의 리프 수 ≥ n!
+          트리 높이 h ≥ log₂(n!) = Ω(n log n)
+결론: QuickSort·MergeSort·HeapSort는 점근적으로 최적!
+
+■ 비교 없는 정렬 (Linear Time)
+Counting Sort: O(n+k), k = 값의 범위. 음수 불가, 정수 전용
+Radix Sort: O(d·(n+k)), d = 자릿수 수
+Bucket Sort: O(n) 평균, 균등 분포 가정
+
 ■ 시험 단골 함정
 • MergeSort는 in-place가 아님 — "O(n) 추가 공간 필요"
 • QuickSort 최악은 O(n²) — 이미 정렬되거나 역정렬된 배열에서 마지막 원소 피벗
 • partition 후 피벗의 위치 = 반환된 q → quicksort(A,p,q-1)과 quicksort(A,q+1,r) 호출
 • in-place 정렬: QuickSort, HeapSort, InsertionSort, BubbleSort
-• 안정(stable) 정렬: MergeSort, InsertionSort, BubbleSort (QuickSort, HeapSort는 불안정)`,
+• 안정(stable) 정렬: MergeSort, InsertionSort, BubbleSort (QuickSort, HeapSort는 불안정)
+• InsertionSort는 거의 정렬된 경우 O(nk) (k = 각 원소의 최대 이동 거리)`,
     complexityTable: [
-      { operation: 'QuickSort 평균', complexity: 'O(n log n)', note: '제자리 정렬(in-place)' },
-      { operation: 'QuickSort 최악', complexity: 'O(n²)', note: '이미 정렬된 경우' },
-      { operation: 'MergeSort', complexity: 'O(n log n)', note: '안정 정렬, O(n) 추가 공간' },
-      { operation: 'HeapSort', complexity: 'O(n log n)', note: '제자리, 불안정 정렬' },
-      { operation: 'BubbleSort', complexity: 'O(n²)', note: '안정 정렬' },
-      { operation: 'InsertionSort', complexity: 'O(n²) / O(n)', note: '거의 정렬된 경우 O(n)' },
+      { operation: 'QuickSort 평균/최선', complexity: 'O(n log n)', note: 'in-place, 불안정' },
+      { operation: 'QuickSort 최악', complexity: 'O(n²)', note: '정렬된 배열+last 피벗' },
+      { operation: 'MergeSort', complexity: 'O(n log n)', note: '안정, O(n) 추가 공간' },
+      { operation: 'HeapSort', complexity: 'O(n log n)', note: 'in-place, 불안정' },
+      { operation: 'InsertionSort 최선', complexity: 'O(n)', note: '이미 정렬된 경우' },
+      { operation: 'InsertionSort 최악', complexity: 'O(n²)', note: '역정렬된 경우' },
+      { operation: 'BubbleSort', complexity: 'O(n²)', note: '안정, in-place' },
+      { operation: '비교 기반 정렬 하한', complexity: 'Ω(n log n)', note: '결정 트리 이론' },
     ],
     visualizerType: 'quicksort',
     commonPitfalls: [
@@ -348,20 +376,71 @@ RB-Tree 성질:
       { label: 'Dijkstra 복잡도 (min-heap)', latex: 'O\\bigl((V + E)\\log V\\bigr)' },
     ],
     keyPoints: [
-      'Dijkstra: 음수 간선 불가, O((V+E) log V) with min-heap',
-      'BFS: 최단 경로(가중치 없음), 큐 사용',
-      'DFS: 스택(재귀), 위상 정렬, SCC 탐지',
-      'Prim: MST, 그리디, O(E log V)',
-      'Kruskal: MST, Union-Find, 간선 정렬 기준',
+      'BFS: 큐 사용, O(V+E), 비가중치 최단 경로 보장, 레벨 탐색',
+      'DFS: 스택/재귀, O(V+E), 위상 정렬·SCC·사이클 탐지에 활용',
+      'Dijkstra: min-heap, O((V+E)log V), 음수 간선 불가',
+      'Bellman-Ford: O(VE), 음수 간선 허용, 음수 사이클 감지',
+      'Prim/Kruskal: MST 알고리즘, O(E log V) / O(E log E)',
     ],
-    theory: `■ Dijkstra 알고리즘
+    theory: `■ BFS (너비 우선 탐색, Breadth-First Search)
+큐(Queue)를 이용. 시작점에서 가까운 노드부터 탐색. 비가중치 그래프에서 최단 경로 보장.
+
+BFS(G, s):
+  for each v ∈ V: visited[v] = false
+  visited[s] = true, dist[s] = 0
+  Q = empty queue
+  ENQUEUE(Q, s)
+  while Q is not empty:
+    u = DEQUEUE(Q)
+    for each v ∈ Adj[u]:
+      if not visited[v]:
+        visited[v] = true
+        dist[v] = dist[u] + 1
+        ENQUEUE(Q, v)
+
+시간 복잡도: O(V + E) — 각 정점과 간선을 한 번씩 처리
+활용: 최단 경로(비가중치), 레벨 탐색, 이분 그래프 판별
+
+■ DFS (깊이 우선 탐색, Depth-First Search)
+스택(재귀)을 이용. 가능한 한 깊이 탐색 후 백트래킹.
+
+DFS(G):
+  for each v ∈ V: visited[v] = false
+  for each v ∈ V:
+    if not visited[v]: DFS-VISIT(G, v)
+
+DFS-VISIT(G, u):
+  visited[u] = true
+  for each v ∈ Adj[u]:
+    if not visited[v]:
+      DFS-VISIT(G, v)
+  // 이 시점이 u의 finish time (후위 처리)
+
+시간 복잡도: O(V + E)
+활용: 위상 정렬(Topological Sort), 강연결요소(SCC), 사이클 감지
+
+■ BFS vs DFS 비교
+          BFS                  DFS
+사용 구조   큐(Queue)            스택(재귀/Stack)
+탐색 순서   레벨 순서            깊이 우선
+최단 경로   O (비가중치)         X
+공간 복잡도 O(V) — 레벨 전체    O(V) — 재귀 깊이
+주 활용    최단경로, 이분그래프  위상정렬, SCC, 미로
+
+■ Dijkstra 알고리즘
 음수 가중치가 없는 그래프에서 단일 출발점 최단 경로
 
 1. 시작 노드 거리 = 0, 나머지 = ∞
-2. 미방문 노드 중 거리가 가장 작은 노드 u 선택
+2. 미방문 노드 중 거리가 가장 작은 노드 u 선택 (min-heap)
 3. u의 인접 노드 v에 대해: dist[v] = min(dist[v], dist[u] + w(u,v))
 4. u를 방문 처리
 5. 모든 노드 방문까지 반복
+
+■ Bellman-Ford 알고리즘 (음수 간선 허용)
+1. dist[s]=0, 나머지=∞
+2. 간선 완화를 V-1번 반복: for each edge (u,v,w): dist[v] = min(dist[v], dist[u]+w)
+3. V번째 완화 후에도 dist가 줄어들면 음수 사이클 감지
+시간: O(VE), Dijkstra보다 느리지만 음수 간선 허용
 
 ■ 2024년 2학기 기출 (그래프: A,B,C,D,E,F,G)
 간선: A-B=4, A-G=1, A-F=5, B-C=3, G-C=9, G-F=7, G-E=12, C-D=2, D-E=1
@@ -442,10 +521,40 @@ B≠D → 스킵, X="E", Y="E"
 E=E → 추가: "AE" (길이 2)
 Greedy 결과: "AE" (최적이 아님!)
 
-■ 기타 DP 예시
-• Fibonacci: F(n) = F(n-1) + F(n-2)
-• 0-1 Knapsack: dp[i][w] = max(dp[i-1][w], dp[i-1][w-wi]+vi)
-• Edit Distance: 문자열 변환 최소 연산 수`,
+■ 0-1 Knapsack (배낭 문제)
+n개 아이템 (무게 wᵢ, 가치 vᵢ), 최대 용량 W
+각 아이템: 넣거나(1) 안 넣거나(0)
+
+dp[i][w] = 앞 i개 아이템, 용량 w에서의 최대 가치
+
+재귀 관계:
+• 기저: dp[0][w] = 0, dp[i][0] = 0
+• wᵢ > w (못 넣음): dp[i][w] = dp[i-1][w]
+• wᵢ ≤ w: dp[i][w] = max(dp[i-1][w],  // i번 안 넣음
+                          dp[i-1][w-wᵢ] + vᵢ)  // i번 넣음
+
+시간: O(nW), 공간: O(nW)
+
+예시: W=5, 아이템 = [(w=2,v=3), (w=3,v=4), (w=1,v=2)]
+dp 테이블 (행=아이템, 열=용량 0~5):
+     0  1  2  3  4  5
+i=0: 0  0  0  0  0  0
+i=1: 0  0  3  3  3  3  (w=2,v=3)
+i=2: 0  0  3  4  4  7  (w=3,v=4)
+i=3: 0  2  3  5  6  7  (w=1,v=2)
+
+최적값: dp[3][5] = 7 (아이템 1+2 선택: 3+4=7, 무게 2+3=5)
+
+■ 편집 거리 (Edit Distance)
+두 문자열 s, t를 변환하는 최소 연산(삽입, 삭제, 교체) 수
+dp[i][j] = s[0..i-1]을 t[0..j-1]로 변환하는 최소 연산 수
+• s[i]=t[j]: dp[i][j] = dp[i-1][j-1]
+• 불일치: dp[i][j] = 1 + min(dp[i-1][j], dp[i][j-1], dp[i-1][j-1])
+             삭제        삽입        교체
+
+■ Greedy vs DP 비교
+Greedy: 매 단계 국소 최적 선택 → 전역 최적 보장 안 됨 (LCS에서 실패)
+DP: 모든 부분 문제를 테이블에 저장 → 전역 최적 보장`,
     complexityTable: [
       { operation: 'LCS', complexity: 'O(|X|·|Y|)', note: '공간도 O(|X|·|Y|)' },
       { operation: 'Fibonacci (DP)', complexity: 'O(n)', note: 'vs 재귀 O(2ⁿ)' },
@@ -639,42 +748,74 @@ class SinglyLinkedList:
       '빈도수가 높을수록 짧은 코드 할당',
       '허프만 트리: 빈도 최소인 두 노드를 반복적으로 합침',
     ],
-    theory: `■ 허프만 코딩 (2024년 1학기 기출)
+    theory: `■ 핵심 개념
+접두사 코드(Prefix-free code): 어떤 코드도 다른 코드의 접두사가 아님 → 디코딩 시 모호성 없음
+최적 접두사 코드: ABL을 최소화하는 접두사 코드 = 허프만 코드
 
-ABL(Average Bits per Letter) = Σ fₓ · |c(x)| / Σ fₓ
-where fₓ = frequency, |c(x)| = code length
+ABL(Average Bits per Letter):
+• ABL = Σ fₓ · |c(x)| / Σ fₓ
+• fₓ = 문자 x의 빈도, |c(x)| = x의 코드 비트 수
 
-■ 빌드 과정:
-1. 각 문자를 노드로 만들어 min-heap에 삽입 (key = 빈도)
-2. 빈도 최소인 두 노드를 꺼내 합침 (합계 = 두 빈도의 합)
-3. 합쳐진 노드를 다시 heap에 삽입
-4. 노드가 1개 남을 때까지 반복
+■ 허프만 알고리즘
+입력: n개의 (문자, 빈도) 쌍
+출력: 최적 접두사 코드 트리
 
-■ 예시: {a:11, b:10, c:4, d:17, e:13, f:45}
-힙: c(4), b(10), a(11), e(13), d(17), f(45)
+HUFFMAN(C):
+  n = |C|
+  Q = min-heap(C)  // 빈도 기준
+  for i = 1 to n-1:
+    z = new node
+    z.left  = x = EXTRACT-MIN(Q)
+    z.right = y = EXTRACT-MIN(Q)
+    z.freq  = x.freq + y.freq
+    INSERT(Q, z)
+  return EXTRACT-MIN(Q)  // 루트
 
-단계1: c(4)+b(10) → cb(14)
-힙: a(11), cb(14), e(13), d(17), f(45)
+시간 복잡도: O(n log n)
+• n-1번 반복, 각 반복에서 EXTRACT-MIN 2회 + INSERT 1회 → O(log n)
 
-단계2: a(11)+e(13) → ae(24)
+■ 예시: {a:11, b:10, c:4, d:17, e:13, f:45} (총 빈도=100)
+초기 힙 (빈도 오름차순): c(4), b(10), a(11), e(13), d(17), f(45)
+
+단계1: 꺼내기 c(4), b(10) → 합쳐서 cb(14) 삽입
+힙: a(11), e(13), cb(14), d(17), f(45)
+
+단계2: 꺼내기 a(11), e(13) → ae(24) 삽입
 힙: cb(14), d(17), ae(24), f(45)
 
-단계3: cb(14)+d(17) → cbd(31)
+단계3: 꺼내기 cb(14), d(17) → cbd(31) 삽입
 힙: ae(24), cbd(31), f(45)
 
-단계4: ae(24)+cbd(31) → aecbd(55)
+단계4: 꺼내기 ae(24), cbd(31) → aecbd(55) 삽입
 힙: f(45), aecbd(55)
 
-단계5: f(45)+aecbd(55) = 100
-결과 트리:
-  f: 0 (1비트)
-  a,e,c,b,d: 1+... (더 긴 코드)
+단계5: 꺼내기 f(45), aecbd(55) → root(100)
 
-최종 코드 (예시): f=0, a=100, e=101, c=110, b=111, d는 4비트
+트리 구조 (코드 예시, 0=왼쪽, 1=오른쪽):
+root(100)
+├─0─ f(45)          → 코드: 0         [1비트]
+└─1─ aecbd(55)
+     ├─0─ ae(24)
+     │    ├─0─ a(11)  → 코드: 100       [3비트]
+     │    └─1─ e(13)  → 코드: 101       [3비트]
+     └─1─ cbd(31)
+          ├─0─ cb(14)
+          │    ├─0─ c(4)  → 코드: 1100  [4비트]
+          │    └─1─ b(10) → 코드: 1101  [4비트]
+          └─1─ d(17)   → 코드: 111      [3비트]
+
+ABL = (45×1 + 11×3 + 13×3 + 4×4 + 10×4 + 17×3) / 100
+    = (45 + 33 + 39 + 16 + 40 + 51) / 100 = 224/100 = 2.24 bits/letter
 
 ■ 고정 길이 코드와 비교
-n개의 문자 → ⌈log₂ n⌉ 비트 필요
-6개 문자 → ⌈log₂ 6⌉ = 3비트`,
+• 6개 문자 → ⌈log₂ 6⌉ = 3비트 고정
+• 허프만 코드 ABL = 2.24 bits < 3 bits → 약 25% 압축!
+
+■ 시험 함정
+• 허프만 트리는 최적(최소 ABL)이지만, 트리 형태는 유일하지 않을 수 있음
+  (빈도 동률 시 처리 순서에 따라 다른 트리가 생성되나 ABL은 동일)
+• 더 높은 빈도 = 더 짧은 코드 (루트에 가까움)
+• 리프 노드만 실제 문자 — 내부 노드는 빈도 합계만 나타냄`,
     complexityTable: [
       { operation: '허프만 트리 빌드', complexity: 'O(n log n)', note: 'min-heap 사용' },
       { operation: 'ABL 계산', complexity: 'O(n)', note: '' },

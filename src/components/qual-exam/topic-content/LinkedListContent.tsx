@@ -183,7 +183,7 @@ export default function LinkedListContent({ topic }: Props) {
   ];
 
   return (
-    <div className="max-w-3xl space-y-10 px-6 py-6">
+    <div className="max-w-3xl mx-auto space-y-10 px-6 py-6">
 
       {/* ── Hero ── */}
       <div className="flex items-start gap-4">

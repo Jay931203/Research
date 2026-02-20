@@ -17,85 +17,238 @@ export const PROG_TOPICS: StudyTopic[] = [
     summary: '클래스는 데이터(멤버 변수)와 동작(멤버 함수)의 묶음. public/private/protected 접근 제어, 생성자 초기화 리스트.',
     relatedExamIds: ['prog-2025-1-1'],
     keyPoints: [
-      '클래스: 데이터(멤버 변수)와 동작(멤버 함수)의 묶음',
-      '생성자: 객체 초기화, 소멸자: 자원 해제',
-      'public/private/protected 접근 제어',
-      '기본 생성자: 컴파일러가 자동 생성 (단, 사용자 정의 생성자가 없을 때)',
+      'struct vs class: struct는 기본 public, class는 기본 private',
+      '기본 생성자: 사용자가 생성자를 하나라도 정의하면 컴파일러 자동 생성 안 됨',
+      '초기화 리스트 필수 3경우: const 멤버 / 참조 멤버 / 기본 생성자 없는 멤버 객체',
+      '초기화 순서: 리스트 작성 순서가 아닌 클래스 선언 순서대로 초기화됨',
+      'const 멤버 함수: this가 const T*가 되어 멤버 수정 불가, const 객체는 const 함수만 호출',
+      'static 멤버 변수: 클래스당 하나, 반드시 클래스 외부에서 정의 및 초기화',
     ],
-    theory: `■ 클래스 = 데이터 + 동작의 캡슐화
-struct vs class: struct는 default public, class는 default private
+    theory: `■ 클래스(Class) — 데이터와 동작의 캡슐화
+
+클래스는 관련 있는 데이터(멤버 변수)와 동작(멤버 함수)을 하나로 묶은 사용자 정의 타입.
+struct vs class: struct 기본 접근 public, class 기본 접근 private.
 
 class MyClass {
-private:   // 클래스 내부에서만 접근
-    int data_;
-    char* name_;
-protected: // 파생 클래스에서도 접근 가능
-    double internal_;
-public:    // 외부에서 접근 가능
-    MyClass(int d);               // 기본 생성자
-    MyClass(const MyClass& o);    // 복사 생성자
-    MyClass& operator=(const MyClass& o); // 복사 대입 연산자
-    ~MyClass();                   // 소멸자
-    int getData() const;          // const 멤버 함수 (this는 const*)
+private:    // 클래스 내부 + friend만 접근 (class 기본값)
+    int x_;
+    double y_;
+protected:  // private + 파생 클래스의 멤버 함수도 접근 가능
+    float z_;
+public:     // 외부 어디서나 접근 가능
+    MyClass(int x, double y);          // 매개변수 생성자
+    MyClass(const MyClass& other);     // 복사 생성자
+    MyClass& operator=(const MyClass&);// 복사 대입 연산자
+    ~MyClass();                        // 소멸자
+    int getX() const;                  // const 멤버 함수
+    static int getCount();             // static 멤버 함수
 };
 
-■ 초기화 리스트 (Initialization List) — 반드시 알아야 할 규칙
-// 리스트 방식 (권장): 멤버가 생성과 동시에 초기화됨
-MyClass::MyClass(int d, const char* n)
-    : data_(d), name_(nullptr) {  // data_는 d로, name_는 nullptr로 초기화
-    // 생성자 본문
+─────────────────────────────────────────
+■ 접근 지정자 (Access Specifier) 상세
+─────────────────────────────────────────
+지정자       접근 범위
+public       클래스 외부 포함 어디서나 접근 가능
+private      해당 클래스의 멤버 함수 + friend 함수/클래스만 접근
+protected    private + 파생(derived) 클래스의 멤버 함수도 접근 가능
+
+[상속 시 접근 범위 변화 — 중요!]
+class D : public B    → B의 public    → D에서 public
+                      → B의 protected → D에서 protected
+class D : protected B → B의 public    → D에서 protected
+                      → B의 protected → D에서 protected
+class D : private B   → B의 public    → D에서 private
+                      → B의 protected → D에서 private
+
+─────────────────────────────────────────
+■ 생성자(Constructor) 종류
+─────────────────────────────────────────
+1. 기본 생성자 (Default Constructor) — 인수 없음
+   사용자가 어떤 생성자도 정의하지 않은 경우에만 컴파일러가 자동 생성.
+   다른 생성자를 하나라도 정의하면 기본 생성자는 자동 생성되지 않음!
+
+   class A {};              // OK: 컴파일러가 A() 자동 생성
+   class B { B(int x){} }; // B()는 없음! → B b; 는 컴파일 에러!
+   class C { C(int x=0){}};// 기본값 제공 → C()처럼 호출 가능
+
+2. 매개변수 생성자 — 여러 개를 오버로드(overload) 가능
+   MyClass(int x);
+   MyClass(int x, double y);
+
+3. 복사 생성자 (Copy Constructor) — MyClass(const MyClass& other)
+   같은 타입 객체로부터 새 객체를 초기화할 때 자동 호출됨.
+
+   [호출되는 4가지 시점]
+   MyClass b = a;             // 복사 초기화
+   MyClass b(a);              // 직접 초기화
+   void f(MyClass x) {}  f(a);// 값 전달 (인수 복사)
+   MyClass f() { return a; }  // 값 반환 (반환값 복사)
+
+─────────────────────────────────────────
+■ 초기화 리스트 (Member Initializer List)
+─────────────────────────────────────────
+생성자 본문 실행 전, 멤버를 직접 초기화하는 문법.
+문법: 생성자명(매개변수) : 멤버1(값1), 멤버2(값2) { }
+
+[본문 대입 방식 — 비권장]
+MyClass::MyClass(int x, double y) {
+    x_ = x;   // ① x_가 먼저 기본(default) 초기화 ② 그다음 x를 대입 → 2단계 비효율
+    y_ = y;
 }
 
-// 대입 방식 (비권장): 멤버가 먼저 default 생성된 뒤 대입됨
-MyClass::MyClass(int d) {
-    data_ = d;  // 먼저 data_가 기본 초기화, 그 다음 대입 — 비효율적
-}
+[초기화 리스트 방식 — 권장]
+MyClass::MyClass(int x, double y) : x_(x), y_(y) { }
+// → 생성과 동시에 초기화 → 1단계 → 효율적
 
-반드시 초기화 리스트를 써야 하는 경우:
-• const 멤버: const int n_ — 대입 불가, 반드시 리스트에서 초기화
-• 참조(reference) 멤버: int& ref_ — 대입 불가
-• 기본 생성자가 없는 멤버 객체
-• 성능상의 이유 (대입 vs 직접 초기화)
+반드시 초기화 리스트를 써야 하는 3가지 경우:
+① const 멤버:            const int id_;
+   → 생성 후 수정 불가, 리스트에서만 초기화 가능
+② 참조 멤버:             int& ref_;
+   → 선언과 동시에 참조 대상 지정 필수 (대입으로는 불가)
+③ 기본 생성자 없는 멤버 객체:
+   → 컴파일러가 본문 실행 전 기본 생성자를 호출하려 하지만 없으면 에러
 
-■ const 멤버 함수
-int getData() const { return data_; }
-// this 포인터가 const MyClass*로 바뀜 → 멤버 변수 수정 불가
-// const 객체에서는 const 함수만 호출 가능
+[초기화 순서 — 함정!]
+리스트에 쓴 순서가 아니라 클래스 선언에 나열된 순서로 초기화됨!
 
-■ 접근 제어 상속 시 변화
-class D : public B { ... }    → B의 public/protected 그대로 유지
-class D : protected B { ... } → B의 public → protected로 좁힘
-class D : private B { ... }   → B의 public/protected → private으로 좁힘
-
-■ this 포인터
-• 모든 비정적(non-static) 멤버 함수 내에서 현재 객체를 가리키는 포인터
-• 복사 대입 연산자에서 자기 대입 검사: if (this == &other) return *this;
-• return *this: 연쇄 호출 가능하게 함 (a.add(1).mul(2) 등)
-
-■ 정적(static) 멤버
-• static int count_: 클래스 당 하나의 인스턴스 (객체 없이도 접근)
-• static void f(): this 없음, 멤버 변수 접근 불가
-• 초기화: 클래스 외부에서 int MyClass::count_ = 0;
-
-■ 시험 함정
-• 기본 생성자: 사용자가 어떤 생성자도 정의하지 않을 때만 컴파일러가 자동 생성
-  (다른 생성자를 하나라도 정의하면 기본 생성자는 자동 생성 안 됨)
-• struct는 default public이므로 생성자 없이도 멤버 직접 초기화 가능
-• const 멤버 변수가 있으면 반드시 초기화 리스트 사용`,
-    codeExample: `class Student {
-private:
-    int id_;
-    char* name_;
+class D {
+    int a_, b_;           // a_가 먼저 선언 → a_가 먼저 초기화됨
 public:
-    Student(const char* name, int id) : id_(id) {
-        name_ = new char[strlen(name) + 1];
-        strcpy(name_, name);
-    }
-    ~Student() { delete[] name_; }
-    void getInfo() const {
-        cout << "Name: " << name_ << ", ID: " << id_ << endl;
+    D(int x) : b_(x), a_(b_) { }
+    // 함정! a_가 먼저 초기화되는데, 이때 b_는 아직 초기화 전 → 미정의 동작!
+};
+// 안전한 방법: D(int x) : a_(x), b_(x) { }  // 각자 독립적인 값으로 초기화
+
+─────────────────────────────────────────
+■ const 멤버 함수
+─────────────────────────────────────────
+int getX() const { return x_; }
+
+일반 멤버 함수의 this 타입: T* const this       (객체 내용 수정 가능)
+const 멤버 함수의 this 타입: const T* const this (객체 내용 수정 불가)
+
+→ const 함수 내에서 멤버 변수 수정 불가 (mutable 멤버 제외)
+→ const 객체는 const 멤버 함수만 호출 가능!
+
+const MyClass obj(1, 2.0);
+obj.getX();     // OK (const 함수)
+obj.setX(5);    // 컴파일 에러! (non-const 함수는 const 객체에서 호출 불가)
+
+─────────────────────────────────────────
+■ this 포인터
+─────────────────────────────────────────
+비정적(non-static) 멤버 함수의 암묵적 첫 번째 매개변수.
+현재 호출된 객체의 주소를 담은 포인터.
+
+주요 활용:
+① 이름 충돌 해결 (멤버 변수 vs 매개변수)
+   void setX(int x) { this->x_ = x; }  // this->x_: 멤버, x: 매개변수
+
+② 자기 대입 검사 (복사 대입 연산자에서 필수)
+   if (this == &other) return *this;
+
+③ 메서드 체이닝 (*this 반환)
+   MyClass& setX(int x) { x_ = x; return *this; }
+   obj.setX(1).setY(2).setZ(3);  // 연쇄 호출 가능
+
+static 함수에는 this가 없음 (특정 객체와 무관하게 호출되므로).
+
+─────────────────────────────────────────
+■ static 멤버
+─────────────────────────────────────────
+static 멤버 변수: 클래스당 하나의 공유 변수 (모든 객체가 공유)
+static 멤버 함수: this 없음, 정적 멤버에만 접근 가능
+
+class Counter {
+    static int count_;          // 선언 (클래스 내)
+public:
+    Counter()  { ++count_; }    // 객체 생성 시 증가
+    ~Counter() { --count_; }    // 객체 소멸 시 감소
+    static int getCount() { return count_; }  // 정적 멤버 함수
+};
+int Counter::count_ = 0;        // 정의 + 초기화는 반드시 클래스 외부!
+
+Counter a, b;
+cout << Counter::getCount();    // 2 (클래스 이름으로 호출)
+cout << a.getCount();           // 2 (객체를 통한 호출도 가능, 비권장)
+
+─────────────────────────────────────────
+■ friend 선언
+─────────────────────────────────────────
+friend 함수/클래스: private, protected 멤버에 접근 가능하도록 허용.
+상속되지 않음 — friend 관계는 파생 클래스로 전파되지 않는다.
+
+class MyClass {
+    int secret_ = 42;
+    friend void reveal(const MyClass& obj);  // friend 함수 선언
+    friend class Inspector;                   // friend 클래스 선언
+};
+void reveal(const MyClass& obj) {
+    cout << obj.secret_;  // private 멤버에 접근 가능
+}
+
+─────────────────────────────────────────
+■ mutable 키워드
+─────────────────────────────────────────
+const 멤버 함수 내에서도 수정 가능한 멤버 변수로 선언할 때 사용.
+"논리적으로 const"(외부에 보이는 상태는 불변)이지만 내부 캐시/카운터는 바꿔야 할 때.
+
+class Cache {
+    mutable int accessCount_ = 0;  // const 함수에서도 수정 가능
+    int data_;
+public:
+    int getData() const {
+        ++accessCount_;  // mutable이므로 OK
+        return data_;
     }
 };`,
+    codeExample: `// ① 초기화 리스트 — const/참조 멤버 예시
+class Config {
+    const int maxSize_;  // const: 반드시 리스트에서 초기화
+    int& ref_;           // 참조: 반드시 리스트에서 초기화
+    int val_;
+public:
+    Config(int max, int& r, int v)
+        : maxSize_(max), ref_(r), val_(v) { }  // OK
+    // Config(int max, int& r, int v) { maxSize_ = max; }  // 컴파일 에러!
+};
+
+// ② static 멤버 + 생성자/소멸자 카운터
+class Widget {
+    static int count_;
+    int id_;
+public:
+    Widget() : id_(++count_) {
+        cout << "Widget #" << id_ << " created\n";
+    }
+    ~Widget() {
+        cout << "Widget #" << id_ << " destroyed\n";
+        --count_;
+    }
+    static int getCount() { return count_; }
+};
+int Widget::count_ = 0;  // 클래스 외부 정의
+
+// ③ const 함수 / mutable 캐시 패턴
+class Matrix {
+    mutable bool cached_ = false;
+    mutable double det_ = 0.0;
+    double data_[4];
+public:
+    double determinant() const {
+        if (!cached_) {
+            det_ = data_[0]*data_[3] - data_[1]*data_[2];
+            cached_ = true;  // mutable이므로 const 함수에서 수정 OK
+        }
+        return det_;
+    }
+};`,
+    commonPitfalls: [
+      '다른 생성자를 하나라도 정의하면 컴파일러가 기본 생성자를 자동 생성하지 않음',
+      '초기화 리스트 순서는 선언 순서 기준 — 리스트 작성 순서가 아님! 멤버끼리 의존 관계 주의',
+      'const 객체에서 non-const 멤버 함수 호출 시 컴파일 에러',
+      'static 멤버 변수는 클래스 내부에서 선언, 반드시 클래스 외부에서 정의(int C::x_ = 0;)',
+    ],
   },
   {
     id: 'constructors',
@@ -108,56 +261,215 @@ public:
     summary: 'Rule of Three: 포인터 멤버 → 소멸자+복사생성자+복사대입 연산자를 직접 정의. 얕은 복사 → double-free 위험!',
     relatedExamIds: ['prog-2024-2-2', 'prog-2022-2-1'],
     keyPoints: [
-      'Rule of Three: 소멸자, 복사 생성자, 복사 대입 연산자 — 셋 중 하나를 정의하면 나머지도 정의해야 함',
-      '얕은 복사(Shallow Copy): 포인터만 복사 → 더블 프리(double-free) 위험!',
-      '깊은 복사(Deep Copy): 메모리 새로 할당 + 내용 복사',
-      '컴파일러 생성 복사 생성자는 얕은 복사를 수행함',
+      '소멸자: 스코프 종료/delete 시 자동 호출, 반환값·매개변수 없음, 오버로드 불가',
+      '얕은 복사: 포인터 주소만 복사 → 두 객체가 같은 메모리 공유 → double-free crash!',
+      '깊은 복사: 새 메모리 할당 + 내용 복사 → 독립된 메모리 보유',
+      'Rule of Three: 소멸자/복사생성자/복사대입 중 하나라도 직접 정의하면 셋 다 정의',
+      '복사 대입 연산자 순서: ①자기대입 검사 ②기존 해제 ③새 할당·복사 ④*this 반환',
+      'delete vs delete[]: new[]로 할당한 배열은 반드시 delete[]로 해제',
     ],
-    theory: `■ Rule of Three (시험 핵심!)
-포인터 멤버 변수가 있으면 반드시 셋 다 정의:
+    theory: `─────────────────────────────────────────
+■ 소멸자 (Destructor)
+─────────────────────────────────────────
+~ClassName() { ... }
 
-class Student {
+특징:
+• 반환값 없음, 매개변수 없음, 오버로드 불가 (클래스당 하나)
+• 객체 수명이 끝날 때 자동 호출 (명시적 delete / 스코프 종료)
+• 포인터 멤버(동적 메모리), 파일 핸들, 뮤텍스 등 자원 해제 담당
+
+[소멸자 호출 시점]
+• 지역 객체:            스코프(중괄호) 종료 시
+• new로 생성된 객체:    delete 호출 시
+• 전역/static 객체:     프로그램 종료 시 (생성 역순)
+• 배열 원소:            배열 소멸 시 마지막 인덱스부터 역순
+
+{
+    MyClass a;    // a 생성자
+    {
+        MyClass b;  // b 생성자
+    }             // b 소멸자 ← 먼저
+}                 // a 소멸자
+
+─────────────────────────────────────────
+■ 객체 생성과 소멸 전체 순서
+─────────────────────────────────────────
+[생성 순서]
+① 부모(base) 클래스 생성자 먼저 호출
+② 멤버 변수 초기화 (선언 순서대로, 초기화 리스트 사용)
+③ 생성자 본문 실행
+
+[소멸 순서 — 생성의 역순]
+① 소멸자 본문 실행
+② 멤버 변수 소멸 (선언 역순)
+③ 부모 클래스 소멸자 호출
+
+─────────────────────────────────────────
+■ 얕은 복사(Shallow Copy) vs 깊은 복사(Deep Copy)
+─────────────────────────────────────────
+컴파일러가 자동 생성하는 복사 생성자/복사 대입 연산자는 멤버를 비트 단위로 복사.
+→ 포인터 멤버는 "주소값"만 복사 → 두 객체가 같은 메모리를 가리킴!
+
+[얕은 복사가 일으키는 double-free 문제]
+
+class Bad {
     char* name_;
 public:
+    Bad(const char* n) {
+        name_ = new char[strlen(n)+1];
+        strcpy(name_, n);
+    }
+    ~Bad() { delete[] name_; }
+    // 복사 생성자/대입 연산자 없음 → 컴파일러가 얕은 복사 자동 생성
+};
+
+Bad a("hello");
+Bad b = a;       // b.name_ == a.name_ (같은 주소!)
+// 함수 종료 시: ~b() → delete[] name_ ← 해제 완료
+//             ~a() → delete[] 이미 해제된 메모리 → double-free crash!
+
+[깊은 복사 — 올바른 구현]
+Bad(const Bad& other) {
+    name_ = new char[strlen(other.name_)+1];  // 새 메모리 할당
+    strcpy(name_, other.name_);               // 내용 복사
+}
+
+─────────────────────────────────────────
+■ Rule of Three
+─────────────────────────────────────────
+"소멸자, 복사 생성자, 복사 대입 연산자 중 하나를 직접 정의한다면
+ 나머지 둘도 반드시 직접 정의하라."
+
+이유: 포인터 멤버가 있어 소멸자에서 delete 한다면,
+     컴파일러 자동 생성 복사 연산들도 얕은 복사를 수행하므로
+     double-free 또는 메모리 누수 위험!
+
+class Student {
+    int   id_;
+    char* name_;    // 포인터 멤버 → Rule of Three 필요!
+public:
+    // 생성자
+    Student(int id, const char* name) : id_(id) {
+        name_ = new char[strlen(name)+1];
+        strcpy(name_, name);
+    }
+
     // 1. 소멸자
-    ~Student() { delete[] name_; }
+    ~Student() {
+        delete[] name_;    // 동적 할당 메모리 반환
+    }
 
     // 2. 복사 생성자 (깊은 복사)
     Student(const Student& other) : id_(other.id_) {
-        name_ = new char[strlen(other.name_) + 1];
+        name_ = new char[strlen(other.name_)+1];
         strcpy(name_, other.name_);
     }
 
-    // 3. 복사 대입 연산자
+    // 3. 복사 대입 연산자 — 4단계 순서 중요!
     Student& operator=(const Student& other) {
-        if (this == &other) return *this;  // 자기 대입 방지
-        delete[] name_;                    // 기존 메모리 해제
-        name_ = new char[strlen(other.name_) + 1];
+        if (this == &other) return *this;       // ① 자기 대입 검사 (필수!)
+        delete[] name_;                          // ② 기존 메모리 해제 (누수 방지)
+        name_ = new char[strlen(other.name_)+1]; // ③ 새 메모리 할당 + 복사
         strcpy(name_, other.name_);
-        id_ = other.id_;
-        return *this;
+        id_ = other.id_;                         // ④ 나머지 멤버 복사
+        return *this;                            // ⑤ *this 반환 (a=b=c 지원)
     }
 };
 
-■ 2024년 2학기 기출 오류 분석
-Student s1("mina", 10);
-Student s2 = s1;  // 컴파일러 생성 복사 생성자 → 얕은 복사!
-// s1.name_ == s2.name_ (같은 메모리 주소 공유!)
-s2.setID(20);
-// 함수 종료 시: ~s2() → delete[] name_ → ~s1() → delete[] name_ (이미 해제됨!)
-// → double-free → undefined behavior (crash)`,
-    codeExample: `// 올바른 복사 생성자 구현
-Student(const Student& other) : id_(other.id_) {
-    name_ = new char[strlen(other.name_) + 1];
-    strcpy(name_, other.name_);
+─────────────────────────────────────────
+■ 복사 대입 연산자 — 각 단계의 이유
+─────────────────────────────────────────
+① 자기 대입 검사 (if this == &other):
+   s = s;  호출 시, ②를 먼저 실행하면 자신의 메모리를 해제하고 복사하는 사태 발생!
+
+② 기존 메모리 해제 (delete[] name_):
+   생략 시 기존 name_이 가리키던 메모리를 잃음 → 메모리 누수(memory leak)!
+
+③ 새 메모리 할당 후 복사:
+   기존 메모리 해제 후에만 안전하게 새 주소로 갱신 가능.
+
+④ *this 반환:
+   a = b = c;  처럼 연쇄 대입이 가능하려면 반환 타입이 T& 이어야 함.
+
+─────────────────────────────────────────
+■ delete vs delete[]
+─────────────────────────────────────────
+int*  p   = new int;       delete  p;   // 단일 객체
+int*  arr = new int[10];   delete[] arr; // 배열 → 반드시 delete[]!
+
+new[]로 할당한 것을 delete([] 없이)로 해제하면 → 미정의 동작(Undefined Behavior)
+(배열 원소의 소멸자 호출 생략, 힙 메타데이터 오염 가능)
+
+─────────────────────────────────────────
+■ Rule of Five (C++11 — 참고)
+─────────────────────────────────────────
+C++11에서 이동 의미론(Move Semantics) 추가:
+Rule of Three + 이동 생성자 + 이동 대입 연산자 = Rule of Five
+
+Student(Student&& other) noexcept       // 이동 생성자
+    : id_(other.id_), name_(other.name_) {
+    other.name_ = nullptr;  // 원본은 nullptr로 → 소멸 시 double-free 방지
 }
 
-// 올바른 소멸자 (포인터 배열 해제)
-~Student() { delete[] name_; }`,
+이동: 자원의 소유권을 "전달" → 불필요한 메모리 복사 없음 → 성능 향상.
+복사: 완전히 새로운 독립 복제본 생성.
+
+─────────────────────────────────────────
+■ RAII (Resource Acquisition Is Initialization)
+─────────────────────────────────────────
+자원 획득 시점 = 객체 초기화 시점 (생성자)
+자원 해제 시점 = 객체 소멸 시점 (소멸자)
+
+→ 예외(exception)가 발생해도 스택 언와인딩으로 소멸자가 반드시 호출됨
+→ 자원 누수 없이 안전한 자원 관리 가능
+→ C++ 핵심 패턴: unique_ptr, shared_ptr, lock_guard 모두 이 원리로 동작`,
+    codeExample: `// 얕은 복사 문제 vs 깊은 복사 해결 비교
+
+// ▼ 위험: 컴파일러 자동 생성 복사 (얕은 복사)
+class Bad {
+    char* name_;
+public:
+    Bad(const char* n) { name_ = new char[strlen(n)+1]; strcpy(name_,n); }
+    ~Bad() { delete[] name_; }
+    // 복사 생성자/대입 없음 → 얕은 복사 → double-free!
+};
+
+// ▼ 안전: Rule of Three 완전 구현
+class Good {
+    int   id_;
+    char* name_;
+public:
+    Good(int id, const char* n) : id_(id) {
+        name_ = new char[strlen(n)+1];
+        strcpy(name_, n);
+    }
+    ~Good() { delete[] name_; }
+
+    Good(const Good& o) : id_(o.id_) {          // 복사 생성자
+        name_ = new char[strlen(o.name_)+1];
+        strcpy(name_, o.name_);
+    }
+
+    Good& operator=(const Good& o) {             // 복사 대입 연산자
+        if (this == &o) return *this;            // ① 자기 대입 검사
+        delete[] name_;                          // ② 기존 해제
+        name_ = new char[strlen(o.name_)+1];     // ③ 새 할당
+        strcpy(name_, o.name_);
+        id_ = o.id_;
+        return *this;                            // ④ *this 반환
+    }
+};
+
+// ▼ C++11 이동 생성자 (Rule of Five)
+Good(Good&& o) noexcept : id_(o.id_), name_(o.name_) {
+    o.name_ = nullptr;  // 원본 무효화 → 소멸 시 delete nullptr는 안전
+}`,
     commonPitfalls: [
-      '포인터를 멤버로 가질 때 컴파일러 생성 복사 생성자는 얕은 복사 → 반드시 직접 정의',
-      'delete vs delete[]: 배열은 반드시 delete[]',
-      '자기 대입(s = s) 처리를 복사 대입 연산자에서 빠뜨리면 위험',
+      'Rule of Three 위반: 포인터 멤버가 있는데 소멸자만 정의하고 복사 생성자/대입 연산자를 빠뜨리면 얕은 복사로 double-free 발생',
+      '복사 대입 연산자에서 자기 대입 검사(if this==&other)를 빠뜨리면 자신의 메모리를 해제 후 복사 시도 → crash',
+      '복사 대입 연산자에서 기존 메모리 해제(delete[] 이전 값)를 빠뜨리면 메모리 누수',
+      'new[]로 할당한 배열을 delete(대괄호 없이)로 해제하면 미정의 동작',
+      '이동 생성자에서 원본 포인터를 nullptr로 초기화하지 않으면 원본 소멸 시 double-free',
     ],
   },
   {
