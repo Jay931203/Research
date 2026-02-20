@@ -37,6 +37,18 @@ const ReliabilityViz = dynamic(
   () => import('@/components/my-research/infographics/ReliabilityViz'),
   { ssr: false },
 );
+const TwoLevelDistortionViz = dynamic(
+  () => import('@/components/my-research/infographics/TwoLevelDistortionViz'),
+  { ssr: false },
+);
+const SparsityViz = dynamic(
+  () => import('@/components/my-research/infographics/SparsityViz'),
+  { ssr: false },
+);
+const BudgetOutageViz = dynamic(
+  () => import('@/components/my-research/infographics/BudgetOutageViz'),
+  { ssr: false },
+);
 
 /* ------------------------------------------------------------------ */
 /*  ToC                                                                 */
@@ -522,6 +534,11 @@ export default function MyResearchPage() {
                       </div>
                     </div>
                   </div>
+
+                  <TwoLevelDistortionViz />
+                  <InfographicCaption>
+                    실제 논문 NMSE 데이터 기반: 같은 양자화 정밀도에서도 모델 구조에 따라 운영적 열화 크기가 극적으로 다릅니다.
+                  </InfographicCaption>
                 </Card>
               </div>
             </section>
@@ -745,12 +762,17 @@ export default function MyResearchPage() {
                       <EquationRenderer latex={String.raw`V_{t,\pi} = \mathbf{1}\!\left[r_t(\pi) < \gamma r_{\mathrm{ref}}\right] + \beta \frac{\max(0,\, \gamma r_{\mathrm{ref}} - r_t(\pi))}{\gamma r_{\mathrm{ref}} + \varepsilon}`} />
                     </div>
                   </div>
-                  <p className="mb-5 text-sm leading-relaxed text-gray-600 dark:text-gray-400">
+                  <p className="mb-4 text-sm leading-relaxed text-gray-600 dark:text-gray-400">
                     희소성 가중치{' '}
                     <span className="font-mono text-xs text-gray-800 dark:text-gray-200">w_t = 1 + α · s_t</span>는
                     Hoyer 측도로 채널 행렬의 희소성 s_t를 측정합니다.
                     희소한 채널일수록 양자화 민감도가 커지므로 신뢰성 비용에 더 높은 가중치를 부여합니다.
                   </p>
+
+                  <SparsityViz />
+                  <InfographicCaption>
+                    채널 유형별 지연-각도 도메인 에너지 분포와 Hoyer 측도: 희소 채널은 소수 계수에 에너지가 집중되어 양자화에 더 취약합니다.
+                  </InfographicCaption>
 
                   {/* 5.2 */}
                   <SubSectionHeading number="5.2" title="온라인 의사결정 규칙" />
@@ -762,10 +784,15 @@ export default function MyResearchPage() {
                       <EquationRenderer latex={String.raw`\pi_t^\star = \mathop{\arg\min}_{\pi \in \Pi_{\mathcal{C}}} \left( w_t V_{t,\pi} + \lambda \kappa_\pi \right)`} />
                     </div>
                   </div>
-                  <p className="mb-5 text-sm leading-relaxed text-gray-600 dark:text-gray-400">
+                  <p className="mb-4 text-sm leading-relaxed text-gray-600 dark:text-gray-400">
                     λ는 라그랑지안 이완으로 결정되며, 장기 연산 예산 제약을 만족하도록 온라인 업데이트됩니다.
                     κ_π는 정책 π의 연산 비용(BOP)입니다.
                   </p>
+
+                  <BudgetOutageViz />
+                  <InfographicCaption>
+                    파레토 프론티어: 동일 예산(BOP 절약률)에서 RP-MPQ가 일관되게 가장 낮은 아웃에이지를 달성합니다.
+                  </InfographicCaption>
 
                   {/* 5.3 */}
                   <SubSectionHeading number="5.3" title="신뢰성 보존 결과" />
