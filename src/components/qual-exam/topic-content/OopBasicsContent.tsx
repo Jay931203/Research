@@ -22,6 +22,28 @@ function SH({ icon, title, id }: { icon: string; title: string; id?: string }) {
   );
 }
 
+function ConceptBox({ what, rules, caution }: { what: string; rules: string[]; caution?: string }) {
+  return (
+    <div className="mb-5 rounded-xl border border-blue-100 dark:border-blue-900/40 bg-blue-50/60 dark:bg-blue-950/20 p-4 space-y-2.5">
+      <p className="text-sm text-blue-900 dark:text-blue-100 leading-relaxed">{what}</p>
+      <ul className="space-y-1.5">
+        {rules.map((r, i) => (
+          <li key={i} className="flex gap-2 text-xs text-blue-800 dark:text-blue-200 leading-relaxed">
+            <span className="mt-0.5 flex-shrink-0 h-4 w-4 rounded bg-blue-400/70 flex items-center justify-center text-[9px] font-black text-white">{i + 1}</span>
+            <span>{r}</span>
+          </li>
+        ))}
+      </ul>
+      {caution && (
+        <div className="flex gap-2 rounded-lg bg-amber-50 dark:bg-amber-900/20 border border-amber-200 dark:border-amber-700/40 px-3 py-2 text-xs text-amber-800 dark:text-amber-200 leading-relaxed">
+          <span className="flex-shrink-0 font-bold">⚠</span>
+          <span>{caution}</span>
+        </div>
+      )}
+    </div>
+  );
+}
+
 /* ══════════════════════════════════════════════════════
    SECTION 1 — 접근 지정자 시뮬레이터
 ══════════════════════════════════════════════════════ */
@@ -633,21 +655,55 @@ export default function OopBasicsContent({ topic }: Props) {
 
       <section id="oop-basics-sec-access">
         <SH icon="🔐" title="접근 지정자 — 인터랙티브 시뮬레이터" />
+        <ConceptBox
+          what="public / protected / private는 멤버를 '누가 볼 수 있는가'를 제어합니다. struct 기본값 = public, class 기본값 = private."
+          rules={[
+            'public: 어디서나 접근 가능',
+            'protected: 클래스 내부 + 파생 클래스 내부만 접근 가능',
+            'private: 해당 클래스 내부 + friend만 접근 가능',
+          ]}
+          caution="상속 시 접근 범위는 더 좁아질 수만 있습니다 (public→protected→private 방향). 부모의 private는 파생 클래스에서도 직접 접근 불가."
+        />
         <AccessSimulator />
       </section>
 
       <section id="oop-basics-sec-initlist">
         <SH icon="🔧" title="초기화 리스트 (Member Initializer List)" />
+        <ConceptBox
+          what="초기화 리스트는 생성자 본문 { } 실행 전에 멤버를 직접 초기화하는 C++ 전용 문법입니다. 대입 방식(본문에서 =)보다 효율적이며 일부 케이스에선 필수입니다."
+          rules={[
+            '필수 ①: const 멤버 — 선언 후 대입 불가, 초기화 리스트에서만 초기화 가능',
+            '필수 ②: 참조(reference) 멤버 — 선언 시 바인딩 필요',
+            '필수 ③: 기본 생성자가 없는 멤버 객체 — 초기화 리스트에서 직접 생성자 호출',
+          ]}
+          caution="함정: 초기화 순서는 리스트 작성 순서가 아닌 클래스 내 선언 순서! D(int x) : b_(x), a_(b_) { }에서 a_가 먼저 초기화되므로 b_는 아직 쓰레기값 → UB."
+        />
         <InitListSection />
       </section>
 
       <section id="oop-basics-sec-ctors">
         <SH icon="🏗️" title="생성자 종류" />
+        <ConceptBox
+          what="생성자는 객체가 만들어질 때 자동으로 호출되는 특수 멤버 함수입니다. 기본·매개변수·복사 생성자 3종류가 있습니다."
+          rules={[
+            '기본 생성자 자동 생성 조건: 사용자가 생성자를 하나도 정의하지 않아야 함. 하나라도 있으면 컴파일러 자동 생성 안 됨 → B b; 컴파일 에러!',
+            '복사 생성자 호출 4가지 시점: 복사 초기화(b=a) / 직접 초기화 b(a) / 값 전달(인수) / 값 반환',
+            'MyClass* p = &a; 는 포인터 대입 → 복사 생성자 호출 안 됨',
+          ]}
+        />
         <CtorSection />
       </section>
 
       <section id="oop-basics-sec-statics">
         <SH icon="📌" title="const 함수 · this · static" />
+        <ConceptBox
+          what="const 멤버 함수, this 포인터, static 멤버 변수는 클래스 설계에서 자주 쓰이는 세 가지 핵심 요소입니다."
+          rules={[
+            'const 멤버 함수: this가 const T*가 되어 멤버 값 수정 불가. const 객체는 const 함수만 호출 가능',
+            'this 포인터: 현재 객체의 주소. *this는 현재 객체 자신. 메서드 체이닝에서 return *this; 패턴',
+            'static 멤버 변수: 클래스당 하나만 존재. 반드시 클래스 외부에서 별도 정의 및 초기화 필요',
+          ]}
+        />
         <StaticsSection />
       </section>
     </div>

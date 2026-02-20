@@ -12,6 +12,28 @@ function SH({ icon, title }: { icon: string; title: string }) {
   );
 }
 
+function ConceptBox({ what, rules, caution }: { what: string; rules: string[]; caution?: string }) {
+  return (
+    <div className="mb-4 rounded-xl border border-blue-100 dark:border-blue-900/40 bg-blue-50/60 dark:bg-blue-950/20 p-4 space-y-2.5">
+      <p className="text-sm text-blue-900 dark:text-blue-100 leading-relaxed">{what}</p>
+      <ul className="space-y-1.5">
+        {rules.map((r, i) => (
+          <li key={i} className="flex gap-2 text-xs text-blue-800 dark:text-blue-200 leading-relaxed">
+            <span className="mt-0.5 flex-shrink-0 h-4 w-4 rounded bg-blue-400/70 flex items-center justify-center text-[9px] font-black text-white">{i + 1}</span>
+            <span>{r}</span>
+          </li>
+        ))}
+      </ul>
+      {caution && (
+        <div className="flex gap-2 rounded-lg bg-amber-50 dark:bg-amber-900/20 border border-amber-200 dark:border-amber-700/40 px-3 py-2 text-xs text-amber-800 dark:text-amber-200 leading-relaxed">
+          <span className="flex-shrink-0 font-bold">⚠</span>
+          <span>{caution}</span>
+        </div>
+      )}
+    </div>
+  );
+}
+
 /* ── Section 1: Pair<int> add() 추적 ── */
 const INITIAL_DATA = [1, 2, 3, 4];
 const PAIR_STEPS = [
@@ -374,16 +396,43 @@ export default function TemplatesContent({ topic }: { topic: StudyTopic }) {
     <div className="max-w-5xl mx-auto space-y-8 px-6 py-6">
       <section id="templates-sec-trace">
         <SH icon="🧬" title="Pair<int> add() 추적" />
+        <ConceptBox
+          what="Pair&lt;T&gt;는 T 타입 값을 가리키는 두 포인터(first, second)를 가집니다. add()는 포인터를 통해 원본 배열의 값을 직접 수정합니다."
+          rules={[
+            'Pair a(data, data+2): a.first = &data[0](값=1), a.second = &data[2](값=3) — 배열 원소를 가리킴',
+            'a.add(b): *a.first += *b.first → data[0] += data[1] → 원본 배열 직접 수정!',
+            'a.print(): (*a.first, *a.second) = (data[0], data[2]) = 수정된 값 출력 → (3, 7)',
+          ]}
+          caution="a와 b가 같은 data[] 배열의 원소를 가리키므로 add() 후 data[0], data[2]가 변합니다. a.print()는 수정된 원본 배열 값을 출력합니다."
+        />
         <PairTraceSection />
       </section>
 
       <section id="templates-sec-constraints">
         <SH icon="🔒" title="T 타입 제약 체커" />
+        <ConceptBox
+          what="클래스 템플릿에서 T가 가진 연산(+=, &lt;&lt;, 복사 생성자 등)이 충분해야 컴파일됩니다. 오류는 Pair&lt;T&gt;를 실제로 사용(인스턴스화)하는 시점에 발생합니다."
+          rules={[
+            'add() 사용 시: T에 operator+=가 있어야 함 (*first += *(other.first))',
+            'print() 사용 시: T에 operator<<가 있어야 함 (cout << *first)',
+            'Pair&lt;LinkedList&gt;의 add()를 호출하지 않으면: 컴파일 가능 (사용하지 않는 함수는 인스턴스화 안 됨)',
+          ]}
+          caution="해결책: LinkedList에 operator+= 선언만 추가하면 됩니다 — 구현 없이 선언만으로 컴파일 통과 (add()를 실제 호출하지 않으면 링크 에러도 없음)."
+        />
         <TypeConstraintSection />
       </section>
 
       <section id="templates-sec-instantiation">
         <SH icon="⚙️" title="컴파일 타임 인스턴스화" />
+        <ConceptBox
+          what="컴파일러는 T를 실제 타입으로 치환하여 각 타입마다 별도의 구체 코드를 생성합니다. 이를 템플릿 인스턴스화(template instantiation)라고 합니다."
+          rules={[
+            'Pair&lt;int&gt; → 컴파일 시 int용 코드 생성 / Pair&lt;double&gt; → double용 코드 별도 생성',
+            '헤더 파일 정의 필수: 컴파일러가 인스턴스화 시 템플릿 코드를 볼 수 있어야 함 (분리 컴파일 불가)',
+            'typename과 class는 템플릿 파라미터에서 동일. 단, 의존 타입(typename T::iterator)에는 typename 필수',
+          ]}
+          caution="코드 팽창(code bloat): 타입마다 별도 코드가 생성되어 실행 파일 크기가 커질 수 있습니다. 자주 쓰는 타입만 인스턴스화되도록 설계하세요."
+        />
         <InstantiationSection />
       </section>
     </div>

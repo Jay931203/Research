@@ -21,6 +21,28 @@ function SH({ icon, title, id }: { icon: string; title: string; id?: string }) {
   );
 }
 
+function ConceptBox({ what, rules, caution }: { what: string; rules: string[]; caution?: string }) {
+  return (
+    <div className="mb-5 rounded-xl border border-blue-100 dark:border-blue-900/40 bg-blue-50/60 dark:bg-blue-950/20 p-4 space-y-2.5">
+      <p className="text-sm text-blue-900 dark:text-blue-100 leading-relaxed">{what}</p>
+      <ul className="space-y-1.5">
+        {rules.map((r, i) => (
+          <li key={i} className="flex gap-2 text-xs text-blue-800 dark:text-blue-200 leading-relaxed">
+            <span className="mt-0.5 flex-shrink-0 h-4 w-4 rounded bg-blue-400/70 flex items-center justify-center text-[9px] font-black text-white">{i + 1}</span>
+            <span>{r}</span>
+          </li>
+        ))}
+      </ul>
+      {caution && (
+        <div className="flex gap-2 rounded-lg bg-amber-50 dark:bg-amber-900/20 border border-amber-200 dark:border-amber-700/40 px-3 py-2 text-xs text-amber-800 dark:text-amber-200 leading-relaxed">
+          <span className="flex-shrink-0 font-bold">⚠</span>
+          <span>{caution}</span>
+        </div>
+      )}
+    </div>
+  );
+}
+
 /* ══════════════════════════════════════════════════════
    SECTION 1 — 순수 가상 함수와 추상 클래스
 ══════════════════════════════════════════════════════ */
@@ -507,16 +529,41 @@ export default function PolymorphismContent({ topic }: Props) {
 
       <section id="abstract-sec-concepts">
         <SH icon="🎯" title="순수 가상 함수와 추상 클래스 — 인터랙티브 체크" />
+        <ConceptBox
+          what="순수 가상 함수(= 0)를 하나라도 가진 클래스를 추상 클래스라고 합니다. 직접 인스턴스화할 수 없으며, 파생 클래스가 특정 인터페이스를 구현하도록 강제합니다."
+          rules={[
+            '순수 가상 함수: virtual void area() const = 0; — 구현 없이 선언만 (본문 없음)',
+            '추상 클래스: 직접 인스턴스화 불가 → Shape s; 는 컴파일 에러',
+            '파생 클래스 인스턴스화 조건: 모든 순수 가상 함수를 override해야 인스턴스화 가능',
+          ]}
+        />
         <AbstractClassSection />
       </section>
 
       <section id="abstract-sec-clone">
         <SH icon="📋" title="clone() 패턴 — 다형적 깊은 복사" />
+        <ConceptBox
+          what="clone() 패턴은 기반 클래스 포인터/참조만으로 실제 파생 클래스 타입의 복사본을 만드는 설계 패턴입니다."
+          rules={[
+            'add(const Shape& s): s는 Shape 참조 → s.clone() 호출 → 실제 타입의 clone()이 동적 디스패치',
+            '각 파생 클래스: Shape* clone() const { return new Circle(*this); } — 자신의 복사본 반환',
+            'void add에서 &s를 직접 저장하면 안 되는 이유: 임시 인수 객체가 함수 종료 후 소멸 → dangling pointer',
+          ]}
+          caution="객체 슬라이싱(object slicing): Shape s2 = *circle_ptr; 처럼 값 대입하면 Circle 고유 정보가 잘려나감. 다형성은 항상 포인터/참조로!"
+        />
         <ClonePatternSection />
       </section>
 
       <section id="abstract-sec-exam">
         <SH icon="📝" title="빈칸 채우기 — Scene 패턴" />
+        <ConceptBox
+          what="Scene 클래스는 vector&lt;Shape*&gt;로 다형성 컨테이너를 구현합니다. 각 빈칸은 다형성과 clone() 패턴의 핵심을 묻습니다."
+          rules={[
+            '(A),(B): clone() — 파생 클래스가 자신의 타입으로 new Circle(*this) / new Rect(*this) 반환',
+            '(C): 소멸자에서 delete v[i] — 가상 소멸자 덕분에 파생 소멸자도 호출',
+            '(D): s.clone() — 다형적 복사 / (E): v[i]->area() — 다형적 넓이 계산',
+          ]}
+        />
         <ExamFillSection />
       </section>
     </div>

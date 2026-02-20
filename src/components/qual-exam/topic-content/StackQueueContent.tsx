@@ -14,6 +14,28 @@ function SH({ icon, title }: { icon: string; title: string }) {
   );
 }
 
+function ConceptBox({ what, rules, caution }: { what: string; rules: string[]; caution?: string }) {
+  return (
+    <div className="mb-4 rounded-xl border border-blue-100 dark:border-blue-900/40 bg-blue-50/60 dark:bg-blue-950/20 p-4 space-y-2.5">
+      <p className="text-sm text-blue-900 dark:text-blue-100 leading-relaxed">{what}</p>
+      <ul className="space-y-1.5">
+        {rules.map((r, i) => (
+          <li key={i} className="flex gap-2 text-xs text-blue-800 dark:text-blue-200 leading-relaxed">
+            <span className="mt-0.5 flex-shrink-0 h-4 w-4 rounded bg-blue-400/70 flex items-center justify-center text-[9px] font-black text-white">{i + 1}</span>
+            <span>{r}</span>
+          </li>
+        ))}
+      </ul>
+      {caution && (
+        <div className="flex gap-2 rounded-lg bg-amber-50 dark:bg-amber-900/20 border border-amber-200 dark:border-amber-700/40 px-3 py-2 text-xs text-amber-800 dark:text-amber-200 leading-relaxed">
+          <span className="flex-shrink-0 font-bold">⚠</span>
+          <span>{caution}</span>
+        </div>
+      )}
+    </div>
+  );
+}
+
 /* ── Section 1: Stack 시뮬레이터 ── */
 function StackSection() {
   const [arr, setArr] = useState<(number | null)[]>(Array(MAX).fill(null));
@@ -394,16 +416,41 @@ export default function StackQueueContent({ topic }: { topic: StudyTopic }) {
     <div className="max-w-5xl mx-auto space-y-8 px-6 py-6">
       <section id="stack-queue-sec-stack">
         <SH icon="📦" title="Stack 시뮬레이터 (LIFO)" />
+        <ConceptBox
+          what="Stack은 LIFO(Last In, First Out) 자료구조입니다. 나중에 push한 데이터를 먼저 pop합니다. top 포인터(-1이 초기값)로 스택 꼭대기를 추적합니다."
+          rules={[
+            'push(x): top < MAX-1 확인(overflow 체크) → arr[++top] = x (top 먼저 증가, 그다음 저장)',
+            'pop(): top == -1이면 언더플로우. return arr[top--] (값 반환 후 top 감소)',
+            'isEmpty(): top == -1 (top이 -1이면 아무것도 없음)',
+          ]}
+          caution="함정: arr[top++]가 아닌 arr[++top] — push 전에 top을 먼저 증가시켜야 올바른 인덱스에 저장됩니다. 순서를 바꾸면 인덱스가 어긋납니다."
+        />
         <StackSection />
       </section>
 
       <section id="stack-queue-sec-queue">
         <SH icon="🚶" title="Queue 시뮬레이터 (FIFO)" />
+        <ConceptBox
+          what="Queue는 FIFO(First In, First Out) 자료구조입니다. 먼저 enqueue한 데이터를 먼저 dequeue합니다. front(출구)와 rear(입구) 두 포인터로 관리합니다."
+          rules={[
+            'enqueue(x): rear < MAX 확인(overflow 체크) → arr[rear++] = x (저장 후 rear 증가)',
+            'dequeue(): front == rear이면 비어있음. return arr[front++] (값 반환 후 front 증가)',
+            'isEmpty(): front == rear (두 포인터가 같으면 비어있음)',
+          ]}
+          caution="선형 큐의 한계: dequeue 후 front 앞의 공간이 낭비됩니다. 원형 큐(Circular Queue)는 rear = (rear+1)%MAX로 이를 해결합니다."
+        />
         <QueueSection />
       </section>
 
       <section id="stack-queue-sec-trace">
         <SH icon="🔍" title="실행 결과 추적" />
+        <ConceptBox
+          what="Stack과 Queue의 출력 결과를 추적할 때 핵심은 'LIFO냐 FIFO냐'입니다. push/enqueue 순서를 기억하고 pop/dequeue 순서를 예측하세요."
+          rules={[
+            'Stack 출력 순서: LIFO — 가장 나중에 push한 것이 먼저 pop. 예: push(10,20,30) → pop 결과: 30, 20',
+            'Queue 출력 순서: FIFO — 가장 먼저 enqueue한 것이 먼저 dequeue. 예: enqueue(5,6,7) → dequeue 결과: 5, 6',
+          ]}
+        />
         <TraceSection />
       </section>
     </div>

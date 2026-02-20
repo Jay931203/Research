@@ -21,6 +21,28 @@ function SH({ icon, title, id }: { icon: string; title: string; id?: string }) {
   );
 }
 
+function ConceptBox({ what, rules, caution }: { what: string; rules: string[]; caution?: string }) {
+  return (
+    <div className="mb-5 rounded-xl border border-blue-100 dark:border-blue-900/40 bg-blue-50/60 dark:bg-blue-950/20 p-4 space-y-2.5">
+      <p className="text-sm text-blue-900 dark:text-blue-100 leading-relaxed">{what}</p>
+      <ul className="space-y-1.5">
+        {rules.map((r, i) => (
+          <li key={i} className="flex gap-2 text-xs text-blue-800 dark:text-blue-200 leading-relaxed">
+            <span className="mt-0.5 flex-shrink-0 h-4 w-4 rounded bg-blue-400/70 flex items-center justify-center text-[9px] font-black text-white">{i + 1}</span>
+            <span>{r}</span>
+          </li>
+        ))}
+      </ul>
+      {caution && (
+        <div className="flex gap-2 rounded-lg bg-amber-50 dark:bg-amber-900/20 border border-amber-200 dark:border-amber-700/40 px-3 py-2 text-xs text-amber-800 dark:text-amber-200 leading-relaxed">
+          <span className="flex-shrink-0 font-bold">⚠</span>
+          <span>{caution}</span>
+        </div>
+      )}
+    </div>
+  );
+}
+
 /* ══════════════════════════════════════════════════════
    SECTION 1 — 생성/소멸 순서 스텝 플레이어
 ══════════════════════════════════════════════════════ */
@@ -652,21 +674,54 @@ export default function ConstructorsContent({ topic }: Props) {
 
       <section id="constructors-sec-order">
         <SH icon="▶️" title="생성자·소멸자 호출 순서 — 스텝 플레이어" />
+        <ConceptBox
+          what="객체 생성은 선언 순서(FIFO), 소멸은 반대 순서(LIFO)로 일어납니다. 마치 스택처럼 나중에 생성된 객체가 먼저 소멸됩니다."
+          rules={[
+            '생성 순서: 바깥 스코프 선언 → 안쪽 스코프 선언 (선언된 순서)',
+            '소멸 순서: 안쪽 스코프 먼저 소멸 → 바깥 스코프 소멸 (역순, LIFO)',
+            '상속 시: 부모 생성자 먼저 → 자식 생성자 / 소멸은 역순(자식 먼저 → 부모)',
+          ]}
+        />
         <OrderStepPlayer />
       </section>
 
       <section id="constructors-sec-copy">
         <SH icon="🧠" title="얕은 복사 vs 깊은 복사 — 메모리 다이어그램" />
+        <ConceptBox
+          what="복사 생성자를 직접 정의하지 않으면 컴파일러가 멤버 값을 그대로 복사합니다. 포인터 멤버는 주소(값)가 복사되어 두 객체가 같은 힙 메모리를 가리킵니다."
+          rules={[
+            '얕은 복사 문제: a와 b가 같은 힙 메모리를 가리킴 → 한쪽 소멸 시 이중 해제(double-free) → 프로그램 충돌',
+            '깊은 복사: 복사 생성자에서 새 메모리 할당 후 내용을 복사 → 두 객체가 독립된 메모리 사용',
+          ]}
+          caution="포인터/동적 배열 멤버가 있는 클래스는 반드시 복사 생성자를 직접 작성하세요."
+        />
         <MemoryDiagram />
       </section>
 
       <section id="constructors-sec-r3">
         <SH icon="📐" title="Rule of Three — 인터랙티브 체크리스트" />
+        <ConceptBox
+          what="소멸자·복사 생성자·복사 대입 연산자 중 하나를 직접 정의해야 한다면, 나머지 둘도 반드시 직접 정의해야 합니다. 세 개는 항상 함께 다닙니다."
+          rules={[
+            '소멸자만 있고 복사 생성자 없으면: Bad b = a; 시 얕은 복사 → double-free',
+            '소멸자만 있고 복사 대입 연산자 없으면: b = a; 시 기존 b 자원 누수 + 얕은 복사',
+            '세 개 모두 필요한 이유: 모두 동적 메모리 관리와 직접 연관되기 때문',
+          ]}
+        />
         <RuleOfThree />
       </section>
 
       <section id="constructors-sec-assign">
         <SH icon="✍️" title="복사 대입 연산자 — 단계별 분석" />
+        <ConceptBox
+          what="복사 대입 연산자(operator=)는 이미 생성된 객체에 대입(b = a)할 때 호출됩니다. 복사 생성자와 달리 기존 자원을 먼저 해제해야 합니다."
+          rules={[
+            '① 자기 대입 체크: if (this == &rhs) return *this; — 먼저! 빠뜨리면 자신의 데이터를 삭제 후 접근 → UB',
+            '② 기존 자원 해제: delete[] name_; — 기존에 할당된 메모리 반환',
+            '③ 새 자원 할당 및 복사: 새 메모리 할당 후 내용 복사 → return *this;',
+          ]}
+          caution="자기 대입 체크를 빠뜨리면 a = a; 시 자신의 데이터를 삭제 후 접근하여 Undefined Behavior 발생!"
+        />
         <AssignSection />
       </section>
     </div>

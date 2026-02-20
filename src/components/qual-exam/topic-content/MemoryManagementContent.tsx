@@ -21,6 +21,28 @@ function SH({ icon, title, id }: { icon: string; title: string; id?: string }) {
   );
 }
 
+function ConceptBox({ what, rules, caution }: { what: string; rules: string[]; caution?: string }) {
+  return (
+    <div className="mb-5 rounded-xl border border-blue-100 dark:border-blue-900/40 bg-blue-50/60 dark:bg-blue-950/20 p-4 space-y-2.5">
+      <p className="text-sm text-blue-900 dark:text-blue-100 leading-relaxed">{what}</p>
+      <ul className="space-y-1.5">
+        {rules.map((r, i) => (
+          <li key={i} className="flex gap-2 text-xs text-blue-800 dark:text-blue-200 leading-relaxed">
+            <span className="mt-0.5 flex-shrink-0 h-4 w-4 rounded bg-blue-400/70 flex items-center justify-center text-[9px] font-black text-white">{i + 1}</span>
+            <span>{r}</span>
+          </li>
+        ))}
+      </ul>
+      {caution && (
+        <div className="flex gap-2 rounded-lg bg-amber-50 dark:bg-amber-900/20 border border-amber-200 dark:border-amber-700/40 px-3 py-2 text-xs text-amber-800 dark:text-amber-200 leading-relaxed">
+          <span className="flex-shrink-0 font-bold">⚠</span>
+          <span>{caution}</span>
+        </div>
+      )}
+    </div>
+  );
+}
+
 /* ══════════════════════════════════════════════════════
    SECTION 1 — Stack vs Heap 메모리 레이아웃 스텝 플레이어
 ══════════════════════════════════════════════════════ */
@@ -384,7 +406,7 @@ for (int i = 0; i ${useLeq ? `<= ${N}` : `< ${N}`}; i++) {
 
       {/* Exam reference */}
       <div className="rounded-xl border border-amber-200 dark:border-amber-700/40 bg-amber-50 dark:bg-amber-900/10 p-4">
-        <p className="text-xs font-bold text-amber-700 dark:text-amber-300 mb-2">📌 2025년 2학기 기출 — Buffer 버그</p>
+        <p className="text-xs font-bold text-amber-700 dark:text-amber-300 mb-2">📌 실전 코드 예시 — Buffer 버그 패턴</p>
         <pre className="rounded-lg bg-slate-950 text-xs p-3 text-slate-200 overflow-x-auto leading-relaxed">{`void fill_with(Buffer& b, int v) {
     for (size_t i = 0; i <= b.size(); ++i)  // ❌ Bug 2: <= 때문에 out-of-bounds
         b.at(i) = v;
@@ -568,21 +590,56 @@ export default function MemoryManagementContent({ topic }: Props) {
 
       <section id="memory-sec-layout">
         <SH icon="🧠" title="스택 vs 힙 — 메모리 영역 시각화" />
+        <ConceptBox
+          what="C++ 메모리는 스택(Stack)과 힙(Heap)으로 나뉩니다. 스택은 선언 시 자동 관리, 힙은 new/delete로 수동 관리합니다."
+          rules={[
+            '스택: 지역 변수 저장. 스코프(}) 종료 시 자동 해제. 크기 제한 있음 (보통 수 MB)',
+            '힙: new로 할당, delete로 수동 해제. 크기 제한 적음. 해제 안 하면 메모리 누수(memory leak)',
+            '포인터 변수 자체는 스택에 / 포인터가 가리키는 데이터(new로 할당)는 힙에 위치',
+          ]}
+          caution="힙 메모리는 스코프가 끝나도 자동 해제되지 않습니다. delete를 빠뜨리면 포인터는 사라지지만 힙 데이터는 영원히 남습니다 (메모리 누수)."
+        />
         <MemoryLayoutSection />
       </section>
 
       <section id="memory-sec-pointer">
         <SH icon="🔍" title="포인터 연산 인터랙티브 탐색기" />
+        <ConceptBox
+          what="포인터는 메모리 주소를 저장하는 변수입니다. & 연산자로 주소를 얻고, * 연산자로 해당 주소의 값에 접근(역참조)합니다."
+          rules={[
+            '& (주소 연산자): int x = 5; int* p = &x; → p에 x의 주소 저장',
+            '* (역참조 연산자): *p = 10; → p가 가리키는 주소의 값을 10으로 변경. x도 10이 됨',
+            '포인터 산술: ptr + n → n번째 요소의 주소 (sizeof(T) × n 바이트 이동)',
+          ]}
+          caution="배열 범위 밖 접근(arr[n] 등)은 Undefined Behavior — 어떤 결과가 나와도 비정상입니다. 컴파일 오류 없이 런타임에 충돌하거나 조용히 잘못된 값을 반환합니다."
+        />
         <PointerOpsSection />
       </section>
 
       <section id="memory-sec-offbyone">
         <SH icon="🐛" title="Off-by-One 버그 시뮬레이터" />
+        <ConceptBox
+          what="Off-by-One 오류: 배열 인덱스는 0~n-1이므로 반복 조건을 하나 잘못 쓰면 범위를 벗어납니다."
+          rules={[
+            '올바른 패턴: for (int i = 0; i < n; i++) — i < n이 정확합니다',
+            '잘못된 패턴: for (int i = 0; i <= n; i++) — i == n일 때 arr[n] 접근 → UB',
+            '적용 범위: 배열 순회 외에도 버퍼 크기 계산, 이진 탐색 mid, 문자열 null 종료에서 자주 발생',
+          ]}
+        />
         <OffByOneSection />
       </section>
 
       <section id="memory-sec-swap">
         <SH icon="🔄" title="포인터 Swap 함정" />
+        <ConceptBox
+          what="함수에 포인터를 값으로 전달하면 포인터 변수 자체가 복사됩니다. 함수 내에서 포인터를 교환해도 원본 포인터에는 영향이 없습니다."
+          rules={[
+            '잘못된 swap: void swap(int* a, int* b) { int* tmp=a; a=b; b=tmp; } → a, b는 지역 복사, 원본 불변',
+            '올바른 swap: *a와 *b의 값을 직접 교환 — 역참조로 값에 접근해야 원본 변경',
+            '포인터 주소 비교 함정: if (p1 > p2) — 이는 값 비교가 아닌 메모리 주소 비교!',
+          ]}
+          caution="'포인터를 전달했으니 원본이 바뀌겠지'는 오해입니다. 포인터 변수 자체는 복사됩니다. 원본 값을 바꾸려면 *p를 통해 역참조해야 합니다."
+        />
         <SwapSection />
       </section>
     </div>

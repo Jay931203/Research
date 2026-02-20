@@ -12,6 +12,28 @@ function SH({ icon, title }: { icon: string; title: string }) {
   );
 }
 
+function ConceptBox({ what, rules, caution }: { what: string; rules: string[]; caution?: string }) {
+  return (
+    <div className="mb-4 rounded-xl border border-blue-100 dark:border-blue-900/40 bg-blue-50/60 dark:bg-blue-950/20 p-4 space-y-2.5">
+      <p className="text-sm text-blue-900 dark:text-blue-100 leading-relaxed">{what}</p>
+      <ul className="space-y-1.5">
+        {rules.map((r, i) => (
+          <li key={i} className="flex gap-2 text-xs text-blue-800 dark:text-blue-200 leading-relaxed">
+            <span className="mt-0.5 flex-shrink-0 h-4 w-4 rounded bg-blue-400/70 flex items-center justify-center text-[9px] font-black text-white">{i + 1}</span>
+            <span>{r}</span>
+          </li>
+        ))}
+      </ul>
+      {caution && (
+        <div className="flex gap-2 rounded-lg bg-amber-50 dark:bg-amber-900/20 border border-amber-200 dark:border-amber-700/40 px-3 py-2 text-xs text-amber-800 dark:text-amber-200 leading-relaxed">
+          <span className="flex-shrink-0 font-bold">⚠</span>
+          <span>{caution}</span>
+        </div>
+      )}
+    </div>
+  );
+}
+
 /* ── Section 1: Node/LinkedList 구조 시각화 (append는 prepend) ── */
 function ListBuilderSection() {
   const [nodes, setNodes] = useState<number[]>([]);
@@ -358,16 +380,41 @@ export default function LinkedListImplContent({ topic }: { topic: StudyTopic }) 
     <div className="max-w-5xl mx-auto space-y-8 px-6 py-6">
       <section id="linked-list-impl-sec-builder">
         <SH icon="🔗" title="append() — 앞 삽입 시뮬레이터" />
+        <ConceptBox
+          what="append(val)는 이름과 달리 사실 prepend(앞에 삽입)처럼 동작합니다. head = new Node(val, head)에서 새 노드가 기존 head를 next로 가리키고 새 head가 됩니다."
+          rules={[
+            'head = new Node(val, head): 새 노드 생성, 기존 head가 새 노드의 next가 됨, 새 노드가 head가 됨',
+            'append(1) → append(2) → append(3) 결과: 3→2→1→null (마지막 추가가 맨 앞!)',
+            '직관과 반대: 호출 순서와 리스트 순서가 반전됨 — 시험에서 자주 출력 결과를 묻는 포인트',
+          ]}
+        />
         <ListBuilderSection />
       </section>
 
       <section id="linked-list-impl-sec-dtor">
         <SH icon="🗑️" title="소멸자 — 순회 삭제 step-by-step" />
+        <ConceptBox
+          what="링크드 리스트의 노드들은 모두 힙에 할당됩니다. 소멸자에서 직접 순회하며 모든 노드를 delete해야 메모리 누수가 없습니다."
+          rules={[
+            '순서 절대 준수: Node* next = current->next; 저장 먼저 → delete current → current = next',
+            'delete current 후 current->next 접근은 해제된 메모리 접근 → Undefined Behavior',
+            'while (current)는 current가 nullptr(null)가 될 때까지 반복 — 마지막 노드의 next는 nullptr',
+          ]}
+          caution="'먼저 next 저장, 그다음 delete' 순서를 절대 바꾸지 마세요! delete 후엔 그 메모리에 접근하면 안 됩니다."
+        />
         <DestructorStepSection />
       </section>
 
       <section id="linked-list-impl-sec-reverse">
         <SH icon="🔄" title="reverse — 재귀 vs 반복 비교" />
+        <ConceptBox
+          what="리스트 뒤집기는 각 노드의 next 링크 방향을 반대로 바꾸는 작업입니다. 재귀와 반복 두 가지 방법이 있습니다."
+          rules={[
+            '재귀: reverseHelper(node, prev) — node.next를 prev로 변경 후 재귀. base case: node==null이면 prev가 새 head',
+            '반복: 세 포인터(prev=null, curr=head, next) — 매 단계마다 하나씩 방향 전환 후 전진',
+            '두 방법의 결과는 동일. 재귀는 직관적이나 깊은 리스트에서 스택 오버플로우 위험 있음',
+          ]}
+        />
         <ReverseSection />
       </section>
     </div>
