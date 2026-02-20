@@ -406,9 +406,14 @@ export default function PaperStudyPage() {
   const observerRef = useRef<IntersectionObserver | null>(null);
 
   useEffect(() => {
-    observerRef.current?.disconnect();
+    if (!paper) return;
 
-    const observer = new IntersectionObserver(
+    const sectionsToWatch =
+      (paper.arxiv_id && FULL_STUDY_TOC_REGISTRY[paper.arxiv_id])
+        ? FULL_STUDY_TOC_REGISTRY[paper.arxiv_id]
+        : TOC_SECTIONS;
+
+    const intersectionObs = new IntersectionObserver(
       (entries) => {
         for (const entry of entries) {
           if (entry.isIntersecting) {
@@ -418,19 +423,30 @@ export default function PaperStudyPage() {
       },
       { rootMargin: '-80px 0px -60% 0px', threshold: 0.1 },
     );
+    observerRef.current = intersectionObs;
 
-    const sectionsToWatch =
-      (paper?.arxiv_id && FULL_STUDY_TOC_REGISTRY[paper.arxiv_id])
-        ? FULL_STUDY_TOC_REGISTRY[paper.arxiv_id]
-        : TOC_SECTIONS;
+    // Attach IntersectionObserver to the section elements.
+    // For dynamic imports (ssr:false) the sections may not be in the DOM yet
+    // when this effect fires. We use a MutationObserver to retry as soon as
+    // the dynamic component finishes rendering and inserts its sections.
+    const tryAttach = (): boolean => {
+      let attached = 0;
+      for (const section of sectionsToWatch) {
+        const el = document.getElementById(section.id);
+        if (el) { intersectionObs.observe(el); attached++; }
+      }
+      return attached > 0;
+    };
 
-    for (const section of sectionsToWatch) {
-      const el = document.getElementById(section.id);
-      if (el) observer.observe(el);
+    if (!tryAttach()) {
+      const mutObs = new MutationObserver(() => {
+        if (tryAttach()) mutObs.disconnect();
+      });
+      mutObs.observe(document.body, { childList: true, subtree: true });
+      return () => { mutObs.disconnect(); intersectionObs.disconnect(); };
     }
 
-    observerRef.current = observer;
-    return () => observer.disconnect();
+    return () => intersectionObs.disconnect();
   }, [paper]);
 
   /* ---------- keyboard shortcuts ---------- */
