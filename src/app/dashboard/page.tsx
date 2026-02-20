@@ -443,7 +443,7 @@ export default function DashboardPage() {
                     {!!selectedFullscreenPaper.key_equations?.length && (
                       <section>
                         <h4 className="mb-1.5 text-xs font-semibold text-gray-300">핵심 수식</h4>
-                        <PaperEquations equations={selectedFullscreenPaper.key_equations as any} />
+                        <PaperEquations equations={selectedFullscreenPaper.key_equations as any} forceLight />
                       </section>
                     )}
 

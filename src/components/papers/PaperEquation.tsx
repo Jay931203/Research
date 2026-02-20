@@ -6,13 +6,15 @@ import type { Equation } from '@/types';
 
 interface PaperEquationProps {
   equation: Equation;
+  forceLight?: boolean;
 }
 
 interface PaperEquationsProps {
   equations: Equation[];
+  forceLight?: boolean;
 }
 
-function SingleEquation({ equation }: PaperEquationProps) {
+function SingleEquation({ equation, forceLight = false }: PaperEquationProps) {
   const html = useMemo(() => {
     try {
       return katex.renderToString(equation.latex, {
@@ -26,9 +28,21 @@ function SingleEquation({ equation }: PaperEquationProps) {
   }, [equation.latex]);
 
   return (
-    <div className="p-4 bg-gray-50 dark:bg-gray-800/50 rounded-lg border border-gray-200 dark:border-gray-700">
+    <div
+      className={
+        forceLight
+          ? 'rounded-lg border border-gray-200 bg-white p-4'
+          : 'rounded-lg border border-gray-200 bg-gray-50 p-4 dark:border-gray-700 dark:bg-gray-800/50'
+      }
+    >
       <div className="flex items-center gap-2 mb-2">
-        <span className="text-xs font-semibold px-2 py-0.5 bg-blue-100 dark:bg-blue-900/30 text-blue-700 dark:text-blue-300 rounded">
+        <span
+          className={
+            forceLight
+              ? 'rounded bg-blue-100 px-2 py-0.5 text-xs font-semibold text-blue-700'
+              : 'rounded bg-blue-100 px-2 py-0.5 text-xs font-semibold text-blue-700 dark:bg-blue-900/30 dark:text-blue-300'
+          }
+        >
           {equation.name}
         </span>
       </div>
@@ -36,16 +50,16 @@ function SingleEquation({ equation }: PaperEquationProps) {
         {html ? (
           <div
             dangerouslySetInnerHTML={{ __html: html }}
-            className="text-center text-gray-900 dark:text-gray-100"
+            className={forceLight ? 'text-center text-gray-900' : 'text-center text-gray-900 dark:text-gray-100'}
           />
         ) : (
-          <code className="text-sm text-red-500 dark:text-red-400 block text-center">
+          <code className={forceLight ? 'block text-center text-sm text-red-500' : 'block text-center text-sm text-red-500 dark:text-red-400'}>
             {equation.latex}
           </code>
         )}
       </div>
       {equation.description && (
-        <p className="text-xs text-gray-500 dark:text-gray-400 mt-2 leading-relaxed">
+        <p className={forceLight ? 'mt-2 text-xs leading-relaxed text-gray-600' : 'mt-2 text-xs leading-relaxed text-gray-500 dark:text-gray-400'}>
           {equation.description}
         </p>
       )}
@@ -53,13 +67,13 @@ function SingleEquation({ equation }: PaperEquationProps) {
   );
 }
 
-export default function PaperEquations({ equations }: PaperEquationsProps) {
+export default function PaperEquations({ equations, forceLight = false }: PaperEquationsProps) {
   if (!equations || equations.length === 0) return null;
 
   return (
     <div className="space-y-3">
       {equations.map((eq, idx) => (
-        <SingleEquation key={eq.name || idx} equation={eq} />
+        <SingleEquation key={eq.name || idx} equation={eq} forceLight={forceLight} />
       ))}
     </div>
   );

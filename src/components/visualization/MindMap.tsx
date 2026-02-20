@@ -1,6 +1,6 @@
 ﻿'use client';
 
-import { useCallback, useEffect, useMemo, useState } from 'react';
+import { useCallback, useEffect, useMemo, useRef, useState } from 'react';
 import ReactFlow, {
   Background,
   BackgroundVariant,
@@ -68,6 +68,17 @@ function MindMapInner({
   const { fitView } = useReactFlow();
   const [direction, setDirection] = useState<'TB' | 'LR'>('TB');
   const [zoomLevel, setZoomLevel] = useState(1);
+  const hasAutoFittedRef = useRef(false);
+
+  useEffect(() => {
+    hasAutoFittedRef.current = false;
+  }, [direction]);
+
+  useEffect(() => {
+    if (!papers.length) {
+      hasAutoFittedRef.current = false;
+    }
+  }, [papers.length]);
 
   const normalizedGraphFilters = useMemo(
     () => normalizeGraphFilterSettings(graphFilterSettings),
@@ -129,9 +140,9 @@ function MindMapInner({
     }
 
     const topicGap = 430;
-    const maxCellCols = 2;
-    const innerColGap = 140;
-    const innerRowGap = 150;
+    const maxCellCols = 1;
+    const innerColGap = 0;
+    const innerRowGap = 180;
     const yearSectionGap = 120;
     const centeredTopicOffset = (topicOrder.length - 1) / 2;
     const yearStartY = new Map<number, number>();
@@ -214,11 +225,13 @@ function MindMapInner({
 
   useEffect(() => {
     if (!layeredNodes.length) return;
+    if (hasAutoFittedRef.current) return;
     const raf = window.requestAnimationFrame(() => {
       fitView({ padding: 0.22, duration: 350 });
+      hasAutoFittedRef.current = true;
     });
     return () => window.cancelAnimationFrame(raf);
-  }, [layeredNodes, fitView]);
+  }, [layeredNodes.length, fitView]);
 
   const handleNodeClick: NodeMouseHandler = useCallback(
     (_event, node: Node<PaperNodeData>) => {
