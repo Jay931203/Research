@@ -6,6 +6,8 @@ import MathBlock from './MathBlock';
 import type { StudyTopic } from './TopicStudyCard';
 import AsymptoticContent from './topic-content/AsymptoticContent';
 import LinkedListContent from './topic-content/LinkedListContent';
+import OopBasicsContent from './topic-content/OopBasicsContent';
+import ConstructorsContent from './topic-content/ConstructorsContent';
 
 const AlgoVisualizer = dynamic(() => import('./AlgoVisualizer'), { ssr: false });
 
@@ -142,15 +144,13 @@ export default function TopicDetail({ topic }: Props) {
   const [showViz, setShowViz] = useState(false);
 
   // Route to custom per-topic pages
-  if (topic.id === 'asymptotic') {
-    return <AsymptoticContent topic={topic} />;
-  }
-  if (topic.id === 'linked-list') {
-    return <LinkedListContent topic={topic} />;
-  }
+  if (topic.id === 'asymptotic')   return <AsymptoticContent topic={topic} />;
+  if (topic.id === 'linked-list')  return <LinkedListContent topic={topic} />;
+  if (topic.id === 'oop-basics')   return <OopBasicsContent topic={topic} />;
+  if (topic.id === 'constructors') return <ConstructorsContent topic={topic} />;
 
   return (
-    <div className="max-w-3xl mx-auto space-y-8 px-6 py-6">
+    <div className="max-w-5xl mx-auto space-y-8 px-6 py-6">
       {/* ── Header ── */}
       <div className="flex items-start gap-4">
         <div className="relative flex-shrink-0">

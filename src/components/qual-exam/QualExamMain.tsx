@@ -35,6 +35,18 @@ const CUSTOM_SECTIONS: Record<string, Array<{ id: string; label: string }>> = {
     { id: 'linked-list-sec-stack-queue', label: '스택 vs 큐'         },
     { id: 'linked-list-sec-code',        label: '코드 예시'          },
   ],
+  'oop-basics': [
+    { id: 'oop-basics-sec-access',   label: '접근 지정자 시뮬레이터' },
+    { id: 'oop-basics-sec-initlist', label: '초기화 리스트'          },
+    { id: 'oop-basics-sec-ctors',    label: '생성자 종류'            },
+    { id: 'oop-basics-sec-statics',  label: 'const·this·static'     },
+  ],
+  'constructors': [
+    { id: 'constructors-sec-order',  label: '생성/소멸 순서'         },
+    { id: 'constructors-sec-copy',   label: '얕은/깊은 복사'         },
+    { id: 'constructors-sec-r3',     label: 'Rule of Three'          },
+    { id: 'constructors-sec-assign', label: '복사 대입 연산자'        },
+  ],
 };
 
 function getGenericSections(topic: StudyTopic): Array<{ id: string; label: string }> {

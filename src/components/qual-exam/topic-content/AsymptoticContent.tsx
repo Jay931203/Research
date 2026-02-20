@@ -147,13 +147,13 @@ const difficultyColor = {
 
 export default function AsymptoticContent({ topic }: Props) {
   const [n, setN] = useState(10);
-  const [openCard, setOpenCard] = useState<string | null>(null);
+  const [openCards, setOpenCards] = useState<Set<string>>(() => new Set(notations.map(nt => nt.symbol)));
 
   const growthData = computeGrowth(n);
   const maxVal = Math.max(...growthData.map(d => d.value));
 
   return (
-    <div className="max-w-3xl mx-auto space-y-10 px-6 py-6">
+    <div className="max-w-5xl mx-auto space-y-10 px-6 py-6">
 
       {/* ── Hero ── */}
       <div className="flex items-start gap-4">
@@ -239,11 +239,11 @@ export default function AsymptoticContent({ topic }: Props) {
         </div>
         <div className="space-y-2">
           {notations.map(nt => {
-            const isOpen = openCard === nt.symbol;
+            const isOpen = openCards.has(nt.symbol);
             return (
               <div key={nt.symbol} className={`rounded-xl border-2 overflow-hidden ${nt.borderColor} bg-white dark:bg-slate-900`}>
                 <button
-                  onClick={() => setOpenCard(isOpen ? null : nt.symbol)}
+                  onClick={() => setOpenCards(prev => { const next = new Set(prev); if (next.has(nt.symbol)) next.delete(nt.symbol); else next.add(nt.symbol); return next; })}
                   className={`w-full flex items-center gap-3 px-4 py-3 text-left ${nt.headerBg} transition`}
                 >
                   <span className={`rounded-lg px-3 py-1 text-sm font-black font-mono ${nt.badge} flex-shrink-0`}>

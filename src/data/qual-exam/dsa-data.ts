@@ -250,7 +250,75 @@ Bucket Sort: O(n) 평균, 균등 분포 가정
 삽입 1:  [1, 3, 7, 8, 9, 15, 12, 14, 11] (1<8→swap, 1<3→swap)
 
 Extract-min (1회): 루트=1 저장, 11을 루트로, sift-down
-→ [3, 8, 7, 11, 9, 15, 12, 14]`,
+→ [3, 8, 7, 11, 9, 15, 12, 14]
+
+■ sift-down (MAX-HEAPIFY) 의사코드
+MAX-HEAPIFY(A, i, n):  // 0-indexed, 힙 크기=n
+  l = 2i+1,  r = 2i+2
+  largest = i
+  if l < n and A[l] > A[largest]: largest = l
+  if r < n and A[r] > A[largest]: largest = r
+  if largest ≠ i:
+    swap(A[i], A[largest])
+    MAX-HEAPIFY(A, largest, n)   // 재귀
+시간: O(log n) — 트리 높이만큼 내려감
+
+sift-up (INSERT 후) — Min-Heap 버전:
+  while i > 0 and A[i] < A[parent(i)]:
+    swap(A[i], A[parent(i)])
+    i = parent(i)
+
+■ Build-Max-Heap — 왜 O(n)인가?
+BUILD-MAX-HEAP(A, n):
+  for i = ⌊n/2⌋-1 downto 0:   // 리프 노드는 이미 힙, 내부 노드만 처리
+    MAX-HEAPIFY(A, i, n)
+
+직관: 높이 h인 노드 수 ≤ ⌈n/2^(h+1)⌉개
+  높이 0(리프): O(1)짜리 ≈ n/2개
+  높이 1: O(1)짜리 ≈ n/4개
+  ...
+T(n) = Σ_{h=0}^{lgn} ⌈n/2^(h+1)⌉ · O(h) = O(n · Σh/2^h) = O(n·2) = O(n)
+
+구체적 예시: A = [3, 1, 6, 5, 2, 4] (n=6, 0-indexed)
+내부 노드 범위: i = 2 downto 0
+
+i=2: A[2]=6, 자식 A[5]=4 → 6>4 → 변화 없음
+  배열: [3, 1, 6, 5, 2, 4]
+
+i=1: A[1]=1, 자식 A[3]=5, A[4]=2 → largest=3 (5>1) → swap A[1]↔A[3]
+  배열: [3, 5, 6, 1, 2, 4]
+  재귀 i=3: 리프(자식 없음) → 완료
+
+i=0: A[0]=3, 자식 A[1]=5, A[2]=6 → largest=2 (6>5>3) → swap A[0]↔A[2]
+  배열: [6, 5, 3, 1, 2, 4]
+  재귀 i=2: A[2]=3, 자식 A[5]=4 → 4>3 → swap A[2]↔A[5]
+  배열: [6, 5, 4, 1, 2, 3] ← Max-Heap 완성!
+
+■ HeapSort 전체 추적 (A=[3,1,6,5,2,4])
+Step 0: Build-Max-Heap → [6,5,4,1,2,3]
+
+Step 1: swap(A[0]=6, A[5]=3) → [3,5,4,1,2,|6], heap_size=5
+  HEAPIFY(0): 3 vs 5,4 → largest=1 → swap A[0]↔A[1] → [5,3,4,1,2,|6]
+  HEAPIFY(1): 3 vs 1,2 → largest=1(3 그대로) → 완료
+
+Step 2: swap(A[0]=5, A[4]=2) → [2,3,4,1,|5,6], heap_size=4
+  HEAPIFY(0): 2 vs 3,4 → largest=2 → swap A[0]↔A[2] → [4,3,2,1,|5,6]
+  HEAPIFY(2): 자식 인덱스 5,6 ≥ heap_size=4 → 완료
+
+Step 3: swap(A[0]=4, A[3]=1) → [1,3,2,|4,5,6], heap_size=3
+  HEAPIFY(0): 1 vs 3,2 → largest=1 → swap A[0]↔A[1] → [3,1,2,|4,5,6]
+  HEAPIFY(1): 자식 인덱스 3 ≥ heap_size=3 → 완료
+
+Step 4: swap(A[0]=3, A[2]=2) → [2,1,|3,4,5,6], heap_size=2
+  HEAPIFY(0): 2 vs A[1]=1 → largest=0 (2>1) → 완료
+
+Step 5: swap(A[0]=2, A[1]=1) → [1,2,3,4,5,6] ← 정렬 완료! ✓
+
+■ 시험 함정
+• Build-Max-Heap은 배열을 앞에서부터가 아닌 뒤(내부 노드)에서 앞으로 heapify → O(n)
+• "힙 삽입 n회"는 O(n log n)이지만, Build-Heap은 O(n) — 차이 주의!
+• HeapSort에서 Max-Heap을 쓰면 오름차순 정렬, Min-Heap이면 내림차순 정렬
+• 완전 이진 트리의 높이 = ⌊log₂ n⌋`,
     complexityTable: [
       { operation: '삽입', complexity: 'O(log n)', note: 'sift-up' },
       { operation: '최솟값/최댓값 추출', complexity: 'O(log n)', note: 'sift-down' },
@@ -883,11 +951,57 @@ Load Factor α = n/m  (n: 저장된 원소 수, m: 슬롯 수)
 • 곱셈법: h(k) = ⌊m·(k·A mod 1)⌋  (A ≈ (√5-1)/2 = 0.618...)
 • 유니버설 해싱: 함수를 랜덤하게 선택 — 최악 충돌 확률 최소화
 
+■ 체이닝 구체 예시 (m=7, h(k) = k mod 7)
+삽입 순서: 10, 22, 31, 4, 15, 28, 17, 88, 59
+
+h(10)=3, h(22)=1, h(31)=3, h(4)=4, h(15)=1,
+h(28)=0, h(17)=3, h(88)=4, h(59)=3
+
+슬롯  연결 리스트
+[0] → 28 → null
+[1] → 15 → 22 → null
+[2] → null
+[3] → 59 → 17 → 31 → 10 → null   ← 4개 충돌
+[4] → 88 → 4 → null
+[5] → null
+[6] → null
+
+탐색 59: h(59)=3 → slot[3] 리스트를 앞에서 스캔 → 첫 번째에 발견 O(1)
+탐색 31: h(31)=3 → slot[3] 리스트 3번째에서 발견 O(k) — 체인 길이 k
+
+■ 오픈 어드레싱 — 선형 프로빙 & DELETED 마커 예시
+m=7, h(k) = k mod 7
+삽입: 10(h=3), 17(h=3충돌→4), 24(h=3충돌→4충돌→5)
+
+슬롯: [ _, _, _, 10, 17, 24, _ ]
+
+삭제 17: slot[4]를 EMPTY로? → 안 됨!
+  slot[4] = DELETED (묘비 마커)
+  슬롯: [ _, _, _, 10, DEL, 24, _ ]
+
+탐색 24: h(24)=3 → slot[3]=10 ≠ 24, not empty → 계속
+         slot[4]=DELETED (비어있지 않음) → 계속
+         slot[5]=24 → 발견! ✓
+
+만약 slot[4]를 그냥 EMPTY로 비웠다면:
+  탐색 24: slot[3]=10 → slot[4]=EMPTY → 탐색 중단 → "NOT FOUND" ← 틀림!
+
+결론: 오픈 어드레싱에서 삭제는 반드시 DELETED 마커 사용!
+삽입은 DELETED 자리에도 가능, 탐색은 DELETED를 EMPTY로 취급 안 함
+
+■ 충돌 해결 방법 비교
+방법           | 메모리        | 군집화          | α 허용
+체이닝         | 포인터 오버헤드| 없음            | α > 1 가능
+선형 프로빙    | 추가 없음     | Primary 군집화  | α < 1 필수
+이차 프로빙    | 추가 없음     | Secondary 군집화| α < 1 필수
+이중 해싱      | 추가 없음     | 최소            | α < 1 필수
+
 ■ 시험 함정
 • 오픈 어드레싱에서 삭제는 슬롯을 "DELETED" 마커로 표시해야 함 (그냥 비우면 탐색 실패)
 • 완전 해시 ≠ 충돌이 적은 해시; 충돌이 아예 없는 것
 • 체이닝은 α > 1도 허용하지만, 오픈 어드레싱은 α < 1이어야 함
-• 탐색 평균 O(1)은 α를 상수로 유지하는 조건 하에만 성립`,
+• 탐색 평균 O(1)은 α를 상수로 유지하는 조건 하에만 성립
+• 이중 해싱: h₂(k)=0이 되면 무한 루프 → h₂(k) ≠ 0 보장 필요`,
     complexityTable: [
       { operation: '검색 (평균)', complexity: 'O(1)', note: '' },
       { operation: '검색 (최악)', complexity: 'O(n)', note: '모든 키가 같은 버킷' },
