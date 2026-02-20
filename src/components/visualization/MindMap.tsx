@@ -139,10 +139,12 @@ function MindMapInner({
       groupedByCell.get(`${paper.year}|${topic}`)?.push(paper);
     }
 
-    const topicGap = 430;
-    const maxCellCols = 1;
-    const innerColGap = 0;
-    const innerRowGap = 180;
+    // 같은 연도/같은 주제 셀은 가로 우선으로 배치하고, 최대 3열을 넘으면 다음 줄로 내린다.
+    const maxCellCols = 3;
+    const estimatedNodeWidth = 260;
+    const innerColGap = estimatedNodeWidth + 44;
+    const topicGap = maxCellCols * innerColGap + 160;
+    const innerRowGap = 210;
     const yearSectionGap = 120;
     const centeredTopicOffset = (topicOrder.length - 1) / 2;
     const yearStartY = new Map<number, number>();
@@ -173,7 +175,8 @@ function MindMapInner({
 
           const localCol = index % maxCellCols;
           const localRow = Math.floor(index / maxCellCols);
-          const columnOffset = (localCol - (maxCellCols - 1) / 2) * innerColGap;
+          const columnsInThisCell = Math.min(maxCellCols, cell.length);
+          const columnOffset = (localCol - (columnsInThisCell - 1) / 2) * innerColGap;
 
           positioned.push({
             ...base,
