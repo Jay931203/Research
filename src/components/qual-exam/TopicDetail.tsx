@@ -7,6 +7,8 @@ import PracticeList from './PracticeList';
 import type { StudyTopic } from './TopicStudyCard';
 import type { ExamProblem } from './ExamProblemCard';
 import type { QuizQuestion } from './PracticeList';
+import AsymptoticContent from './topic-content/AsymptoticContent';
+import LinkedListContent from './topic-content/LinkedListContent';
 
 const AlgoVisualizer = dynamic(() => import('./AlgoVisualizer'), { ssr: false });
 
@@ -153,6 +155,14 @@ interface Props {
 
 export default function TopicDetail({ topic, relatedExams, practiceQuestions, onExamClick }: Props) {
   const [showViz, setShowViz] = useState(false);
+
+  // Route to custom per-topic pages
+  if (topic.id === 'asymptotic') {
+    return <AsymptoticContent topic={topic} relatedExams={relatedExams} onExamClick={onExamClick} />;
+  }
+  if (topic.id === 'linked-list') {
+    return <LinkedListContent topic={topic} relatedExams={relatedExams} onExamClick={onExamClick} />;
+  }
 
   return (
     <div className="max-w-3xl space-y-8 px-6 py-6">
