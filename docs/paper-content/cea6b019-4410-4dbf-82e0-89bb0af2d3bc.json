@@ -1,0 +1,86 @@
+{
+  "id": "cea6b019-4410-4dbf-82e0-89bb0af2d3bc",
+  "title": "SliM-LLM: Salience-Driven Mixed-Precision Quantization for Large Language Models",
+  "authors": [
+    "Wei Huang",
+    "Haotong Qin",
+    "Yangdong Liu",
+    "Yawei Li",
+    "Qinshuo Liu",
+    "Xianglong Liu",
+    "Luca Benini",
+    "Michele Magno",
+    "Shiming Zhang",
+    "Xiaojuan Qi"
+  ],
+  "year": 2025,
+  "venue": "ICML 2025 (PMLR 267), arXiv 2405.14917",
+  "doi": "10.48550/arXiv.2405.14917",
+  "arxiv_id": "2405.14917",
+  "abstract": "SliM-LLM은 초저비트(2/3-bit) LLM PTQ에서 정확도 붕괴와 배포 비효율을 동시에 줄이기 위한 구조적 혼합 정밀도 프레임워크다. 핵심은 salience를 전역(그룹 간)과 국소(그룹 내부)로 분해해 다루는 것이다.\n\nSBA(Salience-Determined Bit Allocation)는 그룹별 salience 순위를 기반으로 비트폭을 재배치해 평균 비트 제약을 유지하면서 KL 기준 재구성 품질을 높인다. SQC(Salience-Weighted Quantizer Calibration)는 그룹 내부 희소 salient 원소를 별도로 인지하도록 양자화 보정 파라미터 \\(\\tau\\)를 탐색해 국소 정보 손실을 줄인다.\n\n이 설계는 element-wise mixed precision의 비트맵/인덱스 오버헤드를 피하면서도 저비트 품질을 크게 개선한다. 특히 SliM-LLM은 GPTQ류의 비학습형 PTQ 경로에 쉽게 결합되고, SliM-LLM+는 OmniQuant류의 gradient 기반 보정과 결합되어 추가 성능 향상을 제공한다.",
+  "notes_summary": "Hessian 기반 salience 정의(전역/국소) 위에서 SBA(그룹 비트 재배치)와 SQC(국소 보정)를 결합해 2/3-bit LLM PTQ 정확도와 배포 효율을 동시에 끌어올린다.",
+  "key_contributions": [
+    "LLM 가중치 salience가 채널/그룹 수준에서 구조적으로 군집한다는 관찰을 제시하고, 이를 혼합 정밀도 설계의 직접 근거로 사용했다.",
+    "SBA로 평균 비트 고정 제약 하에서 그룹별 \\(N-1/N/N+1\\) 비트 배치를 최적화해 전역 정보 손실을 줄였다.",
+    "SQC로 그룹 내부 salient/non-salient를 분리해 \\(\\tau\\)-보정 양자화를 수행함으로써 희소 핵심 가중치 보존력을 강화했다.",
+    "비구조적 element-wise 비트맵 저장 없이 group-wise 구조를 유지해 실제 하드웨어/커널 배포 경로와의 정합성을 확보했다.",
+    "GPTQ(비학습형)와 OmniQuant(gradient형) 모두에 결합 가능한 모듈식 설계로 재사용성과 확장성을 입증했다."
+  ],
+  "algorithms": [
+    "보정 데이터 \\(\\{x^{(k)}\\}_{k=1}^P\\)에서 proxy Hessian \\(H\\)를 추정한다(Levenberg-Marquardt 근사).",
+    "원소 salience \\(\\delta_{i,j}=w_{i,j}^2/[H^{-1}]_{j,j}^2\\)를 계산하고, 그룹 평균 salience로 전역 중요도 순위를 만든다.",
+    "SBA: 이중 포인터 탐색으로 \\(N-1\\)비트/\\(N+1\\)비트 그룹 개수를 동시에 늘려가며 \\(D_{KL}(xW\\,\\|\\,x\\hat W)\\) 최소 구성을 선택한다.",
+    "SBA 제약: \\(|\\mathcal{G}_{N-1}|=|\\mathcal{G}_{N+1}|\\)를 유지해 평균 비트폭을 \\(N\\)으로 고정한다.",
+    "SQC: 각 그룹에서 3-sigma 규칙으로 salient 집합 \\(w_i^s\\), non-salient 집합 \\(w_i^{us}\\)를 분리한다.",
+    "SQC 보정: \\(\\tau\\in[1-\\lambda,1+\\lambda]\\) 격자 탐색으로 두 집합 오차를 동시에 최소화하는 스케일/제로포인트를 선택한다.",
+    "최종 가중치를 group-wise 정밀도로 패킹해 dequant 커널 경로에 연결하고, perplexity와 실제 throughput을 함께 검증한다."
+  ],
+  "key_equations": [
+    {
+      "name": "그룹 단위 affine 양자화 (Eq.1)",
+      "latex": "\\hat{w}=\\mathrm{clamp}\\!\\left(\\left\\lfloor\\frac{w_f}{s}\\right\\rceil+z,\\,0,\\,2^N-1\\right),\\quad s=\\frac{w_{max}-w_{min}}{2^N-1},\\ z=\\frac{w_{min}}{s}",
+      "description": "그룹별 스케일/제로포인트로 부동소수점 가중치를 정수 격자로 사상하는 기본 양자화식."
+    },
+    {
+      "name": "PTQ 재구성 손실과 2차 근사 (Eq.3)",
+      "latex": "\\mathcal{L}(\\hat W) = \\|XW - X\\hat W\\|_2^2 \\approx \\mathrm{tr}\\!\\left((\\hat W-W)H(\\hat W-W)^\\top\\right)",
+      "description": "출력 재구성 오차를 Hessian 기반 2차 형태로 근사해 salience 계산과 비트 재배치의 기준으로 사용."
+    },
+    {
+      "name": "Proxy Hessian (Levenberg-Marquardt)",
+      "latex": "H\\approx \\frac{1}{P}\\sum_{k=1}^{P} x^{(k)}x^{(k)\\top}",
+      "description": "캘리브레이션 활성화로 Hessian을 근사하는 실용식. 대규모 LLM에서 직접 Hessian 계산을 대체한다."
+    },
+    {
+      "name": "원소 salience 정의 (Definition 3.1)",
+      "latex": "\\delta_{i,j}=\\frac{w_{i,j}^2}{[H^{-1}]_{j,j}^2}",
+      "description": "해당 원소 제거/왜곡이 출력 오차에 주는 영향을 근사하는 민감도 지표. 큰 값일수록 보호 우선순위가 높다."
+    },
+    {
+      "name": "SBA 목적식과 평균 비트 제약 (Eq.4)",
+      "latex": "\\arg\\min D_{KL}(XW\\,\\|\\,X\\hat W_{SBA}),\\quad |\\mathcal{G}_{N-1}|=|\\mathcal{G}_{N+1}|",
+      "description": "평균 비트폭을 고정한 채 그룹 정밀도를 재할당해 출력 정보 분포 손실(KL)을 최소화한다."
+    },
+    {
+      "name": "SQC 보정 파라미터 탐색 (Eq.5)",
+      "latex": "\\tau^*=\\arg\\min_{\\tau}\\left\\|w_i^s-\\tau s\\big(Q(w_i^s,\\tau s,\\tau z)-\\tau z\\big)\\right\\|_2^2+\\left\\|w_i^{us}-\\tau s\\big(Q(w_i^{us},\\tau s,\\tau z)-\\tau z\\big)\\right\\|_2^2",
+      "description": "salient/non-salient 두 집합의 오차를 함께 최소화해 그룹 내부 핵심 원소 손실을 줄인다."
+    }
+  ],
+  "architecture_detail": "## 1) 문제 재정의: 저비트 품질 vs 배포 효율\n\n저비트(특히 2-bit)로 내려가면 균일 정밀도 PTQ는 perplexity가 급격히 악화된다. 반대로 element-wise mixed precision은 정확도는 개선되더라도 비트맵/인덱스 저장과 커널 복잡도로 배포성이 나빠진다. SliM-LLM은 이 둘의 충돌을 **구조적 group-wise mixed precision**으로 해결한다.\n\n## 2) \\(H\\)는 어디서 오고, 어떤 근사를 쓰는가\n\n핵심 오차는 선형 투영 출력 재구성 오차\n\n$$\n\\mathcal{L}(\\hat W)=\\|XW-X\\hat W\\|_2^2\n$$\n\n로 두고, 이를 2차 형태로 근사한다.\n\n$$\n\\mathcal{L}(\\hat W)\\approx \\mathrm{tr}\\!\\left((\\hat W-W)H(\\hat W-W)^\\top\\right)\n$$\n\n여기서 \\(H\\)는 full Hessian을 직접 계산하지 않고, 보정 활성화 \\(x^{(k)}\\)로 만든 **Levenberg-Marquardt proxy Hessian**을 사용한다.\n\n$$\nH\\approx \\frac{1}{P}\\sum_{k=1}^{P}x^{(k)}x^{(k)\\top}\n$$\n\n즉, 논문의 salience 계산은 \"보정 활성화 통계로 근사한 Hessian\" 위에서 동작한다.\n\n## 3) Salience 정의와 해석\n\n원소 salience는 다음으로 정의된다.\n\n$$\n\\delta_{i,j}=\\frac{w_{i,j}^2}{[H^{-1}]_{j,j}^2}\n$$\n\n- \\(w_{i,j}\\)가 크고 \\([H^{-1}]_{j,j}\\)가 작을수록(민감도가 높을수록) \\(\\delta_{i,j}\\)가 커진다.\n- 큰 \\(\\delta\\)는 저비트 양자화 시 성능 저하를 크게 유발할 가능성이 있으므로 보호 우선순위가 된다.\n\n## 4) SBA: 전역(그룹 간) 비트 할당 최적화\n\n가중치를 그룹으로 나눈 뒤 그룹 평균 salience를 구해 정렬하고, \\(N-1\\), \\(N\\), \\(N+1\\) 비트를 배정한다.\n\n$$\n\\arg\\min D_{KL}(XW\\,\\|\\,X\\hat W_{SBA}),\\quad |\\mathcal{G}_{N-1}|=|\\mathcal{G}_{N+1}|\n$$\n\n- KL 목적: 단순 MSE 대신 출력 분포 관점의 손실을 최소화\n- 제약: \\(|\\mathcal{G}_{N-1}|=|\\mathcal{G}_{N+1}|\\)로 평균 비트폭을 \\(N\\)으로 유지\n- 탐색: 논문은 double-pointer 방식으로 고/저비트 그룹 수를 확장하며 최적점을 찾는다.\n\n## 5) SQC: 국소(그룹 내부) salient 보호\n\n그룹 내부에서도 salience가 희소하게 분포하므로, 단일 평균 오차 기준은 핵심 원소를 놓치기 쉽다. SQC는 그룹 내부를\n\n- salient: \\(w_i^s\\)\n- non-salient: \\(w_i^{us}\\)\n\n로 분리하고(논문 구현에서 3-sigma rule 사용), 보정 파라미터 \\(\\tau\\)를 탐색한다.\n\n$$\n\\tau^*=\\arg\\min_{\\tau}\\Big(\\|w_i^s-\\hat w_i^s(\\tau)\\|_2^2+\\|w_i^{us}-\\hat w_i^{us}(\\tau)\\|_2^2\\Big)\n$$\n\n실무 설정 예: \\(\\tau\\in[1-\\lambda,1+\\lambda]\\), \\(\\lambda=0.1\\), 선형 격자 탐색(예: 2n 후보).\n\n## 6) 알고리즘 전체 흐름 (논문 Algorithm 1/2 관점)\n\n1. 캘리브레이션 활성화 수집, \\(H\\) 및 \\(H^{-1}\\) 추정\n2. salience 계산 후 SBA로 그룹별 비트폭 결정\n3. 각 그룹에 SQC를 적용해 \\(\\tau\\)-보정 양자화 수행\n4. (GPTQ 백본 사용 시) 블록 순차 오차 보정과 결합\n5. group-wise 패킹/디양자화 커널 경로로 내보내기\n\n## 7) 왜 배포 친화적인가\n\nSliM-LLM은 element-wise 혼합정밀도처럼 별도 비트맵을 강하게 요구하지 않고, group-wise 구조를 유지한다. 따라서 저장 포맷과 커널 구현이 단순해지고, 실제 GPU 추론 경로에서 균일 정밀도 대비 큰 복잡도 증가 없이 정확도 이득을 얻기 쉽다.\n\n## 8) 실무 체크리스트\n\n- 그룹 크기(예: 128)와 목표 평균 비트(2/3bit)를 먼저 고정\n- \\(H^{-1}\\) 계산 안정화: damping, Cholesky 실패 감시\n- SBA의 KL 곡선과 선택된 \\(|\\mathcal{G}_{N-1}|,|\\mathcal{G}_{N+1}|\\) 로깅\n- SQC의 mask 비율(3-sigma)과 \\(\\tau\\) 탐색 해상도 튜닝\n- perplexity뿐 아니라 tokens/s, 메모리 사용량까지 동시 평가",
+  "category": "quantization",
+  "tags": [
+    "slim-llm",
+    "post-training-quantization",
+    "mixed-precision",
+    "group-wise-quantization",
+    "salience",
+    "gptq",
+    "omniquant",
+    "low-bit-llm"
+  ],
+  "pdf_url": "https://arxiv.org/pdf/2405.14917",
+  "code_url": "https://github.com/Aaronhuang-778/SliM-LLM",
+  "color_hex": "#7C3AED",
+  "icon_name": null
+}
