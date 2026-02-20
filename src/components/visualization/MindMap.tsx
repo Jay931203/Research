@@ -84,17 +84,28 @@ function MindMapInner({
   onRemovePaper,
   focusTarget,
 }: MindMapProps) {
-  const { fitView } = useReactFlow();
+  const { fitView, getNode } = useReactFlow();
   const [direction, setDirection] = useState<'TB' | 'LR'>('TB');
   const [zoomLevel, setZoomLevel] = useState(1);
   const hasAutoFittedRef = useRef(false);
   const pendingFocusRef = useRef<string | null>(null);
 
-  // When focusTarget changes (new object ref = new click), store the paperId as pending
+  // When focusTarget changes, try to center map on that node immediately.
+  // If node isn't in the DOM yet (paper just added), defer to the nodes effect below.
   useEffect(() => {
-    if (focusTarget?.paperId) {
-      pendingFocusRef.current = focusTarget.paperId;
-    }
+    if (!focusTarget?.paperId) return;
+    const id = focusTarget.paperId;
+    const raf = window.requestAnimationFrame(() => {
+      const node = getNode(id);
+      if (node) {
+        fitView({ nodes: [node], duration: 0, padding: 0.4, maxZoom: 1.5 });
+        pendingFocusRef.current = null;
+      } else {
+        pendingFocusRef.current = id;
+      }
+    });
+    return () => window.cancelAnimationFrame(raf);
+  // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [focusTarget]);
 
   useEffect(() => {
@@ -271,18 +282,16 @@ function MindMapInner({
     setEdges(labeledEdges);
   }, [labeledEdges, setEdges]);
 
-  // When nodes update, apply any pending focus (triggered by sidebar paper click)
+  // Deferred focus: when nodes update, apply pending focus if immediate attempt failed
   useEffect(() => {
     const id = pendingFocusRef.current;
     if (!id) return;
-    const match = nodes.filter((n) => n.id === id && n.type !== 'topicLabel');
-    if (!match.length) return;
+    const node = getNode(id);
+    if (!node) return;
     pendingFocusRef.current = null;
-    const raf = window.requestAnimationFrame(() => {
-      fitView({ nodes: match, duration: 500, padding: 0.5, maxZoom: 1.5 });
-    });
-    return () => window.cancelAnimationFrame(raf);
-  }, [nodes, fitView]);
+    fitView({ nodes: [node], duration: 0, padding: 0.4, maxZoom: 1.5 });
+  // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [nodes]);
 
   useEffect(() => {
     if (!layeredNodes.length) return;
