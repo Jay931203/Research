@@ -100,6 +100,34 @@ const CUSTOM_SECTIONS: Record<string, Array<{ id: string; label: string }>> = {
     { id: 'templates-sec-constraints',   label: 'T 타입 제약 체커'   },
     { id: 'templates-sec-instantiation', label: '컴파일 타임 인스턴스화' },
   ],
+  'sorting': [
+    { id: 'sorting-sec-compare',    label: '알고리즘 비교표'         },
+    { id: 'sorting-sec-quicksort',  label: 'QuickSort 파티션 시뮬'  },
+    { id: 'sorting-sec-mergesort',  label: 'MergeSort 추적'         },
+    { id: 'sorting-sec-lowerbound', label: '정렬 하한 & 선형 정렬'  },
+    { id: 'sorting-sec-pitfalls',   label: '시험 함정 퀴즈'         },
+  ],
+  'dp': [
+    { id: 'dp-sec-concept',  label: 'DP 핵심 개념'           },
+    { id: 'dp-sec-lcs',      label: 'LCS DP 테이블'          },
+    { id: 'dp-sec-knapsack', label: 'Knapsack DP 테이블'     },
+    { id: 'dp-sec-edit',     label: '편집 거리'              },
+    { id: 'dp-sec-greedy',   label: 'Greedy vs DP'           },
+  ],
+  'graph': [
+    { id: 'graph-sec-bfsdfs',    label: 'BFS/DFS 시각화'     },
+    { id: 'graph-sec-dijkstra',  label: 'Dijkstra 추적'      },
+    { id: 'graph-sec-bellman',   label: 'Bellman-Ford'       },
+    { id: 'graph-sec-mst',       label: 'MST (Kruskal/Prim)' },
+    { id: 'graph-sec-complexity', label: '복잡도 요약'        },
+  ],
+  'huffman': [
+    { id: 'huffman-sec-concept',  label: '허프만 개념'         },
+    { id: 'huffman-sec-sim',      label: '트리 빌드 시뮬레이터'},
+    { id: 'huffman-sec-codes',    label: '코드 할당 & ABL'    },
+    { id: 'huffman-sec-compare',  label: '고정 vs 허프만 비교' },
+    { id: 'huffman-sec-pitfalls', label: '시험 함정 퀴즈'     },
+  ],
 };
 
 function getGenericSections(topic: StudyTopic): Array<{ id: string; label: string }> {

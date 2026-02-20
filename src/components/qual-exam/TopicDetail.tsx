@@ -162,6 +162,10 @@ export default function TopicDetail({ topic }: Props) {
   if (topic.id === 'heap')         return <HeapContent topic={topic} />;
   if (topic.id === 'bst')          return <BstContent topic={topic} />;
   if (topic.id === 'hash')         return <HashContent topic={topic} />;
+  if (topic.id === 'sorting')      return <SortingContent topic={topic} />;
+  if (topic.id === 'dp')           return <DpContent topic={topic} />;
+  if (topic.id === 'graph')        return <GraphContent topic={topic} />;
+  if (topic.id === 'huffman')      return <HuffmanContent topic={topic} />;
   if (topic.id === 'oop-basics')          return <OopBasicsContent topic={topic} />;
   if (topic.id === 'constructors')        return <ConstructorsContent topic={topic} />;
   if (topic.id === 'memory-management')   return <MemoryManagementContent topic={topic} />;
