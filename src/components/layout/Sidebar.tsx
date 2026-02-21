@@ -1,7 +1,8 @@
 'use client';
 
 import { useCallback, useEffect, useMemo, useState } from 'react';
-import { BookOpen, ChevronLeft, ChevronRight, Link2, Plus, Star } from 'lucide-react';
+import { BookOpen, ChevronLeft, ChevronRight, Link2, Plus, Star, X } from 'lucide-react';
+import Link from 'next/link';
 import PaperSearch from '@/components/papers/PaperSearch';
 import PaperList from '@/components/papers/PaperList';
 import PaperFormModal from '@/components/papers/PaperFormModal';
@@ -9,7 +10,7 @@ import { usePapersWithNotes } from '@/hooks/useNotes';
 import { useRelationships } from '@/hooks/useRelationships';
 import { filterPapersBySearchFilters, type PaperSearchFilters } from '@/lib/papers/filtering';
 import { countRecentPapers } from '@/lib/papers/insights';
-import { RELATIONSHIP_STYLES } from '@/lib/visualization/graphUtils';
+import { getPaperCategoryLabel, RELATIONSHIP_STYLES } from '@/lib/visualization/graphUtils';
 import {
   CORE_RELATIONSHIP_TYPES,
   DEFAULT_GRAPH_FILTER_SETTINGS,
@@ -59,6 +60,7 @@ function normalizeGraphFilterSettings(
 export default function Sidebar({ isOpen, onToggle, onPaperClick }: SidebarProps) {
   const currentYear = new Date().getFullYear();
   const [showAddModal, setShowAddModal] = useState(false);
+  const [showFavoritesModal, setShowFavoritesModal] = useState(false);
   const { papers, refresh } = usePapersWithNotes();
   const { relationships } = useRelationships();
   const favoritePapers = useMemo(() => papers.filter((p) => p.is_favorite), [papers]);
@@ -255,10 +257,13 @@ export default function Sidebar({ isOpen, onToggle, onPaperClick }: SidebarProps
               <span>관계</span>
             </span>
             <span className="text-gray-300 dark:text-gray-600">|</span>
-            <span className="flex items-center gap-1">
+            <button
+              onClick={() => setShowFavoritesModal(true)}
+              className="flex items-center gap-1 rounded hover:text-amber-500 dark:hover:text-amber-400"
+            >
               <Star className="h-3 w-3 text-amber-400" />
               <span className="font-semibold text-gray-800 dark:text-gray-200">{favoritePapers.length}</span>
-            </span>
+            </button>
             <span className="text-gray-300 dark:text-gray-600">|</span>
             <span>최근 2년 <span className="font-semibold text-gray-800 dark:text-gray-200">{recentCount}</span></span>
           </div>
@@ -404,6 +409,64 @@ export default function Sidebar({ isOpen, onToggle, onPaperClick }: SidebarProps
         onClose={() => setShowAddModal(false)}
         onSaved={refresh}
       />
+
+      {showFavoritesModal && (
+        <div className="fixed inset-0 z-[70] flex items-center justify-center p-4">
+          <button
+            type="button"
+            className="absolute inset-0 bg-black/45"
+            aria-label="닫기"
+            onClick={() => setShowFavoritesModal(false)}
+          />
+          <div
+            role="dialog"
+            aria-modal="true"
+            className="relative max-h-[80vh] w-full max-w-2xl overflow-hidden rounded-2xl border border-gray-200 bg-white shadow-2xl dark:border-gray-700 dark:bg-gray-900"
+          >
+            <div className="flex items-center justify-between border-b border-gray-200 px-5 py-3 dark:border-gray-700">
+              <div>
+                <p className="text-sm font-bold text-gray-900 dark:text-gray-100">즐겨찾기 논문</p>
+                <p className="text-xs text-gray-500 dark:text-gray-400">{favoritePapers.length}개</p>
+              </div>
+              <button
+                onClick={() => setShowFavoritesModal(false)}
+                className="rounded-md border border-gray-300 p-1.5 text-gray-500 hover:bg-gray-100 dark:border-gray-600 dark:text-gray-300 dark:hover:bg-gray-800"
+              >
+                <X className="h-4 w-4" />
+              </button>
+            </div>
+            <div className="max-h-[calc(80vh-72px)] space-y-2 overflow-auto p-4">
+              {favoritePapers.length === 0 ? (
+                <p className="rounded-lg bg-gray-50 px-4 py-6 text-center text-sm text-gray-500 dark:bg-gray-800 dark:text-gray-400">
+                  즐겨찾기한 논문이 없습니다. 논문 카드의 별 아이콘으로 추가해 주세요.
+                </p>
+              ) : (
+                favoritePapers.map((paper) => (
+                  <Link
+                    key={paper.id}
+                    href={`/paper/${paper.id}`}
+                    onClick={() => setShowFavoritesModal(false)}
+                    className="block rounded-xl border border-gray-200 px-4 py-3 transition hover:border-amber-300 hover:bg-amber-50/70 dark:border-gray-700 dark:hover:border-amber-700 dark:hover:bg-amber-900/20"
+                  >
+                    <div className="mb-1 flex items-center gap-2">
+                      <span
+                        className="inline-block h-2.5 w-2.5 rounded-full"
+                        style={{ backgroundColor: paper.color_hex }}
+                      />
+                      <span className="text-xs font-semibold text-gray-500 dark:text-gray-400">
+                        {paper.year} · {getPaperCategoryLabel(paper)}
+                      </span>
+                    </div>
+                    <p className="line-clamp-2 text-sm font-semibold text-gray-900 dark:text-gray-100">
+                      {paper.title}
+                    </p>
+                  </Link>
+                ))
+              )}
+            </div>
+          </div>
+        </div>
+      )}
     </>
   );
 }

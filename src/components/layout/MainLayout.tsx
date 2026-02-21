@@ -10,9 +10,10 @@ import { useKeyboardShortcuts } from '@/hooks/useKeyboardShortcuts';
 interface MainLayoutProps {
   children: React.ReactNode;
   onSidebarPaperClick?: (paperId: string) => void;
+  fitViewport?: boolean;
 }
 
-export default function MainLayout({ children, onSidebarPaperClick }: MainLayoutProps) {
+export default function MainLayout({ children, onSidebarPaperClick, fitViewport }: MainLayoutProps) {
   const [sidebarOpen, setSidebarOpen] = useState(true);
   const {
     isHelpOpen,
@@ -30,9 +31,9 @@ export default function MainLayout({ children, onSidebarPaperClick }: MainLayout
       <main
         className={`pt-16 transition-all duration-300 ${
           sidebarOpen ? 'lg:ml-80' : 'lg:ml-0'
-        }`}
+        } ${fitViewport ? 'h-screen overflow-hidden' : ''}`}
       >
-        <div className="mx-auto w-full max-w-[1600px] p-3 sm:p-4 lg:p-6">
+        <div className={fitViewport ? 'h-full' : 'mx-auto w-full max-w-[1600px] p-3 sm:p-4 lg:p-6'}>
           {children}
         </div>
       </main>

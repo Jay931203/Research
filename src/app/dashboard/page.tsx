@@ -132,92 +132,95 @@ export default function DashboardPage() {
 
   if (papersLoading || relationshipsLoading) {
     return (
-      <MainLayout>
-        <SkeletonBlock className="h-[560px]" />
+      <MainLayout fitViewport>
+        <div className="flex h-full items-center justify-center">
+          <SkeletonBlock className="h-1/2 w-full" />
+        </div>
       </MainLayout>
     );
   }
 
   return (
-    <MainLayout onSidebarPaperClick={handleSidebarPaperClick}>
+    <MainLayout onSidebarPaperClick={handleSidebarPaperClick} fitViewport>
       <ErrorBoundary>
         {!isMapFullscreen && (
-          <div>
-            {papers.length === 0 && (
-              <div className="animate-fade-in rounded-lg bg-white p-8 text-center shadow dark:bg-gray-800">
-                <BookOpen className="mx-auto mb-4 h-12 w-12 text-gray-300 dark:text-gray-600" />
-                <h3 className="text-base font-bold text-gray-800 dark:text-gray-100">
-                  아직 등록된 논문이 없습니다.
-                </h3>
-                <p className="mt-2 text-sm text-gray-500 dark:text-gray-400">
-                  Import 페이지에서 논문 데이터를 불러오면 연구 관계 맵을 바로 확인할 수 있습니다.
-                </p>
-                <Link
-                  href="/import"
-                  className="mt-4 inline-flex items-center gap-2 rounded-lg bg-blue-600 px-4 py-2 text-sm font-semibold text-white transition hover:bg-blue-700"
-                >
-                  <Plus className="h-4 w-4" />
-                  Import 페이지로 이동
-                </Link>
-                <p className="mt-3 text-xs text-gray-400 dark:text-gray-500">
-                  논문을 추가하면 맵에서도 자동으로 연결 관계를 분석합니다.
-                </p>
-              </div>
-            )}
-
-            <div className="overflow-hidden rounded-lg bg-white shadow-lg dark:bg-gray-800">
-              <div className="flex items-center justify-between gap-4 border-b border-gray-200 px-4 py-2.5 dark:border-gray-700">
-                <h2 className="text-sm font-bold text-gray-800 dark:text-gray-100">연구 관계 맵</h2>
-                <div className="flex items-center gap-3">
-                  <span className="hidden text-xs text-gray-500 dark:text-gray-400 lg:block">
-                    맵 포함: {mapPapers.length}/{papers.length}
-                  </span>
-                  <button
-                    onClick={undoMapSelection}
-                    disabled={!canUndoMapSelection}
-                    className="inline-flex items-center gap-1.5 rounded-md border border-gray-300 px-3 py-1.5 text-xs font-semibold hover:bg-gray-100 disabled:cursor-not-allowed disabled:opacity-50 dark:border-gray-600 dark:hover:bg-gray-700"
+          <div className="flex h-full flex-col">
+            {papers.length === 0 ? (
+              <div className="flex flex-1 items-center justify-center">
+                <div className="animate-fade-in rounded-lg bg-white p-8 text-center shadow dark:bg-gray-800">
+                  <BookOpen className="mx-auto mb-4 h-12 w-12 text-gray-300 dark:text-gray-600" />
+                  <h3 className="text-base font-bold text-gray-800 dark:text-gray-100">
+                    아직 등록된 논문이 없습니다.
+                  </h3>
+                  <p className="mt-2 text-sm text-gray-500 dark:text-gray-400">
+                    Import 페이지에서 논문 데이터를 불러오면 연구 관계 맵을 바로 확인할 수 있습니다.
+                  </p>
+                  <Link
+                    href="/import"
+                    className="mt-4 inline-flex items-center gap-2 rounded-lg bg-blue-600 px-4 py-2 text-sm font-semibold text-white transition hover:bg-blue-700"
                   >
-                    <Undo2 className="h-3.5 w-3.5" />
-                    되돌리기
-                  </button>
-                  <button
-                    onClick={redoMapSelection}
-                    disabled={!canRedoMapSelection}
-                    className="inline-flex items-center gap-1.5 rounded-md border border-gray-300 px-3 py-1.5 text-xs font-semibold hover:bg-gray-100 disabled:cursor-not-allowed disabled:opacity-50 dark:border-gray-600 dark:hover:bg-gray-700"
-                  >
-                    <Redo2 className="h-3.5 w-3.5" />
-                    다시 실행
-                  </button>
-                  <button
-                    onClick={() => setMapPaperIds(availablePaperIds)}
-                    className="inline-flex items-center gap-1.5 rounded-md border border-gray-300 px-3 py-1.5 text-xs font-semibold hover:bg-gray-100 dark:border-gray-600 dark:hover:bg-gray-700"
-                  >
-                    전체 복원
-                  </button>
-                  <button
-                    onClick={() => {
-                      setSelectedFullscreenPaperId(null);
-                      setIsMapFullscreen(true);
-                    }}
-                    className="inline-flex items-center gap-1.5 rounded-md border border-gray-300 px-3 py-1.5 text-xs font-semibold hover:bg-gray-100 dark:border-gray-600 dark:hover:bg-gray-700"
-                  >
-                    <Maximize2 className="h-3.5 w-3.5" />
-                    전체화면
-                  </button>
+                    <Plus className="h-4 w-4" />
+                    Import 페이지로 이동
+                  </Link>
+                  <p className="mt-3 text-xs text-gray-400 dark:text-gray-500">
+                    논문을 추가하면 맵에서도 자동으로 연결 관계를 분석합니다.
+                  </p>
                 </div>
               </div>
-              <div className="flex" style={{ height: 'calc(100vh - 156px)', minHeight: '560px' }}>
-                <div className="relative min-w-0 flex-1">
-                  <MindMap
-                    papers={mapPapers}
-                    relationships={mapRelationships}
-                    graphFilterSettings={graphFilterSettings}
-                    onNodeClick={handleNodeClick}
-                    onRemovePaper={handleRemovePaperFromMap}
-                    focusTarget={focusTarget}
-                  />
+            ) : (
+              <div className="flex min-h-0 flex-1 flex-col overflow-hidden bg-white shadow-lg dark:bg-gray-800">
+                <div className="flex shrink-0 items-center justify-between gap-4 border-b border-gray-200 px-4 py-2.5 dark:border-gray-700">
+                  <h2 className="text-sm font-bold text-gray-800 dark:text-gray-100">연구 관계 맵</h2>
+                  <div className="flex items-center gap-3">
+                    <span className="hidden text-xs text-gray-500 dark:text-gray-400 lg:block">
+                      맵 포함: {mapPapers.length}/{papers.length}
+                    </span>
+                    <button
+                      onClick={undoMapSelection}
+                      disabled={!canUndoMapSelection}
+                      className="inline-flex items-center gap-1.5 rounded-md border border-gray-300 px-3 py-1.5 text-xs font-semibold hover:bg-gray-100 disabled:cursor-not-allowed disabled:opacity-50 dark:border-gray-600 dark:hover:bg-gray-700"
+                    >
+                      <Undo2 className="h-3.5 w-3.5" />
+                      되돌리기
+                    </button>
+                    <button
+                      onClick={redoMapSelection}
+                      disabled={!canRedoMapSelection}
+                      className="inline-flex items-center gap-1.5 rounded-md border border-gray-300 px-3 py-1.5 text-xs font-semibold hover:bg-gray-100 disabled:cursor-not-allowed disabled:opacity-50 dark:border-gray-600 dark:hover:bg-gray-700"
+                    >
+                      <Redo2 className="h-3.5 w-3.5" />
+                      다시 실행
+                    </button>
+                    <button
+                      onClick={() => setMapPaperIds(availablePaperIds)}
+                      className="inline-flex items-center gap-1.5 rounded-md border border-gray-300 px-3 py-1.5 text-xs font-semibold hover:bg-gray-100 dark:border-gray-600 dark:hover:bg-gray-700"
+                    >
+                      전체 복원
+                    </button>
+                    <button
+                      onClick={() => {
+                        setSelectedFullscreenPaperId(null);
+                        setIsMapFullscreen(true);
+                      }}
+                      className="inline-flex items-center gap-1.5 rounded-md border border-gray-300 px-3 py-1.5 text-xs font-semibold hover:bg-gray-100 dark:border-gray-600 dark:hover:bg-gray-700"
+                    >
+                      <Maximize2 className="h-3.5 w-3.5" />
+                      전체화면
+                    </button>
+                  </div>
                 </div>
-                {selectedFullscreenPaper && (
+                <div className="flex min-h-0 flex-1">
+                  <div className="relative min-w-0 flex-1">
+                    <MindMap
+                      papers={mapPapers}
+                      relationships={mapRelationships}
+                      graphFilterSettings={graphFilterSettings}
+                      onNodeClick={handleNodeClick}
+                      onRemovePaper={handleRemovePaperFromMap}
+                      focusTarget={focusTarget}
+                    />
+                  </div>
+                  {selectedFullscreenPaper && (
                   <aside className="flex h-full w-[380px] shrink-0 flex-col overflow-hidden border-l border-gray-200 bg-white dark:border-gray-700 dark:bg-gray-900">
                     <div className="sticky top-0 z-10 border-b border-gray-200 bg-white/95 px-4 py-4 backdrop-blur dark:border-gray-700 dark:bg-gray-900/95">
                       <div className="mb-2 flex items-center justify-between gap-2">
@@ -416,9 +419,10 @@ export default function DashboardPage() {
                       </div>
                     </div>
                   </aside>
-                )}
+                  )}
+                </div>
               </div>
-            </div>
+            )}
           </div>
         )}
 
