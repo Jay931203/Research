@@ -14,6 +14,8 @@ import {
   Zap,
 } from 'lucide-react';
 import Header from '@/components/layout/Header';
+import CommandPalette from '@/components/common/CommandPalette';
+import { useKeyboardShortcuts } from '@/hooks/useKeyboardShortcuts';
 import katex from 'katex';
 import dynamic from 'next/dynamic';
 
@@ -200,6 +202,8 @@ function InfographicCaption({ children }: { children: React.ReactNode }) {
 /* ------------------------------------------------------------------ */
 
 export default function MyResearchPage() {
+  const { isCommandPaletteOpen, openCommandPalette, closeCommandPalette } = useKeyboardShortcuts();
+
   /* ---------- reading progress ---------- */
   const [scrollProgress, setScrollProgress] = useState(0);
   useEffect(() => {
@@ -300,7 +304,8 @@ export default function MyResearchPage() {
 
   return (
     <div className="min-h-screen bg-gray-50 dark:bg-gray-950">
-      <Header />
+      <Header onSearchClick={openCommandPalette} />
+      <CommandPalette isOpen={isCommandPaletteOpen} onClose={closeCommandPalette} />
 
       {/* Reading progress bar */}
       <div

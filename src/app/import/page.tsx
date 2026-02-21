@@ -5,6 +5,8 @@ import { createPaper, getAllPapers } from '@/lib/supabase/papers';
 import { createRelationship } from '@/lib/supabase/relationships';
 import type { PaperInsert, RelationshipInsert, RelationshipType } from '@/types';
 import Header from '@/components/layout/Header';
+import CommandPalette from '@/components/common/CommandPalette';
+import { useKeyboardShortcuts } from '@/hooks/useKeyboardShortcuts';
 
 interface ImportPaper {
   title: string;
@@ -91,6 +93,7 @@ function normalizeRelationship(
 }
 
 export default function ImportPage() {
+  const { isCommandPaletteOpen, openCommandPalette, closeCommandPalette } = useKeyboardShortcuts();
   const [status, setStatus] = useState<'idle' | 'loading' | 'success' | 'error'>('idle');
   const [message, setMessage] = useState('');
   const [logs, setLogs] = useState<string[]>([]);
@@ -226,7 +229,8 @@ export default function ImportPage() {
 
   return (
     <div className="min-h-screen bg-gray-50 dark:bg-gray-950">
-      <Header />
+      <Header onSearchClick={openCommandPalette} />
+      <CommandPalette isOpen={isCommandPaletteOpen} onClose={closeCommandPalette} />
       <div className="mx-auto max-w-4xl p-8">
         <h1 className="mb-6 text-3xl font-bold text-gray-900 dark:text-gray-100">초기 데이터 Import</h1>
 

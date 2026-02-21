@@ -21,6 +21,8 @@ import {
 import dynamic from 'next/dynamic';
 import katex from 'katex';
 import Header from '@/components/layout/Header';
+import CommandPalette from '@/components/common/CommandPalette';
+import { useKeyboardShortcuts } from '@/hooks/useKeyboardShortcuts';
 
 const IncoherenceViz = dynamic(
   () => import('@/components/quant-study/IncoherenceViz'),
@@ -1362,6 +1364,7 @@ function bin(n: number): number { return n; } // just used for & operator
 /* ───────────────────────────────────────────────────────────── */
 
 function QuantStudyPageInner() {
+  const { isCommandPaletteOpen, openCommandPalette, closeCommandPalette } = useKeyboardShortcuts();
   const searchParams = useSearchParams();
   const tabParam = searchParams.get('tab') as PaperKey | null;
   const [activeTab, setActiveTab] = useState<PaperKey>(
@@ -1449,7 +1452,8 @@ function QuantStudyPageInner() {
 
   return (
     <div className="min-h-screen bg-gray-50 dark:bg-gray-950">
-      <Header />
+      <Header onSearchClick={openCommandPalette} />
+      <CommandPalette isOpen={isCommandPaletteOpen} onClose={closeCommandPalette} />
 
       {/* Reading progress bar */}
       <div
