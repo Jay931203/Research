@@ -1,0 +1,73 @@
+{
+  "id": "847a3629-aa34-428c-b6d8-09dd633e7d0c",
+  "title": "HAQ: Hardware-Aware Automated Quantization with Mixed Precision",
+  "authors": [
+    "Kuan Wang",
+    "Zhijian Liu",
+    "Yujun Lin",
+    "Ji Lin",
+    "Song Han"
+  ],
+  "year": 2019,
+  "venue": "CVPR 2019",
+  "doi": "10.1109/CVPR.2019.00044",
+  "arxiv_id": "1811.08886",
+  "abstract": "HAQ는 강화학습(RL) 에이전트가 하드웨어 시뮬레이터의 실제 지연시간·에너지 피드백을 받아 레이어별 최적 비트폭을 자동으로 결정하는 혼합 정밀도 양자화 프레임워크다. 기존 방법이 FLOPs나 모델 크기 같은 프록시 지표에 의존했던 것과 달리, HAQ는 실제 가속기(엣지·클라우드·공간 아키텍처)의 측정값을 RL 리워드로 직접 활용한다. MobileNet 기준 8비트 고정 대비 지연 1.4~1.95×, 에너지 1.9× 감소를 정확도 손실 없이 달성했다.",
+  "notes_summary": "하드웨어 시뮬레이터의 실제 지연·에너지 피드백을 RL 리워드로 활용해 레이어별 혼합 비트폭을 자동 탐색. 하드웨어마다 최적 정책이 달라짐을 실증.",
+  "key_contributions": [
+    "하드웨어 직접 피드백: FLOPs/모델 크기 같은 프록시가 아닌 실제 하드웨어 시뮬레이터(BISMO, BitFusion)의 지연·에너지 측정값을 RL 리워드로 사용.",
+    "DDPG 기반 자동 탐색: 연속 행동 공간 [0,1]→이산 비트폭 매핑으로 레이어별 비트폭을 순차적으로 결정하는 액터-크리틱 정책.",
+    "하드웨어 특화 정책: 동일 모델이라도 엣지(메모리 바운드)와 클라우드(계산 바운드)에서 최적 비트폭 정책이 근본적으로 다름을 실증.",
+    "루프라인 분석 기반 인사이트: 연산 강도(MACs/바이트)로 레이어가 계산 바운드인지 메모리 바운드인지 파악해 비트폭 배정 원리를 설명.",
+    "실용적 성과: MobileNet-V1에서 고정 8비트 대비 지연 1.4~1.95×, 에너지 1.9× 감소, 정확도 손실 미미."
+  ],
+  "algorithms": [
+    "상태 공간: 레이어 인덱스·채널·커널/스트라이드 크기·특징 맵 크기·파라미터 수·레이어 타입·이전 액션을 포함한 10차원 관측 벡터 O_k.",
+    "행동 공간: 연속값 a_k ∈ [0,1]을 b_k = round(b_min − 0.5 + a_k·(b_max − b_min + 1))으로 이산 비트폭(2~8비트)에 매핑.",
+    "리워드: ℛ = λ·(acc_quant − acc_origin). 하드웨어 제약(지연/에너지/모델 크기) 충족 시에만 보상 지급, 위반 시 큰 페널티.",
+    "DDPG 업데이트: Q̂_k = ℛ_k − ℬ + γ·Q(O_{k+1}, w(O_{k+1})|θ^Q). 기준선 ℬ로 분산 감소. 탐색 노이즈는 절단 정규분포(σ=0.5, 에피소드당 0.99 감쇠).",
+    "양자화: c = arg min_x D_KL(W_k || quantize(W_k, a_k, x)). KL 최소 클리핑 범위 c 탐색 후 s = c/(2^{a_k−1}−1) 스케일로 선형 양자화."
+  ],
+  "key_equations": [
+    {
+      "name": "행동-비트폭 매핑",
+      "latex": "b_k = \\operatorname{round}\\!\\left(b_{\\min} - 0.5 + a_k\\cdot(b_{\\max} - b_{\\min} + 1)\\right),\\quad a_k\\in[0,1]",
+      "description": "연속 행동 a_k를 이산 비트폭 b_k(2~8비트)로 매핑. 연속 행동 공간을 쓰는 DDPG와 이산 비트폭 요구사항을 연결."
+    },
+    {
+      "name": "리워드 함수",
+      "latex": "\\mathcal{R} = \\lambda\\cdot(\\mathrm{acc}_{\\mathrm{quant}} - \\mathrm{acc}_{\\mathrm{origin}}),\\quad \\lambda=0.1",
+      "description": "양자화 전후 정확도 차이를 리워드로 설정. 하드웨어 제약 위반 시 에피소드 종료 및 큰 음의 보상."
+    },
+    {
+      "name": "DDPG Q-함수 업데이트 (Bellman)",
+      "latex": "\\hat{Q}_k = \\mathcal{R}_k - \\mathcal{B} + \\gamma\\cdot Q\\!\\left(O_{k+1},\\,w(O_{k+1})\\,|\\,\\theta^Q\\right)",
+      "description": "벨만 방정식으로 Q-함수 타깃 계산. γ=1(레이어 간 동등 기여). 기준선 ℬ으로 리워드 분산 감소."
+    },
+    {
+      "name": "KL 기반 클리핑 범위 최적화",
+      "latex": "c = \\arg\\min_x\\;\\mathcal{D}_{\\mathrm{KL}}\\!\\left(W_k\\,\\|\\,\\operatorname{quantize}(W_k, a_k, x)\\right)",
+      "description": "원본 가중치 분포와 양자화 분포 사이의 KL 발산을 최소화하는 클리핑 값 c를 탐색. 정보 손실 최소화."
+    },
+    {
+      "name": "선형 양자화 스케일",
+      "latex": "s = \\frac{c}{2^{a_k-1}-1},\\quad \\operatorname{quantize}(w,a_k,c)=\\operatorname{round}\\!\\left(\\operatorname{clamp}(w,c)/s\\right)\\times s",
+      "description": "비트폭 a_k와 클리핑 범위 c로 스케일 s를 결정. clamp→round→역스케일로 대칭 선형 양자화 수행."
+    }
+  ],
+  "architecture_detail": "## 1) 왜 FLOPs/모델 크기는 불충분한가?\n\n기존 자동 양자화 방법은 FLOPs(부동소수점 연산 수)나 모델 크기를 최소화하는 방향으로 비트폭을 할당했다. 그러나 실제 하드웨어 지연과 에너지는 단순히 FLOPs에 비례하지 않는다.\n\n**루프라인 모델 분석**: 각 레이어를 연산 강도(Arithmetic Intensity) = MACs/바이트로 분류하면:\n- **메모리 바운드 레이어** (Depthwise Conv 등): 가중치 비트폭 감소 → 대역폭 절감 → 지연 감소 효과 큼\n- **계산 바운드 레이어** (일반 Conv): 연산 자체가 병목 → 가중치 비트폭 감소 효과 제한적\n\n따라서 최적 비트폭 배정은 **하드웨어와 레이어 특성을 동시에 고려**해야 한다.\n\n## 2) HAQ 에이전트: 상태·행동·리워드\n\n**상태 (State)**: 레이어 k에 대한 10차원 관측 벡터:\n$$\nO_k = (k,\\; c_{\\mathrm{in}},\\; c_{\\mathrm{out}},\\; s_{\\mathrm{kernel}},\\; s_{\\mathrm{stride}},\\; s_{\\mathrm{feat}},\\; n_{\\mathrm{params}},\\; i_{\\mathrm{dw}},\\; i_{w/a},\\; a_{k-1})\n$$\n마지막 요소 $a_{k-1}$는 이전 레이어 결정값 → 레이어 간 의존성 포착.\n\n**행동 (Action)**: 연속값 $a_k \\in [0,1]$을 이산 비트폭으로 매핑:\n$$\nb_k = \\operatorname{round}\\!\\left(b_{\\min} - 0.5 + a_k\\cdot(b_{\\max} - b_{\\min} + 1)\\right)\n$$\n$b_{\\min}=2, b_{\\max}=8$. 연속 행동 공간(DDPG)과 이산 비트폭 요구사항의 인터페이스.\n\n**리워드 (Reward)**:\n$$\n\\mathcal{R} = \\lambda\\cdot(\\mathrm{acc}_{\\mathrm{quant}} - \\mathrm{acc}_{\\mathrm{origin}}),\\quad \\lambda=0.1\n$$\n하드웨어 제약(지연·에너지·모델 크기 중 하나)을 위반하면 에피소드 즉시 종료 + 큰 음의 보상.\n\n## 3) DDPG 액터-크리틱 구조\n\n**DDPG** (Deep Deterministic Policy Gradient): 연속 행동 공간에서 동작하는 오프-폴리시 액터-크리틱 알고리즘.\n\n- **액터**: 상태 → 연속 행동 결정 (2개 400유닛 히든 레이어 + sigmoid)\n- **크리틱**: (상태, 행동) → Q값 추정\n\nQ-함수 업데이트:\n$$\n\\hat{Q}_k = \\mathcal{R}_k - \\mathcal{B} + \\gamma\\cdot Q\\!\\left(O_{k+1},\\,w(O_{k+1})\\,|\\,\\theta^Q\\right)\n$$\n$\\gamma=1$ (모든 레이어 동등 기여). 기준선 $\\mathcal{B}$으로 분산 감소.\n\n탐색 노이즈: 절단 정규분포 $\\sigma=0.5$, 에피소드당 0.99× 지수 감쇠.\n\n## 4) 하드웨어 시뮬레이터 피드백\n\nRL 에이전트가 비트폭 정책을 결정하면 **하드웨어 시뮬레이터**가 실제 지연·에너지를 반환:\n\n| 가속기 | 유형 | 구성 |\n|--------|------|------|\n| BISMO/Zynq-7020 | 엣지 | 8×8 PE, batch=1 |\n| BISMO/VU9P | 클라우드 | 16×16 PE, batch=16 |\n| BitFusion | 공간 | 2D 시스톨릭 |\n\n**핵심 발견**: 동일 모델이라도 엣지(메모리 바운드)에서는 Depthwise Conv 활성화 비트폭을 낮추는 정책이 최적이지만, 클라우드(계산 바운드)에서는 반대. **하드웨어마다 최적 정책이 근본적으로 다르다.**\n\n## 5) 양자화 방법 상세\n\nKL 발산 최소화로 클리핑 범위 탐색:\n$$\nc = \\arg\\min_x\\;\\mathcal{D}_{\\mathrm{KL}}\\!\\left(W_k\\,\\|\\,\\operatorname{quantize}(W_k, a_k, x)\\right)\n$$\n이후 대칭 선형 양자화:\n$$\ns = \\frac{c}{2^{a_k-1}-1},\\quad \\hat{w} = \\operatorname{round}(\\operatorname{clamp}(w,c)/s)\\times s\n$$\n가중치는 $[-c, c]$, 활성화는 $[0, c]$로 클리핑.\n\n## 6) 실험 결과 요약\n\n| 모델 | 하드웨어 제약 | HAQ 결과 |\n|------|------------|----------|\n| MobileNet-V1 | 지연 (BISMO 엣지) | 8비트 대비 1.4~1.95× 지연 감소 |\n| MobileNet-V1 | 에너지 (BitFusion) | 31.03→16.57 mJ, 1.87× 감소 |\n| MobileNet-V1 | 모델 크기 (2비트) | 57.14% vs Deep Compression 37.62% |\n\n정확도 손실 미미한 채로 하드웨어 효율 대폭 향상.",
+  "category": "quantization",
+  "tags": [
+    "haq",
+    "reinforcement-learning",
+    "hardware-aware",
+    "mixed-precision",
+    "DDPG",
+    "automated-quantization",
+    "roofline-model"
+  ],
+  "pdf_url": "https://arxiv.org/pdf/1811.08886",
+  "code_url": "https://github.com/mit-han-lab/haq",
+  "color_hex": "#B45309",
+  "icon_name": null
+}

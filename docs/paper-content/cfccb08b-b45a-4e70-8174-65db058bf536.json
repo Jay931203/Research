@@ -1,0 +1,72 @@
+{
+  "id": "cfccb08b-b45a-4e70-8174-65db058bf536",
+  "title": "BRECQ: Pushing the Limit of Post-Training Quantization by Block Reconstruction",
+  "authors": [
+    "Yuhang Li",
+    "Ruihao Gong",
+    "Xu Tan",
+    "Yang Yang",
+    "Peng Hu",
+    "Qi Zhang",
+    "Fengwei Yu",
+    "Wei Wang",
+    "Shi Gu"
+  ],
+  "year": 2021,
+  "venue": "ICLR 2021",
+  "doi": "10.48550/arXiv.2102.05426",
+  "arxiv_id": "2102.05426",
+  "abstract": "BRECQ는 재학습(QAT) 없이 소량의 데이터만으로 양자화하는 사후 학습 양자화(PTQ)의 한계 비트폭을 INT2까지 밀어붙인 프레임워크다. 핵심 기여는 '블록 재구성(block reconstruction)': 네트워크를 구성하는 기본 빌딩 블록 단위로 순차적으로 양자화 파라미터를 최적화한다. 블록 단위가 레이어 단위보다 교차 레이어 의존성을 더 잘 반영하고, 전체 네트워크 단위보다 일반화 오차가 적다는 2차 오차 이론 분석으로 뒷받침된다. 4비트 ResNet/MobileNetV2에서 QAT에 준하는 성능을, QAT보다 240배 빠른 속도로 달성했다.",
+  "notes_summary": "PTQ에서 처음으로 INT2 양자화를 실현한 프레임워크. 블록 단위 재구성과 Fisher 정보 기반 2차 오차 분석으로 레이어-전체망 사이의 최적점을 포착한다.",
+  "key_contributions": [
+    "PTQ 최초 INT2 달성: 재학습 없이 소량 데이터만으로 2비트 양자화를 처음으로 실용적 수준에서 구현.",
+    "블록 재구성 이론: 2차 테일러 전개로 양자화 손실 저하를 근사하고, 레이어-블록-스테이지-전체망 4단계 재구성 단위의 trade-off를 이론적으로 분석.",
+    "Fisher 정보 대각 근사: Hessian을 그대로 쓰지 않고 그래디언트 제곱 (∂L/∂z)²의 기댓값으로 근사해 계산 비용을 낮추면서 민감도 가중치를 정확히 포착.",
+    "혼합 정밀도 통합: 유전 알고리즘으로 레이어간·레이어내 민감도를 근사하고 하드웨어 제약 하에 최적 비트폭 조합을 탐색.",
+    "실용성: 4비트 ResNet50이 QAT와 0.02% 이내 차이를 보이면서 QAT 대비 240배 빠른 양자화 생산 속도를 달성."
+  ],
+  "algorithms": [
+    "양자화 손실 저하를 2차 테일러로 근사: E[L(w+Δw)] − E[L(w)] ≈ Δw^T ḡ(w) + (1/2)Δw^T H̄(w)Δw. PTQ는 ḡ≈0 가정 하에 Hessian 항만 최소화.",
+    "블록 재구성 목적함수: min_Δθ̃ Δθ̃^T H̄(θ̃) Δθ̃ = E[Δz(ℓ)^T H(z(ℓ)) Δz(ℓ)]. 블록 출력 z(ℓ)의 교란을 Hessian 가중치로 최소화.",
+    "Fisher 정보 대각 근사: H 대신 diag((∂L/∂z_1(ℓ))², …, (∂L/∂z_d(ℓ))²)를 사용해 재구성 목적함수를 효율적으로 계산.",
+    "재구성 단위 4계층: (1) 레이어별(교차 의존성 무시), (2) 블록별(선택 단위, 의존성/일반화 균형), (3) 스테이지별, (4) 전체망(과적합 위험 높음).",
+    "혼합 정밀도: min_c L(ŵ,c) s.t. H(c) ≤ δ, c ∈ {2,4,8}^n. 유전 알고리즘으로 비트폭 조합 c를 탐색."
+  ],
+  "key_equations": [
+    {
+      "name": "양자화 손실 저하의 2차 근사",
+      "latex": "E[L(w+\\Delta w)] - E[L(w)] \\approx \\Delta w^{\\top}\\bar{g}(w) + \\frac{1}{2}\\Delta w^{\\top}\\bar{H}(w)\\Delta w",
+      "description": "양자화 교란 Δw에 의한 손실 증가를 1차(그래디언트)와 2차(Hessian) 항으로 근사. PTQ에서는 ḡ≈0이므로 Hessian 항이 지배."
+    },
+    {
+      "name": "블록 재구성 목적함수",
+      "latex": "\\min_{\\Delta\\tilde{\\theta}}\\;E\\!\\left[\\Delta z^{(\\ell)\\top}H(z^{(\\ell)})\\,\\Delta z^{(\\ell)}\\right]",
+      "description": "블록 k~ℓ의 출력 변화 Δz(ℓ)을 Hessian H(z(ℓ)) 가중치로 최소화. 전체망 오차를 블록 단위로 분해해 최적화."
+    },
+    {
+      "name": "Fisher 정보 대각 근사",
+      "latex": "\\min_{\\hat{w}}\\;E\\!\\left[\\Delta z^{(\\ell)\\top}\\operatorname{diag}\\!\\left(\\left(\\frac{\\partial L}{\\partial z_1^{(\\ell)}}\\right)^{\\!2},\\!\\ldots,\\!\\left(\\frac{\\partial L}{\\partial z_d^{(\\ell)}}\\right)^{\\!2}\\right)\\Delta z^{(\\ell)}\\right]",
+      "description": "Hessian 전체를 계산하지 않고 그래디언트 제곱의 기댓값(Fisher 정보 대각)으로 근사해 중요 출력 차원에 가중치를 부여."
+    },
+    {
+      "name": "혼합 정밀도 최적화",
+      "latex": "\\min_{\\mathbf{c}}\\;L(\\hat{w},\\mathbf{c}),\\quad\\text{s.t.}\\;H(\\mathbf{c})\\leq\\delta,\\;\\mathbf{c}\\in\\{2,4,8\\}^n",
+      "description": "레이어별 비트폭 조합 c를 유전 알고리즘으로 탐색. H(c)는 하드웨어 제약(모델 크기 또는 BOPs)."
+    }
+  ],
+  "architecture_detail": "## 1) PTQ vs QAT — 왜 PTQ가 어려운가?\n\n**QAT (Quantization-Aware Training)**: 양자화를 학습 루프에 포함해 모델이 낮은 비트폭에 적응. 정확도는 높지만 전체 재학습이 필요해 비용이 크다.\n\n**PTQ (Post-Training Quantization)**: 학습 완료된 모델에 소량 캘리브레이션 데이터만으로 양자화. 빠르지만 기존에는 4비트 이하에서 정확도 급락이 문제였다.\n\nBRECQ는 PTQ를 INT2까지 밀어붙이는 것이 목표다.\n\n## 2) 2차 오차 분석 — 왜 블록 단위인가?\n\n양자화 교란 $\\Delta w$에 의한 손실 증가를 테일러 전개하면:\n$$\nE[L(w+\\Delta w)] - E[L(w)] \\approx \\Delta w^{\\top}\\bar{g}(w) + \\frac{1}{2}\\Delta w^{\\top}\\bar{H}(w)\\Delta w\n$$\n학습이 수렴된 모델에서 $\\bar{g} \\approx 0$이므로, **Hessian 항 최소화**가 핵심이다.\n\n**재구성 단위 선택**:\n\n| 단위 | 교차 레이어 의존성 | 일반화 오차 |\n|------|------------------|------------|\n| 레이어별 | ✗ 무시됨 | 낮음 |\n| **블록별** (BRECQ) | **✓ 포착** | **적절** |\n| 스테이지별 | ✓ 포착 | 증가 |\n| 전체망 | ✓ 포착 | 높음 (과적합) |\n\n블록 단위가 의존성 포착과 일반화 오차 사이의 **최적 균형점**.\n\n## 3) 블록 재구성 목적함수\n\n블록 k~ℓ의 출력 변화를 최소화:\n$$\n\\min_{\\Delta\\tilde{\\theta}}\\;E\\!\\left[\\Delta z^{(\\ell)\\top}H(z^{(\\ell)})\\,\\Delta z^{(\\ell)}\\right]\n$$\n$\\Delta z^{(\\ell)}$은 블록 출력의 양자화 교란, $H(z^{(\\ell)})$는 출력에 대한 Hessian.\n\n## 4) Fisher 정보로 Hessian 근사\n\n$H(z^{(\\ell)})$를 직접 계산하면 비용이 크다. BRECQ는 **Fisher 정보 대각 근사**를 사용:\n$$\nH \\approx \\operatorname{diag}\\!\\left(\\left(\\frac{\\partial L}{\\partial z_1^{(\\ell)}}\\right)^{\\!2},\\,\\ldots,\\,\\left(\\frac{\\partial L}{\\partial z_d^{(\\ell)}}\\right)^{\\!2}\\right)\n$$\n각 출력 차원 $z_j$의 그래디언트 제곱이 그 차원의 중요도를 나타낸다. 중요한 차원의 재구성 오차에 더 큰 페널티를 부여하는 효과.\n\n## 5) 혼합 정밀도 통합\n\n레이어별 비트폭 조합 $\\mathbf{c}$를 탐색:\n$$\n\\min_{\\mathbf{c}}\\;L(\\hat{w},\\mathbf{c}),\\quad\\text{s.t.}\\;H(\\mathbf{c})\\leq\\delta,\\;\\mathbf{c}\\in\\{2,4,8\\}^n\n$$\n**민감도 근사**: 각 레이어/블록의 민감도를 Fisher 정보로 계산해 높은 민감도 레이어는 높은 비트폭 배정.\n**탐색**: 유전 알고리즘으로 조합 공간 탐색.\n\n## 6) 실험 결과 요약 (ImageNet)\n\n| 모델 | 2비트 가중치 | 4비트 가중치 | W4A4 |\n|------|------------|------------|------|\n| ResNet-18 | 66.30% | 70.70% | 69.60% |\n| ResNet-50 | 72.40% | 76.29% | 75.05% |\n| MobileNetV2 | 59.67% | 71.66% | 66.57% |\n\n- PTQ 최초 INT2 달성\n- 4비트 ResNet50: QAT와 0.02% 차이, 속도 **240× 빠름**",
+  "category": "quantization",
+  "tags": [
+    "brecq",
+    "post-training-quantization",
+    "block-reconstruction",
+    "second-order",
+    "fisher-information",
+    "INT2",
+    "mixed-precision"
+  ],
+  "pdf_url": "https://arxiv.org/pdf/2102.05426",
+  "code_url": "https://github.com/yhhhli/BRECQ",
+  "color_hex": "#1D4ED8",
+  "icon_name": null
+}

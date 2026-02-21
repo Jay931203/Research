@@ -1,0 +1,67 @@
+{
+  "id": "6ffbf454-c1c0-4a9f-a540-96d78277b8f3",
+  "title": "Any-Precision Deep Neural Networks",
+  "authors": [
+    "Haichao Yu",
+    "Haoxiang Li",
+    "Honghui Shi",
+    "Thomas S. Huang",
+    "Gang Hua"
+  ],
+  "year": 2021,
+  "venue": "AAAI 2021",
+  "doi": "10.48550/arXiv.1911.07346",
+  "arxiv_id": "1911.07346",
+  "abstract": "Any-Precision DNN은 단일 모델이 추론 시 런타임에 비트폭을 자유롭게 바꿀 수 있도록 훈련하는 방법이다. 핵심 아이디어는 8비트로 저장된 가중치의 하위 비트(least significant bits)를 잘라내면 즉시 저비트 모델로 동작한다는 점을 활용한 공동 다중 정밀도 학습이다. 비트폭마다 별도 배치 정규화(BN) 파라미터를 유지(Dynamic BN)하고, 고정밀도 출력이 저정밀도 학습을 지도하는 커리큘럼 지식 증류를 적용한다. ResNet-50 기준으로 단일 모델(104MB)이 전용 5개 모델(220MB)보다 평균 정확도가 더 높다.",
+  "notes_summary": "8비트 가중치의 하위 비트를 잘라내 즉석 저비트 추론을 지원하는 단일 모델. Dynamic BN과 커리큘럼 지식 증류로 다중 정밀도를 동시에 학습.",
+  "key_contributions": [
+    "단일 모델 다중 정밀도: 재학습·재보정 없이 런타임에 비트폭 동적 변경 지원, 배포 환경의 속도-정확도 트레이드오프를 즉각 조정 가능.",
+    "Dynamic BatchNorm: 비트폭마다 독립적인 BN 파라미터 집합 {Φ_k}를 유지해 정밀도별 활성화 분포 차이를 흡수, 공동 학습 수렴 안정화.",
+    "커리큘럼 지식 증류: 고정밀도 출력이 소프트 타깃으로 저정밀도 학습을 지도. 비트폭 내림차순으로 학습 순서를 배열해 안정적 수렴.",
+    "비트 트렁케이션 기반 양자화: tanh 정규화 후 MAX_N 스케일 정수화, 추론 시 상위 N비트만 사용(하위 비트 절삭)으로 별도 재양자화 불필요.",
+    "메모리 효율: 5개 전용 모델(220MB) 대신 단일 모델(104MB)로 모든 정밀도 지원, 기기 내 저장 공간 53% 절감."
+  ],
+  "algorithms": [
+    "가중치 양자화: w' = tanh(w)/(2·max|tanh(w)|) + 0.5 로 [0,1] 정규화 후 w_Q' = INT(round(w'·MAX_N))으로 정수화. 스케일 s' = 1/MAX_N.",
+    "활성화 양자화: y_c' = clip(y', 0, 1) 후 y_Q = INT(round(y_c'·MAX_N))·(1/MAX_N)으로 [0,1] 범위 정수화.",
+    "Dynamic BatchNorm: 비트폭 k마다 독립 파라미터 Φ_k = (γ_k, β_k, μ_k, σ_k) 유지. 순전파 시 현재 비트폭에 맞는 Φ_k 선택.",
+    "커리큘럼 지식 증류: 비트폭 내림차순(32→8→4→2→1)으로 각 단계에서 현재 정밀도 출력이 다음 저정밀도 학습의 소프트 타깃 역할.",
+    "추론 시 런타임 정밀도 전환: 저장된 8비트 정수에서 상위 N비트만 읽어(하위 비트 마스킹) N비트 추론 수행. 추가 연산 없이 즉각 전환."
+  ],
+  "key_equations": [
+    {
+      "name": "가중치 tanh 정규화 및 정수화",
+      "latex": "w' = \\frac{\\tanh(w)}{2\\max|\\tanh(w)|}+0.5,\\quad w_Q' = \\operatorname{INT}\\!\\left(\\operatorname{round}(w'\\cdot M_N)\\right)",
+      "description": "가중치를 tanh로 [0,1]에 매핑한 뒤 M_N=2^N−1로 N비트 정수화. 상위 비트만 읽으면 저비트 표현이 되는 구조."
+    },
+    {
+      "name": "활성화 클리핑 및 정수화",
+      "latex": "y_c' = \\operatorname{clip}(y',0,1),\\quad y_Q = \\operatorname{INT}\\!\\left(\\operatorname{round}(y_c'\\cdot M_N)\\right)\\cdot\\frac{1}{M_N}",
+      "description": "ReLU 활성화를 [0,1]로 클리핑한 후 정수화. 정밀도 N에 따라 M_N을 바꾸면 동일 가중치로 다른 비트 정밀도 추론 가능."
+    },
+    {
+      "name": "Dynamic BatchNorm",
+      "latex": "\\hat{x}_k = \\frac{x - \\mu_k}{\\sigma_k},\\quad y_k = \\gamma_k \\hat{x}_k + \\beta_k,\\quad k\\in\\{1,2,4,8,32\\}",
+      "description": "비트폭 k마다 독립적인 γ_k, β_k, μ_k, σ_k를 유지. 정밀도별 활성화 분포 차이를 각 BN이 흡수해 공동 학습 안정화."
+    },
+    {
+      "name": "지식 증류 손실",
+      "latex": "\\mathcal{L}_{\\mathrm{distill}} = \\mathrm{KL}\\!\\left(p_{\\mathrm{teacher}}(x/T)\\,\\|\\,p_{\\mathrm{student}}(x/T)\\right)",
+      "description": "고정밀도(teacher) 소프트맥스 출력이 저정밀도(student) 학습을 지도. 온도 T로 소프트 타깃의 정보량 조절."
+    }
+  ],
+  "architecture_detail": "## 1) 문제: 정밀도마다 별도 모델이 필요한가?\n\n실제 배포 환경에서는 디바이스 종류, 배터리 상태, 요청 부하에 따라 원하는 정확도-속도 트레이드오프가 실시간으로 바뀐다. 기존 접근법은 1비트, 4비트, 8비트 각각에 맞는 별도 모델을 학습·저장해야 했다.\n\n**Any-Precision DNN의 핵심 관찰**: 8비트 정수로 저장된 가중치에서 하위 비트를 잘라내면 그 자체로 낮은 비트 표현이 된다. 즉 **1개 모델만 저장하면 모든 정밀도 지원 가능**.\n\n## 2) 양자화 방식: tanh 정규화 + 비트 트렁케이션\n\n가중치 양자화:\n$$\nw' = \\frac{\\tanh(w)}{2\\max|\\tanh(w)|}+0.5,\\quad w_Q' = \\operatorname{INT}\\!\\left(\\operatorname{round}(w'\\cdot M_N)\\right)\n$$\nstanh로 가중치를 [0,1] 범위에 부드럽게 매핑한 뒤 $M_N = 2^N - 1$로 스케일해 N비트 정수화.\n\n활성화 양자화:\n$$\ny_c' = \\operatorname{clip}(y', 0, 1),\\quad y_Q = \\operatorname{INT}\\!\\left(\\operatorname{round}(y_c'\\cdot M_N)\\right)\\cdot\\frac{1}{M_N}\n$$\nReLU 출력을 [0,1]로 클리핑 후 정수화.\n\n**추론 시 정밀도 전환**: 저장된 8비트 값에서 상위 N비트만 읽으면(하위 비트 마스킹) 바로 N비트 추론. 별도 재양자화 연산 불필요.\n\n## 3) Dynamic BatchNorm — 핵심 안정화 장치\n\n문제: 1비트와 8비트는 활성화 분포가 근본적으로 다르다. 공유 BN 파라미터를 쓰면 학습 불안정.\n\n해법: **비트폭마다 독립적인 BN 파라미터 집합** $\\{\\Phi_k\\}$ 유지:\n$$\n\\hat{x}_k = \\frac{x - \\mu_k}{\\sigma_k},\\quad y_k = \\gamma_k \\hat{x}_k + \\beta_k\n$$\n$k \\in \\{1, 2, 4, 8, 32\\}$. 순전파 시 현재 비트폭에 해당하는 파라미터 선택.\n\nBN 파라미터는 전체 모델에서 극히 일부(< 1%)를 차지하므로 메모리 오버헤드 미미.\n\n## 4) 커리큘럼 지식 증류 — 다중 정밀도 동시 학습\n\n단순히 모든 비트폭을 동시에 학습하면 저비트가 고비트 학습을 방해한다. BRECQ는 **커리큘럼 전략**을 적용:\n\n1. 완전 정밀도(FP32) 모델 사전 학습\n2. 비트폭 내림차순 순서: 32 → 8 → 4 → 2 → 1\n3. 각 단계에서 바로 위 정밀도 출력이 소프트 타깃:\n$$\n\\mathcal{L}_{\\mathrm{distill}} = \\mathrm{KL}\\!\\left(p_{\\mathrm{teacher}}(x/T)\\,\\|\\,p_{\\mathrm{student}}(x/T)\\right)\n$$\n온도 T로 소프트맥스를 부드럽게 만들어 정보량 극대화.\n\n## 5) 실험 결과 (ImageNet, ResNet-50)\n\n| 비트폭 | Any-Precision | 전용 모델 |\n|--------|--------------|----------|\n| 1비트 | 63.18% | 61.08% |\n| 4비트 | 74.75% | 71.24% |\n| 8비트 | 74.91% | 74.71% |\n\n모든 비트폭에서 전용 모델 대비 정확도 동등 이상. 모델 크기: **104MB (단일)** vs 220MB (5개 전용 모델의 합).\n\n## 6) 핵심 인사이트 요약\n\n- **비트 트렁케이션**: 8비트 값에서 상위 N비트만 쓰는 아이디어가 모든 정밀도를 단일 모델로 지원하는 열쇠\n- **Dynamic BN**: 비트폭별 활성화 분포 차이를 흡수하는 필수 구성요소\n- **커리큘럼 증류**: 고비트에서 저비트로 점진적 학습이 공동 훈련의 불안정성을 해소",
+  "category": "quantization",
+  "tags": [
+    "any-precision",
+    "flexible-quantization",
+    "dynamic-batchnorm",
+    "knowledge-distillation",
+    "bit-truncation",
+    "multi-precision"
+  ],
+  "pdf_url": "https://arxiv.org/pdf/1911.07346",
+  "code_url": "https://github.com/SHI-Labs/Any-Precision-DNNs",
+  "color_hex": "#047857",
+  "icon_name": null
+}

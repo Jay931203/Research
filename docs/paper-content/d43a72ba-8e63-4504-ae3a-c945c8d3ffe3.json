@@ -1,0 +1,79 @@
+{
+  "id": "d43a72ba-8e63-4504-ae3a-c945c8d3ffe3",
+  "title": "HAWQ-V3: Dyadic Neural Network Quantization",
+  "authors": [
+    "Zhewei Yao",
+    "Zhen Dong",
+    "Zhangcheng Zheng",
+    "Amir Gholami",
+    "Jiali Yu",
+    "Eric Tan",
+    "Leyuan Wang",
+    "Qijing Huang",
+    "Yida Wang",
+    "Michael W. Mahoney",
+    "Kurt Keutzer"
+  ],
+  "year": 2021,
+  "venue": "ICML 2021",
+  "doi": "10.48550/arXiv.2011.10680",
+  "arxiv_id": "2011.10680",
+  "abstract": "HAWQ-V3는 딥러닝 추론에서 부동소수점 변환 오버헤드를 완전히 제거하는 정수 전용(integer-only) 혼합 정밀도 양자화 프레임워크다. 핵심 아이디어는 두 가지다: 모든 스케일링 계수를 다이아딕(dyadic) 수 b/2^c 형태로 제한해 나눗셈 없이 비트 시프팅만으로 재정규화하는 정수 산술 체계, 그리고 헤시안 기반 민감도와 정수선형계획법(ILP)으로 레이어별 최적 비트폭을 수 초 내에 탐색하는 하드웨어 인식 혼합 정밀도 선택. ResNet50 기준 INT8에서 기존 정수 전용 방법 대비 2.68% 정확도 향상, INT4/8 혼합에서 INT8 대비 23% 지연 시간 감소를 달성했다.",
+  "notes_summary": "다이아딕 스케일링으로 부동소수점 연산을 완전 제거하고, 헤시안 ILP로 초고속 최적 비트폭을 탐색하는 정수 전용 혼합 정밀도 양자화 프레임워크.",
+  "key_contributions": [
+    "정수 전용 추론: 곱셈·덧셈·비트 시프팅만 사용, 부동소수점 연산 및 정수 나눗셈 완전 제거로 실제 하드웨어 정수 유닛에서 바로 실행 가능.",
+    "다이아딕 스케일링: 스케일 계수를 b/2^c 형태로 제한해 모든 재정규화를 비트 시프트 1회로 처리, 기존 FP32→INT 변환 오버헤드 원천 차단.",
+    "ILP 기반 혼합 정밀도 선택: 헤시안 트레이스로 레이어 민감도를 측정하고 ILP로 메모리·지연시간 제약 하에 최적 비트폭 조합을 1초 미만에 결정.",
+    "BN 융합 정수화: BN 파라미터를 FP32로 남기지 않고 합성곱 가중치에 완전 흡수해 추론 파이프라인 전체를 정수 영역에 유지.",
+    "TVM 하드웨어 배포: T4 GPU에서 INT4 균일 양자화가 INT8 대비 1.45× 속도 향상 달성, 오픈소스 구현 공개."
+  ],
+  "algorithms": [
+    "양자화 연산자 Q(r) = Int(r/S) − Z 로 실수 텐서를 정수 표현으로 변환한다. S는 스케일, Z는 영점(zero point).",
+    "다이아딕 스케일: S_w·S_h/S_a = b/2^c 를 만족하도록 스케일을 선택하면, 정수 행렬 곱 후 재정규화가 q_a = Int((b/2^c)·(q_w * q_h)) = (q_w * q_h · b) >> c 로 비트 시프트 1회에 완료.",
+    "ILP로 최적 비트폭 선택: Minimize Σ Ω_i^(b_i) (레이어 교란 합) subject to 메모리·BOPS·지연시간 제약. 헤시안 트레이스 Tr(H_i)를 민감도 가중치로 사용.",
+    "BN 융합: W̄ = βW/σ, b̄ = γ − βμ/σ 로 BN 파라미터를 합성곱 가중치에 흡수해 추론 시 별도 FP32 연산을 없앤다.",
+    "잔차 연결 정수화: q_a = DN(S_m/S_a)·q_m + DN(S_r/S_a)·q_r (DN=다이아딕 근사)로 두 분기 합산도 정수 영역에서 수행, FP32 잔차 후 양자화 방식의 오차 누적 제거."
+  ],
+  "key_equations": [
+    {
+      "name": "균일 양자화 연산자",
+      "latex": "Q(r) = \\operatorname{Int}\\!\\left(\\frac{r}{S}\\right) - Z",
+      "description": "실수 값 r을 스케일 S와 영점 Z를 이용해 정수로 변환하는 기본 양자화 연산."
+    },
+    {
+      "name": "다이아딕 정수 행렬 곱",
+      "latex": "q_a = \\operatorname{Int}\\!\\left(\\frac{S_w S_h}{S_a}\\cdot (q_w * q_h)\\right) = \\frac{(q_w * q_h)\\cdot b}{2^c}",
+      "description": "스케일 비율 S_w·S_h/S_a를 다이아딕 수 b/2^c로 근사하면 재정규화가 비트 시프트 연산으로 환원된다."
+    },
+    {
+      "name": "ILP 목적함수 (레이어 교란 최소화)",
+      "latex": "\\min_{\\mathbf{b}}\\sum_i \\Omega_i^{(b_i)},\\quad \\text{s.t.}\\;\\mathrm{Size}(\\mathbf{b})\\leq C_s,\\;\\mathrm{BOPS}(\\mathbf{b})\\leq C_b",
+      "description": "헤시안 트레이스 기반 레이어 교란 Ω_i를 최소화하면서 모델 크기·BOPS 제약을 만족하는 비트폭 벡터 b를 ILP로 탐색."
+    },
+    {
+      "name": "BN 가중치 융합",
+      "latex": "\\bar{W} = \\frac{\\beta W}{\\sigma},\\quad \\bar{b} = \\gamma - \\frac{\\beta\\mu}{\\sigma}",
+      "description": "배치 정규화 파라미터 (γ, β, μ, σ)를 합성곱 가중치에 흡수해 추론 시 정수 연산만 수행하도록 만든다."
+    },
+    {
+      "name": "다이아딕 잔차 덧셈",
+      "latex": "q_a = \\mathrm{DN}\\!\\left(\\frac{S_m}{S_a}\\right)q_m + \\mathrm{DN}\\!\\left(\\frac{S_r}{S_a}\\right)q_r",
+      "description": "두 분기의 스케일을 다이아딕 근사(DN)로 통일해 정수 덧셈으로 잔차 연결을 처리, FP32 변환 없이 오차 누적을 억제."
+    }
+  ],
+  "architecture_detail": "## 1) 왜 정수 전용(Integer-Only) 인가?\n\n기존 '가짜 양자화(fake quantization)' 방식은 학습 시에만 정수로 시뮬레이션하고, 실제 추론 하드웨어에서는 FP32↔INT 변환 오버헤드가 발생한다. HAWQ-V3는 이 문제를 근본적으로 해결하려는 프레임워크다.\n\n가짜 양자화의 숨겨진 오류: 가짜 양자화는 FP32에서 덧셈을 수행한 뒤 양자화하지만, 실제 정수 하드웨어는 정수끼리 덧셈 후 한꺼번에 재정규화한다. 이 차이가 INT4 네트워크 후반 레이어에서 95% 이상의 오차 누적을 야기한다.\n\n## 2) 다이아딕(Dyadic) 수란?\n\n다이아딕 수는 b/2^c 형태의 유리수(b, c는 정수)다. 핵심 성질: **다이아딕 수를 곱하면 비트 시프팅으로 계산 가능**.\n\n기본 양자화 연산자:\n$$\nQ(r) = \\operatorname{Int}\\!\\left(\\frac{r}{S}\\right) - Z\n$$\n여기서 S는 스케일 팩터, Z는 영점이다.\n\n행렬 곱 후 재정규화 문제: 가중치 $q_w$와 입력 $q_h$의 곱 결과를 출력 스케일 $S_a$로 환원할 때, $S_w \\cdot S_h / S_a$가 일반 실수라면 부동소수점 나눗셈이 필요하다.\n\nHAWQ-V3의 핵심 아이디어: $S_w \\cdot S_h / S_a \\approx b/2^c$ 로 다이아딕 근사하면,\n$$\nq_a = \\operatorname{Int}\\!\\left(\\frac{S_w S_h}{S_a}\\cdot (q_w * q_h)\\right) \\approx \\frac{(q_w * q_h) \\cdot b}{2^c} = (q_w * q_h \\cdot b) \\gg c\n$$\n나눗셈 없이 **정수 곱셈 1회 + 비트 시프트 1회**로 완료.\n\n## 3) BN 융합 — 배치 정규화도 정수화\n\nBN을 FP32로 남기면 정수 전용 추론이 깨진다. HAWQ-V3는 BN 파라미터를 앞 합성곱 가중치에 완전 흡수한다:\n$$\n\\bar{W} = \\frac{\\beta W}{\\sigma},\\quad \\bar{b} = \\gamma - \\frac{\\beta\\mu}{\\sigma}\n$$\n추론 시 별도 BN 레이어가 사라지고, 전체 파이프라인이 정수 영역에 머문다.\n\n## 4) 잔차 연결 — 다이아딕 덧셈\n\n잔차 연결은 두 분기의 스케일이 달라 합산 시 문제가 생긴다. HAWQ-V3는 두 분기 스케일을 다이아딕 수로 통일한다:\n$$\nq_a = \\mathrm{DN}\\!\\left(\\frac{S_m}{S_a}\\right)q_m + \\mathrm{DN}\\!\\left(\\frac{S_r}{S_a}\\right)q_r\n$$\nDN은 다이아딕 근사 함수. 이 방식으로 잔차 덧셈도 정수 연산만으로 처리 가능.\n\n## 5) ILP 기반 혼합 정밀도 선택\n\n레이어별로 최적 비트폭을 고르는 것은 조합 폭발 문제다. HAWQ-V3는 이를 정수선형계획법(ILP)으로 모델링한다:\n$$\n\\min_{\\mathbf{b}}\\sum_i \\Omega_i^{(b_i)},\\quad \\text{s.t.}\\;\\mathrm{Size}(\\mathbf{b})\\leq C_s,\\;\\mathrm{BOPS}(\\mathbf{b})\\leq C_b\n$$\n- $\\Omega_i^{(b_i)}$: 레이어 i를 비트폭 $b_i$로 양자화했을 때의 헤시안 트레이스 기반 모델 교란량\n- $C_s, C_b$: 모델 크기, BOPS(비트 연산 수) 하드웨어 제약\n\nRL 기반 방법(수십 시간)과 달리 ILP는 **1초 미만**에 최적해 도출.\n\n**헤시안 민감도**: 이전 HAWQ 연구에서 도입. $\\mathrm{Tr}(H_i)$가 클수록 그 레이어는 양자화 오차에 민감 → 높은 비트폭 배정.\n\n## 6) 실험 결과 요약\n\n| 모델 | 방법 | 정밀도 | 정확도 | 비고 |\n|------|------|--------|--------|------|\n| ResNet50 | HAWQ-V3 | INT8 | 77.58% | 기존 정수 전용 대비 +2.68% |\n| ResNet50 | HAWQ-V3+Dist | INT4/8 혼합 | 76.73% | INT8 대비 지연 23% 감소 |\n| InceptionV3 | HAWQ-V3 | INT8 | 78.76% | 기존 정수 전용 대비 +4.56% |\n\nTVM + T4 GPU에서 INT4 균일 양자화가 INT8 대비 **1.45× 속도 향상** 달성.",
+  "category": "quantization",
+  "tags": [
+    "hawq-v3",
+    "integer-only",
+    "mixed-precision",
+    "dyadic",
+    "ILP",
+    "hessian",
+    "hardware-aware-quantization"
+  ],
+  "pdf_url": "https://arxiv.org/pdf/2011.10680",
+  "code_url": "https://github.com/Zhen-Dong/HAWQ",
+  "color_hex": "#6D28D9",
+  "icon_name": null
+}

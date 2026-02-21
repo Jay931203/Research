@@ -9,65 +9,60 @@
     "Lei Jiang"
   ],
   "year": 2020,
-  "venue": "ICLR 2020 (arXiv 1902.05690)",
+  "venue": "ICLR 2020",
   "doi": "10.48550/arXiv.1902.05690",
   "arxiv_id": "1902.05690",
-  "abstract": "AutoQ는 레이어 단위 혼합 정밀도의 거친 탐색 한계를 넘기 위해, 양자화 비트 탐색 단위를 커널(kernel) 수준으로 세분화한 자동화 프레임워크다. 커널별 민감도 차이를 반영하면 더 나은 정확도-자원 트레이드오프를 얻을 수 있지만, 탐색 공간이 폭발적으로 커진다.\n\n논문은 이를 계층형 강화학습(Hierarchical DRL)으로 해결한다. 상위 제어기(HLC)는 레이어 수준 목표를 생성하고, 하위 제어기(LLC)는 각 커널의 비트를 결정한다. 또한 보상함수에 정확도뿐 아니라 지연시간, 에너지, 면적을 함께 넣어 하드웨어 제약을 직접 최적화한다.\n\n특히 shaped intrinsic reward를 도입해 LLC 학습 안정성을 높였고, FPGA 기반 평가에서 단순 layer-wise 정책 대비 더 좋은 자원-정확도 균형을 달성했다. AutoQ의 핵심 가치는 양자화 정책 탐색을 신경망 성능 문제와 하드웨어 시스템 문제의 공동 최적화로 정식화했다는 점이다.",
-  "notes_summary": "커널 단위 비트할당을 계층형 DRL(HLC/LLC)로 탐색하고, 정확도-지연시간-에너지-면적을 통합 보상으로 최적화하는 하드웨어 인지형 자동 양자화.",
+  "abstract": "AutoQ는 레이어 단위를 넘어 **커널(필터) 단위**로 비트폭을 자동 할당하는 계층적 심층 강화학습(Hierarchical DRL) 프레임워크다. 같은 레이어 내 커널들도 분산이 서로 달라 중복도가 다르다는 관찰에서 출발한다. 상위 컨트롤러(HLC)가 레이어 전체 목표 비트폭을 정하면, 하위 컨트롤러(LLC)가 각 커널의 실제 비트폭을 결정하는 HIRO 기반 2단계 RL을 사용한다. 기존 레이어별 DRL 방법 대비 지연 54.06%, 에너지 50.69% 감소를 동일 정확도에서 달성했다.",
+  "notes_summary": "레이어 내 커널별 분산 차이를 활용해 커널 단위 비트폭을 자동 탐색하는 계층적 DRL 프레임워크. HLC+LLC 2단계 구조로 지수적 탐색 공간 문제 해결.",
   "key_contributions": [
-    "레이어 단위를 넘어 커널 단위(bit per kernel) 정책을 자동 탐색해 더 미세한 민감도 반영이 가능함을 보였다.",
-    "HLC/LLC 계층형 제어 구조로 거대한 행동 공간을 분해해 실용적인 탐색 속도와 수렴성을 확보했다.",
-    "정확도, 지연시간, 에너지, 면적을 하나의 extrinsic reward로 통합해 배포 친화적인 정책을 직접 유도했다.",
-    "goal 달성 항과 환경 보상 항을 결합한 intrinsic reward로 하위 제어기의 학습 불안정을 완화했다.",
-    "FPGA 기반 실험에서 layer-wise 기준 대비 더 우수한 Pareto 전선(정확도-자원)을 보고했다."
+    "커널별 양자화: 같은 레이어 내 커널도 분산이 다르면 중복도가 달라 최적 비트폭이 다름. 레이어 단위 할당의 정밀도 낭비를 커널 단위로 해소.",
+    "계층적 DRL (HIRO): 상위 컨트롤러(HLC)가 레이어 목표 비트폭 생성 → 하위 컨트롤러(LLC)가 각 커널 비트폭 결정. 지수적 탐색 공간을 분해해 탐색 효율 확보.",
+    "외재적+내재적 리워드: LLC에 외재적 리워드(하드웨어 지표) 외에 HLC 목표 달성 내재적 리워드 추가. 동적 ζ 가중치로 학습 초반 목표 달성에 집중, 후반 성능 최적화.",
+    "저장 오버헤드 최소화: 커널별 4비트 QBN 인덱스 저장으로 ResNet-18 기준 모델 크기의 0.07%만 추가, 실용적 커널별 양자화 가능성 실증.",
+    "다중 하드웨어 일반화: 시간적(temporal) 가속기와 공간적(spatial, BitFusion) 가속기 모두에서 기존 방법 대비 우월한 성능 달성."
   ],
   "algorithms": [
-    "상위 제어기(HLC)가 레이어별 목표(평균 비트 또는 활성화 비트 목표)를 제안한다.",
-    "하위 제어기(LLC)가 해당 목표를 만족하도록 레이어 내 각 커널의 비트를 순차 할당한다.",
-    "정책이 생성한 비트할당으로 모델을 양자화하고 단기 파인튜닝 후 정확도를 측정한다.",
-    "하드웨어 추정기 또는 실측으로 지연시간, 에너지, 면적을 산출한다.",
-    "extrinsic/intrinsic reward를 계산해 HLC와 LLC를 오프폴리시로 갱신한다.",
-    "최종 정책을 선택해 전체 데이터로 재학습 후 배포 모델을 생성한다."
+    "HLC(상위 컨트롤러): 레이어별 활성화 QBN과 가중치 평균 목표 QBN 생성. TD3 기반 off-policy 업데이트.",
+    "LLC(하위 컨트롤러): HLC 목표를 받아 각 커널의 실제 QBN 결정. 상태에 커널 인덱스·현재 레이어 누적 비트 할당 포함.",
+    "외재적 리워드: eRd = log(acc^ψ_acc / (lat^ψ_l · en^ψ_e · area^ψ_a)). ψ 파라미터로 자원 제약(Resource) vs 정확도 보장(Accuracy) 모드 전환.",
+    "내재적 리워드: iRd_Li = (1−ζ)·(−||g_Li·c_out − Σa_{Li,Kj}||_2) + ζ·ΣeRd_{Li,Kj}. ζ를 0.1→0.8로 동적 증가시켜 목표 달성→성능 최적화로 학습 전략 전환.",
+    "커널별 비트폭 저장: 4비트 QBN 인덱스를 커널마다 저장. ResNet-18 기준 전체 모델 크기의 0.07% 추가 오버헤드."
   ],
   "key_equations": [
     {
-      "name": "상태 표현",
-      "latex": "state_{[L_i,K_j]}=(L_i,K_j,c_{in},c_{out},s_{kernel},s_{stride},s_{feature},b_{dw},b_{w/a},g_{L_{i-1}},a_{[L_i,K_{j-1}]})",
-      "description": "현재 레이어/커널 문맥, 이전 결정, 목표 정보를 함께 포함해 정책의 조건부 결정을 가능하게 한다."
+      "name": "외재적 리워드 (로그 복합 지표)",
+      "latex": "eRd = \\log\\frac{\\mathrm{acc}^{\\psi_{\\mathrm{acc}}}}{\\mathrm{lat}^{\\psi_l}\\cdot \\mathrm{en}^{\\psi_e}\\cdot \\mathrm{area}^{\\psi_a}}",
+      "description": "정확도, 지연, 에너지, 면적을 로그 공간에서 가중 결합. ψ 조합으로 자원 제약 모드(정확도 최대화)와 정확도 보장 모드(자원 최소화) 전환."
     },
     {
-      "name": "외재 보상(하드웨어 인지)",
-      "latex": "eRd=\\log\\frac{accuracy(NC)^{\\psi_{acc}}}{lat(NC,HC)^{\\psi_l}\\,en(NC,HC)^{\\psi_e}\\,area(NC,HC)^{\\psi_a}}",
-      "description": "정확도는 높이고 지연시간·에너지·면적은 줄이는 방향으로 정책을 유도하는 핵심 목적식이다."
+      "name": "내재적 리워드 (목표 달성 + 외재적 성능)",
+      "latex": "iRd_{Li} = (1-\\zeta)\\cdot\\left(-\\left\\|g_{Li}\\cdot c_{\\mathrm{out}} - \\sum_j a_{Li,K_j}\\right\\|_2\\right) + \\zeta\\cdot\\sum_j eRd_{Li,K_j}",
+      "description": "LLC가 HLC 목표(g_Li·c_out)에 얼마나 근접했는지와 실제 하드웨어 성능을 가중 결합. ζ 동적 증가(0.1→0.8)로 학습 전략 전환."
     },
     {
-      "name": "내재 보상(Shaped Reward)",
-      "latex": "iRd_{L_i}=(1-\\zeta)\\big(-\\|g_{L_i}c_{out}-\\sum_j a_{L_i,K_j}\\|_2\\big)+\\zeta\\sum_j eRd_{L_i,K_j}",
-      "description": "HLC 목표 달성도와 실제 환경 보상을 동시에 반영해 LLC 학습을 안정화한다."
+      "name": "자원 제약 모드 파라미터 설정",
+      "latex": "\\psi_{\\mathrm{acc}}=1,\\;\\psi_l=\\psi_e=\\psi_a=0\\;\\Rightarrow\\;eRd=\\log(\\mathrm{acc})",
+      "description": "하드웨어 제약 하에서 정확도만 최대화. 제약은 별도의 조기 종료(penalty) 조건으로 처리."
     },
     {
-      "name": "LLC TD 손실",
-      "latex": "\\left(Q_{\\theta}^{LLC}(s,g,a)-iRd-\\gamma_{iRd}Q_{\\theta}^{LLC}(s',g,\\mu_{\\phi}^{LLC}(s',g))\\right)^2",
-      "description": "하위 제어기의 Q함수를 시간차 학습으로 갱신해 커널 단위 정책 품질을 높인다."
-    },
-    {
-      "name": "평균 커널 비트폭",
-      "latex": "\\overline{B}_W=\\frac{\\sum_{L_i}\\sum_{K_j}Weight\\_QBN_{[L_i,K_j]}}{\\sum_i c_{out,i}}",
-      "description": "최종 정책의 전역 정밀도 수준을 요약하는 지표로 자원 제약 만족 여부를 점검할 때 사용한다."
+      "name": "정확도 보장 모드 파라미터 설정",
+      "latex": "\\psi_{\\mathrm{acc}}=2,\\;\\psi_l,\\psi_e,\\psi_a>0\\;\\Rightarrow\\;eRd=\\log\\frac{\\mathrm{acc}^2}{\\mathrm{lat}^{\\psi_l}\\cdot\\mathrm{en}^{\\psi_e}}",
+      "description": "정확도를 보장하면서 지연·에너지 최소화. 정확도에 제곱 가중치를 주어 정확도 저하에 큰 페널티."
     }
   ],
-  "architecture_detail": "## 1) 문제 설정: 왜 kernel-wise가 필요한가\n\n같은 레이어 안에서도 커널별 중복도와 민감도가 다르다. 레이어 전체에 동일 비트를 주면 일부 커널에는 과한 비트를, 일부에는 부족한 비트를 배정하게 되어 비효율이 생긴다.\n\n## 2) 계층형 DRL 구조(HLC/LLC)\n\n- HLC: 레이어 수준 목표 생성\n- LLC: 목표를 만족하도록 커널별 비트 결정\n\n이 분해 덕분에 커널 단위의 거대한 행동 공간을 직접 한 번에 다루지 않아도 된다.\n\n$$\nstate_{[L_i,K_j]}=(L_i,K_j,c_{in},c_{out},s_{kernel},s_{stride},s_{feature},b_{dw},b_{w/a},g_{L_{i-1}},a_{[L_i,K_{j-1}]})\n$$\n\n## 3) 하드웨어 인지 목적식\n\n$$\neRd=\\log\\frac{accuracy(NC)^{\\psi_{acc}}}{lat(NC,HC)^{\\psi_l}\\,en(NC,HC)^{\\psi_e}\\,area(NC,HC)^{\\psi_a}}\n$$\n\n정확도만 보는 탐색이 아니라, 실제 배포 지표(지연시간/에너지/면적)를 동시에 최적화한다.\n\n## 4) Shaped Intrinsic Reward로 학습 안정화\n\n$$\niRd_{L_i}=(1-\\zeta)\\big(-\\|g_{L_i}c_{out}-\\sum_j a_{L_i,K_j}\\|_2\\big)+\\zeta\\sum_j eRd_{L_i,K_j}\n$$\n\n첫 항은 HLC 목표 달성도를, 둘째 항은 실제 환경 성능을 반영한다. 이 결합이 LLC의 탐색 분산을 줄여준다.\n\n## 5) 최적화 파이프라인\n\n1. HLC/LLC로 정책 생성\n2. 단기 파인튜닝으로 정확도 평가\n3. 하드웨어 비용 추정\n4. 강화학습 업데이트 반복\n5. 최종 정책 전체 재학습 후 배포\n\n## 6) 구현 체크리스트\n\n- 커널 단위 행동 공간 폭발을 막기 위한 episode 길이/탐색률 조정\n- 하드웨어 추정기의 편향(실측 대비 오차) 주기적 점검\n- \\(\\zeta\\), \\(\\psi\\) 계수 튜닝으로 정확도 우선/자원 우선 모드 분리\n- layer-wise baseline과 동일 예산 조건에서 공정 비교\n- 최종 지표는 정확도뿐 아니라 실제 latency/energy까지 동시 보고",
+  "architecture_detail": "## 1) 왜 커널 단위 양자화인가?\n\n기존 방법들(HAQ 포함)은 레이어 단위로 비트폭을 할당한다. 그런데 **같은 레이어 내 커널들도 분산이 크게 다르다**:\n- 분산이 큰 커널: 다양한 패턴 포착 → 중복도 낮음 → 높은 비트폭 필요\n- 분산이 작은 커널: 단순 패턴 → 중복도 높음 → 낮은 비트폭으로 충분\n\n레이어 단위 양자화는 이 차이를 무시해 **비트 자원 낭비**가 발생한다. AutoQ는 커널 단위로 비트폭을 할당해 이를 해결.\n\n**탐색 공간 문제**: 커널별 비트폭 탐색 공간은 $33^{\\sum c_{\\mathrm{out}}}$로 지수 폭발. 단순 RL로는 불가능 → 계층적 구조 필요.\n\n## 2) 계층적 DRL 구조 (HIRO 기반)\n\n**HIRO** (HIerarchical Reinforcement learning with Off-policy correction): 고수준 목표 설정 컨트롤러와 저수준 실행 컨트롤러를 분리.\n\n**HLC (High-Level Controller)**:\n- 레이어 i의 활성화 QBN 결정\n- 레이어 i의 가중치 평균 목표 QBN $g_{Li}$ 생성\n- TD3(Twin Delayed DDPG) 기반 off-policy 업데이트\n\n**LLC (Low-Level Controller)**:\n- HLC 목표 $g_{Li}$를 받아 각 커널 $K_j$의 실제 QBN $a_{Li,K_j}$ 결정\n- 목표 달성(HLC와의 합의)과 실제 성능 최적화를 동시에 추구\n\n두 컨트롤러는 동시에 학습. LLC는 HLC 목표를 따르면서도 커널별 세밀한 최적화.\n\n## 3) 리워드 설계 — 외재적 + 내재적\n\n**외재적 리워드** (환경에서 얻음):\n$$\neRd = \\log\\frac{\\mathrm{acc}^{\\psi_{\\mathrm{acc}}}}{\\mathrm{lat}^{\\psi_l}\\cdot \\mathrm{en}^{\\psi_e}\\cdot \\mathrm{area}^{\\psi_a}}\n$$\n$\\psi$ 파라미터로 두 가지 모드:\n- **자원 제약 모드**: $\\psi_{\\mathrm{acc}}=1$, others=0 → 제약 내 정확도 최대화\n- **정확도 보장 모드**: $\\psi_{\\mathrm{acc}}=2$, 나머지>0 → 정확도 보장하며 자원 최소화\n\n**내재적 리워드** (LLC 학습 가이드):\n$$\niRd_{Li} = (1-\\zeta)\\cdot\\left(-\\left\\|g_{Li}\\cdot c_{\\mathrm{out}} - \\sum_j a_{Li,K_j}\\right\\|_2\\right) + \\zeta\\cdot\\sum_j eRd_{Li,K_j}\n$$\n- 첫 번째 항: LLC가 HLC 목표($g_{Li}\\cdot c_{\\mathrm{out}}$)에 얼마나 근접했는지 (목표 달성)\n- 두 번째 항: 실제 하드웨어 성능 (외재적 리워드)\n- $\\zeta$: 에폭마다 0.1 → 0.8 동적 증가 → **초반엔 목표 달성에 집중, 후반엔 성능 최적화**\n\n## 4) 상태 공간 설계\n\nLLC 상태에는 레이어 정보 외에 **커널별 고유 정보**가 포함:\n- 커널 인덱스\n- 현재 레이어에서 지금까지 할당된 누적 비트 수\n- 이전 커널의 결정값\n\n이를 통해 LLC가 레이어 내 비트 예산을 관리하며 커널별 할당을 균형.\n\n## 5) 저장 오버헤드 분석\n\n커널별 QBN(0~8비트)을 4비트로 인코딩해 저장:\n- ResNet-18: 전체 모델 대비 **0.07%** 추가\n- ResNet-50: **0.05%** 추가\n\n사실상 무시할 수 있는 오버헤드로 커널별 양자화의 실용성 입증.\n\n## 6) 실험 결과 요약\n\n**시간적 가속기 (Temporal Accelerator)**:\n| 모델 | 방법 | 지연 (ms) | 에너지 절감 |\n|------|------|---------|------------|\n| ResNet-18 | AutoQ | 286.3 | 54.06% 지연 감소 |\n| ResNet-18 | HAQ(레이어별) | 640+ | 기준 |\n| MobileNetV2 | AutoQ | 10.2 | vs 23.9 (레이어별) |\n\n**공간적 가속기 (BitFusion)**:\n- ResNet-50: 42.2% 지연 감소 vs 레이어별 방법\n\n**수렴 속도**: AutoQ가 200 에피소드에서 70% 정확도 달성, 기존 DDPG는 250 에피소드에서도 20%.",
   "category": "quantization",
   "tags": [
     "autoq",
     "kernel-wise-quantization",
     "hierarchical-rl",
+    "HIRO",
+    "DDPG",
     "hardware-aware",
-    "fpga",
-    "cnn-compression"
+    "mixed-precision"
   ],
   "pdf_url": "https://arxiv.org/pdf/1902.05690",
   "code_url": null,
-  "color_hex": "#14B8A6",
+  "color_hex": "#BE185D",
   "icon_name": null
 }
