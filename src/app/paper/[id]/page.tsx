@@ -68,12 +68,37 @@ const AQLMStudyFull = dynamic(
   () => import('@/components/quant-study/AQLMStudyFull'),
   { ssr: false },
 );
+const HAQStudyFull = dynamic(
+  () => import('@/components/quant-study/HAQStudyFull'),
+  { ssr: false },
+);
+const BRECQStudyFull = dynamic(
+  () => import('@/components/quant-study/BRECQStudyFull'),
+  { ssr: false },
+);
+const HAWQv3StudyFull = dynamic(
+  () => import('@/components/quant-study/HAWQv3StudyFull'),
+  { ssr: false },
+);
+const AnyPrecisionStudyFull = dynamic(
+  () => import('@/components/quant-study/AnyPrecisionStudyFull'),
+  { ssr: false },
+);
+const AutoQStudyFull = dynamic(
+  () => import('@/components/quant-study/AutoQStudyFull'),
+  { ssr: false },
+);
 
 // arxiv_id → full study content (replaces generic template for these papers)
 const FULL_STUDY_REGISTRY: Record<string, React.ComponentType> = {
-  '2307.13304': QuIPStudyFull,       // QuIP
-  '2402.04396': QuIPSharpStudyFull,  // QuIP#
-  '2401.06118': AQLMStudyFull,       // AQLM
+  '2307.13304': QuIPStudyFull,          // QuIP
+  '2402.04396': QuIPSharpStudyFull,     // QuIP#
+  '2401.06118': AQLMStudyFull,          // AQLM
+  '1811.08886': HAQStudyFull,           // HAQ
+  '2102.05426': BRECQStudyFull,         // BRECQ
+  '2011.10680': HAWQv3StudyFull,        // HAWQ-V3
+  '1911.07346': AnyPrecisionStudyFull,  // Any-Precision DNN
+  '1902.05690': AutoQStudyFull,         // AutoQ
 };
 
 /* ------------------------------------------------------------------ */
@@ -125,6 +150,63 @@ const FULL_STUDY_TOC_REGISTRY: Record<
     { id: 'aqlm-results',     label: '실험 결과',        icon: List },
     { id: 'aqlm-quiz',        label: '자기 점검',        icon: FlaskConical },
     { id: 'section-notes',    label: '학습 노트',        icon: Layers },
+  ],
+  '1811.08886': [
+    { id: 'haq-overview',    label: '개요',              icon: BookOpen },
+    { id: 'haq-background',  label: 'FLOPs 한계',        icon: FileText },
+    { id: 'haq-rl-agent',    label: 'RL 에이전트',       icon: Cpu },
+    { id: 'haq-viz',         label: '정책 비교',         icon: Zap },
+    { id: 'haq-hardware',    label: '하드웨어 피드백',   icon: Star },
+    { id: 'haq-equations',   label: '핵심 수식',         icon: Hash },
+    { id: 'haq-results',     label: '실험 결과',         icon: List },
+    { id: 'haq-quiz',        label: '자기 점검',         icon: FlaskConical },
+    { id: 'section-notes',   label: '학습 노트',         icon: Layers },
+  ],
+  '2102.05426': [
+    { id: 'brecq-overview',    label: '개요',             icon: BookOpen },
+    { id: 'brecq-background',  label: 'PTQ vs QAT',       icon: FileText },
+    { id: 'brecq-theory',      label: '2차 오차 이론',    icon: GraduationCap },
+    { id: 'brecq-viz',         label: '재구성 단위 비교', icon: Zap },
+    { id: 'brecq-fisher',      label: 'Fisher 근사',      icon: Cpu },
+    { id: 'brecq-equations',   label: '핵심 수식',        icon: Hash },
+    { id: 'brecq-results',     label: '실험 결과',        icon: List },
+    { id: 'brecq-quiz',        label: '자기 점검',        icon: FlaskConical },
+    { id: 'section-notes',     label: '학습 노트',        icon: Layers },
+  ],
+  '2011.10680': [
+    { id: 'hawq-overview',     label: '개요',             icon: BookOpen },
+    { id: 'hawq-problem',      label: '가짜 양자화 문제', icon: FileText },
+    { id: 'hawq-dyadic',       label: '다이아딕 스케일',  icon: Zap },
+    { id: 'hawq-ilp',          label: 'ILP 비트폭 선택',  icon: Cpu },
+    { id: 'hawq-integration',  label: 'BN 융합 & 정수화', icon: GraduationCap },
+    { id: 'hawq-equations',    label: '핵심 수식',        icon: Hash },
+    { id: 'hawq-results',      label: '실험 결과',        icon: List },
+    { id: 'hawq-quiz',         label: '자기 점검',        icon: FlaskConical },
+    { id: 'section-notes',     label: '학습 노트',        icon: Layers },
+  ],
+  '1911.07346': [
+    { id: 'ap-overview',      label: '개요',              icon: BookOpen },
+    { id: 'ap-idea',          label: '핵심 아이디어',     icon: Zap },
+    { id: 'ap-quantization',  label: 'tanh 양자화',       icon: Cpu },
+    { id: 'ap-dynamic-bn',    label: 'Dynamic BN',        icon: Layers },
+    { id: 'ap-curriculum',    label: '커리큘럼 증류',     icon: GraduationCap },
+    { id: 'ap-viz',           label: '비트 절삭 시각화',  icon: Star },
+    { id: 'ap-equations',     label: '핵심 수식',         icon: Hash },
+    { id: 'ap-results',       label: '실험 결과',         icon: List },
+    { id: 'ap-quiz',          label: '자기 점검',         icon: FlaskConical },
+    { id: 'section-notes',    label: '학습 노트',         icon: Layers },
+  ],
+  '1902.05690': [
+    { id: 'autoq-overview',    label: '개요',              icon: BookOpen },
+    { id: 'autoq-motivation',  label: '커널별 필요성',     icon: FileText },
+    { id: 'autoq-hierarchy',   label: 'HLC / LLC 구조',   icon: Layers },
+    { id: 'autoq-rewards',     label: '리워드 설계',       icon: Zap },
+    { id: 'autoq-viz',         label: '커널 분산 시각화',  icon: Star },
+    { id: 'autoq-storage',     label: '저장 오버헤드',     icon: Cpu },
+    { id: 'autoq-equations',   label: '핵심 수식',         icon: Hash },
+    { id: 'autoq-results',     label: '실험 결과',         icon: List },
+    { id: 'autoq-quiz',        label: '자기 점검',         icon: FlaskConical },
+    { id: 'section-notes',     label: '학습 노트',         icon: Layers },
   ],
 };
 
