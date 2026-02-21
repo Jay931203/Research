@@ -17,6 +17,7 @@ export interface ExamProblem {
     label: string;
     points: number;
     text: string;
+    questionTable?: { headers: string[]; rows: string[][]; caption?: string };
     answer?: string;
     answerTable?: { headers: string[]; rows: string[][]; caption?: string };
   }[];
@@ -248,6 +249,11 @@ function SubItem({
           </span>
         </div>
         <RichText text={sq.text} className="text-slate-700 dark:text-slate-300" />
+        {sq.questionTable && (
+          <div className="mt-3">
+            <TableBlock {...sq.questionTable} />
+          </div>
+        )}
       </div>
 
       {/* Answer toggle */}
