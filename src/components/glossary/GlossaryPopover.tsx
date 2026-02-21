@@ -58,20 +58,12 @@ export default function GlossaryPopover({ term, children }: GlossaryPopoverProps
       if (e.key === 'Escape') close();
     };
 
-    const handleClickOutside = (e: MouseEvent) => {
-      if (containerRef.current && containerRef.current.contains(e.target as Node)) return;
-      // Check if click was on the fixed popup (it's still inside containerRef in the DOM)
-      close();
-    };
-
     const handleScroll = () => close();
 
     document.addEventListener('keydown', handleEsc);
-    document.addEventListener('mousedown', handleClickOutside);
     window.addEventListener('scroll', handleScroll, { passive: true, capture: true });
     return () => {
       document.removeEventListener('keydown', handleEsc);
-      document.removeEventListener('mousedown', handleClickOutside);
       window.removeEventListener('scroll', handleScroll, { capture: true });
     };
   }, [isOpen, close]);
@@ -93,6 +85,9 @@ export default function GlossaryPopover({ term, children }: GlossaryPopoverProps
       </button>
 
       {isOpen && popPos && (
+        <>
+        {/* Backdrop: catches clicks outside the popup so navigation links behind it still work after closing */}
+        <span className="fixed inset-0 z-[9998]" onClick={close} />
         <span
           className="fixed z-[9999] block w-72 animate-scale-in rounded-xl border border-gray-200 bg-white p-4 shadow-xl dark:border-gray-700 dark:bg-gray-800"
           style={{ top: popPos.top, left: popPos.left }}
@@ -126,6 +121,7 @@ export default function GlossaryPopover({ term, children }: GlossaryPopoverProps
             <ChevronRight className="h-3 w-3" />
           </Link>
         </span>
+        </>
       )}
     </span>
   );
