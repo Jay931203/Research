@@ -5,12 +5,10 @@ import { useCallback, useEffect, useMemo, useState } from 'react';
 import {
   BookOpen,
   ExternalLink,
-  Link2,
   Maximize2,
   Minimize2,
   Plus,
   Redo2,
-  Star,
   Undo2,
   X,
 } from 'lucide-react';
@@ -20,11 +18,10 @@ import MainLayout from '@/components/layout/MainLayout';
 import ErrorBoundary from '@/components/common/ErrorBoundary';
 import MarkdownContent from '@/components/common/MarkdownContent';
 import PaperEquations from '@/components/papers/PaperEquation';
-import { SkeletonCard, SkeletonBlock } from '@/components/common/Skeleton';
+import { SkeletonBlock } from '@/components/common/Skeleton';
 import { useMapSelectionSync } from '@/hooks/useMapSelectionSync';
 import { usePapersWithNotes } from '@/hooks/useNotes';
 import { useRelationships } from '@/hooks/useRelationships';
-import { countRecentPapers } from '@/lib/papers/insights';
 import { getPaperCategoryLabel } from '@/lib/visualization/graphUtils';
 import { useAppStore } from '@/store/useAppStore';
 
@@ -36,15 +33,6 @@ const MindMap = dynamic(() => import('@/components/visualization/MindMap'), {
     </div>
   ),
 });
-
-interface DashboardStat {
-  key: string;
-  label: string;
-  value: number;
-  icon: JSX.Element;
-  iconBg: string;
-  onClick?: () => void;
-}
 
 export default function DashboardPage() {
   const router = useRouter();
@@ -61,7 +49,6 @@ export default function DashboardPage() {
   const canRedoMapSelection = useAppStore((state) => state.canRedoMapSelection);
 
   const [isMapFullscreen, setIsMapFullscreen] = useState(false);
-  const [isFavoritesModalOpen, setIsFavoritesModalOpen] = useState(false);
   const [selectedFullscreenPaperId, setSelectedFullscreenPaperId] = useState<string | null>(null);
   const [focusTarget, setFocusTarget] = useState<{ paperId: string } | null>(null);
 
@@ -105,15 +92,6 @@ export default function DashboardPage() {
     };
   }, [isMapFullscreen]);
 
-  useEffect(() => {
-    if (!isFavoritesModalOpen) return;
-    const handleEsc = (event: KeyboardEvent) => {
-      if (event.key === 'Escape') setIsFavoritesModalOpen(false);
-    };
-    window.addEventListener('keydown', handleEsc);
-    return () => window.removeEventListener('keydown', handleEsc);
-  }, [isFavoritesModalOpen]);
-
   const handleNodeClick = useCallback(
     (paperId: string) => {
       setSelectedFullscreenPaperId(paperId);
@@ -147,62 +125,15 @@ export default function DashboardPage() {
     [mapPaperIds, availablePaperIds, removeMapPaper, setMapPaperIds]
   );
 
-  const favoritePapers = useMemo(
-    () => papers.filter((paper) => paper.is_favorite),
-    [papers]
-  );
-
   const selectedFullscreenPaper = useMemo(
     () => mapPapers.find((paper) => paper.id === selectedFullscreenPaperId) ?? null,
     [mapPapers, selectedFullscreenPaperId]
   );
 
-  const stats = useMemo<DashboardStat[]>(
-    () => [
-      {
-        key: 'papers',
-        label: '논문',
-        value: papers.length,
-        icon: <BookOpen className="h-4 w-4 text-blue-600 dark:text-blue-400" />,
-        iconBg: 'bg-blue-100 dark:bg-blue-900/30',
-      },
-      {
-        key: 'relationships',
-        label: '관계',
-        value: relationships.length,
-        icon: <Link2 className="h-4 w-4 text-emerald-600 dark:text-emerald-400" />,
-        iconBg: 'bg-emerald-100 dark:bg-emerald-900/30',
-      },
-      {
-        key: 'favorites',
-        label: '즐겨찾기',
-        value: favoritePapers.length,
-        icon: <Star className="h-4 w-4 text-amber-500 dark:text-amber-400" />,
-        iconBg: 'bg-amber-100 dark:bg-amber-900/30',
-        onClick: () => setIsFavoritesModalOpen(true),
-      },
-      {
-        key: 'recent',
-        label: '최근 2년',
-        value: countRecentPapers(papers, 2),
-        icon: <Link2 className="h-4 w-4 text-violet-600 dark:text-violet-400" />,
-        iconBg: 'bg-violet-100 dark:bg-violet-900/30',
-      },
-    ],
-    [papers, relationships, favoritePapers.length]
-  );
-
   if (papersLoading || relationshipsLoading) {
     return (
       <MainLayout>
-        <div className="space-y-3">
-          <div className="grid grid-cols-2 gap-2 md:grid-cols-4">
-            {Array.from({ length: 4 }).map((_, i) => (
-              <SkeletonCard key={i} />
-            ))}
-          </div>
-          <SkeletonBlock className="h-[560px]" />
-        </div>
+        <SkeletonBlock className="h-[560px]" />
       </MainLayout>
     );
   }
@@ -211,38 +142,7 @@ export default function DashboardPage() {
     <MainLayout onSidebarPaperClick={handleSidebarPaperClick}>
       <ErrorBoundary>
         {!isMapFullscreen && (
-          <div className="space-y-3">
-            <div className="grid grid-cols-2 gap-2 md:grid-cols-4">
-              {stats.map((stat) => (
-                <div
-                  key={stat.key}
-                  role={stat.onClick ? 'button' : undefined}
-                  tabIndex={stat.onClick ? 0 : undefined}
-                  onClick={stat.onClick}
-                  onKeyDown={(event) => {
-                    if (!stat.onClick) return;
-                    if (event.key === 'Enter' || event.key === ' ') {
-                      event.preventDefault();
-                      stat.onClick();
-                    }
-                  }}
-                  className={`rounded-lg bg-white p-2.5 shadow dark:bg-gray-800 ${
-                    stat.onClick
-                      ? 'cursor-pointer transition hover:ring-2 hover:ring-amber-300 dark:hover:ring-amber-700'
-                      : ''
-                  }`}
-                >
-                  <div className="flex items-center gap-2">
-                    <div className={`rounded-md p-1.5 ${stat.iconBg}`}>{stat.icon}</div>
-                    <div>
-                      <p className="text-lg font-bold leading-tight">{stat.value}</p>
-                      <p className="text-[11px] text-gray-600 dark:text-gray-400">{stat.label}</p>
-                    </div>
-                  </div>
-                </div>
-              ))}
-            </div>
-
+          <div>
             {papers.length === 0 && (
               <div className="animate-fade-in rounded-lg bg-white p-8 text-center shadow dark:bg-gray-800">
                 <BookOpen className="mx-auto mb-4 h-12 w-12 text-gray-300 dark:text-gray-600" />
@@ -306,7 +206,7 @@ export default function DashboardPage() {
                   </button>
                 </div>
               </div>
-              <div className="flex" style={{ height: 'calc(100vh - 180px)', minHeight: '560px' }}>
+              <div className="flex" style={{ height: 'calc(100vh - 156px)', minHeight: '560px' }}>
                 <div className="relative min-w-0 flex-1">
                   <MindMap
                     papers={mapPapers}
@@ -769,66 +669,6 @@ export default function DashboardPage() {
           </div>
         )}
 
-
-        {isFavoritesModalOpen && (
-          <div className="fixed inset-0 z-[70] flex items-center justify-center p-4">
-            <button
-              type="button"
-              className="absolute inset-0 bg-black/45"
-              aria-label="닫기"
-              onClick={() => setIsFavoritesModalOpen(false)}
-            />
-            <div
-              role="dialog"
-              aria-modal="true"
-              aria-label="즐겨찾기 논문 모달"
-              className="relative max-h-[80vh] w-full max-w-2xl overflow-hidden rounded-2xl border border-gray-200 bg-white shadow-2xl dark:border-gray-700 dark:bg-gray-900"
-            >
-              <div className="flex items-center justify-between border-b border-gray-200 px-5 py-3 dark:border-gray-700">
-                <div>
-                  <p className="text-sm font-bold text-gray-900 dark:text-gray-100">즐겨찾기 논문</p>
-                  <p className="text-xs text-gray-500 dark:text-gray-400">{favoritePapers.length}개</p>
-                </div>
-                <button
-                  onClick={() => setIsFavoritesModalOpen(false)}
-                  className="rounded-md border border-gray-300 p-1.5 text-gray-500 hover:bg-gray-100 dark:border-gray-600 dark:text-gray-300 dark:hover:bg-gray-800"
-                >
-                  <X className="h-4 w-4" />
-                </button>
-              </div>
-
-              <div className="max-h-[calc(80vh-72px)] space-y-2 overflow-auto p-4">
-                {favoritePapers.length === 0 ? (
-                  <p className="rounded-lg bg-gray-50 px-4 py-6 text-center text-sm text-gray-500 dark:bg-gray-800 dark:text-gray-400">
-                    즐겨찾기한 논문이 없습니다. 논문 카드의 별 아이콘으로 추가해 주세요.
-                  </p>
-                ) : (
-                  favoritePapers.map((paper) => (
-                    <Link
-                      key={paper.id}
-                      href={`/paper/${paper.id}`}
-                      onClick={() => setIsFavoritesModalOpen(false)}
-                      className="block rounded-xl border border-gray-200 px-4 py-3 transition hover:border-amber-300 hover:bg-amber-50/70 dark:border-gray-700 dark:hover:border-amber-700 dark:hover:bg-amber-900/20"
-                    >
-                      <div className="mb-1 flex items-center gap-2">
-                        <span
-                          className="inline-block h-2.5 w-2.5 rounded-full"
-                          style={{ backgroundColor: paper.color_hex }}
-                        />
-                        <span className="text-xs font-semibold text-gray-500 dark:text-gray-400">
-                          {paper.year} · {getPaperCategoryLabel(paper)}
-                        </span>
-                      </div>
-                      <p className="line-clamp-2 text-sm font-semibold text-gray-900 dark:text-gray-100">
-                        {paper.title}
-                      </p>
-                    </Link>
-                  ))
-                )}
-              </div>
-            </div>
-          </div>
-        )}
       </ErrorBoundary>
     </MainLayout>
   );

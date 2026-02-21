@@ -1,12 +1,14 @@
 'use client';
 
 import { useCallback, useEffect, useMemo, useState } from 'react';
-import { ChevronLeft, ChevronRight, Plus } from 'lucide-react';
+import { BookOpen, ChevronLeft, ChevronRight, Link2, Plus, Star } from 'lucide-react';
 import PaperSearch from '@/components/papers/PaperSearch';
 import PaperList from '@/components/papers/PaperList';
 import PaperFormModal from '@/components/papers/PaperFormModal';
 import { usePapersWithNotes } from '@/hooks/useNotes';
+import { useRelationships } from '@/hooks/useRelationships';
 import { filterPapersBySearchFilters, type PaperSearchFilters } from '@/lib/papers/filtering';
+import { countRecentPapers } from '@/lib/papers/insights';
 import { RELATIONSHIP_STYLES } from '@/lib/visualization/graphUtils';
 import {
   CORE_RELATIONSHIP_TYPES,
@@ -58,6 +60,9 @@ export default function Sidebar({ isOpen, onToggle, onPaperClick }: SidebarProps
   const currentYear = new Date().getFullYear();
   const [showAddModal, setShowAddModal] = useState(false);
   const { papers, refresh } = usePapersWithNotes();
+  const { relationships } = useRelationships();
+  const favoritePapers = useMemo(() => papers.filter((p) => p.is_favorite), [papers]);
+  const recentCount = useMemo(() => countRecentPapers(papers, 2), [papers]);
   const setSidebarVisiblePaperIds = useAppStore((state) => state.setSidebarVisiblePaperIds);
   const graphFilterSettings = useAppStore((state) => state.graphFilterSettings);
   const setGraphFilterSettings = useAppStore((state) => state.setGraphFilterSettings);
@@ -237,6 +242,26 @@ export default function Sidebar({ isOpen, onToggle, onPaperClick }: SidebarProps
         } w-[88vw] max-w-80 lg:w-80 lg:max-w-none`}
       >
         <div className="flex h-full flex-col">
+          <div className="flex items-center gap-3 border-b px-4 py-2.5 text-xs text-gray-500 dark:border-gray-700 dark:text-gray-400">
+            <span className="flex items-center gap-1">
+              <BookOpen className="h-3 w-3" />
+              <span className="font-semibold text-gray-800 dark:text-gray-200">{papers.length}</span>
+              <span>논문</span>
+            </span>
+            <span className="text-gray-300 dark:text-gray-600">|</span>
+            <span className="flex items-center gap-1">
+              <Link2 className="h-3 w-3" />
+              <span className="font-semibold text-gray-800 dark:text-gray-200">{relationships.length}</span>
+              <span>관계</span>
+            </span>
+            <span className="text-gray-300 dark:text-gray-600">|</span>
+            <span className="flex items-center gap-1">
+              <Star className="h-3 w-3 text-amber-400" />
+              <span className="font-semibold text-gray-800 dark:text-gray-200">{favoritePapers.length}</span>
+            </span>
+            <span className="text-gray-300 dark:text-gray-600">|</span>
+            <span>최근 2년 <span className="font-semibold text-gray-800 dark:text-gray-200">{recentCount}</span></span>
+          </div>
           <div className="border-b p-4 dark:border-gray-700">
             <PaperSearch
               filters={searchFilters}
