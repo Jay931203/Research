@@ -165,6 +165,10 @@ const OPTIMIZATION_TERM_IDS = new Set([
   'bit-allocation-optimization',
 ]);
 
+// Stable empty array reference — prevents NoteEditor useEffect infinite loop
+// when paper.personal_tags is null (filter() always returns a new reference).
+const EMPTY_TAGS: string[] = [];
+
 const CATEGORY_ARCH_HINTS: Record<string, string> = {
   autoencoder: 'Encoder -> Latent Space -> Decoder 구조',
   transformer: 'Self-Attention 기반 구조',
@@ -732,7 +736,7 @@ export default function PaperStudyPage() {
                     initialFamiliarity={paper.familiarity_level || 'not_started'}
                     initialFavorite={paper.is_favorite || false}
                     initialImportance={paper.importance_rating || 0}
-                    initialTags={paper.personal_tags || []}
+                    initialTags={paper.personal_tags ?? EMPTY_TAGS}
                     onSave={async () => {
                       await refreshPapers();
                     }}
@@ -1408,7 +1412,7 @@ export default function PaperStudyPage() {
                   initialFamiliarity={paper.familiarity_level || 'not_started'}
                   initialFavorite={paper.is_favorite || false}
                   initialImportance={paper.importance_rating || 0}
-                  initialTags={paper.personal_tags || []}
+                  initialTags={paper.personal_tags ?? EMPTY_TAGS}
                   onSave={async () => {
                     await refreshPapers();
                   }}

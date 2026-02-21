@@ -72,19 +72,25 @@ export default function NoteEditor({
   const addToast = useToastStore((s) => s.addToast);
 
   useEffect(() => {
+    // Compute derived values inside the effect so that initialUserTags / initialMapHidden
+    // (which are new array references on every render due to filter()) are NOT in the
+    // dependency array — otherwise this effect would fire on every render causing an
+    // infinite setState loop that freezes the page.
+    const userTags = initialTags.filter((tag) => tag !== MAP_HIDDEN_TAG);
+    const mapHid = hasMapHiddenTag(initialTags);
     setContent(initialContent);
     setFamiliarity(initialFamiliarity);
     setIsFavorite(initialFavorite);
     setImportance(initialImportance);
-    setPersonalTags(initialUserTags);
-    setMapHidden(initialMapHidden);
+    setPersonalTags(userTags);
+    setMapHidden(mapHid);
     latestStateRef.current = {
       content: initialContent,
       familiarity: initialFamiliarity,
       isFavorite: initialFavorite,
       importance: initialImportance,
-      personalTags: initialUserTags,
-      mapHidden: initialMapHidden,
+      personalTags: userTags,
+      mapHidden: mapHid,
     };
   }, [
     paperId,
@@ -93,8 +99,9 @@ export default function NoteEditor({
     initialFavorite,
     initialImportance,
     initialTags,
-    initialUserTags,
-    initialMapHidden,
+    // initialUserTags and initialMapHidden intentionally omitted:
+    // they are derived from initialTags and always have new references (filter() returns
+    // a new array), so including them would cause an infinite render loop.
   ]);
 
   useEffect(() => {
