@@ -51,13 +51,6 @@ export default function HomePage() {
           <h1 className="text-4xl font-black leading-tight text-slate-900 dark:text-slate-100 sm:text-5xl">
             개인 연구 허브
           </h1>
-          <Link
-            href="/dashboard"
-            className="inline-flex items-center gap-2 rounded-lg bg-blue-600 px-5 py-2.5 text-sm font-semibold text-white shadow-md shadow-blue-600/25 transition hover:bg-blue-500"
-          >
-            대시보드 열기
-            <ArrowRight className="h-4 w-4" />
-          </Link>
         </section>
 
         <section className="grid gap-4 sm:grid-cols-2">

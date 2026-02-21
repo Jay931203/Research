@@ -41,7 +41,7 @@ interface MindMapProps {
 function TopicLabelNode({ data }: { data: { label: string; color: string } }) {
   return (
     <div
-      className="pointer-events-none rounded-lg border px-3 py-1.5 text-center text-xs font-bold tracking-wide shadow-sm"
+      className="pointer-events-none rounded-lg border px-3 py-1.5 text-center text-sm font-bold tracking-wide shadow-sm"
       style={{
         width: '200px',
         borderColor: `${data.color}60`,
@@ -207,7 +207,7 @@ function MindMapInner({
       positioned.push({
         id: `topic-label-${topic}`,
         type: 'topicLabel',
-        position: { x: baseTopicX - 100, y: -68 },
+        position: { x: baseTopicX + estimatedNodeWidth / 2 - 100, y: -68 },
         data: {
           label: RESEARCH_TOPIC_LABELS[topic] ?? topic,
           color: RESEARCH_TOPIC_COLORS[topic] ?? '#6b7280',
