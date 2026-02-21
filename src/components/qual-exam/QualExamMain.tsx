@@ -252,7 +252,7 @@ interface ExamGroup { year: string; semester: '1' | '2'; probs: ExamProblem[]; k
 
 function AllExamsPanel({ groups }: { groups: ExamGroup[] }) {
   return (
-    <div className="px-6 py-6 space-y-6">
+    <div className="max-w-6xl mx-auto px-6 py-6 space-y-6">
       <div className="flex items-center gap-3">
         <h1 className="text-xl font-black text-slate-900 dark:text-slate-100">기출문제 전체</h1>
         <span className="text-sm text-slate-400">{groups.reduce((s, g) => s + g.probs.length, 0)}문제</span>
