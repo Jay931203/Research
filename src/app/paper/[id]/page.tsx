@@ -101,6 +101,7 @@ const FULL_STUDY_TOC_REGISTRY: Record<
     { id: 'quip-results',     label: '실험 결과',       icon: List },
     { id: 'quip-limits',      label: '한계 & 전망',     icon: CheckCircle2 },
     { id: 'quip-quiz',        label: '자기 점검',       icon: FlaskConical },
+    { id: 'section-notes',    label: '학습 노트',       icon: Layers },
   ],
   '2402.04396': [
     { id: 'qs-overview',        label: '개요',              icon: BookOpen },
@@ -112,6 +113,7 @@ const FULL_STUDY_TOC_REGISTRY: Record<
     { id: 'qs-equations',       label: '핵심 수식',         icon: Hash },
     { id: 'qs-results',         label: '실험 결과',         icon: List },
     { id: 'qs-quiz',            label: '자기 점검',         icon: FlaskConical },
+    { id: 'section-notes',      label: '학습 노트',         icon: Layers },
   ],
   '2401.06118': [
     { id: 'aqlm-overview',    label: '개요',            icon: BookOpen },
@@ -122,6 +124,7 @@ const FULL_STUDY_TOC_REGISTRY: Record<
     { id: 'aqlm-equations',   label: '핵심 수식',        icon: Hash },
     { id: 'aqlm-results',     label: '실험 결과',        icon: List },
     { id: 'aqlm-quiz',        label: '자기 점검',        icon: FlaskConical },
+    { id: 'section-notes',    label: '학습 노트',        icon: Layers },
   ],
 };
 
@@ -717,6 +720,26 @@ export default function PaperStudyPage() {
                 </div>
               </section>
               )}
+
+              {/* ===== Section: Notes — full study view ===== */}
+              <section id="section-notes" className="scroll-mt-20 mt-8">
+                <SectionHeading icon={<Layers className="h-5 w-5" />} title="학습 노트" collapsed={!!collapsed['section-notes']} onToggle={() => toggleSection('section-notes')} />
+                <div className={`overflow-hidden transition-all duration-300 ${collapsed['section-notes'] ? 'max-h-0' : 'max-h-[2000px]'}`}>
+                <div className="rounded-xl bg-white p-6 shadow-sm dark:bg-gray-900 dark:shadow-none dark:ring-1 dark:ring-gray-800">
+                  <NoteEditor
+                    paperId={paper.id}
+                    initialContent={paper.note_content || ''}
+                    initialFamiliarity={paper.familiarity_level || 'not_started'}
+                    initialFavorite={paper.is_favorite || false}
+                    initialImportance={paper.importance_rating || 0}
+                    initialTags={paper.personal_tags || []}
+                    onSave={async () => {
+                      await refreshPapers();
+                    }}
+                  />
+                </div>
+                </div>
+              </section>
 
               <div className="h-16" />
               </GlossaryTermsContext.Provider>

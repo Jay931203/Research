@@ -286,7 +286,7 @@ function RightPanel({ exams, practiceQs, onExamClick, onPracticeClick, collapsed
   onToggleCollapse: () => void;
 }) {
   return (
-    <aside className={`flex-shrink-0 border-l border-slate-200 dark:border-slate-800 bg-white dark:bg-slate-900 flex flex-col overflow-hidden transition-all duration-200 ${collapsed ? 'w-10' : 'w-64'}`}>
+    <aside className={`hidden sm:flex flex-col flex-shrink-0 border-l border-slate-200 dark:border-slate-800 bg-white dark:bg-slate-900 overflow-hidden transition-all duration-200 ${collapsed ? 'w-10' : 'w-64'}`}>
       <div className="flex items-center justify-between px-3 py-2.5 border-b border-slate-200 dark:border-slate-800 flex-shrink-0">
         {!collapsed && (
           <span className="text-[11px] font-bold text-slate-400 uppercase tracking-wider">연관 문제</span>
