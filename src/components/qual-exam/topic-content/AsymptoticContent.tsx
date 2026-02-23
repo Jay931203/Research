@@ -264,7 +264,7 @@ export default function AsymptoticContent({ topic }: Props) {
             분할 정복 점화식 일반형 (a ≥ 1, b &gt; 1)
           </p>
           <div className="rounded-lg bg-slate-50 dark:bg-slate-800 border border-slate-200 dark:border-slate-700 px-4 py-3 overflow-x-auto">
-            <MathBlock latex="T(n) = a\,T\\!\\left(\\tfrac{n}{b}\\right) + f(n)" block />
+            <MathBlock latex={String.raw`T(n) = a\,T\!\left(\tfrac{n}{b}\right) + f(n)`} block />
           </div>
           <div className="mt-3 grid grid-cols-3 gap-2 text-center">
             <div className="rounded-lg bg-blue-50 dark:bg-blue-950/30 border border-blue-100 dark:border-blue-900/40 px-3 py-2">
