@@ -23,7 +23,6 @@ function semLabel(s: '1' | '2') { return s === '1' ? '1학기' : '2학기'; }
 /* ── Section definitions (IDs must match content components) ── */
 const CUSTOM_SECTIONS: Record<string, Array<{ id: string; label: string }>> = {
   'asymptotic': [
-    { id: 'asymptotic-sec-growth',     label: '성장률 비교'     },
     { id: 'asymptotic-sec-notations',  label: '표기법 5종'      },
     { id: 'asymptotic-sec-properties', label: '핵심 성질'       },
     { id: 'asymptotic-sec-master',     label: '마스터 정리'     },

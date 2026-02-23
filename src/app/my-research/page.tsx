@@ -59,6 +59,14 @@ const NmseVsBopScatterViz = dynamic(
   () => import('@/components/my-research/infographics/NmseVsBopScatterViz'),
   { ssr: false },
 );
+const HardVsSoftTailViz = dynamic(
+  () => import('@/components/my-research/infographics/HardVsSoftTailViz'),
+  { ssr: false },
+);
+const QuantRobustProofViz = dynamic(
+  () => import('@/components/my-research/infographics/QuantRobustProofViz'),
+  { ssr: false },
+);
 
 /* ------------------------------------------------------------------ */
 /*  ToC                                                                 */
@@ -99,10 +107,22 @@ const EQUATIONS = [
       '전체 MSE 손실을 두 항으로 분해합니다. 첫 번째 항은 인코더 구조에 의해 결정되며, 두 번째 항은 디코더 용량을 늘려 줄일 수 있습니다.',
   },
   {
-    name: 'SSM 임펄스 응답 감쇠',
-    latex: String.raw`\|\mathbf{A}^{\tau}\| \leq c_1 e^{-\alpha \tau}, \quad E_{\text{soft}}(L) \lesssim \mathcal{O}(e^{-\alpha L})`,
+    name: 'SSM 소프트 테일 경계',
+    latex: String.raw`R_{\mathrm{soft}}(L) \lesssim c_3\sum_{d=L+1}^{\infty}\frac{e^{-\alpha d}}{1+d} = \mathcal{O}\!\left(\frac{e^{-\alpha L}}{1+L}\right)`,
     description:
-      'SSM의 상태 행렬 A의 멱급수는 지수 감쇠를 보입니다. 거리 τ에 있는 입력에 대한 가중치가 지수적으로 줄어들지만 완전히 0이 되지는 않습니다 (소프트 메모리).',
+      '지평선 L 너머의 SSM 집약 기여. 지수 감쇠(e^{-αL})와 다항 감쇠(1/(1+L))의 곱으로, 하드 절단 O(L⁻¹)보다 지수 배율로 빠르게 감소합니다.',
+  },
+  {
+    name: '하드 국소성 절단 손실',
+    latex: String.raw`E_{\mathrm{hard}}(L) \lesssim c_0^2\sum_{d=L+1}^{\infty}\frac{1}{(1+d)^2} \le \frac{c_0^2}{1+L} = \mathcal{O}(L^{-1})`,
+    description:
+      'CNN 수용장 반경 L 바깥의 테일 에너지. 다항 감쇠 O(L⁻¹)이므로 절단 손실을 줄이려면 L을 크게 늘려야 합니다 → UE 연산량·지연 증가.',
+  },
+  {
+    name: '양자화 내성 (명제)',
+    latex: String.raw`\|\mathbf{y}_t - \hat{\mathbf{y}}_t\| \le \left(\frac{L_\Psi L_{\Phi,\theta}}{1-\rho} + L_{\Psi,\theta}\right)\|\Delta\boldsymbol{\theta}\|`,
+    description:
+      '수축적 SSM의 양자화 내성 경계. ρ<1이면 재귀를 통한 섭동 증폭이 없어, 출력 오차가 토큰 길이 t와 무관하게 ‖Δθ‖의 선형 배수로 균일 유계됩니다.',
   },
   {
     name: 'Hessian 민감도 대리 함수',
@@ -560,7 +580,7 @@ export default function MyResearchPage() {
             <section id="section-architecture" className="scroll-mt-20">
               <SectionHeading
                 icon={<Layers className="h-5 w-5" />}
-                title="비대칭 아키텍처"
+                title="비대칭 아키텍처 (§3)"
                 collapsed={!!collapsed['section-architecture']}
                 onToggle={() => toggleSection('section-architecture')}
               />
@@ -568,73 +588,229 @@ export default function MyResearchPage() {
                 className={`overflow-hidden transition-all duration-300 ${collapsed['section-architecture'] ? 'max-h-0' : 'max-h-[9999px]'}`}
               >
                 <Card>
-                  {/* 3.1 */}
-                  <SubSectionHeading number="3.1" title="인코더 유발 정보 하한" />
+                  {/* 3.1 인코더 유발 정보 하한 */}
+                  <SubSectionHeading number="3.1" title="UE–BS 비대칭성과 인코더 유발 정보 하한" />
                   <p className="mb-3 text-sm leading-relaxed text-gray-700 dark:text-gray-300">
-                    전체 MSE 손실은 두 항으로 분해됩니다:
+                    잠재 변수 <span className="font-mono text-xs text-indigo-600 dark:text-indigo-400">Z := f_θ(X_a)</span>를 정의하면,
+                    전체 MSE 손실은 조건부 기댓값의 직교 분해 성질에 의해 정확히 두 항으로 분리됩니다:
                   </p>
                   <div className="mb-3 overflow-x-auto rounded-lg bg-indigo-50 p-3 dark:bg-indigo-900/20">
                     <div className="text-gray-900 dark:text-gray-100">
-                      <EquationRenderer latex={String.raw`\mathcal{L}(f_\theta, g_\phi) = \underbrace{\mathcal{I}(f_\theta)}_{\text{인코더 정보 하한}} + \underbrace{\mathcal{A}(g_\phi)}_{\text{디코더 근사 오차}}`} />
+                      <EquationRenderer latex={String.raw`\mathcal{L}(f_\theta, g_\phi) = \underbrace{\mathbb{E}\!\left[\|\mathbf{X}_a - \mathbb{E}[\mathbf{X}_a\mid\mathbf{Z}]\|_F^2\right]}_{\text{인코더 유발 정보 하한}} + \underbrace{\mathbb{E}\!\left[\|\mathbb{E}[\mathbf{X}_a\mid\mathbf{Z}] - g_\phi(\mathbf{Z})\|_F^2\right]}_{\text{디코더 근사 오차}}`} />
                     </div>
                   </div>
-                  <p className="mb-5 text-sm leading-relaxed text-gray-600 dark:text-gray-400">
-                    두 번째 항(디코더 근사 오차)은 BS 디코더 용량을 늘려서 줄일 수 있습니다.
-                    그러나 첫 번째 항(인코더 정보 하한)은{' '}
-                    <span className="font-semibold text-gray-800 dark:text-gray-200">인코더 구조에 의해 결정</span>되므로,
-                    인코더 아키텍처 선택이 매우 중요합니다.
-                  </p>
-
-                  {/* 3.2 */}
-                  <SubSectionHeading number="3.2" title="지연-각도 도메인의 롱테일 특성" />
-                  <p className="mb-3 text-sm leading-relaxed text-gray-700 dark:text-gray-300">
-                    Off-grid 효과로 인해 각도 도메인 계수는 다항식 감쇠 경계를 따릅니다:{' '}
-                    <span className="font-mono text-xs text-indigo-600 dark:text-indigo-400">|x_i| ≲ c₀/(1+|i−i₀|)</span>.
-                    이는 롱테일 에너지 분포를 의미하며, 멀리 있는 빈의 에너지도 무시할 수 없습니다.
-                  </p>
-
-                  {/* Static energy bar chart */}
-                  <div className="mb-5 w-full overflow-x-auto rounded-xl border border-gray-200 bg-gray-50 p-3 dark:border-gray-700 dark:bg-gray-800">
-                    <p className="mb-2 text-center text-xs font-semibold text-gray-500 dark:text-gray-400">
-                      각도 인덱스별 에너지 분포 (off-grid 채널)
-                    </p>
-                    <svg viewBox="0 0 500 130" width="100%" height={130} className="block">
-                      <line x1={40} y1={10} x2={40} y2={100} stroke="#9ca3af" strokeWidth={0.5} />
-                      <line x1={40} y1={100} x2={490} y2={100} stroke="#9ca3af" strokeWidth={0.5} />
-                      <text x={265} y={120} textAnchor="middle" fontSize={9} fill="#9ca3af">각도 인덱스 오프셋 (중심으로부터)</text>
-                      <text x={10} y={55} textAnchor="middle" fontSize={9} fill="#9ca3af" transform="rotate(-90,10,55)">|크기|</text>
-                      {[-7,-6,-5,-4,-3,-2,-1,0,1,2,3,4,5,6,7].map((offset, i) => {
-                        const barH = (1 / (1 + Math.abs(offset) * 0.9)) * 80;
-                        const x = 50 + i * 29;
-                        const y = 100 - barH;
-                        const isCenter = offset === 0;
-                        return (
-                          <g key={offset}>
-                            <rect x={x} y={y} width={22} height={barH} rx={2}
-                              fill={isCenter ? '#6366f1' : '#a5b4fc'}
-                              opacity={isCenter ? 1 : 0.7}
-                            >
-                              <title>오프셋 {offset}: |x|≈{(1/(1+Math.abs(offset)*0.9)).toFixed(2)}</title>
-                            </rect>
-                            <text x={x+11} y={113} textAnchor="middle" fontSize={7} fill="#9ca3af">{offset}</text>
-                          </g>
-                        );
-                      })}
-                      <text x={380} y={25} fontSize={8} fill="#f97316">off-grid 측엽(sidelobe) 에너지</text>
-                      <text x={380} y={38} fontSize={8} fill="#f97316">멀리까지 비영(non-zero)</text>
-                    </svg>
+                  <div className="mb-5 grid grid-cols-1 gap-2 sm:grid-cols-2 text-xs">
+                    <div className="rounded-lg border border-red-200 bg-red-50 p-3 dark:border-red-900/40 dark:bg-red-900/10">
+                      <p className="mb-1 font-bold text-red-700 dark:text-red-300">인코더 정보 하한</p>
+                      <p className="leading-relaxed text-red-600 dark:text-red-400">
+                        이상적 디코더 하에서 최소 달성 가능 왜곡. Z에 보존된 정보량에만 의존.
+                        <span className="font-semibold"> 인코더 구조가 결정 — BS 디코더를 키워도 줄일 수 없음.</span>
+                      </p>
+                    </div>
+                    <div className="rounded-lg border border-orange-200 bg-orange-50 p-3 dark:border-orange-900/40 dark:bg-orange-900/10">
+                      <p className="mb-1 font-bold text-orange-700 dark:text-orange-300">디코더 근사 오차</p>
+                      <p className="leading-relaxed text-orange-600 dark:text-orange-400">
+                        비이상적 디코더로 인한 오차. BS 측 디코더 용량 증가로 줄일 수 있음.
+                        <span className="font-semibold"> RP-MPQ의 조정 대상.</span>
+                      </p>
+                    </div>
                   </div>
 
-                  {/* 3.3 */}
-                  <SubSectionHeading number="3.3" title="하드 국소성 vs 소프트 메모리" />
-                  <CnnVsSsmViz />
+                  <TwoLevelDistortionViz />
                   <InfographicCaption>
-                    CNN의 수용장(receptive field)은 하드 컷오프, SSM의 지수 감쇠 메모리는 멀리 있는 성분도 부드럽게 포함합니다.
+                    실제 논문 NMSE 데이터 기반: 같은 양자화 정밀도에서도 모델 구조에 따라 운영적 열화 크기가 극적으로 다릅니다.
                   </InfographicCaption>
 
-                  {/* 3.3.5 — Mamba SSM internals */}
-                  <div className="mt-6">
-                    <SubSectionHeading number="3.3+" title="Mamba 선택적 스캔: 핵심 메커니즘" />
+                  {/* 3.2 롱테일 특성 */}
+                  <div className="mt-7">
+                    <SubSectionHeading number="3.2" title="지연-각도 도메인 CSI의 롱테일 국소성" />
+                    <p className="mb-3 text-sm leading-relaxed text-gray-700 dark:text-gray-300">
+                      실제 채널 경로가 DFT 격자와 정렬되지 않으면 (off-grid), Dirichlet형 스펙트럼 누설로
+                      진폭 포락선이 천천히 감쇠하는 진동 롱테일을 형성합니다:
+                    </p>
+                    <div className="mb-3 overflow-x-auto rounded-lg bg-orange-50 p-3 dark:bg-orange-900/20">
+                      <div className="text-gray-900 dark:text-gray-100">
+                        <EquationRenderer latex={String.raw`x_{i_0+d} \approx c_0\,\frac{\eta_d}{1+d}, \quad |\eta_d|\le 1`} />
+                      </div>
+                    </div>
+                    <p className="mb-2 text-xs text-gray-600 dark:text-gray-400">
+                      포락선 상한으로 정리하면:
+                    </p>
+                    <div className="mb-4 overflow-x-auto rounded-lg bg-orange-50 p-3 dark:bg-orange-900/20">
+                      <div className="text-gray-900 dark:text-gray-100">
+                        <EquationRenderer latex={String.raw`|x_i| \lesssim \frac{c_0}{1+|i-i_0|}`} />
+                      </div>
+                    </div>
+                    <p className="mb-4 text-sm leading-relaxed text-gray-600 dark:text-gray-400">
+                      이 다항식 감쇠는 멀리 있는 각도 계수가 여전히 비영(non-zero)임을 의미하므로,
+                      하드 컷오프 방식 인코더는 되돌릴 수 없는 구조적 손실을 발생시킬 수 있습니다.
+                    </p>
+
+                    {/* Static energy bar chart */}
+                    <div className="mb-5 w-full overflow-x-auto rounded-xl border border-gray-200 bg-gray-50 p-3 dark:border-gray-700 dark:bg-gray-800">
+                      <p className="mb-2 text-center text-xs font-semibold text-gray-500 dark:text-gray-400">
+                        각도 인덱스별 에너지 분포 (off-grid 채널, Dirichlet 누설 모형)
+                      </p>
+                      <svg viewBox="0 0 500 130" width="100%" height={130} className="block">
+                        <line x1={40} y1={10} x2={40} y2={100} stroke="#9ca3af" strokeWidth={0.5} />
+                        <line x1={40} y1={100} x2={490} y2={100} stroke="#9ca3af" strokeWidth={0.5} />
+                        <text x={265} y={120} textAnchor="middle" fontSize={9} fill="#9ca3af">각도 인덱스 오프셋 d (중심으로부터)</text>
+                        <text x={10} y={55} textAnchor="middle" fontSize={9} fill="#9ca3af" transform="rotate(-90,10,55)">|크기|</text>
+                        {[-7,-6,-5,-4,-3,-2,-1,0,1,2,3,4,5,6,7].map((offset, i) => {
+                          const barH = (1 / (1 + Math.abs(offset) * 0.9)) * 80;
+                          const x = 50 + i * 29;
+                          const y = 100 - barH;
+                          const isCenter = offset === 0;
+                          return (
+                            <g key={offset}>
+                              <rect x={x} y={y} width={22} height={barH} rx={2}
+                                fill={isCenter ? '#6366f1' : '#a5b4fc'}
+                                opacity={isCenter ? 1 : 0.7}
+                              >
+                                <title>오프셋 {offset}: |x|≈{(1/(1+Math.abs(offset)*0.9)).toFixed(2)}</title>
+                              </rect>
+                              <text x={x+11} y={113} textAnchor="middle" fontSize={7} fill="#9ca3af">{offset}</text>
+                            </g>
+                          );
+                        })}
+                        <text x={360} y={25} fontSize={8} fill="#f97316">off-grid 측엽 에너지</text>
+                        <text x={360} y={37} fontSize={8} fill="#f97316">멀리까지 비영(non-zero)</text>
+                        <line x1={355} y1={30} x2={295} y2={62} stroke="#f97316" strokeWidth={0.8} markerEnd="url(#arrowOrange)" />
+                        <defs>
+                          <marker id="arrowOrange" markerWidth="6" markerHeight="6" refX="3" refY="3" orient="auto">
+                            <path d="M0,0 L0,6 L6,3 z" fill="#f97316" />
+                          </marker>
+                        </defs>
+                      </svg>
+                    </div>
+                  </div>
+
+                  {/* 3.3 하드 국소성 */}
+                  <div className="mt-2">
+                    <SubSectionHeading number="3.3" title="하드 국소성 인코딩과 구조적 절단 손실" />
+                    <p className="mb-3 text-sm leading-relaxed text-gray-700 dark:text-gray-300">
+                      CNN 기반 인코더는 유한 수용장(receptive field) 반경 L만 처리합니다.
+                      식 (3.2)의 포락선 하에서, 반경 L 바깥 테일 에너지는:
+                    </p>
+                    <div className="mb-3 overflow-x-auto rounded-lg bg-blue-50 p-3 dark:bg-blue-900/20">
+                      <div className="text-gray-900 dark:text-gray-100">
+                        <EquationRenderer latex={String.raw`E_{\mathrm{hard}}(L) \triangleq \sum_{|i-i_0|>L}|x_i|^2 \lesssim c_0^2\sum_{d=L+1}^{\infty}\frac{1}{(1+d)^2} \le \frac{c_0^2}{1+L} = \mathcal{O}(L^{-1})`} />
+                      </div>
+                    </div>
+                    <p className="mb-4 text-sm leading-relaxed text-gray-600 dark:text-gray-400">
+                      다항식 감쇠(O(L⁻¹))이므로, 절단 손실을 줄이려면 L을 크게 늘려야 합니다 → UE 연산량·지연 증가.
+                    </p>
+                    <CnnVsSsmViz />
+                    <InfographicCaption>
+                      CNN의 수용장(receptive field)은 하드 컷오프, SSM의 지수 감쇠 메모리는 멀리 있는 성분도 부드럽게 포함합니다.
+                    </InfographicCaption>
+                  </div>
+
+                  {/* 3.4 소프트 국소성 */}
+                  <div className="mt-7">
+                    <SubSectionHeading number="3.4" title="상태 공간 집약에 의한 소프트 국소성" />
+                    <p className="mb-3 text-sm leading-relaxed text-gray-700 dark:text-gray-300">
+                      선형 SSM은 합성곱 형태로 표현할 수 있으며, 안정적인 A에 대해 지수 감쇠 가중치를 가집니다:
+                    </p>
+                    <div className="mb-3 space-y-2">
+                      <div className="overflow-x-auto rounded-lg bg-slate-50 p-3 dark:bg-slate-800">
+                        <div className="text-gray-900 dark:text-gray-100">
+                          <EquationRenderer latex={String.raw`\mathbf{y}_k = \mathbf{C}\sum_{d\ge 0}\mathbf{A}^{d}\mathbf{B}\,\mathbf{u}_{k-d}, \quad \|\mathbf{A}^d\| \le c_1 e^{-\alpha d}`} />
+                        </div>
+                      </div>
+                    </div>
+                    <p className="mb-2 text-sm leading-relaxed text-gray-700 dark:text-gray-300">
+                      Dirichlet 포락선 <span className="font-mono text-xs text-indigo-600 dark:text-indigo-400">‖u_{"{k−d}"}‖ ≲ c₀/(1+d)</span>를 적용하면,
+                      지평선 L 너머의 집약 기여(soft tail)는:
+                    </p>
+                    <div className="mb-3 overflow-x-auto rounded-lg bg-emerald-50 p-3 dark:bg-emerald-900/20">
+                      <div className="text-gray-900 dark:text-gray-100">
+                        <EquationRenderer latex={String.raw`R_{\mathrm{soft}}(L) \lesssim c_3\sum_{d=L+1}^{\infty}\frac{e^{-\alpha d}}{1+d} = \mathcal{O}\!\left(\frac{e^{-\alpha L}}{1+L}\right)`} />
+                      </div>
+                    </div>
+                    <p className="mb-4 text-sm leading-relaxed text-gray-600 dark:text-gray-400">
+                      지수 감쇠 × 다항 감쇠의 곱이므로 하드 테일 O(L⁻¹)보다 훨씬 빠르게 감소합니다.
+                      단, 원거리 계수는 완전히 버려지지 않고 재귀적으로 집약됩니다 (소프트 메모리).
+                    </p>
+
+                    {/* Remark: Laplace mixture */}
+                    <div className="mb-4 rounded-xl border border-dashed border-purple-300 dark:border-purple-700 bg-purple-50 dark:bg-purple-950/20 px-4 py-3">
+                      <p className="mb-2 text-xs font-bold text-purple-700 dark:text-purple-300 uppercase tracking-wide">
+                        비고 — 다항 포락선의 Laplace 혼합 표현
+                      </p>
+                      <p className="mb-2 text-xs text-purple-700 dark:text-purple-400 leading-relaxed">
+                        롱테일 다항 포락선은 지수 모드의 연속 혼합으로 정확히 표현됩니다:
+                      </p>
+                      <div className="overflow-x-auto rounded-lg bg-white dark:bg-slate-900 px-3 py-2">
+                        <div className="text-gray-900 dark:text-gray-100">
+                          <EquationRenderer latex={String.raw`\frac{1}{d+1} = \int_{0}^{\infty} e^{-(d+1)\alpha}\,d\alpha = \int_{0}^{\infty} e^{-\alpha}\, e^{-\alpha d}\,d\alpha`} />
+                        </div>
+                      </div>
+                      <p className="mt-2 text-xs text-purple-600 dark:text-purple-400 leading-relaxed">
+                        따라서 느린 다항 감쇠 = 지수 감쇠 모드의 연속체. 유한 차원 SSM은 A의 고유구조를 통해
+                        유한 개의 지수 모드를 실현하며, 제한된 UE 복잡도 하에서 롱테일 국소성을 위한 구조적 사전(prior)을 제공합니다.
+                      </p>
+                    </div>
+
+                    {/* Interactive tail comparison */}
+                    <HardVsSoftTailViz />
+                    <InfographicCaption>
+                      슬라이더로 수용장 L과 SSM 감쇠율 α를 조절: 같은 L에서 소프트 테일 잔여가 지수 배율로 더 작습니다.
+                    </InfographicCaption>
+                  </div>
+
+                  {/* 3.5 양자화 내성 명제 */}
+                  <div className="mt-7">
+                    <SubSectionHeading number="3.5" title="수축적 상태 공간 인코더의 양자화 내성" />
+                    <p className="mb-3 text-sm leading-relaxed text-gray-700 dark:text-gray-300">
+                      UE 측 추론은 저정밀도 실행이 필요합니다. 훈련 후 가중치 양자화를
+                      <span className="font-mono text-xs text-indigo-600 dark:text-indigo-400 mx-1">θ̂ = θ + Δθ</span>
+                      로 모델링하면, 아래 명제는 상태 재귀가 균일 수축적일 때 양자화 오차가
+                      토큰 길이에 따라 증폭되지 않음을 형식화합니다.
+                    </p>
+
+                    {/* Proposition box */}
+                    <div className="mb-4 rounded-xl border-2 border-indigo-300 dark:border-indigo-700 bg-white dark:bg-slate-900 overflow-hidden">
+                      <div className="bg-indigo-50 dark:bg-indigo-950/30 px-4 py-2.5 flex items-center gap-2">
+                        <span className="rounded-md bg-indigo-600 text-white px-2.5 py-0.5 text-xs font-black">명제</span>
+                        <span className="text-sm font-bold text-slate-800 dark:text-slate-100">
+                          수축적 상태 공간 갱신의 섭동 내성
+                        </span>
+                      </div>
+                      <div className="px-4 py-3 text-xs text-slate-700 dark:text-slate-300 space-y-2">
+                        <p className="leading-relaxed">
+                          선택적 SSM 인코더 블록을{' '}
+                          <span className="font-mono text-indigo-600 dark:text-indigo-400">s_{'{t+1}'} = Φ_t(s_t, u_t; θ)</span>,{' '}
+                          <span className="font-mono text-indigo-600 dark:text-indigo-400">y_t = Ψ_t(s_t; θ)</span>로 쓰고,
+                          동일 입력·초기화 하에서 양자화 파라미터{' '}
+                          <span className="font-mono text-indigo-600 dark:text-indigo-400">θ̂ = θ + Δθ</span>를 적용하자.
+                          Φ_t가 상태에 대해 수축률 ρ∈[0,1)을 가지며 각 함수가 Lipschitz 연속이면,
+                          출력 편차는 모든 t에 대해 균일하게:
+                        </p>
+                        <div className="overflow-x-auto rounded-lg bg-indigo-50 dark:bg-indigo-900/20 px-3 py-2">
+                          <div className="text-gray-900 dark:text-gray-100">
+                            <EquationRenderer latex={String.raw`\|\mathbf{y}_t - \hat{\mathbf{y}}_t\| \le \left(\frac{L_\Psi L_{\Phi,\theta}}{1-\rho} + L_{\Psi,\theta}\right)\|\Delta\boldsymbol{\theta}\|`} />
+                          </div>
+                        </div>
+                        <p className="leading-relaxed text-slate-600 dark:text-slate-400">
+                          <span className="font-bold text-slate-700 dark:text-slate-300">해석:</span>{' '}
+                          한계가 t에 의존하지 않으므로, ρ&lt;1이 재귀를 통한 섭동 증폭을 방지합니다.
+                          Mamba처럼 Φ_t가 입력 의존적인 선택적 SSM에서도,
+                          운영 범위에서 균일 수축성이 성립하면 동일한 결론이 유효합니다.
+                        </p>
+                      </div>
+                    </div>
+
+                    {/* Interactive proof walkthrough */}
+                    <QuantRobustProofViz />
+                    <InfographicCaption>
+                      증명 단계별 전개 + 수치 계산기: ρ와 ‖Δθ‖를 조절하여 한계가 토큰 길이 t와 무관함을 확인하세요.
+                    </InfographicCaption>
+                  </div>
+
+                  {/* 3.6 Mamba 내부 메커니즘 */}
+                  <div className="mt-7">
+                    <SubSectionHeading number="3.6" title="Mamba 선택적 스캔: 핵심 메커니즘" />
                     <p className="mb-4 text-sm leading-relaxed text-gray-700 dark:text-gray-300">
                       Mamba의 핵심은 입력 의존적 파라미터 Δ_t입니다. 아래 애니메이션에서
                       CSI 각도 도메인 계수를 입력으로 받아 상태 벡터 h가 어떻게
@@ -646,28 +822,28 @@ export default function MyResearchPage() {
                     </InfographicCaption>
                   </div>
 
-                  {/* 3.4 */}
-                  <div className="mt-6">
-                    <SubSectionHeading number="3.4" title="비대칭 구조 결론" />
+                  {/* 3.7 비대칭 구조 결론 */}
+                  <div className="mt-7">
+                    <SubSectionHeading number="3.7" title="비대칭 아키텍처 채택 근거 요약" />
                     <div className="mb-4 grid grid-cols-1 gap-4 sm:grid-cols-2">
                       <div className="rounded-xl border border-blue-200 bg-blue-50 p-4 dark:border-blue-800 dark:bg-blue-900/20">
                         <p className="mb-1 text-xs font-bold uppercase tracking-wide text-blue-700 dark:text-blue-300">UE 인코더</p>
                         <p className="text-sm font-semibold text-blue-900 dark:text-blue-100">Mamba (SSM)</p>
                         <p className="mt-1 text-xs text-blue-600 dark:text-blue-400">경량, 저지연, O(N) 복잡도</p>
-                        <div className="mt-3 flex flex-wrap gap-1">
-                          {['경량', '저지연', '소프트 메모리'].map((tag) => (
-                            <span key={tag} className="rounded-full bg-blue-200 px-2 py-0.5 text-[10px] font-medium text-blue-800 dark:bg-blue-800 dark:text-blue-200">{tag}</span>
-                          ))}
+                        <div className="mt-3 space-y-1 text-[10px] text-blue-700 dark:text-blue-300">
+                          <p>• 소프트 메모리: O(e^{'{−αL}'}/(1+L)) 테일</p>
+                          <p>• 양자화 내성: 출력 오차 균일 유계 (명제)</p>
+                          <p>• 선택적 스캔: 지배 경로 집중 포착</p>
                         </div>
                       </div>
                       <div className="rounded-xl border border-purple-200 bg-purple-50 p-4 dark:border-purple-800 dark:bg-purple-900/20">
                         <p className="mb-1 text-xs font-bold uppercase tracking-wide text-purple-700 dark:text-purple-300">BS 디코더</p>
-                        <p className="text-sm font-semibold text-purple-900 dark:text-purple-100">Transformer</p>
+                        <p className="text-sm font-semibold text-purple-900 dark:text-purple-100">Transformer (TransNet 계열)</p>
                         <p className="mt-1 text-xs text-purple-600 dark:text-purple-400">고용량, 전역 어텐션, O(N²) 허용</p>
-                        <div className="mt-3 flex flex-wrap gap-1">
-                          {['고용량', '전역 어텐션', '복잡도 허용'].map((tag) => (
-                            <span key={tag} className="rounded-full bg-purple-200 px-2 py-0.5 text-[10px] font-medium text-purple-800 dark:bg-purple-800 dark:text-purple-200">{tag}</span>
-                          ))}
+                        <div className="mt-3 space-y-1 text-[10px] text-purple-700 dark:text-purple-300">
+                          <p>• 조건부 평균 E[X_a|Z] 근사 목표</p>
+                          <p>• 디코더 근사 오차 최소화 담당</p>
+                          <p>• 인코더 정보 하한에는 영향 없음</p>
                         </div>
                       </div>
                     </div>
@@ -686,9 +862,10 @@ export default function MyResearchPage() {
                         <tbody className="divide-y divide-gray-100 dark:divide-gray-800">
                           {[
                             { label: 'UE 적합성', cnn: '보통', transformer: '낮음', mamba: '높음' },
-                            { label: '장거리 의존성', cnn: '제한적', transformer: '우수', mamba: '우수' },
+                            { label: '테일 잔여 감쇠', cnn: 'O(L⁻¹)', transformer: 'O(N⁻²)', mamba: 'O(e⁻ᵅᴸ/L)' },
                             { label: '복잡도', cnn: 'O(L)', transformer: 'O(N²)', mamba: 'O(N)' },
-                            { label: '메모리 감쇠', cnn: '하드', transformer: '소프트', mamba: '소프트' },
+                            { label: '메모리 유형', cnn: '하드 절단', transformer: 'Attention 소프트', mamba: '지수 감쇠 소프트' },
+                            { label: '양자화 내성', cnn: '낮음', transformer: 'N/A (BS)', mamba: '균일 유계 (명제)' },
                           ].map((row) => (
                             <tr key={row.label} className="hover:bg-gray-50 dark:hover:bg-gray-800/50">
                               <td className="px-3 py-2 font-medium text-gray-700 dark:text-gray-300">{row.label}</td>

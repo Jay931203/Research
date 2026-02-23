@@ -9,18 +9,6 @@ interface Props {
   topic: StudyTopic;
 }
 
-/* ── Growth rate functions ── */
-function computeGrowth(n: number) {
-  return [
-    { name: '1',       value: 1,                    color: 'bg-emerald-500' },
-    { name: 'log n',   value: Math.log2(n + 1),      color: 'bg-teal-500'   },
-    { name: 'n',       value: n,                     color: 'bg-blue-500'   },
-    { name: 'n log n', value: n * Math.log2(n + 1),  color: 'bg-indigo-500' },
-    { name: 'n²',      value: n * n,                 color: 'bg-amber-500'  },
-    { name: '2ⁿ',      value: Math.min(2 ** n, 1e9), color: 'bg-red-500'    },
-  ];
-}
-
 /* ── Big-O notation definitions ── */
 const notations = [
   {
@@ -146,11 +134,7 @@ const difficultyColor = {
 };
 
 export default function AsymptoticContent({ topic }: Props) {
-  const [n, setN] = useState(10);
   const [openCards, setOpenCards] = useState<Set<string>>(() => new Set(notations.map(nt => nt.symbol)));
-
-  const growthData = computeGrowth(n);
-  const maxVal = Math.max(...growthData.map(d => d.value));
 
   return (
     <div className="max-w-5xl mx-auto space-y-10 px-6 py-6">
@@ -186,49 +170,6 @@ export default function AsymptoticContent({ topic }: Props) {
           )}
         </div>
       </div>
-
-      {/* ── Growth Rate Explorer ── */}
-      <section id={`${topic.id}-sec-growth`}>
-        <div className="flex items-center gap-2 mb-4">
-          <span className="text-xl">📈</span>
-          <h2 className="text-base font-bold text-slate-800 dark:text-slate-100">성장률 비교</h2>
-          <div className="flex-1 h-px bg-slate-200 dark:bg-slate-700" />
-        </div>
-
-        <div className="rounded-xl border border-slate-200 dark:border-slate-700 bg-white dark:bg-slate-900 p-5">
-          <div className="flex items-center gap-4 mb-6">
-            <label className="text-sm font-semibold text-slate-600 dark:text-slate-300 flex-shrink-0 w-8">n =</label>
-            <input
-              type="range" min={1} max={30} value={n}
-              onChange={e => setN(Number(e.target.value))}
-              className="flex-1 accent-blue-600"
-            />
-            <span className="w-8 text-center font-mono font-bold text-blue-600 dark:text-blue-400">{n}</span>
-          </div>
-
-          <div className="flex items-end gap-3 h-48">
-            {growthData.map(d => {
-              const heightPct = maxVal > 0 ? Math.max(2, (d.value / maxVal) * 100) : 2;
-              const display = d.value >= 1e9 ? '>1B'
-                : d.value >= 1e6 ? (d.value / 1e6).toFixed(1) + 'M'
-                : d.value >= 1000 ? (d.value / 1000).toFixed(1) + 'K'
-                : d.value.toFixed(d.value < 10 ? 2 : 0);
-              return (
-                <div key={d.name} className="flex flex-col items-center gap-1 flex-1 min-w-0">
-                  <span className="text-[10px] font-mono text-slate-500 dark:text-slate-400 truncate w-full text-center">{display}</span>
-                  <div className="relative w-full" style={{ height: '160px', display: 'flex', alignItems: 'flex-end' }}>
-                    <div className={`w-full rounded-t-md ${d.color} transition-all duration-300`} style={{ height: `${heightPct}%` }} />
-                  </div>
-                  <span className="text-[11px] font-semibold text-slate-600 dark:text-slate-300 truncate w-full text-center">{d.name}</span>
-                </div>
-              );
-            })}
-          </div>
-          <p className="mt-3 text-xs text-slate-400 text-center">
-            <span className="text-emerald-500 font-semibold">녹색</span> (빠름) → <span className="text-red-500 font-semibold">빨강</span> (느림)
-          </p>
-        </div>
-      </section>
 
       {/* ── Big-O 5종 ── */}
       <section id={`${topic.id}-sec-notations`}>
