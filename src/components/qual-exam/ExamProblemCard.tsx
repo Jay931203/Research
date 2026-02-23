@@ -13,6 +13,7 @@ export interface ExamProblem {
   category: string;
   title: string;
   description: string;
+  questionTable?: { headers: string[]; rows: string[][]; caption?: string };
   subQuestions?: {
     label: string;
     points: number;
@@ -342,6 +343,9 @@ export default function ExamProblemCard({ problem, defaultExpanded = false }: Ex
               <div className="lg:w-[52%] flex-shrink-0 p-5 border-b lg:border-b-0 lg:border-r border-slate-100 dark:border-slate-800 lg:sticky lg:top-0 lg:self-start lg:max-h-[80vh] lg:overflow-y-auto space-y-4">
                 {problem.description && (
                   <RichText text={problem.description} className="text-slate-700 dark:text-slate-300" />
+                )}
+                {problem.questionTable && (
+                  <TableBlock {...problem.questionTable} />
                 )}
                 {problem.codeBlock && (
                   <CodeBlock text={problem.codeBlock} lang="C++" />

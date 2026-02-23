@@ -1023,49 +1023,82 @@ export const DSA_EXAM_PROBLEMS: ExamProblem[] = [
     totalPoints: 40,
     category: '점근 분석',
     title: '점근 표기법 T/F 테이블 채우기',
-    description: `아래 표에서 각 함수 쌍 (A, B)에 대해 A가 B의 O, o, Ω, ω, Θ 관계인지 판단하시오 (k ≥ 1, ε > 0, c > 1은 상수). 각 빈칸(a-1 ~ d-5)에 T(참) 또는 F(거짓)를 채우시오.`,
+    description: `각 함수 쌍 (A, B)에 대해 A가 B의 O, o, Ω, ω, Θ 관계인지 판단하시오 (k ≥ 1, ε > 0, c > 1은 상수). 각 빈칸에 T(참) 또는 F(거짓)를 채우시오.`,
+    questionTable: {
+      headers: ['', 'A', 'B', 'O', 'o', 'Ω', 'ω', 'Θ'],
+      rows: [
+        ['(a)', 'lg^k(n)', 'n^ε', '?', '?', '?', '?', '?'],
+        ['(b)', 'n^k',     'c^n', '?', '?', '?', '?', '?'],
+        ['(c)', '2^n',     '2^(n/2)', '?', '?', '?', '?', '?'],
+        ['(d)', 'lg(n!)',  'lg(n^n)', '?', '?', '?', '?', '?'],
+      ],
+      caption: '빈칸(?)에 T / F 를 채우시오. 각 소문항을 열어 정답 확인 가능.',
+    },
     subQuestions: [
       {
         label: 'a',
         points: 10,
-        text: '(a) A = lg^k(n), B = n^ε (k≥1, ε>0 상수)\n각 관계에 대해 T/F를 채우시오: O, o, Ω, ω, Θ',
-        answer: `O=T, o=T, Ω=F, ω=F, Θ=F
+        text: '(a) A = lg^k(n),  B = n^ε  (k≥1, ε>0 상수)',
+        answerTable: {
+          headers: ['A', 'B', 'O', 'o', 'Ω', 'ω', 'Θ'],
+          rows: [['lg^k(n)', 'n^ε', 'T', 'T', 'F', 'F', 'F']],
+        },
+        answer: `해설: lg^k(n) = o(n^ε)
 
-해설: lg^k(n)은 n^ε보다 점근적으로 느리게 증가합니다.
-lim_{n→∞} lg^k(n) / n^ε = 0 이므로 little-o 관계가 성립합니다.
-따라서 O (상한)도 T, Ω (하한)은 F, Θ도 F입니다.`
+lim_{n→∞} lg^k(n) / n^ε = 0
+
+로그의 k승은 임의의 다항식 n^ε보다 점근적으로 느리게 증가합니다.
+→ little-o 성립 → O도 T (o ⊂ O)
+→ Ω, ω 는 F (A가 B보다 느리므로 하한이 될 수 없음)
+→ Θ는 O와 Ω가 동시에 성립해야 하므로 F`
       },
       {
         label: 'b',
         points: 10,
-        text: '(b) A = n^k, B = c^n (k≥1, c>1 상수)\n각 관계에 대해 T/F를 채우시오: O, o, Ω, ω, Θ',
-        answer: `O=T, o=T, Ω=F, ω=F, Θ=F
+        text: '(b) A = n^k,  B = c^n  (k≥1, c>1 상수)',
+        answerTable: {
+          headers: ['A', 'B', 'O', 'o', 'Ω', 'ω', 'Θ'],
+          rows: [['n^k', 'c^n', 'T', 'T', 'F', 'F', 'F']],
+        },
+        answer: `해설: n^k = o(c^n)
 
-해설: 다항식 n^k는 지수 c^n보다 점근적으로 느리게 증가합니다.
-lim_{n→∞} n^k / c^n = 0 (L'Hôpital 반복 적용)
-따라서 little-o 관계 성립 → O=T, o=T, Ω=F, ω=F, Θ=F`
+lim_{n→∞} n^k / c^n = 0  (L'Hôpital k회 반복 적용)
+
+다항식은 지수 함수보다 점근적으로 느리게 증가합니다.
+→ little-o 성립 → O=T, o=T
+→ Ω=F, ω=F, Θ=F`
       },
       {
         label: 'c',
         points: 10,
-        text: '(c) A = 2^n, B = 2^(n/2)\n각 관계에 대해 T/F를 채우시오: O, o, Ω, ω, Θ',
-        answer: `O=F, o=F, Ω=T, ω=T, Θ=F
+        text: '(c) A = 2^n,  B = 2^(n/2)',
+        answerTable: {
+          headers: ['A', 'B', 'O', 'o', 'Ω', 'ω', 'Θ'],
+          rows: [['2^n', '2^(n/2)', 'F', 'F', 'T', 'T', 'F']],
+        },
+        answer: `해설: 2^n / 2^(n/2) = 2^(n/2) → ∞
 
-해설: 2^n / 2^(n/2) = 2^(n - n/2) = 2^(n/2) → ∞
-따라서 A = 2^n은 B = 2^(n/2)보다 훨씬 빠르게 증가합니다.
-Ω (하한) = T, ω (엄격한 하한) = T
-O = F (상한이 될 수 없음), Θ = F`
+A = 2^n이 B = 2^(n/2)보다 훨씬 빠르게 증가합니다.
+→ A = ω(B): 엄격한 하한 → ω=T, Ω=T
+→ O=F (A가 더 크므로 상한이 될 수 없음), o=F
+→ Θ=F (O와 Ω 동시 불성립)`
       },
       {
         label: 'd',
         points: 10,
-        text: '(d) A = lg(n!), B = lg(n^n)\n각 관계에 대해 T/F를 채우시오: O, o, Ω, ω, Θ',
-        answer: `O=T, o=F, Ω=T, ω=F, Θ=T
+        text: '(d) A = lg(n!),  B = lg(n^n)',
+        answerTable: {
+          headers: ['A', 'B', 'O', 'o', 'Ω', 'ω', 'Θ'],
+          rows: [['lg(n!)', 'lg(n^n)', 'T', 'F', 'T', 'F', 'T']],
+        },
+        answer: `해설: Stirling 근사 적용
 
-해설: Stirling 공식: n! ≈ (n/e)^n
-lg(n!) ≈ n·lg(n) - n·lg(e) = Θ(n·lg n)
-lg(n^n) = n·lg(n) = Θ(n·lg n)
-따라서 둘은 Θ 관계: O=T, Ω=T, Θ=T, o=F, ω=F`
+n! ≈ (n/e)^n  →  lg(n!) ≈ n·lg(n) - n·lg(e) = Θ(n lg n)
+lg(n^n) = n·lg(n) = Θ(n lg n)
+
+둘 다 Θ(n lg n)이므로 Θ 관계 성립.
+→ O=T, Ω=T, Θ=T
+→ o=F (strictly slower 아님), ω=F`
       },
     ],
     tags: ['점근분석', 'Big-O', 'Big-Omega', 'Big-Theta', 'little-o', '로그', '지수'],
