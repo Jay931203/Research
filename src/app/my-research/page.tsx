@@ -461,17 +461,13 @@ export default function MyResearchPage() {
             <section id="section-concepts" className="scroll-mt-20">
               <SectionHeading
                 icon={<Hash className="h-5 w-5" />}
-                title="배경 개념 사전 — 처음 읽는 분을 위한 필수 개념 6가지"
+                title="배경 개념 사전"
                 collapsed={!!collapsed['section-concepts']}
                 onToggle={() => toggleSection('section-concepts')}
               />
               <div
                 className={`overflow-hidden transition-all duration-300 ${collapsed['section-concepts'] ? 'max-h-0' : 'max-h-[9999px]'}`}
               >
-                <div className="mb-2 rounded-xl border border-amber-200 bg-amber-50 px-4 py-2 text-xs text-amber-700 dark:border-amber-800 dark:bg-amber-950/20 dark:text-amber-300">
-                  💡 각 카드를 클릭하면 수식·그림과 함께 상세 설명이 펼쳐집니다.
-                  이미 익숙한 개념은 건너뛰어도 됩니다.
-                </div>
                 <ConceptsSection />
               </div>
             </section>
@@ -645,14 +641,6 @@ export default function MyResearchPage() {
                   {/* 3.2 롱테일 특성 */}
                   <div className="mt-7">
                     <SubSectionHeading number="3.2" title="지연-각도 도메인 CSI의 롱테일 국소성" />
-                    <div className="mb-3 flex items-start gap-2 rounded-lg border border-amber-200 bg-amber-50 px-3 py-2 text-xs dark:border-amber-800 dark:bg-amber-950/20">
-                      <span className="shrink-0 text-amber-500">💡</span>
-                      <span className="text-amber-700 dark:text-amber-300">
-                        <strong>처음 보는 분께:</strong> &ldquo;Dirichlet 커널&rdquo;이나 &ldquo;off-grid 누설&rdquo;이 낯설다면
-                        위의 <strong>배경 개념 사전 → 개념 1, 2</strong>를 먼저 읽으세요.
-                        아래 수식의 1/(1+d) 형태가 어디서 나오는지 이해하실 수 있습니다.
-                      </span>
-                    </div>
                     <p className="mb-3 text-sm leading-relaxed text-gray-700 dark:text-gray-300">
                       실제 채널 경로가 DFT 격자와 정렬되지 않으면 (off-grid), Dirichlet형 스펙트럼 누설로
                       진폭 포락선이 천천히 감쇠하는 진동 롱테일을 형성합니다:
@@ -738,14 +726,6 @@ export default function MyResearchPage() {
                   {/* 3.4 소프트 국소성 */}
                   <div className="mt-7">
                     <SubSectionHeading number="3.4" title="상태 공간 집약에 의한 소프트 국소성" />
-                    <div className="mb-3 flex items-start gap-2 rounded-lg border border-amber-200 bg-amber-50 px-3 py-2 text-xs dark:border-amber-800 dark:bg-amber-950/20">
-                      <span className="shrink-0 text-amber-500">💡</span>
-                      <span className="text-amber-700 dark:text-amber-300">
-                        <strong>처음 보는 분께:</strong> &ldquo;SSM = 지수 모드의 합&rdquo;이 왜 성립하는지,
-                        그리고 이게 Dirichlet 포락선과 왜 연결되는지는
-                        <strong> 배경 개념 사전 → 개념 3, 4</strong>에서 수식·인터랙티브 그림으로 설명합니다.
-                      </span>
-                    </div>
                     <p className="mb-3 text-sm leading-relaxed text-gray-700 dark:text-gray-300">
                       선형 SSM은 합성곱 형태로 표현할 수 있으며, 안정적인 A에 대해 지수 감쇠 가중치를 가집니다:
                     </p>
@@ -799,15 +779,6 @@ export default function MyResearchPage() {
                   {/* 3.5 양자화 내성 명제 */}
                   <div className="mt-7">
                     <SubSectionHeading number="3.5" title="수축적 상태 공간 인코더의 양자화 내성" />
-                    <div className="mb-3 flex items-start gap-2 rounded-lg border border-amber-200 bg-amber-50 px-3 py-2 text-xs dark:border-amber-800 dark:bg-amber-950/20">
-                      <span className="shrink-0 text-amber-500">💡</span>
-                      <span className="text-amber-700 dark:text-amber-300">
-                        <strong>Lipschitz 연속성, 수축 사상, 명제 증명 직관</strong>이 궁금하다면
-                        <strong> 배경 개념 사전 → 개념 5, 6</strong>을 먼저 보세요.
-                        ρ&lt;1이 왜 &ldquo;오차가 쌓이지 않음&rdquo;을 보장하는지
-                        그림·수식으로 단계별 설명합니다.
-                      </span>
-                    </div>
                     <p className="mb-3 text-sm leading-relaxed text-gray-700 dark:text-gray-300">
                       UE 측 추론은 저정밀도 실행이 필요합니다. 훈련 후 가중치 양자화를
                       <span className="font-mono text-xs text-indigo-600 dark:text-indigo-400 mx-1">θ̂ = θ + Δθ</span>
