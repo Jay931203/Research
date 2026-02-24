@@ -131,7 +131,7 @@ export default function SparsityViz() {
   const s_t = hoyerValues[selected];
   const w_t = 1 + WEIGHT_ALPHA * s_t;
 
-  const cellSize = 36;
+  const cellSize = 42;
   const gridPx = GRID_N * cellSize;
 
   return (
@@ -171,14 +171,14 @@ export default function SparsityViz() {
             {/* Column labels */}
             <div className="flex" style={{ marginLeft: 28 }}>
               {Array.from({ length: GRID_N }, (_, a) => (
-                <div key={a} className="text-[9px] text-gray-400 text-center" style={{ width: cellSize }}>
+                <div key={a} className="text-xs text-gray-400 text-center" style={{ width: cellSize }}>
                   {a}
                 </div>
               ))}
             </div>
             {selectedChannel.map((row, d) => (
               <div key={d} className="flex items-center">
-                <div className="text-[9px] text-gray-400 text-right pr-1" style={{ width: 24 }}>
+                <div className="text-xs text-gray-400 text-right pr-1" style={{ width: 24 }}>
                   {d}
                 </div>
                 {row.map((val, a) => (
@@ -196,16 +196,16 @@ export default function SparsityViz() {
               </div>
             ))}
             <div className="flex justify-between mt-1" style={{ marginLeft: 28 }}>
-              <span className="text-[9px] text-gray-400">← 각도 도메인 →</span>
+              <span className="text-xs text-gray-400">← 각도 도메인 →</span>
             </div>
             <div className="mt-1 flex items-center gap-2" style={{ marginLeft: 28 }}>
-              <span className="text-[9px] text-gray-400">0</span>
+              <span className="text-xs text-gray-400">0</span>
               <div className="h-2.5 flex-1 rounded" style={{
                 background: 'linear-gradient(to right, rgb(0,0,0), rgb(0,30,100), rgb(0,160,230), rgb(255,220,0), white)'
               }} />
-              <span className="text-[9px] text-gray-400">1</span>
+              <span className="text-xs text-gray-400">1</span>
             </div>
-            <div className="mt-0.5 flex gap-2 text-[9px] text-gray-400 justify-between" style={{ marginLeft: 28, marginRight: 16 }}>
+            <div className="mt-0.5 flex gap-2 text-xs text-gray-400 justify-between" style={{ marginLeft: 28, marginRight: 16 }}>
               <span>지연 지수: 0 (좌측)</span>
             </div>
           </div>
@@ -228,7 +228,7 @@ export default function SparsityViz() {
                       s_t = {h.toFixed(3)}
                     </span>
                   </div>
-                  <div className="w-full h-3 bg-gray-200 dark:bg-gray-700 rounded-full overflow-hidden">
+                  <div className="w-full h-4 bg-gray-200 dark:bg-gray-700 rounded-full overflow-hidden">
                     <div
                       className="h-full rounded-full transition-all duration-500"
                       style={{
@@ -249,7 +249,7 @@ export default function SparsityViz() {
             <p className="text-xs font-bold text-amber-700 dark:text-amber-300 mb-2">
               온라인 적응형 가중치
             </p>
-            <div className="font-mono text-sm text-amber-800 dark:text-amber-200 mb-2">
+            <div className="font-mono text-base text-amber-800 dark:text-amber-200 mb-2">
               w_t = 1 + α·s_t = 1 + {WEIGHT_ALPHA}×{s_t.toFixed(3)} ={' '}
               <span className="font-bold text-lg">{w_t.toFixed(3)}</span>
             </div>

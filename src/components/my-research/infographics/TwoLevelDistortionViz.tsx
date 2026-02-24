@@ -49,7 +49,7 @@ export default function TwoLevelDistortionViz() {
   const MODELS: ModelKey[] = ['CsiNet', 'Mamba'];
 
   // Bar widths (SVG)
-  const svgH = 260;
+  const svgH = 320;
   const svgW = 560;
   const padL = 60;
   const padR = 20;
@@ -129,7 +129,7 @@ export default function TwoLevelDistortionViz() {
                   stroke="#e5e7eb" strokeWidth={0.5} strokeDasharray="4,3"
                   className="dark:stroke-gray-700"
                 />
-                <text x={padL - 5} y={y + 3} textAnchor="end" fontSize={8} fill="#9ca3af">
+                <text x={padL - 5} y={y + 3} textAnchor="end" fontSize={10} fill="#9ca3af">
                   {v === 0 ? '좋음' : v === 1 ? '나쁨' : `${nmseLabel}dB`}
                 </text>
               </g>
@@ -146,10 +146,10 @@ export default function TwoLevelDistortionViz() {
             return (
               <g key={prec}>
                 {/* Group label */}
-                <text x={groupCenterX} y={svgH - 5} textAnchor="middle" fontSize={9} fill="#6b7280" fontWeight="bold">
+                <text x={groupCenterX} y={svgH - 5} textAnchor="middle" fontSize={11} fill="#6b7280" fontWeight="bold">
                   {prec}
                 </text>
-                <text x={groupCenterX} y={svgH - 16} textAnchor="middle" fontSize={7} fill="#9ca3af">
+                <text x={groupCenterX} y={svgH - 16} textAnchor="middle" fontSize={10} fill="#9ca3af">
                   {prec === 'INT16' ? '75%' : prec === 'INT8' ? '87.5%' : '93.75%'} BOP 절약
                 </text>
 
@@ -210,7 +210,7 @@ export default function TwoLevelDistortionViz() {
                       {/* Value label on top */}
                       <text
                         x={x + barW / 2} y={totalY - 3}
-                        textAnchor="middle" fontSize={7.5}
+                        textAnchor="middle" fontSize={10}
                         fill={precNMSE > 5 ? '#ef4444' : '#6b7280'}
                         fontWeight={isHovered ? 'bold' : 'normal'}
                       >
@@ -234,7 +234,7 @@ export default function TwoLevelDistortionViz() {
           })}
 
           {/* Y-axis label */}
-          <text x={10} y={padT + plotH / 2} textAnchor="middle" fontSize={8} fill="#9ca3af"
+          <text x={10} y={padT + plotH / 2} textAnchor="middle" fontSize={10} fill="#9ca3af"
             transform={`rotate(-90, 10, ${padT + plotH / 2})`}>
             NMSE (dB) / 왜곡 (높을수록 나쁨)
           </text>

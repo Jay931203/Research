@@ -43,7 +43,7 @@ export default function ReliabilityViz() {
 
   // SVG dimensions for rate chart
   const svgW = 560;
-  const svgH = 180;
+  const svgH = 240;
   const padL = 44;
   const padR = 12;
   const padT = 16;
@@ -67,7 +67,7 @@ export default function ReliabilityViz() {
 
   // Bar chart dimensions
   const barSvgW = 500;
-  const barSvgH = 140;
+  const barSvgH = 180;
   const barPadL = 120;
   const barPadR = 20;
   const barPadT = 16;
@@ -135,7 +135,7 @@ export default function ReliabilityViz() {
                   x={padL - 4}
                   y={yPos(v) + 3}
                   textAnchor="end"
-                  fontSize={9}
+                  fontSize={10}
                   fill="#9ca3af"
                 >
                   {v.toFixed(1)}
@@ -209,7 +209,7 @@ export default function ReliabilityViz() {
                 x={xPos(v - 1)}
                 y={padT + plotH + 14}
                 textAnchor="middle"
-                fontSize={8}
+                fontSize={10}
                 fill="#9ca3af"
               >
                 {v}
@@ -217,14 +217,14 @@ export default function ReliabilityViz() {
             ))}
 
             {/* Axis labels */}
-            <text x={padL + plotW / 2} y={svgH - 2} textAnchor="middle" fontSize={9} fill="#9ca3af">
+            <text x={padL + plotW / 2} y={svgH - 2} textAnchor="middle" fontSize={10} fill="#9ca3af">
               CSI 실현 샘플 인덱스
             </text>
             <text
               x={8}
               y={padT + plotH / 2}
               textAnchor="middle"
-              fontSize={9}
+              fontSize={10}
               fill="#9ca3af"
               transform={`rotate(-90, 8, ${padT + plotH / 2})`}
             >
@@ -234,13 +234,13 @@ export default function ReliabilityViz() {
             {/* Legend */}
             <g transform={`translate(${padL + 8}, ${padT + 6})`}>
               <line x1={0} y1={5} x2={18} y2={5} stroke="#9ca3af" strokeWidth={1.5} strokeDasharray="4,2" />
-              <text x={22} y={9} fontSize={8} fill="#9ca3af">r_ref (기준)</text>
+              <text x={22} y={9} fontSize={10} fill="#9ca3af">r_ref (기준)</text>
               <line x1={0} y1={18} x2={18} y2={18} stroke="#3b82f6" strokeWidth={2} />
-              <text x={22} y={22} fontSize={8} fill="#3b82f6">r̂ (재구성)</text>
+              <text x={22} y={22} fontSize={10} fill="#3b82f6">r̂ (재구성)</text>
               <line x1={0} y1={31} x2={18} y2={31} stroke="#ef4444" strokeWidth={1} strokeDasharray="3,2" />
-              <text x={22} y={35} fontSize={8} fill="#ef4444">γ·r_ref (임계값)</text>
+              <text x={22} y={35} fontSize={10} fill="#ef4444">γ·r_ref (임계값)</text>
               <circle cx={9} cy={43} r={4} fill="#ef4444" />
-              <text x={22} y={47} fontSize={8} fill="#ef4444">아웃에이지 이벤트</text>
+              <text x={22} y={47} fontSize={10} fill="#ef4444">아웃에이지 이벤트</text>
             </g>
           </svg>
         </div>
@@ -248,7 +248,7 @@ export default function ReliabilityViz() {
         {/* Outage count summary */}
         <div className="flex justify-end mt-1">
           <span
-            className={`text-xs font-medium px-2 py-0.5 rounded-full transition-all duration-300 ${
+            className={`text-sm font-medium px-2 py-0.5 rounded-full transition-all duration-300 ${
               outageFlags.filter(Boolean).length > 5
                 ? 'bg-red-100 dark:bg-red-900/40 text-red-700 dark:text-red-300'
                 : outageFlags.filter(Boolean).length > 2
@@ -285,7 +285,7 @@ export default function ReliabilityViz() {
                   x={barPadL - 4}
                   y={barPadT + (1 - v / maxBar) * barPlotH + 3}
                   textAnchor="end"
-                  fontSize={8}
+                  fontSize={10}
                   fill="#9ca3af"
                 >
                   {(v * 100).toFixed(0)}%
@@ -332,7 +332,7 @@ export default function ReliabilityViz() {
                     x={x + totalBarW / 2}
                     y={y - 4}
                     textAnchor="middle"
-                    fontSize={9}
+                    fontSize={11}
                     fill={policy.color}
                     fontWeight="bold"
                   >
@@ -343,7 +343,7 @@ export default function ReliabilityViz() {
                     x={x + totalBarW / 2}
                     y={barPadT + barPlotH + 14}
                     textAnchor="middle"
-                    fontSize={8}
+                    fontSize={10}
                     fill="#6b7280"
                   >
                     {policy.label}
@@ -357,7 +357,7 @@ export default function ReliabilityViz() {
               x={10}
               y={barPadT + barPlotH / 2}
               textAnchor="middle"
-              fontSize={8}
+              fontSize={10}
               fill="#9ca3af"
               transform={`rotate(-90, 10, ${barPadT + barPlotH / 2})`}
             >

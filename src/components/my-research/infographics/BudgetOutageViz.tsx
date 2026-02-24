@@ -40,7 +40,7 @@ export default function BudgetOutageViz() {
   const [hoveredX, setHoveredX] = useState<number | null>(null);
 
   const svgW = 540;
-  const svgH = 220;
+  const svgH = 280;
   const padL = 60;
   const padR = 20;
   const padT = 20;
@@ -121,7 +121,7 @@ export default function BudgetOutageViz() {
                 stroke="#e5e7eb" strokeWidth={0.5} strokeDasharray="4,3"
                 className="dark:stroke-gray-700"
               />
-              <text x={padL - 5} y={yPos(v) + 3} textAnchor="end" fontSize={9} fill="#9ca3af">
+              <text x={padL - 5} y={yPos(v) + 3} textAnchor="end" fontSize={10} fill="#9ca3af">
                 {(v * 100).toFixed(0)}%
               </text>
             </g>
@@ -141,16 +141,16 @@ export default function BudgetOutageViz() {
 
           {/* X-axis labels */}
           {SAVINGS.filter((_, i) => i % 2 === 0).map((s) => (
-            <text key={s} x={xPos(s)} y={padT + plotH + 13} textAnchor="middle" fontSize={9} fill="#6b7280">
+            <text key={s} x={xPos(s)} y={padT + plotH + 13} textAnchor="middle" fontSize={10} fill="#6b7280">
               {(s * 100).toFixed(0)}%
             </text>
           ))}
 
           {/* Axis labels */}
-          <text x={padL + plotW / 2} y={svgH - 4} textAnchor="middle" fontSize={9} fill="#9ca3af">
+          <text x={padL + plotW / 2} y={svgH - 4} textAnchor="middle" fontSize={11} fill="#9ca3af">
             평균 BOP 절약 (vs FP32) →
           </text>
-          <text x={10} y={padT + plotH / 2} textAnchor="middle" fontSize={9} fill="#9ca3af"
+          <text x={10} y={padT + plotH / 2} textAnchor="middle" fontSize={11} fill="#9ca3af"
             transform={`rotate(-90, 10, ${padT + plotH / 2})`}>
             아웃에이지 확률
           </text>
@@ -187,7 +187,7 @@ export default function BudgetOutageViz() {
               <circle
                 key={`${key}-${i}`}
                 cx={xPos(s)} cy={yPos(curveData[key][i])}
-                r={safeHoveredIdx === i ? 5 : 3}
+                r={safeHoveredIdx === i ? 6 : 4}
                 fill={color}
                 opacity={safeHoveredIdx === i ? 1 : 0.7}
                 className="transition-all duration-100"
@@ -212,7 +212,7 @@ export default function BudgetOutageViz() {
                 <line x1={0} y1={6} x2={20} y2={6}
                   stroke={color} strokeWidth={2}
                   strokeDasharray={dash || undefined} />
-                <text x={24} y={10} fontSize={8} fill={color} fontWeight="bold">{label}</text>
+                <text x={24} y={10} fontSize={10} fill={color} fontWeight="bold">{label}</text>
               </g>
             ))}
           </g>

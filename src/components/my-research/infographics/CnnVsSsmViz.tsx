@@ -40,9 +40,9 @@ export default function CnnVsSsmViz() {
     [position]
   );
 
-  const boxSize = 28;
-  const barMaxH = 60;
-  const barW = 16;
+  const boxSize = 36;
+  const barMaxH = 90;
+  const barW = 20;
   const barGap = 2;
   const svgW = N * (barW + barGap) + 8;
   const svgH = barMaxH + 24;
@@ -99,9 +99,9 @@ export default function CnnVsSsmViz() {
               className={`flex flex-col items-center justify-center border rounded text-xs font-mono transition-all duration-200 ${bg} ${textCol} ${border}`}
               style={{ width: boxSize, height: boxSize, ...ssmStyle }}
             >
-              <span className="text-[9px] leading-none">{n}</span>
+              <span className="text-xs leading-none">{n}</span>
               {mode === 'cnn' && outRange && (
-                <span className="text-[8px] leading-none text-red-400">✗</span>
+                <span className="text-xs leading-none text-red-400">✗</span>
               )}
             </div>
           );
@@ -113,13 +113,14 @@ export default function CnnVsSsmViz() {
   function renderBarChart(weights: number[], color: string) {
     return (
       <svg viewBox={`0 0 ${svgW} ${svgH}`} width="100%" height={svgH} className="block">
+        <rect x={0} y={0} width={svgW} height={svgH} fill="#f8fafc" />
         <line
           x1={4}
           y1={barMaxH}
           x2={svgW - 4}
           y2={barMaxH}
           stroke="#4b5563"
-          strokeWidth={0.5}
+          strokeWidth={1}
         />
         {weights.map((w, n) => {
           const barH = w * barMaxH;
@@ -142,7 +143,7 @@ export default function CnnVsSsmViz() {
                 x={x + barW / 2}
                 y={svgH - 4}
                 textAnchor="middle"
-                fontSize={7}
+                fontSize={10}
                 fill="#9ca3af"
               >
                 {n}
@@ -177,7 +178,7 @@ export default function CnnVsSsmViz() {
           onChange={(e) => setPosition(parseInt(e.target.value))}
           className="flex-1 accent-blue-500"
         />
-        <span className="text-sm font-mono text-blue-600 dark:text-blue-400 w-6 text-right">
+        <span className="font-mono text-base font-bold text-blue-600 dark:text-blue-400 w-6 text-right">
           {position}
         </span>
       </div>

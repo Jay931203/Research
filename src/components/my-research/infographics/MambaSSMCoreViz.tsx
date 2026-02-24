@@ -77,7 +77,7 @@ export default function MambaSSMCoreViz() {
     const h = data?.h ?? Array(D).fill(0);
     const maxH = Math.max(...h.map(Math.abs), 0.01);
     return (
-      <div className="flex gap-1 items-end" style={{ height: 60 }}>
+      <div className="flex gap-1 items-end" style={{ height: 90 }}>
         {h.map((v, d) => {
           const pct = Math.abs(v) / maxH;
           return (
@@ -85,13 +85,13 @@ export default function MambaSSMCoreViz() {
               <div
                 className="w-full rounded-t-sm transition-all duration-400"
                 style={{
-                  height: `${Math.max(2, pct * 50)}px`,
+                  height: `${Math.max(4, pct * 70)}px`,
                   backgroundColor: stateColor(pct, highlight),
                   opacity: data ? 0.6 + pct * 0.4 : 0.2,
                 }}
                 title={`h${d + 1}=${v.toFixed(3)}`}
               />
-              <span className="text-[6px] text-gray-400">h{d + 1}</span>
+              <span className="text-xs text-gray-400">h{d + 1}</span>
             </div>
           );
         })}
@@ -133,7 +133,7 @@ export default function MambaSSMCoreViz() {
         </p>
         <div
           className="flex gap-1 items-end rounded-xl bg-gray-50 dark:bg-gray-800 border border-gray-200 dark:border-gray-700 px-3 pt-3 pb-2"
-          style={{ height: 88 }}
+          style={{ height: 120 }}
         >
           {INPUT_SEQ.map((x, i) => {
             const isCurrent = step >= 0 && i === stepIdx;
@@ -142,32 +142,32 @@ export default function MambaSSMCoreViz() {
             return (
               <div key={i} className="flex-1 flex flex-col items-center justify-end gap-0.5">
                 {isCurrent && (
-                  <span className="text-[8px] font-bold text-indigo-600 dark:text-indigo-400 leading-none">▼</span>
+                  <span className="text-xs font-bold text-indigo-600 dark:text-indigo-400 leading-none">▼</span>
                 )}
                 <div
                   className={`w-full rounded-t-sm transition-all duration-300 ${
                     isCurrent ? 'ring-2 ring-indigo-400 ring-offset-1 ring-offset-gray-50 dark:ring-offset-gray-800' : ''
                   }`}
                   style={{
-                    height: `${Math.max(2, x * 52)}px`,
+                    height: `${Math.max(4, x * 80)}px`,
                     backgroundColor: isDom ? '#6366f1' : '#9ca3af',
                     opacity: isCurrent ? 1 : isPast ? 0.4 : 0.8,
                   }}
                   title={`x[${i}] = ${x}`}
                 />
-                <span className="text-[7px] text-gray-400">{i}</span>
+                <span className="text-xs text-gray-400">{i}</span>
               </div>
             );
           })}
         </div>
         <div className="flex gap-4 mt-1.5">
           <div className="flex items-center gap-1">
-            <span className="inline-block w-2.5 h-2.5 rounded-sm bg-indigo-500" />
-            <span className="text-[10px] text-gray-500 dark:text-gray-400">지배 경로 (高 에너지)</span>
+            <span className="inline-block w-3 h-3 rounded-sm bg-indigo-500" />
+            <span className="text-xs text-gray-500 dark:text-gray-400">지배 경로 (高 에너지)</span>
           </div>
           <div className="flex items-center gap-1">
-            <span className="inline-block w-2.5 h-2.5 rounded-sm bg-gray-400" />
-            <span className="text-[10px] text-gray-500 dark:text-gray-400">잡음/off-grid 누설 (低 에너지)</span>
+            <span className="inline-block w-3 h-3 rounded-sm bg-gray-400" />
+            <span className="text-xs text-gray-500 dark:text-gray-400">잡음/off-grid 누설 (低 에너지)</span>
           </div>
         </div>
       </div>
@@ -179,10 +179,10 @@ export default function MambaSSMCoreViz() {
           <div className="flex items-center justify-between mb-3">
             <div>
               <span className="text-sm font-bold text-gray-700 dark:text-gray-300">고정 스캔 (S4)</span>
-              <p className="text-[10px] text-gray-500 mt-0.5">Δ 고정 = 0.50</p>
+              <p className="text-xs text-gray-500 mt-0.5">Δ 고정 = 0.50</p>
             </div>
             <div className="text-right">
-              <p className="text-[10px] text-gray-500">Ā = exp(0.5·A₁)</p>
+              <p className="text-xs text-gray-500">Ā = exp(0.5·A₁)</p>
               <span className="text-xs font-mono font-bold text-gray-600 dark:text-gray-300">
                 ≈ {aBarFixed.toFixed(3)}
               </span>
@@ -216,10 +216,10 @@ export default function MambaSSMCoreViz() {
               >
                 선택적 스캔 (Mamba)
               </span>
-              <p className="text-[10px] text-gray-500 mt-0.5">Δ_k = f(x_k)</p>
+              <p className="text-xs text-gray-500 mt-0.5">Δ_k = f(x_k)</p>
             </div>
             <div className="text-right">
-              <p className="text-[10px] text-gray-500">
+              <p className="text-xs text-gray-500">
                 Δ_k = {selData?.delta.toFixed(2) ?? '—'}
               </p>
               <span
@@ -253,7 +253,7 @@ export default function MambaSSMCoreViz() {
       {step >= 0 && (
         <div className="mb-4 rounded-lg border border-gray-200 dark:border-gray-700 bg-white dark:bg-gray-900 px-4 py-3">
           <div className="flex items-center gap-3 mb-1.5">
-            <span className="text-xs font-semibold text-gray-600 dark:text-gray-400 w-24 shrink-0">고정 Δ=0.50</span>
+            <span className="text-sm font-semibold text-gray-600 dark:text-gray-400 w-24 shrink-0">고정 Δ=0.50</span>
             <div className="flex-1 h-4 bg-gray-100 dark:bg-gray-800 rounded-full overflow-hidden">
               <div
                 className="h-full rounded-full bg-gray-400 transition-all duration-300"
@@ -263,7 +263,7 @@ export default function MambaSSMCoreViz() {
             <span className="text-xs font-mono text-gray-500 w-12 text-right">Ā={aBarFixed.toFixed(2)}</span>
           </div>
           <div className="flex items-center gap-3">
-            <span className="text-xs font-semibold text-indigo-600 dark:text-indigo-400 w-24 shrink-0">
+            <span className="text-sm font-semibold text-indigo-600 dark:text-indigo-400 w-24 shrink-0">
               선택 Δ={(selData?.delta ?? 0).toFixed(2)}
             </span>
             <div className="flex-1 h-4 bg-gray-100 dark:bg-gray-800 rounded-full overflow-hidden">
@@ -283,7 +283,7 @@ export default function MambaSSMCoreViz() {
               Ā={aBarSel > 0 ? aBarSel.toFixed(2) : '—'}
             </span>
           </div>
-          <p className="text-[10px] text-gray-400 mt-1.5 text-right">* Ā = exp(Δ·A₁), A₁={A_D[0]}</p>
+          <p className="text-xs text-gray-400 mt-1.5 text-right">* Ā = exp(Δ·A₁), A₁={A_D[0]}</p>
         </div>
       )}
 
@@ -341,7 +341,7 @@ export default function MambaSSMCoreViz() {
           </button>
         )}
         {step >= 0 && (
-          <span className="text-xs text-gray-400 dark:text-gray-500 ml-auto">
+          <span className="text-sm text-gray-400 dark:text-gray-500 ml-auto">
             k = {stepIdx} / {N - 1}
           </span>
         )}

@@ -85,10 +85,10 @@ export default function PolicySpaceViz() {
         {(['전체 공간', 'ILP 필터링', 'KL 정제'] as const).map((label, i) => (
           <div key={i} className="flex items-center gap-2">
             <div
-              className={`flex items-center gap-1.5 px-2.5 py-1 rounded-full text-xs font-medium transition-all duration-300 ${
+              className={`flex items-center gap-1.5 px-2.5 py-1 rounded-full font-medium transition-all duration-300 ${
                 stage >= i
-                  ? 'bg-blue-500 text-white shadow-md'
-                  : 'bg-gray-100 dark:bg-gray-800 text-gray-400 dark:text-gray-500'
+                  ? 'bg-blue-500 text-white shadow-md text-sm'
+                  : 'bg-gray-100 dark:bg-gray-800 text-gray-400 dark:text-gray-500 text-xs'
               }`}
             >
               <span
@@ -217,7 +217,7 @@ export default function PolicySpaceViz() {
                     {row.bits.map((b, bi) => (
                       <td key={bi} className="px-2 py-1.5 text-center">
                         <span
-                          className={`inline-block rounded px-1.5 py-0.5 text-[10px] font-bold ${bitColor(b)}`}
+                          className={`inline-block rounded px-1.5 py-0.5 text-xs font-bold ${bitColor(b)}`}
                         >
                           INT{b}
                         </span>
@@ -236,8 +236,8 @@ export default function PolicySpaceViz() {
               ['INT8','bg-amber-200 text-amber-700','중간 민감도'],
               ['INT16','bg-red-200 text-red-700','높은 민감도 (FC-z 등)']].map(([label, cls, desc]) => (
               <div key={label} className="flex items-center gap-1.5">
-                <span className={`text-[10px] font-bold px-1.5 py-0.5 rounded ${cls}`}>{label}</span>
-                <span className="text-[10px] text-gray-500 dark:text-gray-400">{desc}</span>
+                <span className={`text-xs font-bold px-1.5 py-0.5 rounded ${cls}`}>{label}</span>
+                <span className="text-xs text-gray-500 dark:text-gray-400">{desc}</span>
               </div>
             ))}
           </div>

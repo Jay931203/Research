@@ -46,12 +46,12 @@ export default function OffGridDFTViz() {
     return magnitudes.map((_, k) => c0 / (1 + Math.abs(k - nearestBin)));
   }, [magnitudes, nearestBin]);
 
-  const svgHeight = 200;
+  const svgHeight = 260;
   const svgWidth = 560;
-  const barAreaHeight = 160;
-  const barAreaTop = 20;
-  const barWidth = Math.floor(svgWidth / 16) - 2;
-  const barSpacing = Math.floor(svgWidth / 16);
+  const barAreaHeight = 210;
+  const barAreaTop = 24;
+  const barWidth = Math.floor(svgWidth / 16);
+  const barSpacing = Math.floor(svgWidth / 16) + 1;
 
   return (
     <div className="rounded-2xl border border-gray-200 dark:border-gray-700 bg-white dark:bg-gray-900 p-6 shadow-md w-full">
@@ -64,7 +64,7 @@ export default function OffGridDFTViz() {
 
       {/* Slider */}
       <div className="flex items-center gap-4 mb-3">
-        <label className="text-sm font-medium text-gray-700 dark:text-gray-300 whitespace-nowrap">
+        <label className="text-sm font-semibold text-gray-700 dark:text-gray-300 whitespace-nowrap">
           주파수 (frequency)
         </label>
         <input
@@ -76,7 +76,7 @@ export default function OffGridDFTViz() {
           onChange={(e) => setFreq(parseFloat(e.target.value))}
           className="flex-1 accent-blue-500"
         />
-        <span className="text-sm font-mono text-blue-600 dark:text-blue-400 w-10 text-right">
+        <span className="font-mono text-base font-bold text-blue-600 dark:text-blue-400 w-10 text-right">
           {freq.toFixed(1)}
         </span>
       </div>
@@ -104,11 +104,12 @@ export default function OffGridDFTViz() {
           height={svgHeight}
           className="block"
         >
+          <rect x={0} y={0} width={svgWidth} height={svgHeight} fill="#f8fafc" />
           {/* Y-axis label */}
           <text
             x={4}
             y={barAreaTop - 4}
-            fontSize={10}
+            fontSize={11}
             fill="currentColor"
             className="text-gray-500 dark:text-gray-400"
           >
@@ -152,9 +153,9 @@ export default function OffGridDFTViz() {
                 {/* k label */}
                 <text
                   x={x + barWidth / 2}
-                  y={barAreaTop + barAreaHeight + 12}
+                  y={barAreaTop + barAreaHeight + 14}
                   textAnchor="middle"
-                  fontSize={9}
+                  fontSize={10}
                   fill="#6b7280"
                 >
                   {k}
@@ -172,7 +173,7 @@ export default function OffGridDFTViz() {
             const y0 = barAreaTop + barAreaHeight - (decayRef[k - 1] / maxMag) * barAreaHeight;
             return (
               <line key={k} x1={x0} y1={y0} x2={x1} y2={y1}
-                stroke="#9ca3af" strokeWidth={1} strokeDasharray="3,2" opacity={0.6}
+                stroke="#9ca3af" strokeWidth={2} strokeDasharray="3,2" opacity={0.6}
               />
             );
           })}
@@ -198,7 +199,7 @@ export default function OffGridDFTViz() {
             x={svgWidth / 2}
             y={svgHeight - 2}
             textAnchor="middle"
-            fontSize={10}
+            fontSize={11}
             fill="#6b7280"
           >
             주파수 빈 k (0 ~ 15)
@@ -214,7 +215,7 @@ export default function OffGridDFTViz() {
             주빈 {mainPct.toFixed(1)}% / 누설 {leakagePct.toFixed(1)}%
           </span>
         </div>
-        <div className="h-4 w-full bg-orange-200 dark:bg-orange-900/40 rounded-full overflow-hidden">
+        <div className="h-5 w-full bg-orange-200 dark:bg-orange-900/40 rounded-full overflow-hidden">
           <div
             className="h-full rounded-full transition-all duration-300"
             style={{
@@ -223,13 +224,13 @@ export default function OffGridDFTViz() {
             }}
           />
         </div>
-        <div className="flex justify-between text-[9px] text-gray-400 mt-0.5">
+        <div className="flex justify-between text-xs text-gray-400 mt-0.5">
           <span>← 주 빈 에너지</span>
           <span>누설 에너지 →</span>
         </div>
       </div>
       {!isOnGrid && (
-        <p className="text-[10px] text-gray-500 dark:text-gray-400 mb-2">
+        <p className="text-xs text-gray-500 dark:text-gray-400 mb-2">
           회색 점선: 다항식 감쇠 경계 c₀/(1+|k−k₀|). Off-grid 채널의 CSI 코드북 표현 오차 원인.
         </p>
       )}
@@ -249,7 +250,7 @@ export default function OffGridDFTViz() {
       {/* Explanation note */}
       <div className="rounded-lg bg-gray-50 dark:bg-gray-800 border border-gray-200 dark:border-gray-700 px-4 py-3">
         <p className="text-xs text-gray-600 dark:text-gray-400 leading-relaxed">
-          <span className="font-semibold text-gray-800 dark:text-gray-200">원리:</span>{' '}
+          <span className="text-sm font-semibold text-gray-800 dark:text-gray-200">원리:</span>{' '}
           DFT는 정수 주파수만 정확히 표현합니다. 비정수 주파수이면 에너지가 여러 빈에 퍼지는{' '}
           <span className="font-semibold text-orange-600 dark:text-orange-400">스펙트럼 누설(spectral leakage)</span>이 발생합니다.
           CSI 피드백에서 비정수 지연·각도를 DFT 기반 코드북으로 표현하면 동일한 문제가 생깁니다.

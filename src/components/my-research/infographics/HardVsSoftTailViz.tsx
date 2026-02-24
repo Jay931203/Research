@@ -22,7 +22,7 @@ export default function HardVsSoftTailViz() {
     }));
   }, [alpha]);
 
-  const W = 460, H = 180, PAD = { t: 10, r: 10, b: 30, l: 42 };
+  const W = 460, H = 240, PAD = { t: 10, r: 10, b: 30, l: 42 };
   const plotW = W - PAD.l - PAD.r;
   const plotH = H - PAD.t - PAD.b;
 
@@ -46,12 +46,12 @@ export default function HardVsSoftTailViz() {
 
   return (
     <div className="rounded-xl border border-slate-200 dark:border-slate-700 bg-white dark:bg-slate-900 p-5">
-      <p className="mb-4 text-xs font-bold uppercase tracking-wide text-slate-500 dark:text-slate-400">
+      <p className="mb-4 text-sm font-bold uppercase tracking-wide text-slate-500 dark:text-slate-400">
         하드 vs 소프트 테일 잔여 에너지 비교 (로그 스케일)
       </p>
 
       {/* Sliders */}
-      <div className="mb-4 grid grid-cols-1 gap-3 sm:grid-cols-2 text-xs">
+      <div className="mb-4 grid grid-cols-1 gap-3 sm:grid-cols-2 text-sm">
         <div className="flex items-center gap-3">
           <label className="w-28 font-semibold text-slate-600 dark:text-slate-300 flex-shrink-0">
             수용장 반경 L = <span className="font-mono text-blue-600 dark:text-blue-400">{L}</span>
@@ -76,35 +76,38 @@ export default function HardVsSoftTailViz() {
 
       {/* Chart */}
       <svg viewBox={`0 0 ${W} ${H}`} width="100%" className="block overflow-visible">
+        {/* Background */}
+        <rect x={0} y={0} width={W} height={H} fill="#f8fafc" />
+
         {/* Grid */}
         {gridYs.map((y) => (
           <g key={y}>
             <line x1={PAD.l} y1={yPx(y)} x2={W - PAD.r} y2={yPx(y)}
-              stroke="#e2e8f0" strokeWidth={0.5} strokeDasharray="3,3" />
-            <text x={PAD.l - 4} y={yPx(y) + 3} textAnchor="end" fontSize={7} fill="#94a3b8">{y}</text>
+              stroke="#e2e8f0" strokeWidth={0.6} strokeDasharray="3,3" />
+            <text x={PAD.l - 4} y={yPx(y) + 3} textAnchor="end" fontSize={10} fill="#94a3b8">{y}</text>
           </g>
         ))}
         {/* Axes */}
-        <line x1={PAD.l} y1={PAD.t} x2={PAD.l} y2={H - PAD.b} stroke="#94a3b8" strokeWidth={0.7} />
-        <line x1={PAD.l} y1={H - PAD.b} x2={W - PAD.r} y2={H - PAD.b} stroke="#94a3b8" strokeWidth={0.7} />
-        <text x={W / 2} y={H - 2} textAnchor="middle" fontSize={8} fill="#94a3b8">수용장 / 지평선 L</text>
+        <line x1={PAD.l} y1={PAD.t} x2={PAD.l} y2={H - PAD.b} stroke="#94a3b8" strokeWidth={0.8} />
+        <line x1={PAD.l} y1={H - PAD.b} x2={W - PAD.r} y2={H - PAD.b} stroke="#94a3b8" strokeWidth={0.8} />
+        <text x={W / 2} y={H - 2} textAnchor="middle" fontSize={11} fill="#94a3b8">수용장 / 지평선 L</text>
 
         {/* Curves */}
-        <path d={makePath('hard')} fill="none" stroke="#3b82f6" strokeWidth={2} />
-        <path d={makePath('soft')} fill="none" stroke="#f97316" strokeWidth={2} />
+        <path d={makePath('hard')} fill="none" stroke="#3b82f6" strokeWidth={2.5} />
+        <path d={makePath('soft')} fill="none" stroke="#f97316" strokeWidth={2.5} />
 
         {/* Current L markers */}
-        <circle cx={xPx(L)} cy={yPx(hardTail)} r={4} fill="#3b82f6" />
-        <circle cx={xPx(L)} cy={yPx(Math.max(softTail, yMin))} r={4} fill="#f97316" />
+        <circle cx={xPx(L)} cy={yPx(hardTail)} r={6} fill="#3b82f6" />
+        <circle cx={xPx(L)} cy={yPx(Math.max(softTail, yMin))} r={6} fill="#f97316" />
 
         {/* X ticks */}
         {[0, 5, 10, 15, 20].map((v) => (
-          <text key={v} x={xPx(v)} y={H - PAD.b + 10} textAnchor="middle" fontSize={7} fill="#94a3b8">{v}</text>
+          <text key={v} x={xPx(v)} y={H - PAD.b + 12} textAnchor="middle" fontSize={10} fill="#94a3b8">{v}</text>
         ))}
       </svg>
 
       {/* Legend & live values */}
-      <div className="mt-3 flex flex-wrap gap-4 text-xs">
+      <div className="mt-3 flex flex-wrap gap-4 text-sm">
         <div className="flex items-center gap-1.5">
           <div className="h-2.5 w-6 rounded bg-blue-500" />
           <span className="text-slate-600 dark:text-slate-300">
@@ -122,24 +125,24 @@ export default function HardVsSoftTailViz() {
       {/* Numerical comparison */}
       <div className="mt-3 grid grid-cols-3 gap-2 text-center text-xs">
         <div className="rounded-lg bg-blue-50 dark:bg-blue-950/30 border border-blue-100 dark:border-blue-900/40 px-2 py-2">
-          <p className="text-[10px] text-blue-500 mb-0.5">하드 테일 잔여</p>
+          <p className="text-xs text-blue-500 mb-0.5">하드 테일 잔여</p>
           <p className="font-mono font-bold text-blue-700 dark:text-blue-300">{hardTail.toExponential(2)}</p>
         </div>
         <div className="rounded-lg bg-orange-50 dark:bg-orange-950/30 border border-orange-100 dark:border-orange-900/40 px-2 py-2">
-          <p className="text-[10px] text-orange-500 mb-0.5">소프트 테일 잔여</p>
+          <p className="text-xs text-orange-500 mb-0.5">소프트 테일 잔여</p>
           <p className="font-mono font-bold text-orange-700 dark:text-orange-300">
             {softTail < 1e-6 ? '< 10⁻⁶' : softTail.toExponential(2)}
           </p>
         </div>
         <div className="rounded-lg bg-green-50 dark:bg-green-950/30 border border-green-100 dark:border-green-900/40 px-2 py-2">
-          <p className="text-[10px] text-green-500 mb-0.5">하드/소프트 배율</p>
+          <p className="text-xs text-green-500 mb-0.5">하드/소프트 배율</p>
           <p className="font-mono font-bold text-green-700 dark:text-green-300">
             {ratio > 1e6 ? '> 10⁶×' : `${ratio.toFixed(1)}×`}
           </p>
         </div>
       </div>
 
-      <p className="mt-2 text-[10px] text-slate-400 dark:text-slate-500">
+      <p className="mt-2 text-xs text-slate-400 dark:text-slate-500">
         α가 클수록 SSM 지수 감쇠가 빨라집니다. 같은 L에서 소프트 테일 잔여가 지수 배율로 더 작습니다.
       </p>
     </div>

@@ -127,8 +127,8 @@ export default function HessianCurvatureViz() {
                         title={`H[${PARAM_LABELS[r]},${PARAM_LABELS[c]}] = ${val}`}
                       >
                         <span
-                          className="font-semibold"
-                          style={{ color: isDark ? '#1e293b' : '#1e293b' }}
+                          className="font-semibold dark:text-gray-100"
+                          style={{ color: isDark ? '#f8fafc' : '#1e293b' }}
                         >
                           {val > 0 ? '' : ''}
                           {val.toFixed(1)}
@@ -144,7 +144,7 @@ export default function HessianCurvatureViz() {
             <div className="mt-2 flex items-center gap-2">
               <span className="text-xs text-gray-400">낮음</span>
               <div
-                className="h-3 w-32 rounded"
+                className="h-4 w-32 rounded"
                 style={{
                   background: 'linear-gradient(to right, rgb(59,130,246), white, rgb(220,38,38))',
                 }}
@@ -226,7 +226,7 @@ export default function HessianCurvatureViz() {
                     </span>
                   </div>
                 </div>
-                <div className="w-full h-4 bg-gray-200 dark:bg-gray-700 rounded-full overflow-hidden">
+                <div className="w-full h-5 bg-gray-200 dark:bg-gray-700 rounded-full overflow-hidden">
                   <div
                     className={`h-full rounded-full transition-all duration-500 ${colors.bar}`}
                     style={{ width: `${pct}%` }}

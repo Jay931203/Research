@@ -36,7 +36,7 @@ const MODEL_BG: Record<string, string> = {
 
 // Chart dimensions
 const svgW = 540;
-const svgH = 280;
+const svgH = 340;
 const padL = 56;
 const padR = 24;
 const padT = 28;
@@ -164,7 +164,7 @@ export default function NmseVsBopScatterViz() {
             x={xPos(82, range)}
             y={padT + 14}
             textAnchor="middle"
-            fontSize={8}
+            fontSize={10}
             fill="#10b981"
             opacity={0.7}
           >
@@ -179,7 +179,7 @@ export default function NmseVsBopScatterViz() {
                 stroke="#e5e7eb" strokeWidth={0.5} strokeDasharray="4,3"
                 className="dark:stroke-gray-700"
               />
-              <text x={padL - 4} y={yPos(v, range) + 3} textAnchor="end" fontSize={8} fill="#9ca3af">
+              <text x={padL - 4} y={yPos(v, range) + 3} textAnchor="end" fontSize={10} fill="#9ca3af">
                 {v}
               </text>
             </g>
@@ -193,7 +193,7 @@ export default function NmseVsBopScatterViz() {
               />
               <text
                 x={xPos(v, range)} y={padT + plotH + 14}
-                textAnchor="middle" fontSize={8} fill="#9ca3af"
+                textAnchor="middle" fontSize={10} fill="#9ca3af"
               >
                 {v === 93.75 ? '93.75%' : v === 0 ? 'FP32' : `${v}%`}
               </text>
@@ -212,7 +212,7 @@ export default function NmseVsBopScatterViz() {
             />
           )}
           {range.yMax > 0 && (
-            <text x={svgW - padR + 2} y={yPos(0, range) + 3} fontSize={7} fill="#ef4444" opacity={0.6}>
+            <text x={svgW - padR + 2} y={yPos(0, range) + 3} fontSize={10} fill="#ef4444" opacity={0.6}>
               0dB
             </text>
           )}
@@ -245,9 +245,9 @@ export default function NmseVsBopScatterViz() {
                 className="cursor-pointer"
               >
                 <circle cx={cx} cy={cy} r={14} fill="transparent" />
-                <ShapeMark cx={cx} cy={cy} shape={pt.shape} color={color} r={7} hovered={hovered} />
+                <ShapeMark cx={cx} cy={cy} shape={pt.shape} color={color} r={9} hovered={hovered} />
                 {hovered && (
-                  <text x={cx} y={cy - 12} textAnchor="middle" fontSize={8} fill={color} fontWeight="bold">
+                  <text x={cx} y={cy - 14} textAnchor="middle" fontSize={11} fill={color} fontWeight="bold">
                     {pt.nmse.toFixed(1)} dB
                   </text>
                 )}
@@ -256,11 +256,11 @@ export default function NmseVsBopScatterViz() {
           })}
 
           {/* Axis labels */}
-          <text x={padL + plotW / 2} y={svgH - 4} textAnchor="middle" fontSize={9} fill="#9ca3af">
+          <text x={padL + plotW / 2} y={svgH - 4} textAnchor="middle" fontSize={11} fill="#9ca3af">
             BOP 절약 (%) →
           </text>
           <text
-            x={10} y={padT + plotH / 2} textAnchor="middle" fontSize={9} fill="#9ca3af"
+            x={10} y={padT + plotH / 2} textAnchor="middle" fontSize={11} fill="#9ca3af"
             transform={`rotate(-90, 10, ${padT + plotH / 2})`}
           >
             NMSE (dB) — 낮을수록 좋음 ↓
@@ -274,7 +274,7 @@ export default function NmseVsBopScatterViz() {
                   x={xPos(pt.bop, range)}
                   y={padT + plotH + 28}
                   textAnchor="middle"
-                  fontSize={7}
+                  fontSize={10}
                   fill={MODEL_COLORS[pt.model]}
                   opacity={0.7}
                 >
@@ -303,7 +303,7 @@ export default function NmseVsBopScatterViz() {
       {/* Legend */}
       <div className="mt-3 flex flex-wrap gap-x-6 gap-y-2">
         <div>
-          <p className="text-[10px] font-semibold text-gray-500 dark:text-gray-400 mb-1.5">모델 (색상)</p>
+          <p className="text-xs font-semibold text-gray-500 dark:text-gray-400 mb-1.5">모델 (색상)</p>
           <div className="flex flex-wrap gap-x-4 gap-y-1">
             {Object.entries(MODEL_COLORS).map(([model, color]) => (
               <div key={model} className="flex items-center gap-1.5">
@@ -314,7 +314,7 @@ export default function NmseVsBopScatterViz() {
           </div>
         </div>
         <div>
-          <p className="text-[10px] font-semibold text-gray-500 dark:text-gray-400 mb-1.5">정밀도 (모양)</p>
+          <p className="text-xs font-semibold text-gray-500 dark:text-gray-400 mb-1.5">정밀도 (모양)</p>
           <div className="flex flex-wrap gap-x-4 gap-y-1">
             {[['FP32','●'],['INT16','■'],['INT8','▲'],['INT4','◆'],['RP-MPQ','★']].map(([label, sym]) => (
               <div key={label} className="flex items-center gap-1.5">
