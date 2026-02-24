@@ -3,7 +3,7 @@
 import { useMemo, useState } from 'react';
 import dynamic from 'next/dynamic';
 import katex from 'katex';
-import { ChevronDown } from 'lucide-react';
+import { ChevronDown, ChevronsUpDown } from 'lucide-react';
 
 const DirichletKernelViz = dynamic(
   () => import('./infographics/DirichletKernelViz'),
@@ -55,19 +55,22 @@ function ConceptCard({
   title,
   subtitle,
   children,
+  open,
+  onToggle,
 }: {
   badge: string;
   badgeColor: string;
   title: string;
   subtitle: string;
   children: React.ReactNode;
+  open: boolean;
+  onToggle: () => void;
 }) {
-  const [open, setOpen] = useState(false);
   return (
     <div className="overflow-hidden rounded-xl border border-gray-200 bg-white dark:border-gray-700 dark:bg-gray-900">
       <button
         type="button"
-        onClick={() => setOpen((v) => !v)}
+        onClick={onToggle}
         className="flex w-full items-start gap-3 px-5 py-4 text-left transition hover:bg-gray-50 dark:hover:bg-gray-800"
       >
         <span className={`mt-0.5 shrink-0 rounded px-2 py-0.5 text-xs font-black ${badgeColor}`}>{badge}</span>
@@ -220,8 +223,25 @@ function ContractionSVG() {
 /*  Main export                                                       */
 /* ================================================================ */
 export default function ConceptsSection() {
+  const TOTAL = 8;
+  const [openCards, setOpenCards] = useState<boolean[]>(() => Array(TOTAL).fill(false));
+  const toggleCard = (i: number) =>
+    setOpenCards((prev) => { const n = [...prev]; n[i] = !n[i]; return n; });
+  const anyOpen = openCards.some((v) => v);
+
   return (
     <div className="space-y-3">
+      {/* 전체 접기/펼치기 */}
+      <div className="flex justify-end">
+        <button
+          type="button"
+          onClick={() => setOpenCards(Array(TOTAL).fill(anyOpen ? false : true))}
+          className="inline-flex items-center gap-1.5 rounded-lg border border-gray-200 bg-white px-3 py-1.5 text-sm font-medium text-gray-600 transition hover:bg-gray-50 dark:border-gray-700 dark:bg-gray-800 dark:text-gray-300 dark:hover:bg-gray-700"
+        >
+          <ChevronsUpDown className="h-4 w-4" />
+          {anyOpen ? '전체 접기' : '전체 펼치기'}
+        </button>
+      </div>
 
       {/* ─── 개념 0: ULA & 공간 주파수 ─── */}
       <ConceptCard
@@ -229,6 +249,8 @@ export default function ConceptsSection() {
         badgeColor="bg-sky-100 text-sky-700 dark:bg-sky-900/30 dark:text-sky-300"
         title="ULA와 공간 주파수 — u = d·sin(θ)/λ 는 어디서 나오는가?"
         subtitle="안테나 간 경로차 → 위상차 → 공간 주파수 → DFT와 연결되는 물리적 기원"
+        open={openCards[0]}
+        onToggle={() => toggleCard(0)}
       >
         <div className="space-y-4 text-sm leading-relaxed text-gray-700 dark:text-gray-300">
           <p>
@@ -292,12 +314,163 @@ export default function ConceptsSection() {
         </div>
       </ConceptCard>
 
+      {/* ─── 도메인 변환: H에 DFT를 곱하면 왜 각도/지연 도메인이 되는가 ─── */}
+      <ConceptCard
+        badge="도메인"
+        badgeColor="bg-cyan-100 text-cyan-700 dark:bg-cyan-900/30 dark:text-cyan-300"
+        title="CSI 도메인 변환 — H에 DFT를 곱하면 왜 angular-delay가 되는가?"
+        subtitle="Antenna-Frequency → Angular-Frequency → Angular-Delay: 각 변환의 물리적 의미와 DFT 행렬의 역할"
+        open={openCards[1]}
+        onToggle={() => toggleCard(1)}
+      >
+        <div className="space-y-4 text-sm leading-relaxed text-gray-700 dark:text-gray-300">
+          <p>
+            OFDM 시스템에서 측정한 채널 행렬 <EqI latex={String.raw`\mathbf{H}\in\mathbb{C}^{N_a\times N_f}`} />의 두 축은
+            <strong>안테나 인덱스 n</strong>과 <strong>부반송파 인덱스 k</strong>입니다.
+            이 행렬에 DFT/IDFT 행렬을 곱하면 각각의 축이 물리적으로 다른 도메인으로 변환됩니다.
+          </p>
+
+          {/* 4-domain grid */}
+          <div className="rounded-xl border border-cyan-200 bg-cyan-50/50 p-4 dark:border-cyan-800 dark:bg-cyan-950/20">
+            <p className="mb-3 text-center font-bold text-cyan-700 dark:text-cyan-300">CSI 채널 행렬의 4가지 도메인</p>
+
+            <div className="grid grid-cols-[1fr_auto_1fr] items-center gap-x-2 gap-y-1">
+              {/* Row 1 */}
+              <div className="rounded-lg border border-indigo-200 bg-indigo-50 px-3 py-2.5 text-center dark:border-indigo-800 dark:bg-indigo-950/30">
+                <p className="text-xs font-bold text-indigo-600 dark:text-indigo-400">Antenna &times; Frequency</p>
+                <p className="mt-0.5 font-mono text-sm font-bold text-indigo-700 dark:text-indigo-300">H[n, k]</p>
+                <p className="mt-0.5 text-xs text-indigo-500 dark:text-indigo-400">원본 측정값</p>
+              </div>
+              <div className="flex flex-col items-center px-1">
+                <span className="text-lg text-gray-400">&rarr;</span>
+                <span className="text-xs font-bold text-gray-500 dark:text-gray-400">F<sub>a</sub>&middot;</span>
+              </div>
+              <div className="rounded-lg border border-cyan-200 bg-cyan-50 px-3 py-2.5 text-center dark:border-cyan-800 dark:bg-cyan-950/30">
+                <p className="text-xs font-bold text-cyan-600 dark:text-cyan-400">Angular &times; Frequency</p>
+                <p className="mt-0.5 font-mono text-sm font-bold text-cyan-700 dark:text-cyan-300">F<sub>a</sub>&middot;H</p>
+                <p className="mt-0.5 text-xs text-cyan-500 dark:text-cyan-400">빔 도메인</p>
+              </div>
+
+              {/* Vertical arrows */}
+              <div className="flex flex-col items-center py-0.5">
+                <span className="text-lg text-gray-400">&darr;</span>
+                <span className="text-xs font-bold text-gray-500 dark:text-gray-400">&middot;F<sub>f</sub><sup>H</sup></span>
+              </div>
+              <div />
+              <div className="flex flex-col items-center py-0.5">
+                <span className="text-lg text-gray-400">&darr;</span>
+                <span className="text-xs font-bold text-gray-500 dark:text-gray-400">&middot;F<sub>f</sub><sup>H</sup></span>
+              </div>
+
+              {/* Row 2 */}
+              <div className="rounded-lg border border-amber-200 bg-amber-50 px-3 py-2.5 text-center dark:border-amber-800 dark:bg-amber-950/30">
+                <p className="text-xs font-bold text-amber-600 dark:text-amber-400">Antenna &times; Delay</p>
+                <p className="mt-0.5 font-mono text-sm font-bold text-amber-700 dark:text-amber-300">H&middot;F<sub>f</sub><sup>H</sup></p>
+                <p className="mt-0.5 text-xs text-amber-500 dark:text-amber-400">임펄스 응답</p>
+              </div>
+              <div className="flex flex-col items-center px-1">
+                <span className="text-lg text-gray-400">&rarr;</span>
+                <span className="text-xs font-bold text-gray-500 dark:text-gray-400">F<sub>a</sub>&middot;</span>
+              </div>
+              <div className="rounded-lg border-2 border-emerald-400 bg-emerald-50 px-3 py-2.5 text-center dark:border-emerald-600 dark:bg-emerald-950/30">
+                <p className="text-xs font-bold text-emerald-600 dark:text-emerald-400">Angular &times; Delay</p>
+                <p className="mt-0.5 font-mono text-sm font-bold text-emerald-700 dark:text-emerald-300">F<sub>a</sub>&middot;H&middot;F<sub>f</sub><sup>H</sup></p>
+                <p className="mt-0.5 text-xs text-emerald-500 dark:text-emerald-400">가장 희소 &mdash; 압축에 최적</p>
+              </div>
+            </div>
+          </div>
+
+          {/* 왜 DFT가 도메인을 바꾸는가 */}
+          <div className="rounded-lg bg-cyan-50 px-4 py-3 dark:bg-cyan-900/20">
+            <p className="mb-2 font-bold text-cyan-700 dark:text-cyan-300">왜 DFT를 곱하면 도메인이 바뀌는가?</p>
+
+            <ProofStep step="1" label="안테나 축: 왼쪽에서 F_a 곱하기 → 각도 도메인">
+              <p className="mb-1">
+                개념 0에서 보았듯이 ULA의 각 안테나 n이 수신하는 신호는 평면파의 위상 지연{' '}
+                <EqI latex="e^{j2\pi u \cdot n}" />을 포함합니다.
+                H의 열 하나(고정 부반송파 k)를 보면:
+              </p>
+              <Eq latex={String.raw`\mathbf{h}_k = [h_0, h_1, \ldots, h_{N_a-1}]^T = \sum_{\ell}\alpha_\ell\,\mathbf{a}(u_\ell)\,\cdot\, (\text{freq.\ response at }k)`} />
+              <p className="mb-1">
+                여기서 <EqI latex="\mathbf{a}(u) = [1,\, e^{j2\pi u},\, \ldots,\, e^{j2\pi u(N_a-1)}]^T" />는
+                <strong>어레이 응답 벡터</strong>(steering vector)입니다.
+                이것은 주파수 <EqI latex="u" />의 복소 지수 &mdash; 즉 DFT 기저 벡터와 같은 형태입니다.
+              </p>
+              <p>
+                따라서 왼쪽에서 <EqI latex="\mathbf{F}_{N_a}" /> (DFT 행렬)를 곱하면, 안테나 축의
+                복소 지수 성분을 각 주파수 빈으로 분리합니다.
+                결과 행렬의 m번째 행은 공간 주파수 <EqI latex="u = m/N_a" />에 대응하는
+                <strong>각도(빔) 성분</strong>이 됩니다:
+              </p>
+              <Eq latex={String.raw`[\mathbf{F}_{N_a}\mathbf{H}]_{m,k} = \sum_{n=0}^{N_a-1}H[n,k]\,e^{-j2\pi mn/N_a}`} />
+            </ProofStep>
+
+            <ProofStep step="2" label="주파수 축: 오른쪽에서 F_f^H 곱하기 → 지연 도메인">
+              <p className="mb-1">
+                OFDM에서 부반송파 k는 주파수 <EqI latex="f_k = f_0 + k\Delta f" />입니다.
+                다중 경로 채널의 주파수 응답은:
+              </p>
+              <Eq latex={String.raw`H[n,k] = \sum_{\ell}\alpha_\ell\,e^{-j2\pi f_k\tau_\ell}\,e^{j2\pi u_\ell n}`} />
+              <p className="mb-1">
+                고정 안테나 n에서 H의 행 하나를 보면, <EqI latex="e^{-j2\pi k\Delta f\,\tau_\ell}" /> 형태의
+                복소 지수들의 합입니다. 이것은 지연 <EqI latex="\tau_\ell" />에 대한 <strong>주파수 도메인 표현</strong>이므로,
+                IDFT(<EqI latex="\mathbf{F}_{N_f}^H" />)를 오른쪽에 곱하면 시간(지연) 도메인으로 복원됩니다:
+              </p>
+              <Eq latex={String.raw`[\mathbf{H}\mathbf{F}_{N_f}^H]_{n,d} = \sum_{k=0}^{N_f-1}H[n,k]\,e^{j2\pi kd/N_f}`} />
+            </ProofStep>
+
+            <ProofStep step="3" label="양쪽 모두: Angular-Delay 도메인">
+              <p className="mb-1">
+                두 변환을 동시에 적용하면:
+              </p>
+              <Eq latex={String.raw`\mathbf{H}_{\text{ad}} = \mathbf{F}_{N_a}\,\mathbf{H}\,\mathbf{F}_{N_f}^H`} />
+              <p className="mb-1">
+                이 행렬의 (m, d) 원소는 <strong>각도 빈 m, 지연 탭 d</strong>에 해당하는 채널 계수입니다.
+                물리적으로 각 비영(non-zero) 원소는 특정 (도래각 θ, 지연 τ) 쌍의 전파 경로에 대응합니다.
+              </p>
+              <p>
+                실제 무선 채널은 소수의 산란체/반사체만 존재하므로, angular-delay 도메인에서
+                H<sub>ad</sub>는 <strong>매우 희소</strong>(sparse)합니다 &mdash; 대부분의 원소가 거의 0.
+                이것이 CSI 압축의 핵심 동기입니다.
+              </p>
+            </ProofStep>
+          </div>
+
+          {/* 핵심 정리 */}
+          <div className="grid grid-cols-1 gap-2 sm:grid-cols-2">
+            <div className="rounded-lg border border-indigo-200 bg-indigo-50 px-3 py-2.5 dark:border-indigo-800 dark:bg-indigo-950/20">
+              <p className="mb-1 font-bold text-indigo-700 dark:text-indigo-300">왼쪽 곱 F<sub>a</sub>&middot;H</p>
+              <p className="text-sm text-indigo-600 dark:text-indigo-400">
+                안테나 축(행)에 DFT &rarr; 공간 주파수 분해.
+                각 행이 하나의 빔 방향(각도 빈)에 대응.
+              </p>
+            </div>
+            <div className="rounded-lg border border-amber-200 bg-amber-50 px-3 py-2.5 dark:border-amber-800 dark:bg-amber-950/20">
+              <p className="mb-1 font-bold text-amber-700 dark:text-amber-300">오른쪽 곱 H&middot;F<sub>f</sub><sup>H</sup></p>
+              <p className="text-sm text-amber-600 dark:text-amber-400">
+                주파수 축(열)에 IDFT &rarr; 임펄스 응답 복원.
+                각 열이 하나의 지연 탭에 대응.
+              </p>
+            </div>
+          </div>
+
+          <p className="text-sm text-gray-500 dark:text-gray-400">
+            요약: DFT 행렬은 단순히 기저(basis)를 바꾸는 유니터리 변환입니다.
+            안테나 축의 기저를 {'{'}e<sub>n</sub>{'}'} &rarr; {'{'}a(u<sub>m</sub>){'}'} (빔)으로,
+            주파수 축의 기저를 {'{'}e<sub>k</sub>{'}'} &rarr; {'{'}p(τ<sub>d</sub>){'}'} (지연 탭)으로 바꿉니다.
+            채널의 물리적 희소성이 이 기저에서 드러나기 때문에 angular-delay 표현이 압축에 유리합니다.
+          </p>
+        </div>
+      </ConceptCard>
+
       {/* ─── 개념 1: DFT & Dirichlet ─── */}
       <ConceptCard
         badge="개념 1"
         badgeColor="bg-orange-100 text-orange-700 dark:bg-orange-900/30 dark:text-orange-300"
         title="DFT와 Dirichlet 커널 — off-grid 누설의 기원"
         subtitle="유한 N점 DFT를 비격자 주파수에 적용하면 왜 모든 빈에 에너지가 퍼지는가"
+        open={openCards[2]}
+        onToggle={() => toggleCard(2)}
       >
         <div className="space-y-4 text-sm leading-relaxed text-gray-700 dark:text-gray-300">
 
@@ -344,6 +517,8 @@ export default function ConceptsSection() {
         badgeColor="bg-red-100 text-red-700 dark:bg-red-900/30 dark:text-red-300"
         title="CNN 하드 절단 손실 — O(L⁻¹) 수렴의 함의"
         subtitle="수용장 L을 두 배 늘려도 절단 에너지가 절반밖에 안 줄어든다"
+        open={openCards[3]}
+        onToggle={() => toggleCard(3)}
       >
         <div className="space-y-4 text-sm leading-relaxed text-gray-700 dark:text-gray-300">
           <p>
@@ -396,6 +571,8 @@ export default function ConceptsSection() {
         badgeColor="bg-indigo-100 text-indigo-700 dark:bg-indigo-900/30 dark:text-indigo-300"
         title="SSM 컨볼루션 커널 = 지수 모드들의 합"
         subtitle="상태 방정식을 반복 대입하면 y_k = Σ_d (CA^dB) u_{k-d}, 그리고 A의 스펙트럼이 모드를 결정한다"
+        open={openCards[4]}
+        onToggle={() => toggleCard(4)}
       >
         <div className="space-y-4 text-sm leading-relaxed text-gray-700 dark:text-gray-300">
 
@@ -448,6 +625,8 @@ export default function ConceptsSection() {
         badgeColor="bg-purple-100 text-purple-700 dark:bg-purple-900/30 dark:text-purple-300"
         title="다항 감쇠 = 지수 모드의 Laplace 혼합"
         subtitle="1/(d+1) = ∫₀^∞ e^{-αd} e^{-α} dα — SSM이 Dirichlet 포락선을 구조적으로 근사하는 이유"
+        open={openCards[5]}
+        onToggle={() => toggleCard(5)}
       >
         <div className="space-y-4 text-sm leading-relaxed text-gray-700 dark:text-gray-300">
 
@@ -501,6 +680,8 @@ export default function ConceptsSection() {
         badgeColor="bg-teal-100 text-teal-700 dark:bg-teal-900/30 dark:text-teal-300"
         title="Lipschitz 연속성과 수축 사상"
         subtitle="함수의 '기울기 상한' — ρ<1이면 반복 적용할수록 두 점이 가까워진다"
+        open={openCards[6]}
+        onToggle={() => toggleCard(6)}
       >
         <div className="space-y-4 text-sm leading-relaxed text-gray-700 dark:text-gray-300">
 
@@ -562,6 +743,8 @@ export default function ConceptsSection() {
         badgeColor="bg-green-100 text-green-700 dark:bg-green-900/30 dark:text-green-300"
         title="수축 SSM의 양자화 내성 — 명제 전체 증명"
         subtitle="삼각 부등식 + 수축 조건 → 오차 상한이 토큰 길이 t에 독립적"
+        open={openCards[7]}
+        onToggle={() => toggleCard(7)}
       >
         <div className="space-y-4 text-sm leading-relaxed text-gray-700 dark:text-gray-300">
 
