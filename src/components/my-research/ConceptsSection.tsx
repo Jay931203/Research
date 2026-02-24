@@ -13,6 +13,10 @@ const SSMExponentialModeViz = dynamic(
   () => import('./infographics/SSMExponentialModeViz'),
   { ssr: false },
 );
+const ULASpatialFreqViz = dynamic(
+  () => import('./infographics/ULASpatialFreqViz'),
+  { ssr: false },
+);
 
 /* ---------- KaTeX helpers ---------- */
 function Eq({ latex }: { latex: string }) {
@@ -218,6 +222,75 @@ function ContractionSVG() {
 export default function ConceptsSection() {
   return (
     <div className="space-y-3">
+
+      {/* ─── 개념 0: ULA & 공간 주파수 ─── */}
+      <ConceptCard
+        badge="개념 0"
+        badgeColor="bg-sky-100 text-sky-700 dark:bg-sky-900/30 dark:text-sky-300"
+        title="ULA와 공간 주파수 — u = d·sin(θ)/λ 는 어디서 나오는가?"
+        subtitle="안테나 간 경로차 → 위상차 → 공간 주파수 → DFT와 연결되는 물리적 기원"
+      >
+        <div className="space-y-4 text-sm leading-relaxed text-gray-700 dark:text-gray-300">
+          <p>
+            채널 모델에서 빔 공간(beam domain)으로 변환할 때 핵심이 되는 <strong>공간 주파수</strong>{' '}
+            <EqI latex="u = \frac{d}{\lambda}\sin\theta" /> 가 왜 그 형태인지 기하학적으로 유도합니다.
+          </p>
+
+          {/* 물리 유도 */}
+          <div className="rounded-lg bg-sky-50 px-4 py-3 dark:bg-sky-900/20">
+            <p className="mb-3 font-bold text-sky-700 dark:text-sky-300">경로차 → 위상차 → 공간 주파수</p>
+
+            <ProofStep step="1" label="기하학 — 안테나 간 경로차">
+              <p className="mb-1">
+                N개 안테나가 간격 <EqI latex="d" />로 일렬로 놓여 있고, 평면파가 각도 <EqI latex="\theta" /> 로 입사합니다.
+                인접 두 안테나에 대해 직각삼각형을 그리면, 안테나 0과 1 사이의
+                경로차(path difference)는 기하학적으로:
+              </p>
+              <Eq latex={String.raw`\Delta r = d \sin\theta`} />
+              <p>
+                이 <EqI latex="\Delta r" />만큼 신호가 더 이동하기 때문에 안테나 1의 수신 신호는
+                안테나 0보다 위상이 지연됩니다.
+              </p>
+            </ProofStep>
+
+            <ProofStep step="2" label="경로차 → 위상차">
+              <p className="mb-1">
+                파장 <EqI latex="\lambda" />의 신호가 거리 <EqI latex="\Delta r" />를 더 이동하면 위상은{' '}
+                <EqI latex="2\pi/\lambda" />배만큼 돌아갑니다 (한 파장 이동 = <EqI latex="2\pi" /> rad):
+              </p>
+              <Eq latex={String.raw`\Delta\phi = \frac{2\pi}{\lambda}\,\Delta r = \frac{2\pi d\sin\theta}{\lambda}`} />
+            </ProofStep>
+
+            <ProofStep step="3" label="공간 주파수 정의">
+              <p className="mb-1">
+                위상 증분 <EqI latex="\Delta\phi" />를 <EqI latex="2\pi" />로 나눈 값이 바로 공간 주파수입니다.
+                이 표현에서 <EqI latex="1/\lambda" />가 &ldquo;공간에서의 샘플링 주파수&rdquo; 역할을 하고,{' '}
+                <EqI latex="d" />는 안테나 간격(샘플링 간격)입니다:
+              </p>
+              <Eq latex={String.raw`u \;\triangleq\; \frac{\Delta\phi}{2\pi} = \frac{d}{\lambda}\sin\theta \;\in\; \left[-\tfrac{d}{\lambda},\, \tfrac{d}{\lambda}\right]`} />
+            </ProofStep>
+
+            <ProofStep step="4" label="DFT와의 연결 — Nyquist 조건">
+              <p className="mb-1">
+                N개 안테나에 DFT를 적용하면 공간 주파수 <EqI latex="u" />에 해당하는 복소 지수{' '}
+                <EqI latex="e^{j2\pi u n},\; n=0,\ldots,N-1" />를 분석하는 것과 같습니다.
+                <strong>반파장 간격</strong> <EqI latex="d = \lambda/2" />를 택하면{' '}
+                <EqI latex="u \in [-1/2, 1/2]" />, 즉 DFT의 Nyquist 범위에 딱 맞아{' '}
+                aliasing 없이 모든 방향을 구별할 수 있습니다.
+              </p>
+              <Eq latex={String.raw`d = \frac{\lambda}{2} \;\Rightarrow\; u = \frac{1}{2}\sin\theta \;\in\; \left[-\tfrac{1}{2},\, \tfrac{1}{2}\right]`} />
+              <p>
+                DoA <EqI latex="\theta" />가 정수 격자{' '}
+                <EqI latex="u = k/N" />에 딱 떨어지지 않으면 <strong>off-grid</strong> 상황이 되고,
+                바로 아래 개념 1에서 설명하는 Dirichlet 커널 누설이 발생합니다.
+              </p>
+            </ProofStep>
+          </div>
+
+          {/* 인터랙티브 시각화 */}
+          <ULASpatialFreqViz />
+        </div>
+      </ConceptCard>
 
       {/* ─── 개념 1: DFT & Dirichlet ─── */}
       <ConceptCard
