@@ -89,6 +89,20 @@ const AutoQStudyFull = dynamic(
   { ssr: false },
 );
 
+/* SSM full study pages */
+const HiPPOStudyFull = dynamic(
+  () => import('@/components/ssm-study/HiPPOStudyFull'),
+  { ssr: false },
+);
+const S4StudyFull = dynamic(
+  () => import('@/components/ssm-study/S4StudyFull'),
+  { ssr: false },
+);
+const MambaStudyFull = dynamic(
+  () => import('@/components/ssm-study/MambaStudyFull'),
+  { ssr: false },
+);
+
 // arxiv_id → full study content (replaces generic template for these papers)
 const FULL_STUDY_REGISTRY: Record<string, React.ComponentType> = {
   '2307.13304': QuIPStudyFull,          // QuIP
@@ -99,14 +113,18 @@ const FULL_STUDY_REGISTRY: Record<string, React.ComponentType> = {
   '2011.10680': HAWQv3StudyFull,        // HAWQ-V3
   '1911.07346': AnyPrecisionStudyFull,  // Any-Precision DNN
   '1902.05690': AutoQStudyFull,         // AutoQ
+  '2008.07669': HiPPOStudyFull,         // HiPPO
+  '2111.00396': S4StudyFull,            // S4
+  '2312.00752': MambaStudyFull,         // Mamba
 };
 
 /* ------------------------------------------------------------------ */
 /*  Paper-specific Infographic Registry (non-full-study papers)        */
 /* ------------------------------------------------------------------ */
 
-// arxiv_id → small inline infographic component
-const INFOGRAPHIC_REGISTRY: Record<string, React.ComponentType> = {};
+// arxiv_id → small inline infographic component (papers without full study pages)
+const INFOGRAPHIC_REGISTRY: Record<string, React.ComponentType> = {
+};
 
 /* ------------------------------------------------------------------ */
 /*  Full Study ToC Registry (section IDs per arxiv_id)                */
@@ -207,6 +225,38 @@ const FULL_STUDY_TOC_REGISTRY: Record<
     { id: 'autoq-results',     label: '실험 결과',         icon: List },
     { id: 'autoq-quiz',        label: '자기 점검',         icon: FlaskConical },
     { id: 'section-notes',     label: '학습 노트',         icon: Layers },
+  ],
+  '2008.07669': [
+    { id: 'hippo-overview',   label: '개요',              icon: BookOpen },
+    { id: 'hippo-problem',    label: '그래디언트 소실',   icon: FileText },
+    { id: 'hippo-core',       label: '측도 기반 투영',    icon: GraduationCap },
+    { id: 'hippo-viz',        label: '시각화',            icon: Zap },
+    { id: 'hippo-equations',  label: '핵심 수식',         icon: Hash },
+    { id: 'hippo-impact',     label: '후속 연구 영향',    icon: Layers },
+    { id: 'hippo-quiz',       label: '자기 점검',         icon: FlaskConical },
+    { id: 'section-notes',    label: '학습 노트',         icon: Layers },
+  ],
+  '2111.00396': [
+    { id: 's4-overview',      label: '개요',              icon: BookOpen },
+    { id: 's4-challenge',     label: 'HiPPO 병목',       icon: FileText },
+    { id: 's4-three-views',   label: '세 가지 계산 관점', icon: Cpu },
+    { id: 's4-viz',           label: '이중 모드 시각화',  icon: Zap },
+    { id: 's4-nplr',          label: 'NPLR 분해',        icon: GraduationCap },
+    { id: 's4-equations',     label: '핵심 수식',         icon: Hash },
+    { id: 's4-results',       label: '실험 결과',         icon: List },
+    { id: 's4-quiz',          label: '자기 점검',         icon: FlaskConical },
+    { id: 'section-notes',    label: '학습 노트',         icon: Layers },
+  ],
+  '2312.00752': [
+    { id: 'mamba-overview',   label: '개요',              icon: BookOpen },
+    { id: 'mamba-problem',    label: 'S4의 한계',         icon: FileText },
+    { id: 'mamba-selection',  label: '선택적 메커니즘',   icon: Zap },
+    { id: 'mamba-viz',        label: '인터랙티브 시각화', icon: Star },
+    { id: 'mamba-hardware',   label: '하드웨어 알고리즘', icon: Cpu },
+    { id: 'mamba-equations',  label: '핵심 수식',         icon: Hash },
+    { id: 'mamba-results',    label: '실험 결과',         icon: List },
+    { id: 'mamba-quiz',       label: '자기 점검',         icon: FlaskConical },
+    { id: 'section-notes',    label: '학습 노트',         icon: Layers },
   ],
 };
 

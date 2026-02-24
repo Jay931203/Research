@@ -12,6 +12,11 @@ export const CORE_RELATIONSHIP_TYPES: RelationshipType[] = [
   'extends',
   'builds_on',
   'inspired_by',
+  'inspires',
+  'challenges',
+  'compares_with',
+  'applies',
+  'related',
 ];
 
 export const DEFAULT_GRAPH_FILTER_SETTINGS: GraphFilterSettings = {
