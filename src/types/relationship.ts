@@ -14,6 +14,7 @@ export interface PaperRelationship {
   to_paper_id: string;
   relationship_type: RelationshipType;
   description?: string;
+  delta_claim?: string;
   strength: number;
   created_at: string;
 }

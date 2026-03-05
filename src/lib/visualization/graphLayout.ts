@@ -58,4 +58,41 @@ export function applyDagreLayout(
   });
 }
 
+/**
+ * 타임라인 레이아웃: X축 = 발행 연도, Y축 = 카테고리 레인
+ */
+export function applyTimelineLayout(
+  nodes: PaperNode[],
+  edges: RelationshipEdge[],
+): PaperNode[] {
+  const years = Array.from(new Set(nodes.map(n => n.data.paper.year))).sort();
+  const categories = Array.from(new Set(nodes.map(n => n.data.paper.category)));
+
+  const YEAR_GAP = 350;
+  const CATEGORY_GAP = 200;
+  const NODE_STACK_GAP = 140;
+
+  const yearIndex = new Map(years.map((y, i) => [y, i]));
+  const categoryIndex = new Map(categories.map((c, i) => [c, i]));
+
+  // Count papers per (year, category) for stacking
+  const cellCount = new Map<string, number>();
+
+  return nodes.map(node => {
+    const year = node.data.paper.year;
+    const cat = node.data.paper.category;
+    const key = `${year}-${cat}`;
+    const stackIdx = cellCount.get(key) ?? 0;
+    cellCount.set(key, stackIdx + 1);
+
+    return {
+      ...node,
+      position: {
+        x: (yearIndex.get(year) ?? 0) * YEAR_GAP,
+        y: (categoryIndex.get(cat) ?? 0) * CATEGORY_GAP + stackIdx * NODE_STACK_GAP,
+      },
+    };
+  });
+}
+
 export { NODE_WIDTH, NODE_HEIGHT };

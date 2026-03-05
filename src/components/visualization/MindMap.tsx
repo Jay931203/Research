@@ -21,6 +21,7 @@ import type {
   RelationshipType,
 } from '@/types';
 import { RELATIONSHIP_STYLES, RESEARCH_TOPIC_COLORS, RESEARCH_TOPIC_LABELS, RESEARCH_TOPIC_ORDER, inferResearchTopic } from '@/lib/visualization/graphUtils';
+import { applyTimelineLayout } from '@/lib/visualization/graphLayout';
 import { useGraphData } from '@/hooks/useGraphData';
 import type { GraphFilterSettings } from '@/store/useAppStore';
 import { CORE_RELATIONSHIP_TYPES } from '@/store/useAppStore';
@@ -86,6 +87,7 @@ function MindMapInner({
 }: MindMapProps) {
   const { fitView, getNode } = useReactFlow();
   const [direction, setDirection] = useState<'TB' | 'LR'>('TB');
+  const [layoutMode, setLayoutMode] = useState<'dagre' | 'timeline'>('dagre');
   const [zoomLevel, setZoomLevel] = useState(1);
   const hasAutoFittedRef = useRef(false);
   const pendingFocusRef = useRef<string | null>(null);
@@ -110,7 +112,7 @@ function MindMapInner({
 
   useEffect(() => {
     hasAutoFittedRef.current = false;
-  }, [direction]);
+  }, [direction, layoutMode]);
 
   useEffect(() => {
     if (!papers.length) {
@@ -151,6 +153,11 @@ function MindMapInner({
 
   const layeredNodes = useMemo(() => {
     const graphNodes = graphData.nodes;
+
+    if (layoutMode === 'timeline') {
+      return applyTimelineLayout(graphNodes, graphData.edges);
+    }
+
     const nodeMap = new Map(graphNodes.map((node) => [node.id, node]));
     const sorted = [...sortedPapers].sort((a, b) => {
       if (a.year !== b.year) return a.year - b.year;
@@ -246,7 +253,7 @@ function MindMapInner({
     }
 
     return positioned;
-  }, [graphData.nodes, sortedPapers]);
+  }, [graphData.nodes, graphData.edges, sortedPapers, layoutMode]);
 
   const labeledEdges = useMemo(() => {
     const showLabel = zoomLevel >= 0.78 && sortedPapers.length <= 45;
@@ -361,6 +368,30 @@ function MindMapInner({
           zoomable
         />
         <MindMapControls direction={direction} onDirectionChange={setDirection} />
+        <div className="absolute bottom-4 left-16 z-10 flex gap-1">
+          <button
+            onClick={() => setLayoutMode('dagre')}
+            className={`rounded-lg border px-2.5 py-1.5 text-xs font-medium shadow-sm transition-colors ${
+              layoutMode === 'dagre'
+                ? 'border-blue-400 bg-blue-50 text-blue-700 dark:border-blue-500 dark:bg-blue-900/40 dark:text-blue-300'
+                : 'border-gray-200 bg-white text-gray-600 hover:bg-gray-50 dark:border-gray-700 dark:bg-gray-800 dark:text-gray-300 dark:hover:bg-gray-700'
+            }`}
+            title="DAG 레이아웃"
+          >
+            DAG
+          </button>
+          <button
+            onClick={() => setLayoutMode('timeline')}
+            className={`rounded-lg border px-2.5 py-1.5 text-xs font-medium shadow-sm transition-colors ${
+              layoutMode === 'timeline'
+                ? 'border-blue-400 bg-blue-50 text-blue-700 dark:border-blue-500 dark:bg-blue-900/40 dark:text-blue-300'
+                : 'border-gray-200 bg-white text-gray-600 hover:bg-gray-50 dark:border-gray-700 dark:bg-gray-800 dark:text-gray-300 dark:hover:bg-gray-700'
+            }`}
+            title="타임라인 레이아웃"
+          >
+            타임라인
+          </button>
+        </div>
         <GraphLegend />
       </ReactFlow>
     </div>

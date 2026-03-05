@@ -537,20 +537,23 @@ export default function PaperStudyPage() {
     [papers, paperId],
   );
 
-  const sortedPapers = useMemo(
-    () => [...papers].sort((a, b) => b.year - a.year || a.title.localeCompare(b.title)),
-    [papers],
-  );
+  const { prevPaper, nextPaper } = useMemo(() => {
+    if (!paper) return { prevPaper: null, nextPaper: null };
+    const conns = buildPaperConnections(paper.id, papers, relationships);
+    // incoming = papers that this paper builds on (go "back" in lineage)
+    const incoming = conns
+      .filter(c => c.direction === 'incoming')
+      .sort((a, b) => b.relationship.strength - a.relationship.strength);
+    // outgoing = papers inspired by this paper (go "forward")
+    const outgoing = conns
+      .filter(c => c.direction === 'outgoing')
+      .sort((a, b) => b.relationship.strength - a.relationship.strength);
 
-  const currentIndex = useMemo(
-    () => sortedPapers.findIndex((p) => p.id === paperId),
-    [sortedPapers, paperId],
-  );
-
-  const prevPaper = currentIndex > 0 ? sortedPapers[currentIndex - 1] : null;
-  const nextPaper = currentIndex >= 0 && currentIndex < sortedPapers.length - 1
-    ? sortedPapers[currentIndex + 1]
-    : null;
+    return {
+      prevPaper: incoming[0]?.otherPaper ?? null,
+      nextPaper: outgoing[0]?.otherPaper ?? null,
+    };
+  }, [paper, papers, relationships]);
 
   const connections = useMemo(() => {
     if (!paper) return [];
@@ -800,7 +803,7 @@ export default function PaperStudyPage() {
                 onClick={() => prevPaper && router.push(`/paper/${prevPaper.id}`)}
                 disabled={!prevPaper}
                 className="rounded-lg p-1.5 text-gray-500 transition hover:bg-gray-100 disabled:opacity-30 dark:text-gray-400 dark:hover:bg-gray-800"
-                title={prevPaper ? `이전: ${prevPaper.title}` : '이전 논문 없음'}
+                title={prevPaper ? `관련: ${prevPaper.title}` : '연결된 이전 논문 없음'}
               >
                 <ArrowLeft className="h-4 w-4" />
               </button>
@@ -808,13 +811,35 @@ export default function PaperStudyPage() {
                 onClick={() => nextPaper && router.push(`/paper/${nextPaper.id}`)}
                 disabled={!nextPaper}
                 className="rounded-lg p-1.5 text-gray-500 transition hover:bg-gray-100 disabled:opacity-30 dark:text-gray-400 dark:hover:bg-gray-800"
-                title={nextPaper ? `다음: ${nextPaper.title}` : '다음 논문 없음'}
+                title={nextPaper ? `관련: ${nextPaper.title}` : '연결된 다음 논문 없음'}
               >
                 <ArrowRight className="h-4 w-4" />
               </button>
             </div>
           </div>
         </div>
+
+        {/* Mobile ToC chip bar */}
+        {fullStudyTocItems.length > 0 && (
+          <div className="sticky top-[calc(4rem+0.125rem)] z-30 flex gap-1.5 overflow-x-auto border-b border-gray-200 bg-white/95 px-3 py-2 backdrop-blur lg:hidden dark:border-gray-800 dark:bg-gray-900/95">
+            {fullStudyTocItems.map((section) => {
+              const isActive = activeSection === section.id;
+              return (
+                <button
+                  key={section.id}
+                  onClick={() => scrollToSection(section.id)}
+                  className={`flex-shrink-0 rounded-full px-3 py-1 text-xs font-medium transition ${
+                    isActive
+                      ? 'bg-blue-600 text-white'
+                      : 'bg-gray-100 text-gray-600 hover:bg-gray-200 dark:bg-gray-800 dark:text-gray-400 dark:hover:bg-gray-700'
+                  }`}
+                >
+                  {section.label}
+                </button>
+              );
+            })}
+          </div>
+        )}
 
         {/* Content area */}
         <div className="flex">
@@ -962,7 +987,7 @@ export default function PaperStudyPage() {
               onClick={() => prevPaper && router.push(`/paper/${prevPaper.id}`)}
               disabled={!prevPaper}
               className="rounded-lg p-1.5 text-gray-500 transition hover:bg-gray-100 disabled:opacity-30 dark:text-gray-400 dark:hover:bg-gray-800"
-              title={prevPaper ? `이전: ${prevPaper.title}` : '이전 논문 없음'}
+              title={prevPaper ? `관련: ${prevPaper.title}` : '연결된 이전 논문 없음'}
             >
               <ArrowLeft className="h-4 w-4" />
             </button>
@@ -970,7 +995,7 @@ export default function PaperStudyPage() {
               onClick={() => nextPaper && router.push(`/paper/${nextPaper.id}`)}
               disabled={!nextPaper}
               className="rounded-lg p-1.5 text-gray-500 transition hover:bg-gray-100 disabled:opacity-30 dark:text-gray-400 dark:hover:bg-gray-800"
-              title={nextPaper ? `다음: ${nextPaper.title}` : '다음 논문 없음'}
+              title={nextPaper ? `관련: ${nextPaper.title}` : '연결된 다음 논문 없음'}
             >
               <ArrowRight className="h-4 w-4" />
             </button>
@@ -1536,7 +1561,7 @@ export default function PaperStudyPage() {
                               {rec.paper.title}
                             </p>
                             <p className="line-clamp-1 text-[11px] text-gray-500 dark:text-gray-400">
-                              점수 {rec.score} · {rec.reasons.join(' / ')}
+                              {rec.reasons.slice(0, 2).join(' · ')}
                             </p>
                           </div>
                           <ChevronRight className="h-4 w-4 flex-shrink-0 text-gray-400 dark:text-gray-500" />
@@ -1693,6 +1718,11 @@ function ConnectionList({
                     {item.otherPaper.year} ·{' '}
                     {summarizeRelationship(item.relationship.relationship_type, item.direction)}
                   </p>
+                  {item.relationship.description && (
+                    <p className="mt-0.5 line-clamp-2 text-[11px] text-gray-400 dark:text-gray-500">
+                      {item.relationship.description}
+                    </p>
+                  )}
                 </div>
                 <span
                   className="whitespace-nowrap rounded-full px-2 py-0.5 text-[10px] font-semibold"

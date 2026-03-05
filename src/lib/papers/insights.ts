@@ -428,16 +428,27 @@ export function summarizeRelationship(
   direction: 'outgoing' | 'incoming'
 ): string {
   if (direction === 'outgoing') {
-    if (type === 'extends') return '확장';
-    if (type === 'builds_on') return '기반';
-    if (type === 'inspires') return '영감 제공';
-    return '연결';
+    switch (type) {
+      case 'extends': return '이 논문을 확장';
+      case 'builds_on': return '이 논문을 기반으로 발전';
+      case 'inspires': return '이 논문에서 영감을 받음';
+      case 'compares_with': return '이 논문과 비교 분석';
+      case 'challenges': return '이 논문의 한계를 지적';
+      case 'applies': return '이 논문의 방법을 적용';
+      case 'inspired_by': return '이 논문에 영감을 제공';
+      default: return '관련 연구';
+    }
   }
-
-  if (type === 'inspired_by') return '영감 받음';
-  if (type === 'extends') return '후속 확장';
-  if (type === 'builds_on') return '후속 기반';
-  return '연결됨';
+  switch (type) {
+    case 'extends': return '이 논문의 후속 확장';
+    case 'builds_on': return '이 논문 위에 구축됨';
+    case 'inspires': return '이 논문이 영감을 줌';
+    case 'inspired_by': return '이 논문에서 영감을 받음';
+    case 'compares_with': return '이 논문과 비교됨';
+    case 'challenges': return '이 논문에 도전함';
+    case 'applies': return '이 논문을 활용함';
+    default: return '관련됨';
+  }
 }
 
 export function getPaperById(

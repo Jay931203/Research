@@ -1,5 +1,6 @@
 import Link from 'next/link';
 import { ArrowRight, BookOpen, GitBranch, GraduationCap, Layers } from 'lucide-react';
+import StudyStats from '@/components/common/StudyStats';
 
 const cards = [
   {
@@ -52,6 +53,8 @@ export default function HomePage() {
             개인 연구 허브
           </h1>
         </section>
+
+        <StudyStats />
 
         <section className="grid gap-4 sm:grid-cols-2">
           {cards.map((card) => (

@@ -32,16 +32,28 @@ function CustomNodeComponent({ data, selected }: NodeProps<PaperNodeData>) {
   const researchTopicLabel = RESEARCH_TOPIC_LABELS[researchTopic];
   const shortTitle = paper.title.length > 40 ? `${paper.title.substring(0, 37)}...` : paper.title;
 
+  const isGhostNode =
+    !apply_familiarity_opacity &&
+    (!familiarity_level || familiarity_level === 'not_started');
+
   return (
     <div
       className={`
-        relative rounded-xl border-2 px-4 py-3 shadow-lg transition-all duration-200
+        relative rounded-xl px-4 py-3 shadow-lg transition-all duration-200
         min-w-[220px] max-w-[260px] bg-white dark:bg-gray-800
+        ${isGhostNode ? 'border border-dashed' : 'border-2'}
         ${selected ? 'scale-105 ring-2 ring-blue-400' : 'hover:scale-[1.02] hover:shadow-xl'}
       `}
       style={{
         borderColor: paper.color_hex,
-        opacity: selected ? 1 : apply_familiarity_opacity ? familiarityOpacity : 1,
+        opacity: selected
+          ? 1
+          : apply_familiarity_opacity
+            ? familiarityOpacity
+            : isGhostNode
+              ? 0.4
+              : 1,
+        filter: isGhostNode && !selected ? 'saturate(0.6)' : undefined,
         backgroundColor: apply_familiarity_opacity && !selected ? emphasizedBackground : undefined,
         boxShadow:
           apply_familiarity_opacity && !selected
