@@ -103,6 +103,20 @@ const MambaStudyFull = dynamic(
   { ssr: false },
 );
 
+/* CSI Feedback / Quantization full study pages */
+const GrassmannianStudyFull = dynamic(
+  () => import('@/components/csi-feedback-study/GrassmannianStudyFull'),
+  { ssr: false },
+);
+const JindalStudyFull = dynamic(
+  () => import('@/components/csi-feedback-study/JindalStudyFull'),
+  { ssr: false },
+);
+const CarpiStudyFull = dynamic(
+  () => import('@/components/csi-feedback-study/CarpiStudyFull'),
+  { ssr: false },
+);
+
 // arxiv_id → full study content (replaces generic template for these papers)
 const FULL_STUDY_REGISTRY: Record<string, React.ComponentType> = {
   '2307.13304': QuIPStudyFull,          // QuIP
@@ -116,6 +130,9 @@ const FULL_STUDY_REGISTRY: Record<string, React.ComponentType> = {
   '2008.07669': HiPPOStudyFull,         // HiPPO
   '2111.00396': S4StudyFull,            // S4
   '2312.00752': MambaStudyFull,         // Mamba
+  'love-heath-2003': GrassmannianStudyFull, // Love & Heath 2003 Grassmannian
+  'cs/0603065':  JindalStudyFull,       // Jindal 2006 MIMO BC
+  '2302.11526':  CarpiStudyFull,        // Carpi 2023 Precoding-oriented
 };
 
 /* ------------------------------------------------------------------ */
@@ -257,6 +274,36 @@ const FULL_STUDY_TOC_REGISTRY: Record<
     { id: 'mamba-results',    label: '실험 결과',         icon: List },
     { id: 'mamba-quiz',       label: '자기 점검',         icon: FlaskConical },
     { id: 'section-notes',    label: '학습 노트',         icon: Layers },
+  ],
+  'love-heath-2003': [
+    { id: 'grass-overview',       label: '개요',               icon: BookOpen },
+    { id: 'grass-background',     label: '배경: 제한된 피드백', icon: FileText },
+    { id: 'grass-manifold',       label: 'Grassmann 다양체',   icon: GraduationCap },
+    { id: 'grass-codebook',       label: '코드북 설계',        icon: Cpu },
+    { id: 'grass-equations',      label: '핵심 수식',          icon: Hash },
+    { id: 'grass-scaling',        label: '스케일링 법칙',      icon: Zap },
+    { id: 'grass-quiz',           label: '자기 점검',          icon: FlaskConical },
+    { id: 'section-notes',        label: '학습 노트',          icon: Layers },
+  ],
+  'cs/0603065': [
+    { id: 'jindal-overview',      label: '개요',              icon: BookOpen },
+    { id: 'jindal-background',    label: '배경: P2P vs BC',   icon: FileText },
+    { id: 'jindal-rvq',           label: 'RVQ 분석',          icon: GraduationCap },
+    { id: 'jindal-scaling',       label: '스케일링 법칙',     icon: Zap },
+    { id: 'jindal-equations',     label: '핵심 수식',         icon: Hash },
+    { id: 'jindal-implications',  label: '시사점',            icon: Star },
+    { id: 'jindal-quiz',          label: '자기 점검',         icon: FlaskConical },
+    { id: 'section-notes',        label: '학습 노트',         icon: Layers },
+  ],
+  '2302.11526': [
+    { id: 'carpi-overview',       label: '개요',               icon: BookOpen },
+    { id: 'carpi-paradigm',       label: '패러다임 전환',      icon: FileText },
+    { id: 'carpi-architecture',   label: 'E2E 아키텍처',       icon: Cpu },
+    { id: 'carpi-loss',           label: '손실 함수 설계',     icon: GraduationCap },
+    { id: 'carpi-equations',      label: '핵심 수식',          icon: Hash },
+    { id: 'carpi-results',        label: '실험 결과',          icon: List },
+    { id: 'carpi-quiz',           label: '자기 점검',          icon: FlaskConical },
+    { id: 'section-notes',        label: '학습 노트',          icon: Layers },
   ],
 };
 
