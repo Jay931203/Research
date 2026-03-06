@@ -5,10 +5,6 @@ import dynamic from 'next/dynamic';
 import katex from 'katex';
 import { ChevronDown, ChevronsUpDown } from 'lucide-react';
 
-const DirichletKernelViz = dynamic(
-  () => import('./infographics/DirichletKernelViz'),
-  { ssr: false },
-);
 const SSMExponentialModeViz = dynamic(
   () => import('./infographics/SSMExponentialModeViz'),
   { ssr: false },
@@ -502,7 +498,6 @@ export default function ConceptsSection() {
             <p>마지막 단계: δ ∈ (-½, ½)이므로 |d-δ| ≥ |d|-½ ≥ (|d|+1)/2 (|d|≥1일 때), 따라서 1/|d-δ| = O(1/|d|).</p>
           </div>
 
-          <DirichletKernelViz />
 
           <p className="text-sm text-gray-500 dark:text-gray-400">
             논문의 식 (3.4)~(3.5): 각도 도메인 CSI 계수의 포락선이 정확히 이 형태를 가집니다.

@@ -71,39 +71,6 @@ const ARTIFACTS: ArtifactMeta[] = [
     ],
   },
   {
-    id: 'off-grid-dft',
-    title: 'Off-Grid DFT 누설',
-    description:
-      '실제 주파수가 DFT 빈 사이에 있을 때 발생하는 스펙트럼 누설을 직접 확인합니다.',
-    category: 'signal-processing',
-    tags: ['DFT', 'FFT', '스펙트럼 누설', 'OFDM', '지연 도메인'],
-    color: 'blue',
-    relatedArtifacts: ['dirichlet-kernel', 'ula-spatial-freq'],
-    relatedPapers: [],
-  },
-  {
-    id: 'dirichlet-kernel',
-    title: 'Dirichlet 커널',
-    description:
-      'Off-grid 오프셋에 따른 Dirichlet 커널의 사이드로브 패턴을 조작하며 관찰합니다.',
-    category: 'signal-processing',
-    tags: ['Dirichlet', 'DFT', '사이드로브', 'sinc', '윈도잉'],
-    color: 'blue',
-    relatedArtifacts: ['off-grid-dft', 'ula-spatial-freq'],
-    relatedPapers: [],
-  },
-  {
-    id: 'ula-spatial-freq',
-    title: 'ULA 공간 주파수',
-    description:
-      'ULA(균일 선형 배열) 안테나의 공간 주파수와 빔 패턴의 관계를 확인합니다.',
-    category: 'signal-processing',
-    tags: ['ULA', 'Massive MIMO', '빔포밍', '공간 주파수', '안테나 배열'],
-    color: 'blue',
-    relatedArtifacts: ['dirichlet-kernel', 'off-grid-dft', 'nmse-limitation'],
-    relatedPapers: [],
-  },
-  {
     id: 'hessian-curvature',
     title: 'Hessian 곡률과 양자화',
     description:
@@ -142,18 +109,6 @@ const ARTIFACT_COMPONENTS: Record<string, React.ComponentType> = {
         </div>
       ),
     },
-  ),
-  'off-grid-dft': dynamic(
-    () => import('@/components/my-research/infographics/OffGridDFTViz'),
-    { ssr: false, loading: () => <div className="flex h-64 items-center justify-center text-gray-400 dark:text-gray-500">로딩 중...</div> },
-  ),
-  'dirichlet-kernel': dynamic(
-    () => import('@/components/my-research/infographics/DirichletKernelViz'),
-    { ssr: false, loading: () => <div className="flex h-64 items-center justify-center text-gray-400 dark:text-gray-500">로딩 중...</div> },
-  ),
-  'ula-spatial-freq': dynamic(
-    () => import('@/components/my-research/infographics/ULASpatialFreqViz'),
-    { ssr: false, loading: () => <div className="flex h-64 items-center justify-center text-gray-400 dark:text-gray-500">로딩 중...</div> },
   ),
   'hessian-curvature': dynamic(
     () => import('@/components/my-research/infographics/HessianCurvatureViz'),

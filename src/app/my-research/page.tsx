@@ -22,10 +22,6 @@ import katex from 'katex';
 import dynamic from 'next/dynamic';
 import ConceptsSection from '@/components/my-research/ConceptsSection';
 
-const OffGridDFTViz = dynamic(
-  () => import('@/components/my-research/infographics/OffGridDFTViz'),
-  { ssr: false },
-);
 const CnnVsSsmViz = dynamic(
   () => import('@/components/my-research/infographics/CnnVsSsmViz'),
   { ssr: false },
@@ -563,10 +559,6 @@ export default function MyResearchPage() {
                     </div>
                   </div>
 
-                  <OffGridDFTViz />
-                  <InfographicCaption>
-                    위 인터랙티브 예제: 슬라이더로 주파수를 조절하면 DFT 스펙트럼 누설을 확인할 수 있습니다.
-                  </InfographicCaption>
 
                   {/* 2.3 */}
                   <div className="mt-6">
