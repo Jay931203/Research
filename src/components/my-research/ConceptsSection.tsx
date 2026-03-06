@@ -9,10 +9,6 @@ const SSMExponentialModeViz = dynamic(
   () => import('./infographics/SSMExponentialModeViz'),
   { ssr: false },
 );
-const ULASpatialFreqViz = dynamic(
-  () => import('./infographics/ULASpatialFreqViz'),
-  { ssr: false },
-);
 
 /* ---------- KaTeX helpers ---------- */
 function Eq({ latex }: { latex: string }) {
@@ -305,8 +301,7 @@ export default function ConceptsSection() {
             </ProofStep>
           </div>
 
-          {/* 인터랙티브 시각화 */}
-          <ULASpatialFreqViz />
+
         </div>
       </ConceptCard>
 

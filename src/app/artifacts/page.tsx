@@ -32,12 +32,8 @@ interface ArtifactMeta {
 
 const ARTIFACT_CATEGORIES = [
   { id: 'sparsity-norms', label: '희소성 & 노름', color: 'emerald' },
-  { id: 'signal-processing', label: '신호 처리', color: 'blue' },
   { id: 'metrics', label: '성능 지표', color: 'amber' },
-  { id: 'linear-algebra', label: '선형대수', color: 'purple' },
   { id: 'optimization', label: '최적화', color: 'amber' },
-  { id: 'information-theory', label: '정보 이론', color: 'rose' },
-  { id: 'deep-learning', label: '딥러닝', color: 'sky' },
 ] as const;
 
 /* ------------------------------------------------------------------ */
