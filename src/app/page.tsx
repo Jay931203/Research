@@ -4,24 +4,6 @@ import StudyStats from '@/components/common/StudyStats';
 
 const cards = [
   {
-    href: '/qual-exam',
-    title: '논자시',
-    description: '자료구조·알고리즘 & 프로그래밍 기초 기출문제와 인터랙티브 학습 자료.',
-    icon: <GraduationCap className="h-6 w-6 text-orange-600" />,
-    accent: 'hover:ring-orange-200/50 dark:hover:ring-orange-500/20',
-    tag: '시험 준비',
-    highlight: false,
-  },
-  {
-    href: '/tse',
-    title: 'Tse 세미나',
-    description: 'David Tse의 무선통신 기초 교재 — 채널 모델링, 점대점 통신, 채널 용량을 인터랙티브로 학습.',
-    icon: <Radio className="h-6 w-6 text-indigo-600" />,
-    accent: 'hover:ring-indigo-200/50 dark:hover:ring-indigo-500/20',
-    tag: '세미나',
-    highlight: false,
-  },
-  {
     href: '/dashboard',
     title: '연구 대시보드',
     description: '논문 관계 그래프를 탐색하고 각 논문의 학습 페이지로 이동합니다.',
@@ -37,6 +19,24 @@ const cards = [
     icon: <BookOpen className="h-6 w-6 text-violet-600" />,
     accent: 'hover:ring-violet-200/50 dark:hover:ring-violet-500/20',
     tag: '연구 정리',
+    highlight: false,
+  },
+  {
+    href: '/tse',
+    title: 'Tse 세미나',
+    description: 'David Tse의 무선통신 기초 교재 — 채널 모델링, 점대점 통신, 채널 용량을 인터랙티브로 학습.',
+    icon: <Radio className="h-6 w-6 text-indigo-600" />,
+    accent: 'hover:ring-indigo-200/50 dark:hover:ring-indigo-500/20',
+    tag: '세미나',
+    highlight: false,
+  },
+  {
+    href: '/qual-exam',
+    title: '논자시',
+    description: '자료구조·알고리즘 & 프로그래밍 기초 기출문제와 인터랙티브 학습 자료.',
+    icon: <GraduationCap className="h-6 w-6 text-orange-600" />,
+    accent: 'hover:ring-orange-200/50 dark:hover:ring-orange-500/20',
+    tag: '시험 준비',
     highlight: false,
   },
   {
