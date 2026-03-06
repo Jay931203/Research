@@ -74,6 +74,9 @@ body {
 /* KaTeX styles */
 @import 'katex/dist/katex.min.css';
 
+/* rc-slider base styles (needed for Tse seminar slider components) */
+@import 'rc-slider/assets/index.css';
+
 /* Force KaTeX equation colors for readability */
 .katex { color: #1e293b; }
 .dark .katex { color: #e2e8f0; }
@@ -290,3 +293,367 @@ samp {
   margin: 0.75rem 0;
   padding: 0.2rem 0;
 }
+
+/* =====================================================================
+   Tse Seminar styles — scoped under .tse-content to prevent collisions
+   ===================================================================== */
+
+/* Section card */
+.tse-content .section-card {
+  @apply bg-white rounded-2xl shadow-sm border border-slate-200/60 p-8 md:p-10;
+}
+
+/* Concept card */
+.tse-content .concept-card {
+  @apply bg-slate-50 rounded-xl p-5 border border-slate-200 overflow-x-auto;
+}
+
+/* Formula block */
+.tse-content .formula-block {
+  @apply bg-gradient-to-r from-blue-50 to-indigo-50 border border-blue-200 rounded-xl p-6 my-6 overflow-x-auto;
+}
+
+/* Key insight callout */
+.tse-content .insight {
+  @apply bg-amber-50 border-l-4 border-amber-400 rounded-r-xl p-5 my-6;
+}
+
+.tse-content .insight-title {
+  @apply font-bold text-amber-800 mb-1;
+}
+
+/* Cross-reference link */
+.tse-content .cross-ref {
+  @apply inline-flex items-center gap-1 text-blue-600 hover:text-blue-800 font-medium
+         bg-blue-50 hover:bg-blue-100 px-2 py-0.5 rounded-md transition-colors
+         cursor-pointer text-sm;
+}
+
+/* TOC sidebar */
+.tse-content .toc-item {
+  @apply block py-1.5 px-3 text-slate-500 hover:text-blue-600
+         border-l-2 border-transparent hover:border-blue-400 transition-all rounded-r-md;
+}
+
+.tse-content .toc-item.toc-section {
+  @apply text-sm font-bold text-slate-700 mt-2 first:mt-0;
+}
+
+.tse-content .toc-item.toc-subsection {
+  @apply text-xs pl-5 text-slate-400 py-1;
+}
+
+.tse-content .toc-item.active {
+  @apply text-blue-600 font-semibold border-blue-500 bg-blue-50/60;
+}
+
+.tse-content .toc-item.section-highlight {
+  @apply text-slate-700 border-blue-200;
+}
+
+.tse-content .toc-item.toc-subsection.active {
+  @apply text-blue-600 font-medium;
+}
+
+/* Comparison grid */
+.tse-content .compare-grid {
+  @apply grid md:grid-cols-2 gap-4 my-6;
+}
+
+.tse-content .compare-item {
+  @apply rounded-xl p-5 border-2;
+}
+
+/* Badge */
+.tse-content .badge {
+  @apply inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium;
+}
+
+.tse-content .badge-blue {
+  @apply bg-blue-100 text-blue-800;
+}
+
+.tse-content .badge-green {
+  @apply bg-emerald-100 text-emerald-800;
+}
+
+.tse-content .badge-amber {
+  @apply bg-amber-100 text-amber-800;
+}
+
+.tse-content .badge-red {
+  @apply bg-red-100 text-red-800;
+}
+
+/* KaTeX overrides for Tse content */
+.tse-content .katex-display {
+  @apply my-4;
+}
+
+.tse-content .katex {
+  font-size: 1.05em !important;
+}
+
+/* rc-slider overrides for Tse content */
+.tse-content .rc-slider {
+  @apply my-1;
+}
+
+.tse-content .rc-slider-track {
+  height: 6px !important;
+}
+
+.tse-content .rc-slider-rail {
+  height: 6px !important;
+  @apply bg-slate-200 !important;
+}
+
+.tse-content .rc-slider-handle {
+  width: 18px !important;
+  height: 18px !important;
+  margin-top: -6px !important;
+  border-width: 3px !important;
+  @apply shadow-md !important;
+}
+
+/* Scrollbar inside Tse content */
+.tse-content ::-webkit-scrollbar {
+  width: 8px;
+}
+
+.tse-content ::-webkit-scrollbar-track {
+  @apply bg-transparent;
+}
+
+.tse-content ::-webkit-scrollbar-thumb {
+  @apply bg-slate-300 rounded-full;
+}
+
+.tse-content ::-webkit-scrollbar-thumb:hover {
+  @apply bg-slate-400;
+}
+
+/* ===== Tse Dark Mode ===== */
+
+.dark .tse-content .section-card {
+  @apply bg-slate-800 border-slate-700/60;
+}
+
+.dark .tse-content .concept-card {
+  @apply bg-slate-700/50 border-slate-600;
+}
+
+.dark .tse-content .formula-block {
+  background: linear-gradient(to right, rgb(30 58 138 / 0.2), rgb(49 46 129 / 0.2));
+  @apply border-blue-800;
+}
+
+.dark .tse-content .insight {
+  @apply bg-amber-900/20 border-amber-600;
+}
+
+.dark .tse-content .insight-title {
+  @apply text-amber-300;
+}
+
+.dark .tse-content .cross-ref {
+  @apply text-blue-400 hover:text-blue-300 bg-blue-900/30 hover:bg-blue-900/50;
+}
+
+.dark .tse-content .toc-item {
+  @apply text-slate-400 hover:text-blue-400;
+}
+
+.dark .tse-content .toc-item.active {
+  @apply text-blue-400 bg-blue-900/20 border-blue-500;
+}
+
+.dark .tse-content .toc-item.toc-section {
+  @apply text-slate-300;
+}
+
+.dark .tse-content .toc-item.section-highlight {
+  @apply text-slate-300 border-blue-700;
+}
+
+.dark .tse-content .compare-item {
+  @apply border-slate-600;
+}
+
+.dark .tse-content .badge-blue {
+  @apply bg-blue-900/40 text-blue-300;
+}
+
+.dark .tse-content .badge-green {
+  @apply bg-emerald-900/40 text-emerald-300;
+}
+
+.dark .tse-content .badge-amber {
+  @apply bg-amber-900/40 text-amber-300;
+}
+
+.dark .tse-content .badge-red {
+  @apply bg-red-900/40 text-red-300;
+}
+
+/* KaTeX dark mode in Tse */
+.dark .tse-content .katex {
+  color: rgb(226 232 240);
+}
+
+/* rc-slider dark mode in Tse */
+.dark .tse-content .rc-slider-rail {
+  background-color: rgb(71 85 105) !important;
+}
+
+/* Dark scrollbar in Tse */
+.dark .tse-content ::-webkit-scrollbar-thumb {
+  @apply bg-slate-600;
+}
+
+.dark .tse-content ::-webkit-scrollbar-thumb:hover {
+  @apply bg-slate-500;
+}
+
+/* ===== Tse Dark Mode: Gradient overrides ===== */
+.dark .tse-content [class~="from-blue-50"]   { --tw-gradient-from: rgb(23 37 84 / 0.5);   --tw-gradient-stops: var(--tw-gradient-from), var(--tw-gradient-to); }
+.dark .tse-content [class~="from-indigo-50"] { --tw-gradient-from: rgb(30 27 75 / 0.5);   --tw-gradient-stops: var(--tw-gradient-from), var(--tw-gradient-to); }
+.dark .tse-content [class~="from-emerald-50"] { --tw-gradient-from: rgb(6 46 37 / 0.5);   --tw-gradient-stops: var(--tw-gradient-from), var(--tw-gradient-to); }
+.dark .tse-content [class~="from-green-50"]  { --tw-gradient-from: rgb(5 46 22 / 0.5);    --tw-gradient-stops: var(--tw-gradient-from), var(--tw-gradient-to); }
+.dark .tse-content [class~="from-teal-50"]   { --tw-gradient-from: rgb(4 47 46 / 0.5);    --tw-gradient-stops: var(--tw-gradient-from), var(--tw-gradient-to); }
+.dark .tse-content [class~="from-amber-50"]  { --tw-gradient-from: rgb(69 26 3 / 0.5);    --tw-gradient-stops: var(--tw-gradient-from), var(--tw-gradient-to); }
+.dark .tse-content [class~="from-yellow-50"] { --tw-gradient-from: rgb(54 27 2 / 0.5);    --tw-gradient-stops: var(--tw-gradient-from), var(--tw-gradient-to); }
+.dark .tse-content [class~="from-rose-50"]   { --tw-gradient-from: rgb(76 5 25 / 0.5);    --tw-gradient-stops: var(--tw-gradient-from), var(--tw-gradient-to); }
+.dark .tse-content [class~="from-orange-50"] { --tw-gradient-from: rgb(67 20 7 / 0.5);    --tw-gradient-stops: var(--tw-gradient-from), var(--tw-gradient-to); }
+.dark .tse-content [class~="from-purple-50"] { --tw-gradient-from: rgb(46 16 101 / 0.5);  --tw-gradient-stops: var(--tw-gradient-from), var(--tw-gradient-to); }
+.dark .tse-content [class~="from-pink-50"]   { --tw-gradient-from: rgb(80 7 36 / 0.5);    --tw-gradient-stops: var(--tw-gradient-from), var(--tw-gradient-to); }
+.dark .tse-content [class~="from-cyan-50"]   { --tw-gradient-from: rgb(8 47 73 / 0.5);    --tw-gradient-stops: var(--tw-gradient-from), var(--tw-gradient-to); }
+.dark .tse-content [class~="from-sky-50"]    { --tw-gradient-from: rgb(7 89 133 / 0.5);   --tw-gradient-stops: var(--tw-gradient-from), var(--tw-gradient-to); }
+.dark .tse-content [class~="from-violet-50"] { --tw-gradient-from: rgb(46 16 101 / 0.5);  --tw-gradient-stops: var(--tw-gradient-from), var(--tw-gradient-to); }
+.dark .tse-content [class~="from-slate-50"]  { --tw-gradient-from: rgb(15 23 42 / 0.8);   --tw-gradient-stops: var(--tw-gradient-from), var(--tw-gradient-to); }
+.dark .tse-content [class~="from-red-50"]    { --tw-gradient-from: rgb(69 10 10 / 0.5);   --tw-gradient-stops: var(--tw-gradient-from), var(--tw-gradient-to); }
+
+.dark .tse-content [class~="to-blue-50"]     { --tw-gradient-to: rgb(23 37 84 / 0.3);   }
+.dark .tse-content [class~="to-indigo-50"]   { --tw-gradient-to: rgb(30 27 75 / 0.3);   }
+.dark .tse-content [class~="to-emerald-50"]  { --tw-gradient-to: rgb(6 46 37 / 0.3);    }
+.dark .tse-content [class~="to-green-50"]    { --tw-gradient-to: rgb(5 46 22 / 0.3);    }
+.dark .tse-content [class~="to-teal-50"]     { --tw-gradient-to: rgb(4 47 46 / 0.3);    }
+.dark .tse-content [class~="to-yellow-50"]   { --tw-gradient-to: rgb(54 27 2 / 0.3);    }
+.dark .tse-content [class~="to-pink-50"]     { --tw-gradient-to: rgb(80 7 36 / 0.3);    }
+.dark .tse-content [class~="to-orange-50"]   { --tw-gradient-to: rgb(67 20 7 / 0.3);    }
+.dark .tse-content [class~="to-violet-50"]   { --tw-gradient-to: rgb(46 16 101 / 0.3);  }
+.dark .tse-content [class~="to-purple-50"]   { --tw-gradient-to: rgb(46 16 101 / 0.3);  }
+.dark .tse-content [class~="to-cyan-50"]     { --tw-gradient-to: rgb(8 47 73 / 0.3);    }
+.dark .tse-content [class~="to-white"]       { --tw-gradient-to: rgb(30 41 59);         }
+
+/* ===== Tse Dark Mode: Text color overrides ===== */
+.dark .tse-content [class~="text-slate-900"] { color: rgb(241 245 249); }
+.dark .tse-content [class~="text-slate-800"] { color: rgb(226 232 240); }
+.dark .tse-content [class~="text-slate-700"] { color: rgb(203 213 225); }
+.dark .tse-content [class~="text-slate-600"] { color: rgb(148 163 184); }
+.dark .tse-content [class~="text-blue-900"]  { color: rgb(191 219 254); }
+.dark .tse-content [class~="text-blue-800"]  { color: rgb(147 197 253); }
+.dark .tse-content [class~="text-blue-700"]  { color: rgb(147 197 253); }
+.dark .tse-content [class~="text-blue-600"]  { color: rgb(96 165 250);  }
+.dark .tse-content [class~="text-amber-900"] { color: rgb(253 230 138); }
+.dark .tse-content [class~="text-amber-800"] { color: rgb(252 211 77);  }
+.dark .tse-content [class~="text-amber-700"] { color: rgb(252 211 77);  }
+.dark .tse-content [class~="text-emerald-900"] { color: rgb(167 243 208); }
+.dark .tse-content [class~="text-emerald-800"] { color: rgb(110 231 183); }
+.dark .tse-content [class~="text-emerald-700"] { color: rgb(110 231 183); }
+.dark .tse-content [class~="text-emerald-600"] { color: rgb(52 211 153);  }
+.dark .tse-content [class~="text-indigo-800"] { color: rgb(165 180 252); }
+.dark .tse-content [class~="text-indigo-700"] { color: rgb(165 180 252); }
+.dark .tse-content [class~="text-indigo-600"] { color: rgb(129 140 248); }
+.dark .tse-content [class~="text-teal-700"]   { color: rgb(94 234 212);  }
+.dark .tse-content [class~="text-gray-800"]  { color: rgb(226 232 240); }
+.dark .tse-content [class~="text-gray-700"]  { color: rgb(203 213 225); }
+.dark .tse-content [class~="text-gray-600"]  { color: rgb(148 163 184); }
+.dark .tse-content [class~="text-gray-500"]  { color: rgb(100 116 139); }
+.dark .tse-content [class~="text-gray-400"]  { color: rgb(148 163 184); }
+.dark .tse-content [class~="text-green-800"] { color: rgb(134 239 172); }
+.dark .tse-content [class~="text-green-700"] { color: rgb(134 239 172); }
+.dark .tse-content [class~="text-green-600"] { color: rgb(74 222 128);  }
+.dark .tse-content [class~="text-sky-800"]   { color: rgb(125 211 252); }
+.dark .tse-content [class~="text-sky-700"]   { color: rgb(125 211 252); }
+.dark .tse-content [class~="text-cyan-800"]  { color: rgb(103 232 249); }
+.dark .tse-content [class~="text-cyan-600"]  { color: rgb(34 211 238);  }
+.dark .tse-content [class~="text-purple-800"] { color: rgb(216 180 254); }
+.dark .tse-content [class~="text-purple-600"] { color: rgb(192 132 252); }
+.dark .tse-content [class~="text-violet-900"] { color: rgb(221 214 254); }
+.dark .tse-content [class~="text-violet-800"] { color: rgb(196 181 253); }
+.dark .tse-content [class~="text-violet-700"] { color: rgb(196 181 253); }
+.dark .tse-content [class~="text-violet-600"] { color: rgb(167 139 250); }
+.dark .tse-content [class~="text-rose-800"]  { color: rgb(253 164 175);  }
+.dark .tse-content [class~="text-rose-700"]  { color: rgb(251 113 133);  }
+.dark .tse-content [class~="text-rose-600"]  { color: rgb(251 113 133);  }
+.dark .tse-content [class~="text-orange-800"] { color: rgb(253 186 116); }
+.dark .tse-content [class~="text-orange-600"] { color: rgb(251 146 60);  }
+.dark .tse-content [class~="text-teal-900"]  { color: rgb(204 251 241);  }
+.dark .tse-content [class~="text-red-800"]   { color: rgb(252 165 165);  }
+.dark .tse-content [class~="text-red-700"]   { color: rgb(248 113 113);  }
+.dark .tse-content [class~="text-red-600"]   { color: rgb(248 113 113);  }
+
+/* ===== Tse Dark Mode: Background color overrides ===== */
+.dark .tse-content [class~="bg-white"]       { background-color: rgb(30 41 59);   }
+.dark .tse-content [class~="bg-slate-50"]    { background-color: rgb(30 41 59);   }
+.dark .tse-content [class~="bg-slate-100"]   { background-color: rgb(51 65 85);   }
+.dark .tse-content [class~="bg-slate-200"]   { background-color: rgb(71 85 105);  }
+.dark .tse-content [class~="bg-blue-50"]     { background-color: rgb(23 37 84 / 0.4);   }
+.dark .tse-content [class*="bg-blue-50/40"] { background-color: rgb(23 37 84 / 0.2);   }
+.dark .tse-content [class~="bg-emerald-50"]  { background-color: rgb(6 46 37 / 0.4);    }
+.dark .tse-content [class~="bg-amber-50"]    { background-color: rgb(69 26 3 / 0.4);    }
+.dark .tse-content [class~="bg-indigo-50"]   { background-color: rgb(30 27 75 / 0.4);   }
+.dark .tse-content [class*="bg-indigo-50/40"] { background-color: rgb(30 27 75 / 0.2); }
+.dark .tse-content [class~="bg-purple-50"]   { background-color: rgb(46 16 101 / 0.4);  }
+.dark .tse-content [class~="bg-pink-50"]     { background-color: rgb(80 7 36 / 0.4);    }
+.dark .tse-content [class~="bg-rose-50"]     { background-color: rgb(76 5 25 / 0.4);    }
+.dark .tse-content [class~="bg-orange-50"]   { background-color: rgb(67 20 7 / 0.4);    }
+.dark .tse-content [class~="bg-cyan-50"]     { background-color: rgb(8 47 73 / 0.4);    }
+.dark .tse-content [class~="bg-teal-50"]     { background-color: rgb(4 47 46 / 0.4);    }
+.dark .tse-content [class~="bg-violet-50"]   { background-color: rgb(46 16 101 / 0.4);  }
+.dark .tse-content [class~="bg-sky-50"]      { background-color: rgb(7 89 133 / 0.4);   }
+.dark .tse-content [class~="bg-green-50"]    { background-color: rgb(5 46 22 / 0.4);    }
+.dark .tse-content [class~="bg-yellow-50"]   { background-color: rgb(54 27 2 / 0.4);    }
+.dark .tse-content [class~="bg-red-50"]      { background-color: rgb(69 10 10 / 0.5);   }
+
+/* ===== Tse Dark Mode: Border color overrides ===== */
+.dark .tse-content [class~="border-slate-200"] { border-color: rgb(71 85 105);  }
+.dark .tse-content [class~="border-slate-300"] { border-color: rgb(71 85 105);  }
+.dark .tse-content [class~="border-blue-100"]  { border-color: rgb(37 99 235 / 0.3);    }
+.dark .tse-content [class~="border-blue-200"]  { border-color: rgb(37 99 235 / 0.3);    }
+.dark .tse-content [class~="border-emerald-100"] { border-color: rgb(16 185 129 / 0.3); }
+.dark .tse-content [class~="border-emerald-200"] { border-color: rgb(16 185 129 / 0.3); }
+.dark .tse-content [class~="border-amber-100"] { border-color: rgb(245 158 11 / 0.3);   }
+.dark .tse-content [class~="border-amber-200"] { border-color: rgb(245 158 11 / 0.3);   }
+.dark .tse-content [class~="border-indigo-100"] { border-color: rgb(99 102 241 / 0.3);  }
+.dark .tse-content [class~="border-indigo-200"] { border-color: rgb(99 102 241 / 0.3);  }
+.dark .tse-content [class~="border-violet-100"] { border-color: rgb(139 92 246 / 0.3);  }
+.dark .tse-content [class~="border-violet-200"] { border-color: rgb(139 92 246 / 0.35); }
+.dark .tse-content [class~="border-sky-100"]   { border-color: rgb(7 89 133 / 0.3);     }
+.dark .tse-content [class~="border-sky-200"]   { border-color: rgb(7 89 133 / 0.35);    }
+.dark .tse-content [class~="border-rose-100"]  { border-color: rgb(225 29 72 / 0.3);    }
+.dark .tse-content [class~="border-rose-200"]  { border-color: rgb(225 29 72 / 0.35);   }
+.dark .tse-content [class~="border-orange-200"] { border-color: rgb(234 88 12 / 0.35);  }
+.dark .tse-content [class~="border-green-100"] { border-color: rgb(21 128 61 / 0.3);    }
+.dark .tse-content [class~="border-green-200"] { border-color: rgb(21 128 61 / 0.35);   }
+.dark .tse-content [class~="border-purple-200"] { border-color: rgb(147 51 234 / 0.35); }
+.dark .tse-content [class~="border-cyan-200"]  { border-color: rgb(6 182 212 / 0.35);   }
+.dark .tse-content [class~="border-teal-100"]  { border-color: rgb(13 148 136 / 0.3);   }
+.dark .tse-content [class~="border-yellow-200"] { border-color: rgb(202 138 4 / 0.35);  }
+.dark .tse-content [class~="border-red-100"]   { border-color: rgb(239 68 68 / 0.3);    }
+.dark .tse-content [class~="border-red-200"]   { border-color: rgb(239 68 68 / 0.35);   }
+.dark .tse-content [class~="border-red-300"]   { border-color: rgb(239 68 68 / 0.4);    }
+.dark .tse-content [class~="border-red-400"]   { border-color: rgb(239 68 68 / 0.5);    }
+
+/* ===== Tse Dark Mode: Opacity variant backgrounds ===== */
+.dark .tse-content [class*="bg-white/70"] { background-color: rgb(30 41 59 / 0.85); }
+.dark .tse-content [class*="bg-white/80"] { background-color: rgb(15 23 42 / 0.85); }
+.dark .tse-content [class*="bg-white/95"] { background-color: rgb(15 23 42 / 0.95); }
+.dark .tse-content [class*="bg-blue-50/50"]    { background-color: rgb(23 37 84 / 0.3);   }
+.dark .tse-content [class*="bg-red-50/50"]     { background-color: rgb(69 10 10 / 0.35);  }
+.dark .tse-content [class*="bg-emerald-50/50"] { background-color: rgb(6 46 37 / 0.3);    }
+.dark .tse-content [class*="bg-orange-50/40"]  { background-color: rgb(67 20 7 / 0.25);   }
+.dark .tse-content [class*="bg-emerald-50/40"] { background-color: rgb(6 46 37 / 0.25);   }
+.dark .tse-content [class*="bg-purple-50/40"]  { background-color: rgb(46 16 101 / 0.25); }
+.dark .tse-content [class*="bg-violet-50/40"]  { background-color: rgb(46 16 101 / 0.25); }

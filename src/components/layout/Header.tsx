@@ -70,6 +70,12 @@ export default function Header({ onSearchClick }: HeaderProps = {}) {
         </button>
 
         <nav className="hidden items-center gap-2 md:flex">
+          <HeaderLink href="/qual-exam" active={pathname === '/qual-exam'}>
+            논자시
+          </HeaderLink>
+          <HeaderLink href="/tse" active={pathname.startsWith('/tse')}>
+            Tse 세미나
+          </HeaderLink>
           <HeaderLink
             href="/dashboard"
             active={pathname === '/dashboard' || pathname.startsWith('/paper/')}
@@ -78,9 +84,6 @@ export default function Header({ onSearchClick }: HeaderProps = {}) {
           </HeaderLink>
           <HeaderLink href="/my-research" active={pathname === '/my-research'}>
             내 연구
-          </HeaderLink>
-          <HeaderLink href="/qual-exam" active={pathname === '/qual-exam'}>
-            논자시
           </HeaderLink>
           <HeaderLink href="/glossary" active={pathname === '/glossary'}>
             용어집
@@ -153,6 +156,20 @@ export default function Header({ onSearchClick }: HeaderProps = {}) {
         <div className="border-t border-gray-200 bg-white px-3 py-2 dark:border-gray-700 dark:bg-gray-900 md:hidden">
           <div className="flex flex-col gap-1">
             <MobileHeaderLink
+              href="/qual-exam"
+              onClick={() => setMobileMenuOpen(false)}
+              active={pathname === '/qual-exam'}
+            >
+              논자시
+            </MobileHeaderLink>
+            <MobileHeaderLink
+              href="/tse"
+              onClick={() => setMobileMenuOpen(false)}
+              active={pathname.startsWith('/tse')}
+            >
+              Tse 세미나
+            </MobileHeaderLink>
+            <MobileHeaderLink
               href="/dashboard"
               onClick={() => setMobileMenuOpen(false)}
               active={pathname === '/dashboard' || pathname.startsWith('/paper/')}
@@ -165,13 +182,6 @@ export default function Header({ onSearchClick }: HeaderProps = {}) {
               active={pathname === '/my-research'}
             >
               내 연구
-            </MobileHeaderLink>
-            <MobileHeaderLink
-              href="/qual-exam"
-              onClick={() => setMobileMenuOpen(false)}
-              active={pathname === '/qual-exam'}
-            >
-              논자시
             </MobileHeaderLink>
             <MobileHeaderLink
               href="/glossary"
