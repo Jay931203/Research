@@ -16,6 +16,8 @@ import {
 import Header from '@/components/layout/Header';
 import CommandPalette from '@/components/common/CommandPalette';
 import { useKeyboardShortcuts } from '@/hooks/useKeyboardShortcuts';
+import { useGlossary } from '@/hooks/useGlossary';
+import { GlossaryTermsContext } from '@/components/glossary/GlossaryContext';
 import katex from 'katex';
 import dynamic from 'next/dynamic';
 import ConceptsSection from '@/components/my-research/ConceptsSection';
@@ -225,6 +227,7 @@ function InfographicCaption({ children }: { children: React.ReactNode }) {
 
 export default function MyResearchPage() {
   const { isCommandPaletteOpen, openCommandPalette, closeCommandPalette } = useKeyboardShortcuts();
+  const { terms: glossaryTerms } = useGlossary();
 
   /* ---------- reading progress ---------- */
   const [scrollProgress, setScrollProgress] = useState(0);
@@ -325,6 +328,7 @@ export default function MyResearchPage() {
   /* ================================================================ */
 
   return (
+    <GlossaryTermsContext.Provider value={glossaryTerms}>
     <div className="min-h-screen bg-gray-50 dark:bg-gray-950">
       <Header onSearchClick={openCommandPalette} />
       <CommandPalette isOpen={isCommandPaletteOpen} onClose={closeCommandPalette} />
@@ -1262,5 +1266,6 @@ export default function MyResearchPage() {
         </main>
       </div>
     </div>
+    </GlossaryTermsContext.Provider>
   );
 }

@@ -5,7 +5,10 @@ import dynamic from 'next/dynamic';
 import Header from '@/components/layout/Header';
 import CommandPalette from '@/components/common/CommandPalette';
 import { useKeyboardShortcuts } from '@/hooks/useKeyboardShortcuts';
-import { ArrowLeft, Beaker, Search, X } from 'lucide-react';
+import { useGlossary } from '@/hooks/useGlossary';
+import { GlossaryTermsContext } from '@/components/glossary/GlossaryContext';
+import GlossaryHighlighter from '@/components/glossary/GlossaryHighlighter';
+import { ArrowLeft, ArrowRight, Beaker, BookOpen, Search, X } from 'lucide-react';
 import Link from 'next/link';
 
 /* ------------------------------------------------------------------ */
@@ -19,6 +22,8 @@ interface ArtifactMeta {
   category: string;
   tags: string[];
   color: string; // tailwind color name like 'emerald', 'blue', 'purple'
+  relatedArtifacts?: string[]; // other artifact IDs
+  relatedPapers?: Array<{ title: string; paperId: string }>; // links to paper study pages
 }
 
 /* ------------------------------------------------------------------ */
@@ -48,6 +53,8 @@ const ARTIFACTS: ArtifactMeta[] = [
     category: 'sparsity-norms',
     tags: ['L1', 'L2', '희소성', 'LASSO', 'CSI 압축'],
     color: 'emerald',
+    relatedArtifacts: ['nmse-limitation'],
+    relatedPapers: [],
   },
   {
     id: 'nmse-limitation',
@@ -57,6 +64,11 @@ const ARTIFACTS: ArtifactMeta[] = [
     category: 'metrics',
     tags: ['NMSE', 'Cosine Similarity', 'Beamforming Gain', 'CSI 피드백'],
     color: 'amber',
+    relatedArtifacts: ['hoyer-sparsity'],
+    relatedPapers: [
+      { title: 'CsiFBNet', paperId: '502d012f-9270-4f91-9d04-b32f8bf179a2' },
+      { title: 'Carpi (Precoding-Oriented)', paperId: 'c30301c0-da07-4000-8945-b65cd0891f65' },
+    ],
   },
 ];
 
@@ -143,6 +155,7 @@ function getColorClasses(color: string) {
 export default function ArtifactsPage() {
   const { isCommandPaletteOpen, openCommandPalette, closeCommandPalette } =
     useKeyboardShortcuts();
+  const { terms: glossaryTerms } = useGlossary();
 
   const [selectedArtifactId, setSelectedArtifactId] = useState<string | null>(null);
   const [searchQuery, setSearchQuery] = useState('');
@@ -183,68 +196,111 @@ export default function ArtifactsPage() {
     const ArtifactComponent = ARTIFACT_COMPONENTS[selectedArtifact.id];
     const colors = getColorClasses(selectedArtifact.color);
     const category = ARTIFACT_CATEGORIES.find((c) => c.id === selectedArtifact.category);
+    const relatedArtifactItems = (selectedArtifact.relatedArtifacts ?? [])
+      .map((id) => ARTIFACTS.find((a) => a.id === id))
+      .filter(Boolean) as ArtifactMeta[];
 
     return (
-      <div className="min-h-screen bg-gray-50 dark:bg-gray-950">
-        <Header onSearchClick={openCommandPalette} />
-        <CommandPalette isOpen={isCommandPaletteOpen} onClose={closeCommandPalette} />
+      <GlossaryTermsContext.Provider value={glossaryTerms}>
+        <div className="min-h-screen bg-gray-50 dark:bg-gray-950">
+          <Header onSearchClick={openCommandPalette} />
+          <CommandPalette isOpen={isCommandPaletteOpen} onClose={closeCommandPalette} />
 
-        <main className="mx-auto max-w-6xl px-4 py-6 sm:px-6 lg:px-8">
-          {/* Back button */}
-          <button
-            type="button"
-            onClick={() => setSelectedArtifactId(null)}
-            className="mb-6 inline-flex items-center gap-2 rounded-lg px-3 py-2 text-sm font-medium text-gray-600 transition hover:bg-gray-100 hover:text-gray-900 dark:text-gray-400 dark:hover:bg-gray-800 dark:hover:text-gray-100"
-          >
-            <ArrowLeft className="h-4 w-4" />
-            아티팩트 갤러리
-          </button>
+          <main className="mx-auto max-w-6xl px-4 py-6 sm:px-6 lg:px-8">
+            {/* Back button */}
+            <button
+              type="button"
+              onClick={() => setSelectedArtifactId(null)}
+              className="mb-6 inline-flex items-center gap-2 rounded-lg px-3 py-2 text-sm font-medium text-gray-600 transition hover:bg-gray-100 hover:text-gray-900 dark:text-gray-400 dark:hover:bg-gray-800 dark:hover:text-gray-100"
+            >
+              <ArrowLeft className="h-4 w-4" />
+              아티팩트 갤러리
+            </button>
 
-          {/* Header */}
-          <div className="mb-6">
-            <h1 className="text-2xl font-bold text-gray-900 dark:text-gray-100 sm:text-3xl">
-              {selectedArtifact.title}
-            </h1>
-            <p className="mt-2 text-sm text-gray-600 dark:text-gray-400">
-              {selectedArtifact.description}
-            </p>
-            <div className="mt-3 flex flex-wrap items-center gap-2">
-              {category && (
-                <span
-                  className={`inline-flex items-center gap-1 rounded-full px-2.5 py-0.5 text-xs font-semibold ${colors.badge}`}
-                >
-                  {category.label}
-                </span>
-              )}
-              {selectedArtifact.tags.map((tag) => (
-                <span
-                  key={tag}
-                  className="rounded-full bg-gray-100 px-2.5 py-0.5 text-xs font-medium text-gray-600 dark:bg-gray-800 dark:text-gray-400"
-                >
-                  {tag}
-                </span>
-              ))}
+            {/* Header */}
+            <div className="mb-6">
+              <h1 className="text-2xl font-bold text-gray-900 dark:text-gray-100 sm:text-3xl">
+                {selectedArtifact.title}
+              </h1>
+              <p className="mt-2 text-sm text-gray-600 dark:text-gray-400">
+                <GlossaryHighlighter text={selectedArtifact.description} terms={glossaryTerms} />
+              </p>
+              <div className="mt-3 flex flex-wrap items-center gap-2">
+                {category && (
+                  <span
+                    className={`inline-flex items-center gap-1 rounded-full px-2.5 py-0.5 text-xs font-semibold ${colors.badge}`}
+                  >
+                    {category.label}
+                  </span>
+                )}
+                {selectedArtifact.tags.map((tag) => (
+                  <span
+                    key={tag}
+                    className="rounded-full bg-gray-100 px-2.5 py-0.5 text-xs font-medium text-gray-600 dark:bg-gray-800 dark:text-gray-400"
+                  >
+                    {tag}
+                  </span>
+                ))}
+              </div>
             </div>
-          </div>
 
-          {/* Artifact component */}
-          <div className="rounded-2xl border border-gray-200 bg-white p-4 shadow-sm dark:border-gray-800 dark:bg-gray-900 sm:p-6">
-            {ArtifactComponent ? (
-              <ArtifactComponent />
-            ) : (
-              <div className="flex h-64 items-center justify-center text-gray-400 dark:text-gray-500">
-                컴포넌트를 찾을 수 없습니다.
+            {/* Artifact component */}
+            <div className="rounded-2xl border border-gray-200 bg-white p-4 shadow-sm dark:border-gray-800 dark:bg-gray-900 sm:p-6">
+              {ArtifactComponent ? (
+                <ArtifactComponent />
+              ) : (
+                <div className="flex h-64 items-center justify-center text-gray-400 dark:text-gray-500">
+                  컴포넌트를 찾을 수 없습니다.
+                </div>
+              )}
+            </div>
+
+            {/* Cross-references: related artifacts + papers */}
+            {(relatedArtifactItems.length > 0 || (selectedArtifact.relatedPapers ?? []).length > 0) && (
+              <div className="mt-6 rounded-2xl border border-gray-200 bg-white p-5 shadow-sm dark:border-gray-800 dark:bg-gray-900">
+                <h3 className="mb-4 text-sm font-semibold uppercase tracking-wider text-gray-500 dark:text-gray-400">
+                  관련 자료
+                </h3>
+                <div className="flex flex-wrap gap-3">
+                  {relatedArtifactItems.map((related) => {
+                    const rc = getColorClasses(related.color);
+                    return (
+                      <button
+                        key={related.id}
+                        type="button"
+                        onClick={() => setSelectedArtifactId(related.id)}
+                        className={`inline-flex items-center gap-2 rounded-lg border border-l-4 ${rc.border} border-gray-200 bg-gray-50 px-3 py-2 text-left text-sm transition hover:-translate-y-0.5 hover:shadow dark:border-gray-700 dark:bg-gray-800`}
+                      >
+                        <Beaker className="h-3.5 w-3.5 text-gray-400 dark:text-gray-500" />
+                        <span className="font-medium text-gray-800 dark:text-gray-200">{related.title}</span>
+                        <ArrowRight className="h-3 w-3 text-gray-400" />
+                      </button>
+                    );
+                  })}
+                  {(selectedArtifact.relatedPapers ?? []).map((paper) => (
+                    <Link
+                      key={paper.paperId}
+                      href={`/paper/${paper.paperId}`}
+                      className="inline-flex items-center gap-2 rounded-lg border border-gray-200 bg-gray-50 px-3 py-2 text-sm transition hover:-translate-y-0.5 hover:shadow dark:border-gray-700 dark:bg-gray-800"
+                    >
+                      <BookOpen className="h-3.5 w-3.5 text-blue-500 dark:text-blue-400" />
+                      <span className="font-medium text-gray-800 dark:text-gray-200">{paper.title}</span>
+                      <ArrowRight className="h-3 w-3 text-gray-400" />
+                    </Link>
+                  ))}
+                </div>
               </div>
             )}
-          </div>
-        </main>
-      </div>
+          </main>
+        </div>
+      </GlossaryTermsContext.Provider>
     );
   }
 
   /* ---------- Render: Gallery view ---------- */
 
   return (
+    <GlossaryTermsContext.Provider value={glossaryTerms}>
     <div className="min-h-screen bg-gray-50 dark:bg-gray-950">
       <Header onSearchClick={openCommandPalette} />
       <CommandPalette isOpen={isCommandPaletteOpen} onClose={closeCommandPalette} />
@@ -325,7 +381,7 @@ export default function ArtifactsPage() {
                             {artifact.title}
                           </h3>
                           <p className="mt-1.5 line-clamp-2 text-sm text-gray-600 dark:text-gray-400">
-                            {artifact.description}
+                            <GlossaryHighlighter text={artifact.description} terms={glossaryTerms} />
                           </p>
                           <div className="mt-3 flex flex-wrap gap-1.5">
                             {artifact.tags.map((tag) => (
@@ -351,5 +407,6 @@ export default function ArtifactsPage() {
         <div className="h-16" />
       </main>
     </div>
+    </GlossaryTermsContext.Provider>
   );
 }

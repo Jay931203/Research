@@ -24,6 +24,8 @@ import { usePapersWithNotes } from '@/hooks/useNotes';
 import { useRelationships } from '@/hooks/useRelationships';
 import { getPaperCategoryLabel } from '@/lib/visualization/graphUtils';
 import { useAppStore } from '@/store/useAppStore';
+import { useGlossary } from '@/hooks/useGlossary';
+import { GlossaryTermsContext } from '@/components/glossary/GlossaryContext';
 
 const MindMap = dynamic(() => import('@/components/visualization/MindMap'), {
   ssr: false,
@@ -38,6 +40,7 @@ export default function DashboardPage() {
   const router = useRouter();
   const { papers, isLoading: papersLoading } = usePapersWithNotes();
   const { relationships, isLoading: relationshipsLoading } = useRelationships();
+  const { terms: glossaryTerms } = useGlossary();
   const graphFilterSettings = useAppStore((state) => state.graphFilterSettings);
   const mapPaperIds = useAppStore((state) => state.mapPaperIds);
   const setMapPaperIds = useAppStore((state) => state.setMapPaperIds);
@@ -141,6 +144,7 @@ export default function DashboardPage() {
   }
 
   return (
+    <GlossaryTermsContext.Provider value={glossaryTerms}>
     <MainLayout onSidebarPaperClick={handleSidebarPaperClick} fitViewport>
       <ErrorBoundary>
         {!isMapFullscreen && (
@@ -675,5 +679,6 @@ export default function DashboardPage() {
 
       </ErrorBoundary>
     </MainLayout>
+    </GlossaryTermsContext.Provider>
   );
 }
