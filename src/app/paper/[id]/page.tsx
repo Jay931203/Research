@@ -116,6 +116,10 @@ const CarpiStudyFull = dynamic(
   () => import('@/components/csi-feedback-study/CarpiStudyFull'),
   { ssr: false },
 );
+const CsiFBNetStudyFull = dynamic(
+  () => import('@/components/csi-feedback-study/CsiFBNetStudyFull'),
+  { ssr: false },
+);
 
 // arxiv_id → full study content (replaces generic template for these papers)
 const FULL_STUDY_REGISTRY: Record<string, React.ComponentType> = {
@@ -133,6 +137,7 @@ const FULL_STUDY_REGISTRY: Record<string, React.ComponentType> = {
   'love-heath-2003': GrassmannianStudyFull, // Love & Heath 2003 Grassmannian
   'cs/0603065':  JindalStudyFull,       // Jindal 2006 MIMO BC
   '2302.11526':  CarpiStudyFull,        // Carpi 2023 Precoding-oriented
+  '2011.06099':  CsiFBNetStudyFull,    // CsiFBnet 2021 BF-gain CSI Feedback
 };
 
 /* ------------------------------------------------------------------ */
@@ -304,6 +309,15 @@ const FULL_STUDY_TOC_REGISTRY: Record<
     { id: 'carpi-results',        label: '실험 결과',          icon: List },
     { id: 'carpi-quiz',           label: '자기 점검',          icon: FlaskConical },
     { id: 'section-notes',        label: '학습 노트',          icon: Layers },
+  ],
+  '2011.06099': [
+    { id: 'csifbnet-overview',       label: '개요',               icon: BookOpen },
+    { id: 'csifbnet-architecture',   label: '아키텍처',           icon: Cpu },
+    { id: 'csifbnet-loss',           label: '손실 함수 설계',     icon: Zap },
+    { id: 'csifbnet-equations',      label: '핵심 수식',          icon: Hash },
+    { id: 'csifbnet-results',        label: '실험 결과',          icon: List },
+    { id: 'csifbnet-quiz',           label: '자기 점검',          icon: FlaskConical },
+    { id: 'section-notes',           label: '학습 노트',          icon: Layers },
   ],
 };
 

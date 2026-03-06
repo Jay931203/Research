@@ -26,12 +26,13 @@ interface ArtifactMeta {
 /* ------------------------------------------------------------------ */
 
 const ARTIFACT_CATEGORIES = [
-  { id: 'sparsity-norms', label: '희소성 & 노름', icon: '\u{1F4D0}', color: 'emerald' },
-  { id: 'signal-processing', label: '신호 처리', icon: '\u{1F4E1}', color: 'blue' },
-  { id: 'linear-algebra', label: '선형대수', icon: '\u{1F522}', color: 'purple' },
-  { id: 'optimization', label: '최적화', icon: '\u{1F3AF}', color: 'amber' },
-  { id: 'information-theory', label: '정보 이론', icon: '\u{1F511}', color: 'rose' },
-  { id: 'deep-learning', label: '딥러닝', icon: '\u{1F9E0}', color: 'sky' },
+  { id: 'sparsity-norms', label: '희소성 & 노름', color: 'emerald' },
+  { id: 'signal-processing', label: '신호 처리', color: 'blue' },
+  { id: 'metrics', label: '성능 지표', color: 'amber' },
+  { id: 'linear-algebra', label: '선형대수', color: 'purple' },
+  { id: 'optimization', label: '최적화', color: 'amber' },
+  { id: 'information-theory', label: '정보 이론', color: 'rose' },
+  { id: 'deep-learning', label: '딥러닝', color: 'sky' },
 ] as const;
 
 /* ------------------------------------------------------------------ */
@@ -48,6 +49,15 @@ const ARTIFACTS: ArtifactMeta[] = [
     tags: ['L1', 'L2', '희소성', 'LASSO', 'CSI 압축'],
     color: 'emerald',
   },
+  {
+    id: 'nmse-limitation',
+    title: 'NMSE의 한계',
+    description:
+      'NMSE가 진폭·방향 오차를 동일하게 취급하는 문제를 2D 벡터 비교로 확인합니다.',
+    category: 'metrics',
+    tags: ['NMSE', 'Cosine Similarity', 'Beamforming Gain', 'CSI 피드백'],
+    color: 'amber',
+  },
 ];
 
 /* ------------------------------------------------------------------ */
@@ -57,6 +67,17 @@ const ARTIFACTS: ArtifactMeta[] = [
 const ARTIFACT_COMPONENTS: Record<string, React.ComponentType> = {
   'hoyer-sparsity': dynamic(
     () => import('@/components/artifacts/HoyerSparsityViz'),
+    {
+      ssr: false,
+      loading: () => (
+        <div className="flex h-64 items-center justify-center text-gray-400 dark:text-gray-500">
+          로딩 중...
+        </div>
+      ),
+    },
+  ),
+  'nmse-limitation': dynamic(
+    () => import('@/components/artifacts/NmseLimitationViz'),
     {
       ssr: false,
       loading: () => (
@@ -192,7 +213,7 @@ export default function ArtifactsPage() {
                 <span
                   className={`inline-flex items-center gap-1 rounded-full px-2.5 py-0.5 text-xs font-semibold ${colors.badge}`}
                 >
-                  {category.icon} {category.label}
+                  {category.label}
                 </span>
               )}
               {selectedArtifact.tags.map((tag) => (
@@ -240,7 +261,7 @@ export default function ArtifactsPage() {
                 아티팩트 갤러리
               </h1>
               <p className="mt-0.5 text-sm text-gray-500 dark:text-gray-400">
-                수학/공학 개념을 인터랙티브하게 탐색하는 시각화 놀이터
+                수학·공학 개념 인터랙티브 탐색
               </p>
             </div>
           </div>
@@ -277,7 +298,6 @@ export default function ArtifactsPage() {
               <section key={category.id}>
                 {/* Category header */}
                 <div className="mb-4 flex items-center gap-2">
-                  <span className="text-lg">{category.icon}</span>
                   <h2 className="text-lg font-bold text-gray-800 dark:text-gray-200">
                     {category.label}
                   </h2>
