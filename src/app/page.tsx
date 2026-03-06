@@ -1,5 +1,5 @@
 import Link from 'next/link';
-import { ArrowRight, BookOpen, GitBranch, GraduationCap, Layers } from 'lucide-react';
+import { ArrowRight, Beaker, BookOpen, GitBranch, GraduationCap, Layers } from 'lucide-react';
 import StudyStats from '@/components/common/StudyStats';
 
 const cards = [
@@ -37,6 +37,15 @@ const cards = [
     icon: <Layers className="h-6 w-6 text-teal-600" />,
     accent: 'hover:ring-teal-200/50 dark:hover:ring-teal-500/20',
     tag: '과목 정리',
+    highlight: false,
+  },
+  {
+    href: '/artifacts',
+    title: '아티팩트',
+    description: '수학·공학 개념을 인터랙티브하게 탐색하는 시각화 놀이터.',
+    icon: <Beaker className="h-6 w-6 text-emerald-600" />,
+    accent: 'hover:ring-emerald-200/50 dark:hover:ring-emerald-500/20',
+    tag: '인터랙티브',
     highlight: false,
   },
 ];
