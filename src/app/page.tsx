@@ -1,5 +1,5 @@
 import Link from 'next/link';
-import { ArrowRight, Beaker, BookOpen, GitBranch, GraduationCap, Layers, Radio } from 'lucide-react';
+import { ArrowRight, Beaker, BookOpen, GitBranch, GraduationCap, Layers, MessageSquare, Radio } from 'lucide-react';
 import StudyStats from '@/components/common/StudyStats';
 
 const cards = [
@@ -28,6 +28,15 @@ const cards = [
     icon: <Radio className="h-6 w-6 text-indigo-600" />,
     accent: 'hover:ring-indigo-200/50 dark:hover:ring-indigo-500/20',
     tag: '세미나',
+    highlight: false,
+  },
+  {
+    href: '/seminar',
+    title: '세미나',
+    description: '논문 세미나에서 다룬 주제들을 인터랙티브 시각화와 함께 정리합니다.',
+    icon: <MessageSquare className="h-6 w-6 text-teal-600" />,
+    accent: 'hover:ring-teal-200/50 dark:hover:ring-teal-500/20',
+    tag: '논문 세미나',
     highlight: false,
   },
   {

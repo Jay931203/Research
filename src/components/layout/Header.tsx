@@ -82,6 +82,9 @@ export default function Header({ onSearchClick }: HeaderProps = {}) {
           <HeaderLink href="/tse" active={pathname.startsWith('/tse')}>
             Tse 세미나
           </HeaderLink>
+          <HeaderLink href="/seminar" active={pathname.startsWith('/seminar')}>
+            세미나
+          </HeaderLink>
           <HeaderLink href="/qual-exam" active={pathname === '/qual-exam'}>
             논자시
           </HeaderLink>
@@ -175,6 +178,13 @@ export default function Header({ onSearchClick }: HeaderProps = {}) {
               active={pathname.startsWith('/tse')}
             >
               Tse 세미나
+            </MobileHeaderLink>
+            <MobileHeaderLink
+              href="/seminar"
+              onClick={() => setMobileMenuOpen(false)}
+              active={pathname.startsWith('/seminar')}
+            >
+              세미나
             </MobileHeaderLink>
             <MobileHeaderLink
               href="/qual-exam"
