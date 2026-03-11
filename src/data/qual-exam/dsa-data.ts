@@ -15,7 +15,7 @@ export const DSA_TOPICS: StudyTopic[] = [
     examFrequency: 5,
     studyOrder: 1,
     summary: '알고리즘 성능의 점근적 분석. Big-O, Big-Ω, Big-Θ 표기법으로 입력 크기에 따른 성장률을 정의합니다.',
-    relatedExamIds: ['dsa-2024-2-1', 'dsa-2022-1-2', 'dsa-2025-1-1'],
+    relatedExamIds: ['dsa-2024-2-1', 'dsa-2022-1-2', 'dsa-2025-1-1', 'dsa-2023-2-1'],
     mathFormulas: [
       { label: 'Big-O 정의 (점근적 상한)', latex: 'f(n) = O(g(n)) \\iff \\exists\\, c > 0,\\, n_0 : f(n) \\le c \\cdot g(n)\\ \\forall n \\ge n_0' },
       { label: 'Big-Ω 정의 (점근적 하한)', latex: 'f(n) = \\Omega(g(n)) \\iff \\exists\\, c > 0,\\, n_0 : f(n) \\ge c \\cdot g(n)\\ \\forall n \\ge n_0' },
@@ -72,7 +72,7 @@ A=lg(n!), B=lg(n^n): O=T, o=F, Ω=T, ω=F, Θ=T (둘 다 Θ(n·lg n))`,
     examFrequency: 5,
     studyOrder: 6,
     summary: 'QuickSort(평균 O(n log n), in-place), MergeSort(항상 O(n log n), NOT in-place), HeapSort(항상 O(n log n), in-place) 비교.',
-    relatedExamIds: ['dsa-2025-2-1', 'dsa-2020-1-1', 'dsa-2020-2-1', 'dsa-2022-2-1'],
+    relatedExamIds: ['dsa-2025-2-1', 'dsa-2020-1-1', 'dsa-2020-2-1', 'dsa-2022-2-1', 'dsa-2023-2-4'],
     mathFormulas: [
       { label: 'QuickSort 최악: 편향된 분할', latex: 'T(n) = T(n-1) + O(n) \\Rightarrow T(n) = O(n^2)' },
       { label: 'MergeSort: 항상 균등 분할', latex: 'T(n) = 2T(n/2) + O(n) \\Rightarrow T(n) = O(n\\log n)' },
@@ -805,7 +805,7 @@ class SinglyLinkedList:
     examFrequency: 3,
     studyOrder: 9,
     summary: '탐욕 알고리즘으로 최적 접두사 코드(prefix-free code) 생성. 빈도 높은 문자 = 짧은 코드. ABL 최소화.',
-    relatedExamIds: ['dsa-2024-1-1', 'dsa-2022-1-1'],
+    relatedExamIds: ['dsa-2024-1-1', 'dsa-2022-1-1', 'dsa-2023-2-3'],
     mathFormulas: [
       { label: 'ABL (Average Bits per Letter)', latex: '\\text{ABL}(c) = \\frac{\\displaystyle\\sum_{x \\in S} f_x \\cdot |c(x)|}{\\displaystyle\\sum_{x \\in S} f_x}' },
       { label: '고정 길이 코드 비트 수', latex: '\\lceil \\log_2 n \\rceil \\text{ bits (n개 문자)}' },
@@ -898,7 +898,7 @@ ABL = (45×1 + 11×3 + 13×3 + 4×4 + 10×4 + 17×3) / 100
     examFrequency: 2,
     studyOrder: 5,
     summary: '해시 함수로 키를 인덱스에 매핑. 충돌 해결: 체이닝, 오픈 어드레싱. 완전 해시 = 충돌 없음.',
-    relatedExamIds: ['dsa-2025-1-1'],
+    relatedExamIds: ['dsa-2025-1-1', 'dsa-2023-2-2'],
     keyPoints: [
       '완전 해시 함수(Perfect Hash): 충돌 없음 — 모든 키가 서로 다른 인덱스로 매핑',
       '충돌 해결: 체이닝(Chaining), 오픈 어드레싱(Linear/Quadratic Probing)',
@@ -2176,6 +2176,232 @@ return NOT_FOUND
       },
     ],
     tags: ['BST', 'AVL', 'Red-Black Tree', '행렬탐색', 'O(n)', '이진탐색'],
+  },
+  /* ── 2023년 2학기 ── */
+  {
+    id: 'dsa-2023-2-1',
+    year: '2023',
+    semester: '2',
+    subject: 'dsa',
+    problemNumber: 1,
+    totalPoints: 40,
+    category: '점근 분석',
+    title: '점근 표기법 True/False',
+    description: `다음 명제들이 참인지 거짓인지 판단하고 그 이유를 설명하시오. (각 10점)`,
+    subQuestions: [
+      {
+        label: 'i', points: 10,
+        text: '(i) If f(n) = O(g(n)) and f(n) = Ω(g(n)), then we have (f(n))² = O((g(n))²).',
+        answer: `참 (True).
+
+f(n) = O(g(n))이므로 ∃c₁>0, n₀: f(n) ≤ c₁·g(n) ∀n≥n₀
+양변을 제곱하면: (f(n))² ≤ c₁²·(g(n))²
+따라서 (f(n))² = O((g(n))²).
+
+참고: f(n) = Θ(g(n))이므로 (f(n))² = Θ((g(n))²)도 성립.`,
+      },
+      {
+        label: 'ii', points: 10,
+        text: '(ii) If f(n) = O(g(n)) and f(n) = Ω(g(n)), then we have f(n) = g(n).',
+        answer: `거짓 (False).
+
+f(n) = Θ(g(n))은 f(n) = g(n)을 의미하지 않습니다.
+반례: f(n) = 2n, g(n) = 3n → f(n) = Θ(g(n))이지만 f(n) ≠ g(n).
+Θ 관계는 상수 배 차이를 허용합니다.`,
+      },
+      {
+        label: 'iii', points: 10,
+        text: '(iii) 2ⁿ + n² = O(3ⁿ)',
+        answer: `참 (True).
+
+lim_{n→∞} (2ⁿ + n²) / 3ⁿ
+= lim_{n→∞} (2/3)ⁿ + n²/3ⁿ = 0 + 0 = 0
+
+(2/3)ⁿ → 0 (지수 감소), n²/3ⁿ → 0 (다항식 < 지수)
+따라서 2ⁿ + n² = o(3ⁿ) ⊂ O(3ⁿ).`,
+      },
+      {
+        label: 'iv', points: 10,
+        text: '(iv) 2ⁿ + n² = O(2ⁿ)',
+        answer: `참 (True).
+
+2ⁿ + n² ≤ 2ⁿ + 2ⁿ = 2·2ⁿ (n²≤2ⁿ for n≥4)
+따라서 c=2, n₀=4로 O(2ⁿ) 성립.
+2ⁿ이 지배적 항이므로 n²는 무시 가능.`,
+      },
+    ],
+    tags: ['점근분석', 'Big-O', 'Big-Omega', 'Theta', 'True/False'],
+  },
+  {
+    id: 'dsa-2023-2-2',
+    year: '2023',
+    semester: '2',
+    subject: 'dsa',
+    problemNumber: 2,
+    totalPoints: 20,
+    category: '해시 테이블',
+    title: 'Open Addressing + 제한적 체이닝 확률 분석',
+    description: `Open addressing과 제한적 체이닝을 결합한 해시 테이블. m개 슬롯에 각 슬롯이 최대 2개 키를 저장.
+삽입 알고리즘:
+a. Hash (key, probe number) → 슬롯 결정
+b. 슬롯에 키가 2개 미만이면 삽입
+c. 아니면 probe number 증가 후 a로
+
+n개 키가 삽입된 후 새 키를 삽입할 때, 첫 probe가 성공할 확률을 분석하시오.
+Uniform hashing 가정, n은 짝수.`,
+    subQuestions: [
+      {
+        label: 'i', points: 5,
+        text: '(i) 정확히 k개 슬롯이 completely full(2개 키 저장)일 때, 첫 probe가 성공할 확률 s(k)는? (given that there are exactly k full slots)',
+        answer: `s(k) = (m - k) / m
+
+첫 probe가 성공하려면 빈 슬롯이나 1개만 차 있는 슬롯에 도달해야 합니다.
+full 슬롯 k개를 피해야 하므로 s(k) = (m-k)/m.`,
+      },
+      {
+        label: 'ii', points: 5,
+        text: '(ii) p(k)가 정확히 k개 슬롯이 full일 확률이고, n개 키가 이미 삽입되어 있을 때, 첫 probe 성공 확률을 p(k)로 표현하시오. (Hint: summation form)',
+        answer: `첫 probe 성공 확률 = Σ_{k=0}^{⌊n/2⌋} p(k) · s(k)
+                         = Σ_{k=0}^{⌊n/2⌋} p(k) · (m-k)/m
+
+전체 확률 법칙(law of total probability)을 적용합니다.`,
+      },
+      {
+        label: 'iii', points: 10,
+        text: '(iii) p(0)을 m과 n으로 표현하시오. n ≤ m으로 가정. (Hint: product form)',
+        answer: `p(0) = 어떤 슬롯도 full이 아닐 확률 (모든 슬롯에 0개 또는 1개 키)
+
+n개 키를 순차적으로 삽입할 때, 각 키가 빈 슬롯에 들어가야 함:
+- 1번째 키: 확률 1 (아무 슬롯)
+- 2번째 키: (m-1)/m (첫 키와 다른 슬롯)
+- 3번째 키: (m-2)/m (이미 1개씩 있는 2슬롯 제외)
+...
+- n번째 키: (m-(n-1))/m
+
+p(0) = ∏_{i=0}^{n-1} (m-i)/m = m!/(m^n · (m-n)!)
+
+이는 Birthday Problem의 "충돌 없음" 확률과 동일한 구조입니다.`,
+      },
+    ],
+    tags: ['해시테이블', 'Open Addressing', '확률', '체이닝', 'Uniform Hashing'],
+  },
+  {
+    id: 'dsa-2023-2-3',
+    year: '2023',
+    semester: '2',
+    subject: 'dsa',
+    problemNumber: 3,
+    totalPoints: 20,
+    category: 'BST',
+    title: 'BST에서 45 탐색 — 가능한 노드 방문 순서',
+    description: `1~100 사이 수가 들어 있는 BST에서 45를 탐색할 때, 다음 중 노드 방문 순서로 가능한 것을 모두 고르시오. (각 5점)`,
+    subQuestions: [
+      {
+        label: 'i', points: 5,
+        text: '(i) 5, 2, 1, 10, 39, 34, 77, 63',
+        answer: `불가능 (Impossible).
+
+5→2: 45>5이므로 오른쪽으로 가야 하는데 2<5이므로 왼쪽으로 간 것.
+BST 탐색에서 45>5이면 반드시 오른쪽 자식으로 이동해야 합니다.
+5 다음에 2(왼쪽)로 갈 수 없습니다.`,
+      },
+      {
+        label: 'ii', points: 5,
+        text: '(ii) 1, 2, 3, 4, 5, 6, 7, 8',
+        answer: `불가능 (Impossible).
+
+모든 값이 45보다 작으므로, 매번 오른쪽 자식으로 이동합니다.
+이는 1→2→3→...→8이 모두 오른쪽 자식 체인이어야 합니다.
+유효한 BST 경로이지만, 45를 결국 찾지 못하고 탈출합니다.
+하지만 시퀀스 자체는 BST 속성(계속 증가하며 오른쪽 이동)을 만족하므로...
+단, 이 경우 8 이후 45에 도달하지 못합니다.
+
+실제로 이 시퀀스는 가능합니다 (45를 찾지 못하는 실패 경로).
+단, 문제가 "성공적 탐색"을 전제한다면 불가능합니다.`,
+      },
+      {
+        label: 'iii', points: 5,
+        text: '(iii) 9, 8, 63, 0, 4, 3, 2, 1',
+        answer: `불가능 (Impossible).
+
+9→8: 45>9이므로 오른쪽으로 가야 하는데 8<9 (왼쪽). 모순.
+BST 탐색에서 45를 찾을 때 9보다 크므로 오른쪽 자식으로 가야 합니다.`,
+      },
+      {
+        label: 'iv', points: 5,
+        text: '(iv) 50, 25, 26, 27, 40, 44, 42',
+        answer: `가능 (Possible).
+
+50: 45<50 → 왼쪽으로
+25: 45>25 → 오른쪽으로
+26: 45>26 → 오른쪽으로
+27: 45>27 → 오른쪽으로
+40: 45>40 → 오른쪽으로
+44: 45>44 → 오른쪽으로
+42: 45>42 → 오른쪽으로
+
+각 단계에서 BST 속성을 만족:
+- 50 이후: 항상 <50 (왼쪽 서브트리)
+- 25 이후: 항상 >25 (오른쪽 서브트리)
+이 조건들이 모두 일관됩니다. ✓`,
+      },
+    ],
+    tags: ['BST', '탐색', '노드 방문 순서', 'BST 속성'],
+  },
+  {
+    id: 'dsa-2023-2-4',
+    year: '2023',
+    semester: '2',
+    subject: 'dsa',
+    problemNumber: 4,
+    totalPoints: 20,
+    category: '정렬',
+    title: 'Insertion Sort vs Merge Sort 최악 점근 상한',
+    description: `Insertion Sort와 Merge Sort 각각에 대해 다음 경우의 worst-case asymptotic upper bound를 구하시오.`,
+    subQuestions: [
+      {
+        label: 'i', points: 5,
+        text: '(i) 입력이 이미 정렬된 경우 (already sorted)',
+        answerTable: {
+          headers: ['알고리즘', '복잡도', '설명'],
+          rows: [
+            ['Insertion Sort', 'O(n)', '각 원소가 올바른 위치에 있으므로 비교만 n-1번, 이동 없음'],
+            ['Merge Sort', 'O(n log n)', '입력 순서에 관계없이 항상 분할-합병 수행'],
+          ],
+        },
+        answer: `Insertion Sort: O(n) — 이미 정렬되어 있으므로 각 원소의 삽입 위치를 찾는 데 비교 1번만 필요.
+Merge Sort: O(n log n) — 입력과 무관하게 항상 재귀적으로 분할하고 합병. 최선/최악 모두 O(n log n).`,
+      },
+      {
+        label: 'ii', points: 5,
+        text: '(ii) 입력이 역순으로 정렬된 경우 (reversely sorted)',
+        answerTable: {
+          headers: ['알고리즘', '복잡도', '설명'],
+          rows: [
+            ['Insertion Sort', 'O(n²)', '각 원소를 맨 앞까지 이동 — 최악의 경우'],
+            ['Merge Sort', 'O(n log n)', '입력 순서에 관계없이 동일'],
+          ],
+        },
+        answer: `Insertion Sort: O(n²) — i번째 원소를 삽입할 때 i-1번 비교+이동. 총 Σi = n(n-1)/2.
+Merge Sort: O(n log n) — 역순이든 정순이든 동일한 분할-합병 과정.`,
+      },
+      {
+        label: 'iii', points: 10,
+        text: '(iii) 입력이 n개의 동일한 수로 구성된 경우 (n copies of the same number)',
+        answerTable: {
+          headers: ['알고리즘', '복잡도', '설명'],
+          rows: [
+            ['Insertion Sort', 'O(n)', '모든 원소가 같으므로 이동 없음 (이미 정렬 상태와 동일)'],
+            ['Merge Sort', 'O(n log n)', '입력 값에 관계없이 항상 동일한 분할-합병 수행'],
+          ],
+        },
+        answer: `Insertion Sort: O(n) — 모든 원소가 같으므로 각 삽입 시 비교 1번만으로 위치 확정. 이미 정렬된 경우와 동일.
+Merge Sort: O(n log n) — 값이 같든 다르든 재귀 분할/합병 구조는 동일.
+
+핵심: Insertion Sort는 입력 상태에 민감(adaptive), Merge Sort는 항상 동일(non-adaptive).`,
+      },
+    ],
+    tags: ['Insertion Sort', 'Merge Sort', '정렬', '최악 복잡도', 'adaptive'],
   },
 ];
 

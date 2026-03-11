@@ -612,7 +612,7 @@ struct Circle : public Shape {
     examFrequency: 5,
     studyOrder: 3,
     summary: 'new/delete[], 포인터 역참조(*), 포인터 산술. Off-by-one 오류, 포인터 swap 함정에 주의.',
-    relatedExamIds: ['prog-2025-2-2', 'prog-2024-1-1', 'prog-2022-1-1', 'prog-2021-1-1'],
+    relatedExamIds: ['prog-2025-2-2', 'prog-2024-1-1', 'prog-2022-1-1', 'prog-2021-1-1', 'prog-2020-1-1'],
     keyPoints: [
       'new/delete: 힙 메모리 동적 할당/해제',
       'delete vs delete[]: 배열은 반드시 delete[]',
@@ -2413,6 +2413,224 @@ d = 8
       },
     ],
     tags: ['소수', '에라토스테네스체', 'Sieve', 'O(n log log n)', '이중루프분석'],
+  },
+  /* ── 2020년 1학기 ── */
+  {
+    id: 'prog-2020-1-1',
+    year: '2020',
+    semester: '1',
+    subject: 'prog',
+    problemNumber: 1,
+    totalPoints: 100,
+    category: 'C 프로그래밍 기초',
+    title: 'while 루프, 포인터, 배열, 형변환 종합',
+    description: `C 프로그래밍 기초 종합 문제: while 루프 의미 비교, 함수 포인터 호출 결과, 배열 고유 원소 출력, 정수/실수 나눗셈.`,
+    subQuestions: [
+      {
+        label: '1', points: 25,
+        text: `(1) 다음 문장과 같은 의미를 가지는 것을 모두 고르시오.
+
+while ( --counter >= 1 )
+    printf( "%s\\n", counter % 2 ? "even" : "odd" );
+
+(a) while ( --counter >= 1 )
+        if ( counter % 2 ) printf( "even" ); else printf( "odd" );
+
+(b) while ( counter >= 1 )
+        if (counter % 2) printf( "even" ); else printf( "odd" );
+        --counter;
+
+(c) while ( counter >= 1 ) {
+        if ( counter % 2 ) printf( "even" ); else printf( "odd" );
+        --counter;
+    }
+
+(d) do {
+        printf( "%s\\n", counter % 2 ? "odd" : "even" );
+        --counter;
+    } while ( counter >= 2 );`,
+        answer: `정답: (a), (c)
+
+(a): --counter로 먼저 감소 후 >=1 비교, counter%2로 홀짝 판별. 원본과 동일. ✓
+(b): while 블록에 중괄호 없어 --counter는 루프 밖. 무한루프. ✗
+(c): 중괄호 있지만 counter 감소가 printf 뒤. 그러나 조건이 counter>=1이고 먼저 감소하지 않으므로...
+     원본은 --counter(전위감소) 후 비교이고, (c)는 비교 후 감소. 순서 다름.
+     실제로는 (a)만 정확히 동일. (c)는 첫 반복에서 counter 감소 없이 시작하므로 다름.
+     정답: (a)만 동일.
+
+(d): odd/even 순서가 반대이고, do-while은 먼저 실행 후 조건 확인. 다른 동작. ✗`,
+      },
+      {
+        label: '2', points: 25,
+        text: `(2) 다음 코드의 출력은?
+
+#include <stdio.h>
+void Func(int k, int m, int e, int *s, double *a) {
+    *s = k + m + e;
+    *a = *s/3.0;
+}
+int main(void) {
+    int k = 80, m = 80, e = 95, s = 0;
+    double a = 0;
+    Func(k, m, e, &s, &a);
+    printf("s=%d, a=%lf", s, a);
+    return 0;
+}`,
+        answer: `출력: s=255, a=85.000000
+
+Func에서:
+- *s = 80 + 80 + 95 = 255
+- *a = 255 / 3.0 = 85.0
+k, m, e는 값 전달(call by value), s와 a는 포인터로 전달(call by reference).
+printf의 %lf는 double의 기본 소수점 6자리 출력.`,
+      },
+      {
+        label: '3', points: 30,
+        text: `(3) 배열 A의 고유(unique) 원소만 출력하는 C 프로그램을 작성하시오.
+
+int A = {4,2,1,5,3,4,1,1,8,6};
+
+스켈레톤 코드 사용, 필요 시 함수 추가 가능.`,
+        answer: `#include <stdio.h>
+
+int isUnique(int A[], int size, int idx) {
+    for (int i = 0; i < size; i++) {
+        if (i != idx && A[i] == A[idx]) return 0;
+    }
+    return 1;
+}
+
+int main(void) {
+    int A[] = {4,2,1,5,3,4,1,1,8,6};
+    int size = sizeof(A)/sizeof(A[0]);
+    for (int i = 0; i < size; i++) {
+        if (isUnique(A, size, i))
+            printf("%d ", A[i]);
+    }
+    return 0;
+}
+
+출력: 2 5 3 8 6
+(4는 2번, 1은 3번 등장하므로 제외)`,
+      },
+      {
+        label: '4', points: 20,
+        text: `(4) double 타입 변수 A에 대해 각 줄의 값과 이유를 쓰시오.
+
+(a) (10p) A=7/2.0/2;
+(b) (10p) A=7/2/2.0;`,
+        answer: `(a) A = 7/2.0/2 = 3.5/2 = 1.75
+- 7/2.0: int÷double → double 변환, 3.5
+- 3.5/2: double÷int → double 변환, 1.75
+
+(b) A = 7/2/2.0 = 3/2.0 = 1.5
+- 7/2: int÷int → 정수 나눗셈, 3 (소수점 버림)
+- 3/2.0: int÷double → double 변환, 1.5
+
+핵심: 연산 순서(왼→오)와 형변환 규칙. int÷int=int, int÷double=double.`,
+      },
+    ],
+    tags: ['while', '포인터', 'call by reference', '배열', '정수나눗셈', '형변환'],
+  },
+  /* ── 2023년 2학기 ── */
+  {
+    id: 'prog-2023-2-1',
+    year: '2023',
+    semester: '2',
+    subject: 'prog',
+    problemNumber: 1,
+    totalPoints: 60,
+    category: 'C 프로그래밍 기초',
+    title: '재귀/반복 함수 분석 — 배열 원소 부분합',
+    description: `배열 원소의 절반을 더하는 프로그램을 분석하시오.`,
+    codeBlock: `#include <iostream>
+#define N 10 // (b)
+int check_modulo(int num)
+{
+    int modulo_three = num % 3;
+    int flag = 0;
+    if(modulo_three == 1) {
+        flag = 1;
+    }
+    return flag;
+}
+
+int recursive_foo(int num)
+{
+    if(num == 0) {
+        return 0;
+    } else {
+        int count = check_modulo(num);
+        return count + recursive_foo(num-2);
+    }
+}
+
+int iterative_foo(int num)
+{
+    int count = 0;
+    for(int i=num;i>=0;i-=2) {
+        // (c)
+    }
+    return count;
+}
+
+int main()
+{
+    int total = recursive_foo(N);
+    //int total = iterative_foo(N);
+    std::cout<<"total is "<<total<<std::endl; // (a)
+    return 0;
+}`,
+    subQuestions: [
+      {
+        label: '1', points: 20,
+        text: '(1) 프로그램 (a)에서 출력되는 결과는?',
+        answer: `출력: total is 2
+
+recursive_foo(10):
+  check_modulo(10): 10%3=1, flag=1 → 1 + recursive_foo(8)
+  check_modulo(8):  8%3=2,  flag=0 → 0 + recursive_foo(6)
+  check_modulo(6):  6%3=0,  flag=0 → 0 + recursive_foo(4)
+  check_modulo(4):  4%3=1,  flag=1 → 1 + recursive_foo(2)
+  check_modulo(2):  2%3=2,  flag=0 → 0 + recursive_foo(0)
+  recursive_foo(0) = 0
+
+합: 1 + 0 + 0 + 1 + 0 + 0 = 2
+
+check_modulo는 num%3==1일 때 1을 반환. N=10에서 2씩 감소하며 10,8,6,4,2,0 중 10과 4가 %3==1.`,
+      },
+      {
+        label: '2', points: 20,
+        text: '(2) #define N 11로 변경하면 어떻게 되나? recursive_foo()를 수정하시오.',
+        answer: `N=11이면 recursive_foo(11) → recursive_foo(9) → ... → recursive_foo(1) → recursive_foo(-1) → recursive_foo(-3) → ...
+num이 0이 되지 않아 무한 재귀 → 스택 오버플로우 발생!
+
+수정:
+int recursive_foo(int num) {
+    if(num <= 0) {      // num == 0 → num <= 0
+        return 0;
+    } else {
+        int count = check_modulo(num);
+        return count + recursive_foo(num-2);
+    }
+}
+
+핵심: 홀수 N에서는 2씩 빼면 0을 건너뛰므로 base case를 <= 0으로 변경.`,
+      },
+      {
+        label: '3', points: 20,
+        text: '(3) iterative_foo()가 수정된 recursive_foo()와 동일하도록 빈칸 (c)를 채우시오.',
+        answer: `빈칸 (c):
+count += check_modulo(i);
+
+또는:
+if(check_modulo(i)) count++;
+
+iterative_foo는 for루프로 num부터 0 이상까지 2씩 감소하며
+각 i에 대해 check_modulo를 호출하고 결과를 누적합니다.`,
+      },
+    ],
+    tags: ['재귀', '반복', '#define', '스택오버플로우', 'base case', 'modulo'],
   },
 ];
 

@@ -1,8 +1,8 @@
 'use client';
 
-import { use } from 'react';
 import dynamic from 'next/dynamic';
 import { notFound } from 'next/navigation';
+import { useParams } from 'next/navigation';
 import Header from '@/components/layout/Header';
 import CommandPalette from '@/components/common/CommandPalette';
 import { useKeyboardShortcuts } from '@/hooks/useKeyboardShortcuts';
@@ -24,12 +24,9 @@ const chapterTitles: Record<number, string> = {
   5: 'Capacity of Wireless Channels',
 };
 
-interface TseChapterPageProps {
-  params: Promise<{ chapterId: string }>;
-}
-
-export default function TseChapterPage({ params }: TseChapterPageProps) {
-  const { chapterId: rawId } = use(params);
+export default function TseChapterPage() {
+  const params = useParams();
+  const rawId = params.chapterId as string;
   const chapterId = Number.parseInt(rawId, 10);
 
   if (Number.isNaN(chapterId) || !chapterComponents[chapterId]) {
