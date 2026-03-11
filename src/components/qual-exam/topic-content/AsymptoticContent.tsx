@@ -1,6 +1,6 @@
 'use client';
 
-import { useState } from 'react';
+import { useState, useMemo } from 'react';
 import { ChevronDown, ChevronRight } from 'lucide-react';
 import MathBlock from '../MathBlock';
 import type { StudyTopic } from '../TopicStudyCard';
@@ -133,8 +133,262 @@ const difficultyColor = {
   advanced: 'bg-red-50 text-red-700 border border-red-200 dark:bg-red-900/20 dark:text-red-300',
 };
 
+/* ── Recurrence Tree SVG component ── */
+function RecurrenceTree({ mtA, mtB, mtK }: { mtA: number; mtB: number; mtK: number }) {
+  const tree = useMemo(() => {
+    const a = mtA;
+    const b = mtB;
+    const k = mtK;
+    // Limit a to reasonable display (max 4 children per node shown)
+    const displayA = Math.min(a, 4);
+    const truncated = a > 4;
+
+    // SVG dimensions
+    const svgW = 700;
+    const levelH = 80;
+    const nodeR = 22;
+    const levels = 3; // show levels 0, 1, 2
+
+    // Per-level data
+    const levelData = Array.from({ length: levels }, (_, lvl) => {
+      const nodes = Math.pow(a, lvl);
+      const sizeLabel = lvl === 0 ? 'n' : (b ** lvl === b ? `n/${b}` : `n/${b ** lvl}`);
+      // work per node: c * (n/b^lvl)^k  → we show symbolically
+      const workPerNode = lvl === 0
+        ? (k === 0 ? 'c' : k === 1 ? 'cn' : `cn^${k}`)
+        : (k === 0 ? 'c' : k === 1 ? `cn/${b ** lvl}` : `c(n/${b ** lvl})^${k}`);
+      // total work at level: a^lvl * c * (n/b^lvl)^k = c * (a/b^k)^lvl * n^k
+      const ratio = a / Math.pow(b, k);
+      const totalWorkFactor = Math.pow(ratio, lvl);
+      const totalLabel = k === 0
+        ? (lvl === 0 ? 'c' : `${nodes}c`)
+        : `${totalWorkFactor === 1 ? '' : (Number.isInteger(totalWorkFactor) ? totalWorkFactor : totalWorkFactor.toFixed(2))}${k === 0 ? 'c' : (k === 1 ? 'cn' : `cn^${k}`)}`;
+
+      return { nodes, displayNodes: Math.min(nodes, Math.pow(displayA, lvl)), sizeLabel, workPerNode, totalLabel, lvl };
+    });
+
+    return { svgW, levelH, nodeR, levels, levelData, displayA, truncated, a };
+  }, [mtA, mtB, mtK]);
+
+  const { svgW, levelH, nodeR, levels, levelData, displayA, truncated, a } = tree;
+  const svgH = levels * levelH + 50;
+
+  // Compute node positions per level
+  const nodePositions = useMemo(() => {
+    const positions: { x: number; y: number; label: string }[][] = [];
+    for (let lvl = 0; lvl < levels; lvl++) {
+      const y = 30 + lvl * levelH;
+      const dispN = levelData[lvl].displayNodes;
+      const treeWidth = svgW - 180; // leave room for cost labels on right
+      const spacing = treeWidth / (dispN + 1);
+      const row: { x: number; y: number; label: string }[] = [];
+      for (let i = 0; i < dispN; i++) {
+        row.push({
+          x: 30 + spacing * (i + 1),
+          y,
+          label: levelData[lvl].sizeLabel,
+        });
+      }
+      positions.push(row);
+    }
+    return positions;
+  }, [levels, levelH, levelData, svgW]);
+
+  return (
+    <div className="mt-5 rounded-xl border-2 border-teal-300 dark:border-teal-700 bg-white dark:bg-slate-900 overflow-hidden">
+      <div className="bg-teal-50 dark:bg-teal-950/40 px-5 py-3 border-b border-teal-200 dark:border-teal-800">
+        <p className="text-sm font-bold text-teal-800 dark:text-teal-200">
+          🌳 재귀 트리 시각화
+        </p>
+        <p className="text-xs text-teal-600 dark:text-teal-400 mt-0.5">
+          T(n) = {mtA}T(n/{mtB}) + n^{mtK} 의 처음 3레벨 — 위 판별기와 연동됩니다
+        </p>
+      </div>
+      <div className="px-4 py-4 overflow-x-auto">
+        <svg
+          viewBox={`0 0 ${svgW} ${svgH}`}
+          className="w-full max-w-[700px] mx-auto"
+          style={{ minWidth: 400 }}
+        >
+          {/* Edges: connect parent to children */}
+          {nodePositions.slice(0, -1).map((parentRow, lvl) =>
+            parentRow.map((parent, pi) => {
+              const childRow = nodePositions[lvl + 1];
+              // Each parent at index pi has displayA children starting at pi * displayA
+              const childStart = pi * Math.min(a, displayA);
+              return Array.from({ length: Math.min(displayA, childRow.length - childStart) }, (_, ci) => {
+                const child = childRow[childStart + ci];
+                if (!child) return null;
+                return (
+                  <line
+                    key={`e-${lvl}-${pi}-${ci}`}
+                    x1={parent.x}
+                    y1={parent.y + nodeR}
+                    x2={child.x}
+                    y2={child.y - nodeR}
+                    className="stroke-slate-300 dark:stroke-slate-600"
+                    strokeWidth={1.5}
+                  />
+                );
+              });
+            })
+          )}
+
+          {/* Nodes */}
+          {nodePositions.map((row, lvl) =>
+            row.map((node, ni) => (
+              <g key={`n-${lvl}-${ni}`}>
+                <circle
+                  cx={node.x}
+                  cy={node.y}
+                  r={nodeR}
+                  className={`${
+                    lvl === 0
+                      ? 'fill-indigo-100 stroke-indigo-400 dark:fill-indigo-900/60 dark:stroke-indigo-500'
+                      : lvl === 1
+                      ? 'fill-sky-100 stroke-sky-400 dark:fill-sky-900/60 dark:stroke-sky-500'
+                      : 'fill-emerald-100 stroke-emerald-400 dark:fill-emerald-900/60 dark:stroke-emerald-500'
+                  }`}
+                  strokeWidth={2}
+                />
+                <text
+                  x={node.x}
+                  y={node.y + 1}
+                  textAnchor="middle"
+                  dominantBaseline="middle"
+                  className="fill-slate-700 dark:fill-slate-200 text-[10px] font-mono font-bold"
+                  style={{ fontSize: 10 }}
+                >
+                  {node.label}
+                </text>
+              </g>
+            ))
+          )}
+
+          {/* Truncation indicator (...) if a > 4 */}
+          {truncated && nodePositions.slice(1).map((row, lvl) => {
+            const last = row[row.length - 1];
+            if (!last) return null;
+            return (
+              <text
+                key={`trunc-${lvl}`}
+                x={last.x + nodeR + 12}
+                y={last.y + 1}
+                className="fill-slate-400 dark:fill-slate-500 text-[11px] font-mono"
+                style={{ fontSize: 11 }}
+                dominantBaseline="middle"
+              >
+                ...
+              </text>
+            );
+          })}
+
+          {/* Level labels + total cost on the right */}
+          {levelData.map((ld, lvl) => {
+            const y = 30 + lvl * levelH;
+            return (
+              <g key={`label-${lvl}`}>
+                <text
+                  x={svgW - 10}
+                  y={y - 8}
+                  textAnchor="end"
+                  className="fill-slate-400 dark:fill-slate-500 text-[9px]"
+                  style={{ fontSize: 9 }}
+                >
+                  Level {lvl}: {ld.nodes}개 노드
+                </text>
+                <text
+                  x={svgW - 10}
+                  y={y + 8}
+                  textAnchor="end"
+                  className="fill-indigo-600 dark:fill-indigo-400 text-[10px] font-bold font-mono"
+                  style={{ fontSize: 10 }}
+                >
+                  = {ld.totalLabel}
+                </text>
+              </g>
+            );
+          })}
+
+          {/* Bottom: total levels note */}
+          <text
+            x={svgW / 2 - 60}
+            y={svgH - 10}
+            className="fill-slate-400 dark:fill-slate-500 text-[10px]"
+            style={{ fontSize: 10 }}
+            textAnchor="middle"
+          >
+            총 깊이 = log_{mtB}(n) 레벨, 리프 수 = n^(log_{mtB}({mtA}))
+          </text>
+        </svg>
+
+        {/* Level cost summary table */}
+        <div className="mt-3 overflow-x-auto rounded-lg border border-slate-200 dark:border-slate-700 bg-slate-50 dark:bg-slate-800">
+          <table className="w-full text-xs">
+            <thead>
+              <tr className="bg-slate-100 dark:bg-slate-700/60">
+                <th className="px-3 py-1.5 text-left font-bold text-slate-600 dark:text-slate-300">레벨</th>
+                <th className="px-3 py-1.5 text-left font-bold text-slate-600 dark:text-slate-300">노드 수</th>
+                <th className="px-3 py-1.5 text-left font-bold text-slate-600 dark:text-slate-300">노드당 비용</th>
+                <th className="px-3 py-1.5 text-left font-bold text-slate-600 dark:text-slate-300">레벨 합계</th>
+              </tr>
+            </thead>
+            <tbody>
+              {levelData.map((ld, i) => (
+                <tr key={i} className="border-t border-slate-200 dark:border-slate-700">
+                  <td className="px-3 py-1.5 font-mono text-slate-600 dark:text-slate-400">{ld.lvl}</td>
+                  <td className="px-3 py-1.5 font-mono text-slate-600 dark:text-slate-400">{ld.nodes}</td>
+                  <td className="px-3 py-1.5 font-mono text-slate-600 dark:text-slate-400">{ld.workPerNode}</td>
+                  <td className="px-3 py-1.5 font-mono font-bold text-indigo-700 dark:text-indigo-300">{ld.totalLabel}</td>
+                </tr>
+              ))}
+            </tbody>
+          </table>
+        </div>
+      </div>
+    </div>
+  );
+}
+
 export default function AsymptoticContent({ topic }: Props) {
   const [openCards, setOpenCards] = useState<Set<string>>(() => new Set(notations.map(nt => nt.symbol)));
+
+  /* ── Master Theorem Classifier state ── */
+  const [mtA, setMtA] = useState(2);
+  const [mtB, setMtB] = useState(2);
+  const [mtK, setMtK] = useState(0); // f(n) = n^k
+
+  const mtResult = useMemo(() => {
+    if (mtA < 1 || mtB <= 1) return { valid: false as const };
+    const logBA = Math.log(mtA) / Math.log(mtB);
+    const epsilon = 0.0001;
+    let caseNum: 1 | 2 | 3;
+    let resultLatex: string;
+    let comparison: string;
+
+    if (mtK < logBA - epsilon) {
+      caseNum = 1;
+      const logBAStr = Number.isInteger(logBA) ? logBA.toString() : logBA.toFixed(3);
+      resultLatex = `T(n) = \\Theta\\!\\left(n^{${logBAStr}}\\right)`;
+      comparison = `k = ${mtK} < log_b(a) = ${logBAStr}`;
+    } else if (Math.abs(mtK - logBA) <= epsilon) {
+      caseNum = 2;
+      if (mtK === 0) {
+        resultLatex = `T(n) = \\Theta(\\log n)`;
+      } else {
+        resultLatex = `T(n) = \\Theta\\!\\left(n^{${mtK}} \\cdot \\log n\\right)`;
+      }
+      const logBAStr = Number.isInteger(logBA) ? logBA.toString() : logBA.toFixed(3);
+      comparison = `k = ${mtK} = log_b(a) = ${logBAStr}`;
+    } else {
+      caseNum = 3;
+      resultLatex = `T(n) = \\Theta\\!\\left(n^{${mtK}}\\right)`;
+      const logBAStr = Number.isInteger(logBA) ? logBA.toString() : logBA.toFixed(3);
+      comparison = `k = ${mtK} > log_b(a) = ${logBAStr}`;
+    }
+
+    return { valid: true as const, logBA, caseNum, resultLatex, comparison };
+  }, [mtA, mtB, mtK]);
 
   return (
     <div className="max-w-5xl mx-auto space-y-10 px-6 py-6">
@@ -341,6 +595,138 @@ export default function AsymptoticContent({ topic }: Props) {
             <li>• a &lt; 1 또는 b ≤ 1 일 때</li>
           </ul>
         </div>
+
+        {/* ── 마스터 정리 인터랙티브 판별기 ── */}
+        <div className="mt-5 rounded-xl border-2 border-indigo-300 dark:border-indigo-700 bg-white dark:bg-slate-900 overflow-hidden">
+          <div className="bg-indigo-50 dark:bg-indigo-950/40 px-5 py-3 border-b border-indigo-200 dark:border-indigo-800">
+            <p className="text-sm font-bold text-indigo-800 dark:text-indigo-200">
+              🧮 마스터 정리 인터랙티브 판별기
+            </p>
+            <p className="text-xs text-indigo-600 dark:text-indigo-400 mt-0.5">
+              a, b, k 값을 입력하면 어떤 케이스가 적용되는지 자동으로 판별합니다
+            </p>
+          </div>
+
+          <div className="px-5 py-4 space-y-4">
+            {/* 점화식 표시 */}
+            <div className="rounded-lg bg-slate-50 dark:bg-slate-800 border border-slate-200 dark:border-slate-700 px-4 py-3 overflow-x-auto text-center">
+              <MathBlock
+                latex={String.raw`T(n) = ${mtA}\,T\!\left(\tfrac{n}{${mtB}}\right) + n^{${mtK}}`}
+                block
+              />
+            </div>
+
+            {/* 입력 컨트롤 */}
+            <div className="grid grid-cols-3 gap-3">
+              <div>
+                <label className="block text-xs font-bold text-slate-600 dark:text-slate-400 mb-1">
+                  a <span className="font-normal text-slate-400">(부분문제 수)</span>
+                </label>
+                <input
+                  type="number"
+                  min={1}
+                  max={99}
+                  value={mtA}
+                  onChange={e => setMtA(Math.max(1, Number(e.target.value) || 1))}
+                  className="w-full rounded-lg border border-slate-300 dark:border-slate-600 bg-white dark:bg-slate-800 px-3 py-2 text-sm font-mono text-slate-800 dark:text-slate-200 focus:outline-none focus:ring-2 focus:ring-indigo-400 dark:focus:ring-indigo-600"
+                />
+              </div>
+              <div>
+                <label className="block text-xs font-bold text-slate-600 dark:text-slate-400 mb-1">
+                  b <span className="font-normal text-slate-400">(분할 계수)</span>
+                </label>
+                <input
+                  type="number"
+                  min={2}
+                  max={99}
+                  value={mtB}
+                  onChange={e => setMtB(Math.max(2, Number(e.target.value) || 2))}
+                  className="w-full rounded-lg border border-slate-300 dark:border-slate-600 bg-white dark:bg-slate-800 px-3 py-2 text-sm font-mono text-slate-800 dark:text-slate-200 focus:outline-none focus:ring-2 focus:ring-indigo-400 dark:focus:ring-indigo-600"
+                />
+              </div>
+              <div>
+                <label className="block text-xs font-bold text-slate-600 dark:text-slate-400 mb-1">
+                  f(n) = n^k <span className="font-normal text-slate-400">(k 값)</span>
+                </label>
+                <select
+                  value={mtK}
+                  onChange={e => setMtK(Number(e.target.value))}
+                  className="w-full rounded-lg border border-slate-300 dark:border-slate-600 bg-white dark:bg-slate-800 px-3 py-2 text-sm font-mono text-slate-800 dark:text-slate-200 focus:outline-none focus:ring-2 focus:ring-indigo-400 dark:focus:ring-indigo-600"
+                >
+                  <option value={0}>n^0 = 1 (상수)</option>
+                  <option value={1}>n^1 = n</option>
+                  <option value={2}>n^2</option>
+                  <option value={3}>n^3</option>
+                </select>
+              </div>
+            </div>
+
+            {/* 프리셋 버튼 */}
+            <div className="flex flex-wrap gap-2">
+              <span className="text-xs text-slate-400 self-center mr-1">프리셋:</span>
+              {[
+                { label: 'MergeSort', a: 2, b: 2, k: 1 },
+                { label: 'Binary Search', a: 1, b: 2, k: 0 },
+                { label: 'Strassen', a: 7, b: 2, k: 2 },
+                { label: 'Karatsuba', a: 3, b: 2, k: 1 },
+              ].map(preset => (
+                <button
+                  key={preset.label}
+                  onClick={() => { setMtA(preset.a); setMtB(preset.b); setMtK(preset.k); }}
+                  className="rounded-lg border border-slate-200 dark:border-slate-700 bg-slate-50 dark:bg-slate-800 px-2.5 py-1.5 text-xs font-medium text-slate-600 dark:text-slate-300 hover:bg-indigo-50 hover:border-indigo-300 dark:hover:bg-indigo-950/30 dark:hover:border-indigo-700 transition"
+                >
+                  {preset.label}
+                  <span className="ml-1 text-slate-400 font-mono text-[10px]">
+                    ({preset.a},{preset.b},{preset.k})
+                  </span>
+                </button>
+              ))}
+            </div>
+
+            {/* 판별 결과 */}
+            {!mtResult.valid ? (
+              <div className="rounded-lg border border-red-200 dark:border-red-800/40 bg-red-50 dark:bg-red-900/20 px-4 py-3">
+                <p className="text-sm font-bold text-red-700 dark:text-red-400">
+                  적용 불가: a &ge; 1, b &gt; 1 이어야 합니다
+                </p>
+              </div>
+            ) : (
+              <div className={`rounded-lg border-2 px-4 py-3 space-y-2 ${
+                mtResult.caseNum === 1 ? 'border-blue-300 dark:border-blue-700 bg-blue-50 dark:bg-blue-950/30' :
+                mtResult.caseNum === 2 ? 'border-purple-300 dark:border-purple-700 bg-purple-50 dark:bg-purple-950/30' :
+                'border-amber-300 dark:border-amber-700 bg-amber-50 dark:bg-amber-950/30'
+              }`}>
+                <div className="flex items-center gap-2 flex-wrap">
+                  <span className="text-sm font-bold text-slate-700 dark:text-slate-200">판별 결과:</span>
+                  <span className={`rounded-full px-2.5 py-0.5 text-xs font-black ${
+                    mtResult.caseNum === 1 ? 'bg-blue-100 text-blue-800 dark:bg-blue-900/60 dark:text-blue-200' :
+                    mtResult.caseNum === 2 ? 'bg-purple-100 text-purple-800 dark:bg-purple-900/60 dark:text-purple-200' :
+                    'bg-amber-100 text-amber-800 dark:bg-amber-900/60 dark:text-amber-200'
+                  }`}>
+                    Case {mtResult.caseNum}
+                  </span>
+                </div>
+                <div className="space-y-1 text-xs text-slate-600 dark:text-slate-300">
+                  <p>
+                    <span className="font-mono font-semibold">log_{mtB}({mtA})</span>
+                    {' = '}
+                    <span className="font-mono font-bold text-indigo-700 dark:text-indigo-300">
+                      {Number.isInteger(mtResult.logBA) ? mtResult.logBA : mtResult.logBA.toFixed(3)}
+                    </span>
+                  </p>
+                  <p>
+                    <span className="font-mono">f(n) = n^{mtK}</span>
+                    {' → '}
+                    <span className="font-semibold">{mtResult.comparison}</span>
+                  </p>
+                </div>
+                <div className="rounded-lg bg-white/70 dark:bg-slate-900/60 border border-slate-200 dark:border-slate-700 px-3 py-2 overflow-x-auto">
+                  <MathBlock latex={mtResult.resultLatex} block />
+                </div>
+              </div>
+            )}
+          </div>
+        </div>
       </section>
 
       {/* ── 분할 상환 분석 ── */}
@@ -485,6 +871,9 @@ export default function AsymptoticContent({ topic }: Props) {
         <p className="mt-2 text-xs text-slate-400 text-right">
           케이스 색: <span className="text-blue-600 font-semibold">파랑=1</span> · <span className="text-purple-600 font-semibold">보라=2</span> · <span className="text-amber-600 font-semibold">주황=3</span>
         </p>
+
+        {/* ── 재귀 트리 시각화 ── */}
+        <RecurrenceTree mtA={mtA} mtB={mtB} mtK={mtK} />
       </section>
     </div>
   );

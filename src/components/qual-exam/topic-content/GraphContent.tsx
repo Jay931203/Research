@@ -103,6 +103,75 @@ const DIJ_STEPS: DijStep[] = [
   },
 ];
 
+/* ── Bellman-Ford graph ── */
+const BF_NODES = ['A','B','C','D','E'];
+const BF_EDGES_LIST: Array<[string, string, number]> = [
+  ['A','B',4], ['A','C',2], ['B','C',-1], ['B','D',3], ['C','D',5], ['C','E',7], ['D','E',-2],
+];
+const BF_POS: Record<string,{x:number;y:number}> = {
+  A:{x:60,y:120}, B:{x:180,y:40}, C:{x:180,y:200}, D:{x:320,y:80}, E:{x:380,y:200},
+};
+
+type BfStep = {
+  iteration: number;
+  edge: [string, string, number];
+  dist: Record<string, number | '∞'>;
+  updated: boolean;
+  note: string;
+};
+
+const BF_INF = '∞' as const;
+const BF_STEPS: BfStep[] = [
+  { iteration:1, edge:['A','B',4],  dist:{A:0,B:4,C:BF_INF,D:BF_INF,E:BF_INF}, updated:true,
+    note:'반복 1: A→B 릴렉스. dist[B] = 0+4 = 4 (∞→4)' },
+  { iteration:1, edge:['A','C',2],  dist:{A:0,B:4,C:2,D:BF_INF,E:BF_INF}, updated:true,
+    note:'반복 1: A→C 릴렉스. dist[C] = 0+2 = 2 (∞→2)' },
+  { iteration:1, edge:['B','C',-1], dist:{A:0,B:4,C:2,D:BF_INF,E:BF_INF}, updated:false,
+    note:'반복 1: B→C 검사. 4+(-1)=3 ≥ 2 → 갱신 없음' },
+  { iteration:1, edge:['B','D',3],  dist:{A:0,B:4,C:2,D:7,E:BF_INF}, updated:true,
+    note:'반복 1: B→D 릴렉스. dist[D] = 4+3 = 7 (∞→7)' },
+  { iteration:1, edge:['C','E',7],  dist:{A:0,B:4,C:2,D:7,E:9}, updated:true,
+    note:'반복 1: C→E 릴렉스. dist[E] = 2+7 = 9 (∞→9)' },
+  { iteration:2, edge:['B','C',-1], dist:{A:0,B:4,C:2,D:7,E:9}, updated:false,
+    note:'반복 2: B→C 검사. 4+(-1)=3 ≥ 2 → 갱신 없음' },
+  { iteration:2, edge:['D','E',-2], dist:{A:0,B:4,C:2,D:7,E:5}, updated:true,
+    note:'반복 2: D→E 릴렉스. dist[E] = 7+(-2) = 5 < 9 → 갱신! 음수 간선 활용' },
+  { iteration:3, edge:['A','B',4],  dist:{A:0,B:4,C:2,D:7,E:5}, updated:false,
+    note:'반복 3: 모든 간선 검사 — 더 이상 갱신 없음. 최단 경로 확정!' },
+];
+
+/* ── Topological Sort (Kahn's) steps ── */
+const TOPO_NODES = ['A','B','C','D','E','F'];
+const TOPO_EDGES: Array<[string,string]> = [['A','C'],['B','C'],['B','D'],['C','E'],['D','F'],['E','F']];
+const TOPO_POS: Record<string,{x:number;y:number}> = {
+  A:{x:60,y:60}, B:{x:60,y:200}, C:{x:200,y:100}, D:{x:200,y:220}, E:{x:340,y:100}, F:{x:400,y:200},
+};
+
+type TopoStep = {
+  queue: string[];
+  output: string[];
+  inDegree: Record<string, number>;
+  processing: string | null;
+  note: string;
+};
+
+const TOPO_STEPS: TopoStep[] = [
+  { queue:['A','B'], output:[], inDegree:{A:0,B:0,C:2,D:1,E:1,F:2}, processing:null,
+    note:'초기 상태: 진입차수 0인 A, B를 큐에 삽입' },
+  { queue:['B'], output:['A'], inDegree:{A:0,B:0,C:1,D:1,E:1,F:2}, processing:'A',
+    note:'A 처리: C의 진입차수 2→1. 큐: [B]' },
+  { queue:['C','D'], output:['A','B'], inDegree:{A:0,B:0,C:0,D:0,E:1,F:2}, processing:'B',
+    note:'B 처리: C의 진입차수 1→0, D의 진입차수 1→0. C, D 큐에 추가' },
+  { queue:['D'], output:['A','B','C'], inDegree:{A:0,B:0,C:0,D:0,E:0,F:2}, processing:'C',
+    note:'C 처리: E의 진입차수 1→0. E 큐에 추가. 큐: [D, E]' },
+  { queue:['E'], output:['A','B','C','D'], inDegree:{A:0,B:0,C:0,D:0,E:0,F:1}, processing:'D',
+    note:'D 처리: F의 진입차수 2→1. 큐: [E]' },
+  { queue:['F'], output:['A','B','C','D','E'], inDegree:{A:0,B:0,C:0,D:0,E:0,F:0}, processing:'E',
+    note:'E 처리: F의 진입차수 1→0. F 큐에 추가' },
+  { queue:[], output:['A','B','C','D','E','F'], inDegree:{A:0,B:0,C:0,D:0,E:0,F:0}, processing:'F',
+    note:'F 처리: 모든 노드 출력 완료! 결과: A, B, C, D, E, F' },
+];
+
 /* ── MST Kruskal steps ── */
 type MstEdge = { u: string; v: string; w: number; included: boolean };
 const MST_EDGES_SORTED: MstEdge[] = [
@@ -126,6 +195,12 @@ export default function GraphContent({ topic }: Props) {
 
   /* Dijkstra state */
   const [dijStep, setDijStep] = useState(0);
+
+  /* Bellman-Ford state */
+  const [bfStep, setBfStep] = useState(0);
+
+  /* Topological Sort state */
+  const [topoStep, setTopoStep] = useState(0);
 
   /* MST state */
   const [mstStep, setMstStep] = useState(0);
@@ -176,6 +251,8 @@ export default function GraphContent({ topic }: Props) {
   }, []);
 
   const dijs = DIJ_STEPS[Math.min(dijStep, DIJ_STEPS.length-1)];
+  const bfs = BF_STEPS[Math.min(bfStep, BF_STEPS.length-1)];
+  const topos = TOPO_STEPS[Math.min(topoStep, TOPO_STEPS.length-1)];
   const mstEdge = MST_EDGES_SORTED[Math.min(mstStep, MST_EDGES_SORTED.length-1)];
 
   return (
@@ -469,12 +546,118 @@ export default function GraphContent({ topic }: Props) {
             </div>
           </div>
         </div>
-        <div className="rounded-xl border border-amber-200 bg-amber-50 dark:border-amber-700/40 dark:bg-amber-900/10 p-4">
+        <div className="rounded-xl border border-amber-200 bg-amber-50 dark:border-amber-700/40 dark:bg-amber-900/10 p-4 mb-4">
           <p className="text-sm font-bold text-amber-800 dark:text-amber-300 mb-1">음수 간선에서 Dijkstra가 실패하는 이유</p>
           <p className="text-xs text-amber-700 dark:text-amber-400 leading-relaxed">
             Dijkstra는 방문한 노드의 dist가 최종값이라고 가정. 음수 간선이 있으면 나중에 더 짧은 경로가 발견될 수 있어 이 가정이 깨짐.
             예: A→B=3, A→C=4, C→B=-2 → Dijkstra는 dist[B]=3으로 확정하지만, 실제 최단은 A→C→B=2.
           </p>
+        </div>
+        {/* Bellman-Ford Interactive Stepper */}
+        <div className="rounded-xl border border-slate-200 dark:border-slate-700 bg-slate-50 dark:bg-slate-800/50 p-5">
+          <p className="text-sm font-bold text-slate-700 dark:text-slate-300 mb-3">Bellman-Ford 단계별 추적 (시작: A, 음수 간선 포함)</p>
+          <div className="flex flex-col md:flex-row gap-4">
+            {/* SVG Graph */}
+            <div className="flex-1 rounded-xl bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-700 p-2">
+              <svg viewBox="0 0 440 260" className="w-full">
+                <defs>
+                  <marker id="bf-arrow" viewBox="0 0 10 7" refX="10" refY="3.5" markerWidth="8" markerHeight="6" orient="auto-start-reverse">
+                    <polygon points="0 0, 10 3.5, 0 7" fill="#94a3b8" />
+                  </marker>
+                  <marker id="bf-arrow-amber" viewBox="0 0 10 7" refX="10" refY="3.5" markerWidth="8" markerHeight="6" orient="auto-start-reverse">
+                    <polygon points="0 0, 10 3.5, 0 7" fill="#f59e0b" />
+                  </marker>
+                  <marker id="bf-arrow-blue" viewBox="0 0 10 7" refX="10" refY="3.5" markerWidth="8" markerHeight="6" orient="auto-start-reverse">
+                    <polygon points="0 0, 10 3.5, 0 7" fill="#3b82f6" />
+                  </marker>
+                </defs>
+                {BF_EDGES_LIST.map(([from, to, w], i) => {
+                  const p1 = BF_POS[from], p2 = BF_POS[to];
+                  const isCurrent = bfs.edge[0] === from && bfs.edge[1] === to;
+                  // Check if this edge was relaxed in a previous step
+                  const wasRelaxed = BF_STEPS.slice(0, bfStep).some(s => s.edge[0] === from && s.edge[1] === to && s.updated);
+                  // Offset for directed edge (shorten by radius)
+                  const dx = p2.x - p1.x, dy = p2.y - p1.y;
+                  const len = Math.sqrt(dx*dx + dy*dy);
+                  const r = 22;
+                  const x1 = p1.x + (dx/len)*r, y1 = p1.y + (dy/len)*r;
+                  const x2 = p2.x - (dx/len)*r, y2 = p2.y - (dy/len)*r;
+                  const mx = (p1.x+p2.x)/2, my = (p1.y+p2.y)/2;
+                  // Offset label for overlapping edges
+                  const offsetX = dy / len * 10, offsetY = -dx / len * 10;
+                  return (
+                    <g key={i}>
+                      <line x1={x1} y1={y1} x2={x2} y2={y2}
+                        stroke={isCurrent ? '#f59e0b' : wasRelaxed ? '#3b82f6' : '#94a3b8'}
+                        strokeWidth={isCurrent ? 3 : wasRelaxed ? 2 : 1.5}
+                        markerEnd={isCurrent ? 'url(#bf-arrow-amber)' : wasRelaxed ? 'url(#bf-arrow-blue)' : 'url(#bf-arrow)'} />
+                      <text x={mx + offsetX} y={my + offsetY - 4} textAnchor="middle" fontSize="10" fontWeight="bold"
+                        fill={isCurrent ? '#d97706' : w < 0 ? '#dc2626' : '#64748b'}>{w}</text>
+                    </g>
+                  );
+                })}
+                {BF_NODES.map(label => {
+                  const p = BF_POS[label];
+                  const d = bfs.dist[label];
+                  const isEdgeEnd = bfs.edge[1] === label;
+                  const isEdgeStart = bfs.edge[0] === label;
+                  const hasFiniteDist = d !== BF_INF;
+                  const fill = isEdgeEnd ? '#f59e0b' : isEdgeStart ? '#f59e0b' : hasFiniteDist ? '#3b82f6' : '#e2e8f0';
+                  const textFill = fill === '#e2e8f0' ? '#1e293b' : 'white';
+                  return (
+                    <g key={label}>
+                      <circle cx={p.x} cy={p.y} r={22} fill={fill} stroke={fill==='#e2e8f0'?'#94a3b8':fill} strokeWidth="2" />
+                      <text x={p.x} y={p.y-4} textAnchor="middle" dominantBaseline="central" fontSize="12" fontWeight="bold" fill={textFill}>{label}</text>
+                      <text x={p.x} y={p.y+10} textAnchor="middle" fontSize="9" fill={textFill} fontWeight="bold">
+                        {d === BF_INF ? '∞' : String(d)}
+                      </text>
+                    </g>
+                  );
+                })}
+              </svg>
+            </div>
+            {/* Dist table + step info */}
+            <div className="w-full md:w-52 space-y-3">
+              <div>
+                <p className="text-xs font-bold text-slate-500 dark:text-slate-400 mb-2 uppercase tracking-wide">dist[] 테이블</p>
+                <div className="space-y-1">
+                  {BF_NODES.map(node => {
+                    const d = bfs.dist[node];
+                    const isTarget = bfs.edge[1] === node;
+                    const isSource = bfs.edge[0] === node;
+                    return (
+                      <div key={node} className={`flex items-center justify-between rounded px-2 py-1 text-xs ${isTarget ? 'bg-amber-100 dark:bg-amber-900/40 font-bold' : isSource ? 'bg-amber-50 dark:bg-amber-900/20' : d !== BF_INF ? 'bg-blue-50 dark:bg-blue-900/20' : 'bg-slate-100 dark:bg-slate-800'}`}>
+                        <span className="font-bold">{node}</span>
+                        <span className={`font-mono font-black ${d===BF_INF ? 'text-slate-400' : 'text-blue-700 dark:text-blue-300'}`}>{d === BF_INF ? '∞' : d}</span>
+                      </div>
+                    );
+                  })}
+                </div>
+              </div>
+              <div className="rounded-lg bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-700 p-2.5">
+                <p className="text-[10px] font-bold text-slate-500 dark:text-slate-400 mb-1">단계 {bfStep+1}/{BF_STEPS.length}</p>
+                <p className="text-xs text-slate-700 dark:text-slate-300">{bfs.note}</p>
+              </div>
+              <div className="flex items-center gap-2">
+                <span className={`inline-block w-2.5 h-2.5 rounded-full ${bfs.updated ? 'bg-emerald-500' : 'bg-slate-300 dark:bg-slate-600'}`} />
+                <span className={`text-xs font-bold ${bfs.updated ? 'text-emerald-600 dark:text-emerald-400' : 'text-slate-400 dark:text-slate-500'}`}>
+                  {bfs.updated ? '갱신 발생!' : '갱신 없음'}
+                </span>
+              </div>
+              <div className="text-[10px] text-slate-400 dark:text-slate-500">
+                현재 간선: <span className="font-mono font-bold text-amber-600 dark:text-amber-400">{bfs.edge[0]}→{bfs.edge[1]} (w={bfs.edge[2]})</span>
+                <br />반복 회차: <span className="font-bold">{bfs.iteration} / {BF_NODES.length - 1}</span>
+              </div>
+            </div>
+          </div>
+          {/* Nav */}
+          <div className="flex items-center justify-between gap-2 mt-4">
+            <button onClick={() => setBfStep(s => Math.max(0, s-1))} disabled={bfStep===0}
+              className="px-3 py-1.5 rounded-lg text-sm font-semibold bg-slate-100 dark:bg-slate-800 disabled:opacity-40 hover:bg-slate-200 dark:hover:bg-slate-700 transition">◀ 이전</button>
+            <span className="text-xs text-slate-500">단계 {bfStep+1} / {BF_STEPS.length}</span>
+            <button onClick={() => setBfStep(s => Math.min(BF_STEPS.length-1, s+1))} disabled={bfStep===BF_STEPS.length-1}
+              className="px-3 py-1.5 rounded-lg text-sm font-semibold bg-blue-600 text-white disabled:opacity-40 hover:bg-blue-500 transition">다음 ▶</button>
+          </div>
         </div>
       </section>
 
@@ -544,7 +727,7 @@ export default function GraphContent({ topic }: Props) {
             <p className="text-emerald-600 dark:text-emerald-400 font-bold">결과: A, B, C, D, E, F</p>
           </div>
         </div>
-        <div className="rounded-xl border border-red-200 bg-red-50 dark:border-red-800/40 dark:bg-red-900/10 p-4">
+        <div className="rounded-xl border border-red-200 bg-red-50 dark:border-red-800/40 dark:bg-red-900/10 p-4 mb-4">
           <p className="text-sm font-bold text-slate-700 dark:text-slate-200 mb-2">핵심 포인트</p>
           <ul className="space-y-1.5 text-sm text-red-700 dark:text-red-300">
             <li>&bull; 위상 정렬은 <span className="font-bold">DAG에서만 가능</span> (사이클 있으면 불가)</li>
@@ -552,6 +735,129 @@ export default function GraphContent({ topic }: Props) {
             <li>&bull; <span className="font-bold">결과가 유일하지 않을 수 있음</span> (진입차수 0인 노드가 여러 개면 순서 선택 가능)</li>
             <li>&bull; 시간 복잡도: <span className="font-mono font-bold">O(V+E)</span></li>
           </ul>
+        </div>
+        {/* Topological Sort Interactive Stepper */}
+        <div className="rounded-xl border border-slate-200 dark:border-slate-700 bg-slate-50 dark:bg-slate-800/50 p-5">
+          <p className="text-sm font-bold text-slate-700 dark:text-slate-300 mb-3">Kahn&apos;s Algorithm 단계별 시각화</p>
+          <div className="flex flex-col md:flex-row gap-4">
+            {/* SVG DAG */}
+            <div className="flex-1 rounded-xl bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-700 p-2">
+              <svg viewBox="0 0 460 280" className="w-full">
+                <defs>
+                  <marker id="topo-arrow" viewBox="0 0 10 7" refX="10" refY="3.5" markerWidth="8" markerHeight="6" orient="auto-start-reverse">
+                    <polygon points="0 0, 10 3.5, 0 7" fill="#94a3b8" />
+                  </marker>
+                  <marker id="topo-arrow-dim" viewBox="0 0 10 7" refX="10" refY="3.5" markerWidth="8" markerHeight="6" orient="auto-start-reverse">
+                    <polygon points="0 0, 10 3.5, 0 7" fill="#cbd5e1" />
+                  </marker>
+                </defs>
+                {TOPO_EDGES.map(([from, to], i) => {
+                  const p1 = TOPO_POS[from], p2 = TOPO_POS[to];
+                  const dx = p2.x - p1.x, dy = p2.y - p1.y;
+                  const len = Math.sqrt(dx*dx + dy*dy);
+                  const r = 22;
+                  const x1 = p1.x + (dx/len)*r, y1 = p1.y + (dy/len)*r;
+                  const x2 = p2.x - (dx/len)*r, y2 = p2.y - (dy/len)*r;
+                  // Dim edges from already-output nodes
+                  const fromDone = topos.output.includes(from);
+                  return (
+                    <line key={i} x1={x1} y1={y1} x2={x2} y2={y2}
+                      stroke={fromDone ? '#cbd5e1' : '#94a3b8'}
+                      strokeWidth={1.5}
+                      strokeDasharray={fromDone ? '4 3' : undefined}
+                      markerEnd={fromDone ? 'url(#topo-arrow-dim)' : 'url(#topo-arrow)'} />
+                  );
+                })}
+                {TOPO_NODES.map(label => {
+                  const p = TOPO_POS[label];
+                  const isProcessing = topos.processing === label;
+                  const isOutput = topos.output.includes(label) && !isProcessing;
+                  const isQueued = topos.queue.includes(label);
+                  let fill = '#e2e8f0';  // default: slate
+                  let stroke = '#94a3b8';
+                  let textFill = '#1e293b';
+                  if (isProcessing) { fill = '#f59e0b'; stroke = '#d97706'; textFill = 'white'; }
+                  else if (isOutput) { fill = '#3b82f6'; stroke = '#2563eb'; textFill = 'white'; }
+                  else if (isQueued) { fill = '#e2e8f0'; stroke = '#10b981'; }
+                  const deg = topos.inDegree[label];
+                  return (
+                    <g key={label}>
+                      <circle cx={p.x} cy={p.y} r={22} fill={fill} stroke={stroke} strokeWidth={isQueued && !isProcessing && !isOutput ? 3 : 2} />
+                      <text x={p.x} y={p.y-4} textAnchor="middle" dominantBaseline="central" fontSize="12" fontWeight="bold" fill={textFill}>{label}</text>
+                      <text x={p.x} y={p.y+10} textAnchor="middle" fontSize="9" fill={textFill} fontWeight="bold">in:{deg}</text>
+                    </g>
+                  );
+                })}
+              </svg>
+              {/* Legend */}
+              <div className="flex flex-wrap gap-3 mt-2 px-2">
+                {[
+                  { color: 'bg-amber-500', label: '처리 중' },
+                  { color: 'bg-blue-500', label: '출력 완료' },
+                  { color: 'bg-slate-200 ring-2 ring-emerald-500', label: '큐 대기' },
+                  { color: 'bg-slate-200', label: '미처리' },
+                ].map(l => (
+                  <div key={l.label} className="flex items-center gap-1.5">
+                    <span className={`w-3 h-3 rounded-full ${l.color}`} />
+                    <span className="text-[10px] text-slate-500 dark:text-slate-400">{l.label}</span>
+                  </div>
+                ))}
+              </div>
+            </div>
+            {/* Status panel */}
+            <div className="w-full md:w-56 space-y-3">
+              <div>
+                <p className="text-xs font-bold text-slate-500 dark:text-slate-400 mb-2 uppercase tracking-wide">큐 (Queue)</p>
+                <div className="flex flex-wrap gap-1.5 min-h-8">
+                  {topos.queue.length === 0 && topos.output.length === TOPO_NODES.length ? (
+                    <p className="text-xs text-slate-400 italic">완료!</p>
+                  ) : topos.queue.length === 0 ? (
+                    <p className="text-xs text-slate-400 italic">비어 있음</p>
+                  ) : topos.queue.map((n, i) => (
+                    <span key={i} className="rounded px-2 py-1 text-xs font-bold bg-emerald-100 text-emerald-700 dark:bg-emerald-900/40 dark:text-emerald-200 border border-emerald-300 dark:border-emerald-700">{n}</span>
+                  ))}
+                </div>
+              </div>
+              <div>
+                <p className="text-xs font-bold text-slate-500 dark:text-slate-400 mb-2 uppercase tracking-wide">출력 (Output)</p>
+                <div className="flex flex-wrap gap-1.5 min-h-8">
+                  {topos.output.length === 0 ? (
+                    <p className="text-xs text-slate-400 italic">아직 없음</p>
+                  ) : topos.output.map((n, i) => (
+                    <span key={i} className="rounded px-2 py-1 text-xs font-bold bg-blue-100 text-blue-700 dark:bg-blue-900/40 dark:text-blue-200">{n}</span>
+                  ))}
+                </div>
+              </div>
+              <div>
+                <p className="text-xs font-bold text-slate-500 dark:text-slate-400 mb-2 uppercase tracking-wide">진입차수 (In-degree)</p>
+                <div className="space-y-1">
+                  {TOPO_NODES.map(node => {
+                    const deg = topos.inDegree[node];
+                    const isProcessing = topos.processing === node;
+                    const isOutput = topos.output.includes(node);
+                    return (
+                      <div key={node} className={`flex items-center justify-between rounded px-2 py-1 text-xs ${isProcessing ? 'bg-amber-100 dark:bg-amber-900/40 font-bold' : isOutput ? 'bg-blue-50 dark:bg-blue-900/20 opacity-60' : deg === 0 ? 'bg-emerald-50 dark:bg-emerald-900/20' : 'bg-slate-100 dark:bg-slate-800'}`}>
+                        <span className="font-bold">{node}</span>
+                        <span className={`font-mono font-black ${deg === 0 ? 'text-emerald-600 dark:text-emerald-400' : 'text-slate-600 dark:text-slate-300'}`}>{deg}</span>
+                      </div>
+                    );
+                  })}
+                </div>
+              </div>
+              <div className="rounded-lg bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-700 p-2.5">
+                <p className="text-[10px] font-bold text-slate-500 dark:text-slate-400 mb-1">단계 {topoStep+1}/{TOPO_STEPS.length}</p>
+                <p className="text-xs text-slate-700 dark:text-slate-300">{topos.note}</p>
+              </div>
+            </div>
+          </div>
+          {/* Nav */}
+          <div className="flex items-center justify-between gap-2 mt-4">
+            <button onClick={() => setTopoStep(s => Math.max(0, s-1))} disabled={topoStep===0}
+              className="px-3 py-1.5 rounded-lg text-sm font-semibold bg-slate-100 dark:bg-slate-800 disabled:opacity-40 hover:bg-slate-200 dark:hover:bg-slate-700 transition">◀ 이전</button>
+            <span className="text-xs text-slate-500">단계 {topoStep+1} / {TOPO_STEPS.length}</span>
+            <button onClick={() => setTopoStep(s => Math.min(TOPO_STEPS.length-1, s+1))} disabled={topoStep===TOPO_STEPS.length-1}
+              className="px-3 py-1.5 rounded-lg text-sm font-semibold bg-blue-600 text-white disabled:opacity-40 hover:bg-blue-500 transition">다음 ▶</button>
+          </div>
         </div>
       </section>
 

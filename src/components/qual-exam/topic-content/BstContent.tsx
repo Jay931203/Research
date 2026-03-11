@@ -242,6 +242,234 @@ function DeleteCaseSVG({ caseNum }: { caseNum: 1 | 2 | 3 }) {
   );
 }
 
+/* ── AVL Rotation Data ── */
+type AVLNode = { val: number; x: number; y: number; bf: number };
+type AVLEdge = [number, number]; // indices into node array
+
+interface AVLRotationCase {
+  label: string;
+  desc: string;
+  rotationName: string;
+  before: { nodes: AVLNode[]; edges: AVLEdge[] };
+  after: { nodes: AVLNode[]; edges: AVLEdge[] };
+}
+
+const AVL_ROTATIONS: Record<string, AVLRotationCase> = {
+  LL: {
+    label: 'LL (Left-Left)',
+    desc: '3→2→1 삽입 후 노드 3에서 불균형 (왼쪽-왼쪽)',
+    rotationName: '우회전 (Right Rotation)',
+    before: {
+      nodes: [
+        { val: 3, x: 180, y: 30, bf: 2 },
+        { val: 2, x: 100, y: 85, bf: 1 },
+        { val: 1, x: 50, y: 140, bf: 0 },
+      ],
+      edges: [[0, 1], [1, 2]],
+    },
+    after: {
+      nodes: [
+        { val: 2, x: 180, y: 30, bf: 0 },
+        { val: 1, x: 100, y: 85, bf: 0 },
+        { val: 3, x: 260, y: 85, bf: 0 },
+      ],
+      edges: [[0, 1], [0, 2]],
+    },
+  },
+  RR: {
+    label: 'RR (Right-Right)',
+    desc: '1→2→3 삽입 후 노드 1에서 불균형 (오른쪽-오른쪽)',
+    rotationName: '좌회전 (Left Rotation)',
+    before: {
+      nodes: [
+        { val: 1, x: 100, y: 30, bf: -2 },
+        { val: 2, x: 180, y: 85, bf: -1 },
+        { val: 3, x: 260, y: 140, bf: 0 },
+      ],
+      edges: [[0, 1], [1, 2]],
+    },
+    after: {
+      nodes: [
+        { val: 2, x: 180, y: 30, bf: 0 },
+        { val: 1, x: 100, y: 85, bf: 0 },
+        { val: 3, x: 260, y: 85, bf: 0 },
+      ],
+      edges: [[0, 1], [0, 2]],
+    },
+  },
+  LR: {
+    label: 'LR (Left-Right)',
+    desc: '3→1→2 삽입 후 노드 3에서 불균형 (왼쪽-오른쪽)',
+    rotationName: '좌회전 → 우회전 (Left-Right Rotation)',
+    before: {
+      nodes: [
+        { val: 3, x: 220, y: 30, bf: 2 },
+        { val: 1, x: 100, y: 85, bf: -1 },
+        { val: 2, x: 160, y: 140, bf: 0 },
+      ],
+      edges: [[0, 1], [1, 2]],
+    },
+    after: {
+      nodes: [
+        { val: 2, x: 180, y: 30, bf: 0 },
+        { val: 1, x: 100, y: 85, bf: 0 },
+        { val: 3, x: 260, y: 85, bf: 0 },
+      ],
+      edges: [[0, 1], [0, 2]],
+    },
+  },
+  RL: {
+    label: 'RL (Right-Left)',
+    desc: '1→3→2 삽입 후 노드 1에서 불균형 (오른쪽-왼쪽)',
+    rotationName: '우회전 → 좌회전 (Right-Left Rotation)',
+    before: {
+      nodes: [
+        { val: 1, x: 80, y: 30, bf: -2 },
+        { val: 3, x: 220, y: 85, bf: 1 },
+        { val: 2, x: 150, y: 140, bf: 0 },
+      ],
+      edges: [[0, 1], [1, 2]],
+    },
+    after: {
+      nodes: [
+        { val: 2, x: 180, y: 30, bf: 0 },
+        { val: 1, x: 100, y: 85, bf: 0 },
+        { val: 3, x: 260, y: 85, bf: 0 },
+      ],
+      edges: [[0, 1], [0, 2]],
+    },
+  },
+};
+
+function AVLTreeSVG({ nodes, edges, label }: { nodes: AVLNode[]; edges: AVLEdge[]; label: string }) {
+  return (
+    <div>
+      <p className="text-[11px] text-center text-slate-400 dark:text-slate-500 mb-1 font-bold">{label}</p>
+      <svg viewBox="0 0 320 180" className="w-full">
+        {edges.map(([p, c], i) => (
+          <line
+            key={i}
+            x1={nodes[p].x} y1={nodes[p].y}
+            x2={nodes[c].x} y2={nodes[c].y}
+            stroke="#94a3b8" strokeWidth="1.5"
+          />
+        ))}
+        {nodes.map((n) => {
+          const isImbalanced = Math.abs(n.bf) >= 2;
+          const fillColor = isImbalanced ? '#ef4444' : '#e2e8f0';
+          const strokeColor = isImbalanced ? '#ef4444' : '#94a3b8';
+          const textColor = isImbalanced ? 'white' : '#1e293b';
+          return (
+            <g key={n.val}>
+              <circle cx={n.x} cy={n.y} r={18} fill={fillColor} stroke={strokeColor} strokeWidth="2" />
+              <text x={n.x} y={n.y} textAnchor="middle" dominantBaseline="central" fontSize="12" fontWeight="bold" fill={textColor}>{n.val}</text>
+              <text x={n.x + 22} y={n.y - 12} textAnchor="start" fontSize="9" fontWeight="bold" fill={isImbalanced ? '#ef4444' : '#3b82f6'}>
+                BF={n.bf > 0 ? '+' : ''}{n.bf}
+              </text>
+            </g>
+          );
+        })}
+      </svg>
+    </div>
+  );
+}
+
+/* ── Red-Black Tree Insertion Step Data ── */
+type RBNode = { val: number; x: number; y: number; color: 'R' | 'B'; highlight?: boolean };
+type RBEdge = [number, number];
+
+interface RBStepData {
+  title: string;
+  desc: string;
+  nodes: RBNode[];
+  edges: RBEdge[];
+}
+
+const RB_INSERT_STEPS: RBStepData[] = [
+  {
+    title: '초기 상태',
+    desc: 'RB 트리: 10(B), 5(R), 15(R) — 유효한 Red-Black Tree',
+    nodes: [
+      { val: 10, x: 180, y: 35, color: 'B' },
+      { val: 5, x: 100, y: 95, color: 'R' },
+      { val: 15, x: 260, y: 95, color: 'R' },
+    ],
+    edges: [[0, 1], [0, 2]],
+  },
+  {
+    title: 'Step 1: 12를 Red 리프로 삽입',
+    desc: 'BST 규칙에 따라 15의 왼쪽 자식으로 삽입. 새 노드는 항상 Red.',
+    nodes: [
+      { val: 10, x: 180, y: 35, color: 'B' },
+      { val: 5, x: 100, y: 95, color: 'R' },
+      { val: 15, x: 260, y: 95, color: 'R' },
+      { val: 12, x: 210, y: 155, color: 'R', highlight: true },
+    ],
+    edges: [[0, 1], [0, 2], [2, 3]],
+  },
+  {
+    title: 'Step 2: 위반 감지!',
+    desc: '속성 4 위반: 12(Red)의 부모 15도 Red! Uncle(삼촌) 5도 Red → Recolor Case',
+    nodes: [
+      { val: 10, x: 180, y: 35, color: 'B' },
+      { val: 5, x: 100, y: 95, color: 'R', highlight: true },
+      { val: 15, x: 260, y: 95, color: 'R', highlight: true },
+      { val: 12, x: 210, y: 155, color: 'R', highlight: true },
+    ],
+    edges: [[0, 1], [0, 2], [2, 3]],
+  },
+  {
+    title: 'Step 3: Recolor',
+    desc: '부모(15)→Black, 삼촌(5)→Black, 조부모(10)→Red 로 Recolor',
+    nodes: [
+      { val: 10, x: 180, y: 35, color: 'R', highlight: true },
+      { val: 5, x: 100, y: 95, color: 'B' },
+      { val: 15, x: 260, y: 95, color: 'B' },
+      { val: 12, x: 210, y: 155, color: 'R' },
+    ],
+    edges: [[0, 1], [0, 2], [2, 3]],
+  },
+  {
+    title: 'Step 4: 루트 보정 (완료)',
+    desc: '10이 루트인데 Red → 속성 2 위반. 루트를 Black으로 강제 변환. 완료!',
+    nodes: [
+      { val: 10, x: 180, y: 35, color: 'B' },
+      { val: 5, x: 100, y: 95, color: 'B' },
+      { val: 15, x: 260, y: 95, color: 'B' },
+      { val: 12, x: 210, y: 155, color: 'R' },
+    ],
+    edges: [[0, 1], [0, 2], [2, 3]],
+  },
+];
+
+function RBTreeSVG({ nodes, edges }: { nodes: RBNode[]; edges: RBEdge[] }) {
+  return (
+    <svg viewBox="0 0 360 200" className="w-full max-w-sm mx-auto">
+      {edges.map(([p, c], i) => (
+        <line
+          key={i}
+          x1={nodes[p].x} y1={nodes[p].y}
+          x2={nodes[c].x} y2={nodes[c].y}
+          stroke="#94a3b8" strokeWidth="1.5"
+        />
+      ))}
+      {nodes.map((n, i) => {
+        const isRed = n.color === 'R';
+        const fillColor = isRed ? '#ef4444' : '#1e293b';
+        const strokeColor = n.highlight ? '#facc15' : (isRed ? '#dc2626' : '#334155');
+        const strokeW = n.highlight ? 3 : 2;
+        return (
+          <g key={`${n.val}-${i}`}>
+            <circle cx={n.x} cy={n.y} r={20} fill={fillColor} stroke={strokeColor} strokeWidth={strokeW} />
+            <text x={n.x} y={n.y - 2} textAnchor="middle" dominantBaseline="central" fontSize="12" fontWeight="bold" fill="white">{n.val}</text>
+            <text x={n.x} y={n.y + 12} textAnchor="middle" fontSize="8" fontWeight="bold" fill={isRed ? '#fecaca' : '#94a3b8'}>{n.color === 'R' ? 'Red' : 'Blk'}</text>
+          </g>
+        );
+      })}
+    </svg>
+  );
+}
+
 export default function BstContent({ topic }: Props) {
   /* ── Traversal state ── */
   const [activeTraversal, setActiveTraversal] = useState<string>('중위');
@@ -256,6 +484,13 @@ export default function BstContent({ topic }: Props) {
 
   /* ── Delete tab state ── */
   const [deleteTab, setDeleteTab] = useState<1 | 2 | 3>(1);
+
+  /* ── AVL rotation visualizer state ── */
+  const [avlCase, setAvlCase] = useState<'LL' | 'RR' | 'LR' | 'RL'>('LL');
+  const [avlShowAfter, setAvlShowAfter] = useState(false);
+
+  /* ── RB insertion demo state ── */
+  const [rbStep, setRbStep] = useState(0);
 
   /* ── Run traversal animation ── */
   const runTraversal = useCallback((key: string) => {
@@ -566,7 +801,75 @@ export default function BstContent({ topic }: Props) {
 
       {/* 5. Red-Black Tree */}
       <section>
-        <SH emoji="🔴" title="Red-Black Tree 5속성 + 복잡도" id={`${topic.id}-sec-rbtree`} />
+        <SH emoji="🔴" title="균형 BST — AVL & Red-Black Tree" id={`${topic.id}-sec-rbtree`} />
+
+        {/* ── AVL Rotation Visualizer ── */}
+        <div className="rounded-xl border border-violet-200 bg-violet-50 dark:border-violet-800/40 dark:bg-violet-950/20 p-5 mb-6">
+          <p className="text-sm font-bold text-violet-800 dark:text-violet-200 mb-1">AVL Tree 회전 시각화</p>
+          <p className="text-xs text-violet-600 dark:text-violet-400 mb-4">
+            AVL Tree는 모든 노드의 Balance Factor(왼쪽 높이 - 오른쪽 높이)를 -1, 0, +1 범위로 유지한다. 불균형 시 회전으로 복구.
+          </p>
+          {/* AVL case tabs */}
+          <div className="flex flex-wrap gap-2 mb-4">
+            {(['LL', 'RR', 'LR', 'RL'] as const).map(c => (
+              <button
+                key={c}
+                onClick={() => { setAvlCase(c); setAvlShowAfter(false); }}
+                className={`rounded-lg px-4 py-2 text-sm font-bold transition-colors ${
+                  avlCase === c
+                    ? 'bg-violet-600 text-white shadow'
+                    : 'border border-violet-300 dark:border-violet-600 text-violet-600 dark:text-violet-300 hover:bg-violet-100 dark:hover:bg-violet-900/40'
+                }`}
+              >
+                {c}
+              </button>
+            ))}
+          </div>
+
+          <div className="rounded-xl border border-violet-200 dark:border-violet-700 bg-white dark:bg-slate-900 p-4 mb-3">
+            <p className="text-xs font-bold text-slate-500 dark:text-slate-400 mb-1">{AVL_ROTATIONS[avlCase].label}</p>
+            <p className="text-xs text-slate-500 dark:text-slate-400 mb-3">{AVL_ROTATIONS[avlCase].desc}</p>
+
+            <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+              <div className={`rounded-lg border-2 p-2 transition-all ${!avlShowAfter ? 'border-violet-400 bg-violet-50/50 dark:bg-violet-950/20' : 'border-slate-200 dark:border-slate-700'}`}>
+                <AVLTreeSVG nodes={AVL_ROTATIONS[avlCase].before.nodes} edges={AVL_ROTATIONS[avlCase].before.edges} label="회전 전 (불균형)" />
+              </div>
+              <div className={`rounded-lg border-2 p-2 transition-all ${avlShowAfter ? 'border-emerald-400 bg-emerald-50/50 dark:bg-emerald-950/20' : 'border-slate-200 dark:border-slate-700'}`}>
+                <AVLTreeSVG nodes={AVL_ROTATIONS[avlCase].after.nodes} edges={AVL_ROTATIONS[avlCase].after.edges} label="회전 후 (균형)" />
+              </div>
+            </div>
+
+            <div className="flex items-center justify-center gap-3 mt-4">
+              <button
+                onClick={() => setAvlShowAfter(prev => !prev)}
+                className="rounded-lg bg-violet-600 hover:bg-violet-700 px-5 py-2 text-sm font-bold text-white transition-colors shadow"
+              >
+                {avlShowAfter ? '되돌리기' : '회전!'}
+              </button>
+              <span className="text-xs text-violet-600 dark:text-violet-300 font-bold">
+                {AVL_ROTATIONS[avlCase].rotationName}
+              </span>
+            </div>
+          </div>
+
+          <div className="grid grid-cols-2 sm:grid-cols-4 gap-2">
+            {[
+              { case_: 'LL', rotation: '우회전', desc: '왼쪽 자식의 왼쪽에 삽입' },
+              { case_: 'RR', rotation: '좌회전', desc: '오른쪽 자식의 오른쪽에 삽입' },
+              { case_: 'LR', rotation: '좌→우회전', desc: '왼쪽 자식의 오른쪽에 삽입' },
+              { case_: 'RL', rotation: '우→좌회전', desc: '오른쪽 자식의 왼쪽에 삽입' },
+            ].map(r => (
+              <div key={r.case_} className={`rounded-lg p-2 text-center ${avlCase === r.case_ ? 'bg-violet-100 dark:bg-violet-900/30 border border-violet-300 dark:border-violet-600' : 'bg-slate-100 dark:bg-slate-800'}`}>
+                <p className="text-xs font-bold text-slate-700 dark:text-slate-200">{r.case_}</p>
+                <p className="text-[10px] text-violet-600 dark:text-violet-400 font-bold">{r.rotation}</p>
+                <p className="text-[10px] text-slate-500 dark:text-slate-400">{r.desc}</p>
+              </div>
+            ))}
+          </div>
+        </div>
+
+        {/* ── RB Tree 5 Properties ── */}
+        <p className="text-sm font-bold text-slate-800 dark:text-slate-100 mb-3">Red-Black Tree 5속성</p>
         <div className="grid grid-cols-1 gap-3 mb-5">
           {[
             { num: 1, title: '모든 노드는 Red 또는 Black', detail: '이진 색상(binary coloring)' },
@@ -613,7 +916,7 @@ export default function BstContent({ topic }: Props) {
           </table>
         </div>
 
-        <div className="rounded-xl border border-red-200 bg-red-50 p-4 dark:border-red-800/40 dark:bg-red-900/10 space-y-2">
+        <div className="rounded-xl border border-red-200 bg-red-50 p-4 dark:border-red-800/40 dark:bg-red-900/10 space-y-2 mb-6">
           {[
             '일반 BST는 삽입 순서에 따라 O(n) 최악 — 정렬된 데이터 삽입 시 편향 트리',
             'AVL 트리 vs RB 트리: AVL은 더 엄격한 균형 → 탐색 빠름, RB는 삽입/삭제 빠름',
@@ -622,6 +925,81 @@ export default function BstContent({ topic }: Props) {
           ].map((p, i) => (
             <p key={i} className="flex gap-2 text-sm text-red-700 dark:text-red-300"><span>⚠</span>{p}</p>
           ))}
+        </div>
+
+        {/* ── RB Tree Insertion Step-by-Step Demo ── */}
+        <div className="rounded-xl border border-red-200 bg-white dark:border-red-800/40 dark:bg-slate-900/50 p-5">
+          <p className="text-sm font-bold text-red-800 dark:text-red-200 mb-1">Red-Black Tree 삽입 Step-by-Step</p>
+          <p className="text-xs text-slate-500 dark:text-slate-400 mb-4">
+            초기 트리 [10(B), 5(R), 15(R)]에 12를 삽입하는 과정 — Recolor 케이스 예시
+          </p>
+
+          {/* Step indicator dots */}
+          <div className="flex items-center justify-center gap-2 mb-4">
+            {RB_INSERT_STEPS.map((s, i) => (
+              <button
+                key={i}
+                onClick={() => setRbStep(i)}
+                className={`flex items-center justify-center rounded-full transition-all ${
+                  rbStep === i
+                    ? 'w-8 h-8 bg-red-500 text-white text-xs font-black shadow-lg'
+                    : i < rbStep
+                    ? 'w-6 h-6 bg-red-300 dark:bg-red-700 text-white text-[10px] font-bold'
+                    : 'w-6 h-6 bg-slate-200 dark:bg-slate-700 text-slate-500 dark:text-slate-400 text-[10px] font-bold'
+                }`}
+              >
+                {i}
+              </button>
+            ))}
+          </div>
+
+          {/* Step info */}
+          <div className="rounded-lg border border-red-100 dark:border-red-900/40 bg-red-50/50 dark:bg-red-950/10 p-3 mb-4">
+            <p className="text-sm font-bold text-slate-800 dark:text-slate-100 mb-0.5">{RB_INSERT_STEPS[rbStep].title}</p>
+            <p className="text-xs text-slate-600 dark:text-slate-400">{RB_INSERT_STEPS[rbStep].desc}</p>
+          </div>
+
+          {/* Tree visualization */}
+          <div className="rounded-xl border border-slate-200 dark:border-slate-700 bg-slate-50 dark:bg-slate-800/50 p-3 mb-4">
+            <RBTreeSVG nodes={RB_INSERT_STEPS[rbStep].nodes} edges={RB_INSERT_STEPS[rbStep].edges} />
+          </div>
+
+          {/* Navigation buttons */}
+          <div className="flex items-center justify-between">
+            <button
+              onClick={() => setRbStep(prev => Math.max(0, prev - 1))}
+              disabled={rbStep === 0}
+              className="rounded-lg border border-slate-300 dark:border-slate-600 px-4 py-2 text-sm font-bold text-slate-600 dark:text-slate-300 hover:bg-slate-100 dark:hover:bg-slate-700 transition-colors disabled:opacity-30 disabled:cursor-not-allowed"
+            >
+              이전
+            </button>
+            <span className="text-xs text-slate-400 font-bold">
+              {rbStep + 1} / {RB_INSERT_STEPS.length}
+            </span>
+            <button
+              onClick={() => setRbStep(prev => Math.min(RB_INSERT_STEPS.length - 1, prev + 1))}
+              disabled={rbStep === RB_INSERT_STEPS.length - 1}
+              className="rounded-lg bg-red-500 hover:bg-red-600 px-4 py-2 text-sm font-bold text-white transition-colors disabled:opacity-30 disabled:cursor-not-allowed shadow"
+            >
+              다음
+            </button>
+          </div>
+
+          {/* Legend */}
+          <div className="flex items-center justify-center gap-6 mt-4 pt-3 border-t border-slate-200 dark:border-slate-700">
+            <div className="flex items-center gap-1.5">
+              <span className="inline-block w-4 h-4 rounded-full bg-red-500" />
+              <span className="text-[10px] text-slate-500 dark:text-slate-400">Red 노드</span>
+            </div>
+            <div className="flex items-center gap-1.5">
+              <span className="inline-block w-4 h-4 rounded-full bg-slate-800 dark:bg-slate-300" />
+              <span className="text-[10px] text-slate-500 dark:text-slate-400">Black 노드</span>
+            </div>
+            <div className="flex items-center gap-1.5">
+              <span className="inline-block w-4 h-4 rounded-full border-2 border-yellow-400 bg-transparent" />
+              <span className="text-[10px] text-slate-500 dark:text-slate-400">변경/주목 노드</span>
+            </div>
+          </div>
         </div>
       </section>
     </div>
