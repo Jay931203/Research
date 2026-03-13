@@ -39,6 +39,23 @@ next-env.d.ts
 # local agent/workspace artifacts
 .claude/
 nul
+.bkit/
 
 # supabase cli temp artifacts
 supabase/.temp/
+
+# temporary research/data files
+tmp/
+tmp_*
+
+# large binary docs (PDFs, personal docs)
+docs/*.pdf
+docs/Qualifying Examination/
+docs/arxiv/
+docs/paper-source/
+docs/paper-source-images/
+docs/paper-source-text/
+docs/representative-*.json
+docs/paper-verification-report.*
+docs/.pdca-*
+docs/.bkit-memory.json

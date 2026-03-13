@@ -1,0 +1,76 @@
+{
+  "id": "c30301c0-da07-4000-8945-b65cd0891f65",
+  "title": "Precoding-Oriented CSI Feedback Design with Mutual Information Regularized VQ-VAE",
+  "authors": [
+    "Xi Chen",
+    "H. Esfahanizadeh",
+    "Foad Sohrabi"
+  ],
+  "year": 2026,
+  "venue": "arXiv preprint",
+  "doi": "10.48550/arXiv.2602.02508",
+  "arxiv_id": "2602.02508",
+  "abstract": "이 논문은 CSI 피드백을 단순 복원 정확도 문제가 아니라 precoding 성능(합 achievable rate) 최적화 문제로 재정의한다. 핵심은 VQ-VAE 기반 이산 피드백 구조에 상호정보량(MI) 정규화를 결합해, 고정 길이 비트 제약에서도 코드북 사용 효율을 높이고 실제 전송률을 개선하는 것이다. 특히 codebook collapse를 줄이기 위한 MI 하한 근사와 end-to-end 공동 학습을 통해, variable-length entropy coding 없이도 높은 성능을 달성한다.",
+  "notes_summary": "복원 오차 중심에서 벗어나 sum-rate를 직접 최적화하는 VQ-VAE CSI 피드백 설계. MI 정규화로 코드북 활용도를 높여 fixed-length 피드백 효율을 끌어올린다.",
+  "key_contributions": [
+    "CSI 피드백 목적을 NMSE 최소화가 아닌 precoding 성능(합 achievable rate) 최대화로 명확히 전환했다.",
+    "VQ-VAE 코드북에 MI 정규화를 결합해 codebook collapse를 완화하고 비트 활용 효율을 높였다.",
+    "indicator 기반 MI 하한을 Gaussian kernel로 완화해 미분 가능한 학습 경로를 구성했다.",
+    "UE 인코더, 코드북, BS 디코더(precoder 생성)를 하나의 목적식으로 end-to-end 공동 최적화했다.",
+    "고정 길이 피드백 구조를 유지하면서도 기존 sign-quantization 계열 대비 rate 향상을 보였다."
+  ],
+  "algorithms": [
+    "UE k는 파일럿 관측 \\(\\mathbf{y}_k\\)를 인코더에 넣어 연속 잠재벡터 \\(\\mathbf{z}_k\\)를 생성한다.",
+    "코드북 \\(\\mathcal{C}_k\\)에서 최근접 코드워드 인덱스 \\(\\hat{i}_k\\)를 선택해 \\(\\mathbf{q}_k\\)를 만든다.",
+    "UE는 코드워드 벡터가 아니라 인덱스만 fixed-length 비트로 BS에 전달한다.",
+    "BS는 복원된 \\(\\mathbf{q}_k\\)들을 디코더에 넣어 precoder \\(\\mathbf{V}\\)를 생성하고 합 rate를 계산한다.",
+    "학습 시 목적식 \\(-R + \\text{commitment} - \\gamma I\\)를 최소화하며 MI 하한 근사를 함께 업데이트한다.",
+    "비미분 양자화 경로는 STE로 우회해 인코더-코드북-디코더 전체를 공동 학습한다."
+  ],
+  "key_equations": [
+    {
+      "name": "사용자별 achievable rate",
+      "latex": "R_k = \\log_2\\!\\left(1 + \\frac{|\\mathbf{h}_k^H\\mathbf{v}_k|^2}{\\sum_{j\\neq k}|\\mathbf{h}_k^H\\mathbf{v}_j|^2 + \\sigma_w^2}\\right),\\quad R=\\sum_{k=1}^{K}R_k",
+      "description": "피드백 품질을 복원 오차가 아닌 precoding 결과(rate)로 직접 측정한다."
+    },
+    {
+      "name": "VQ 최근접 코드워드 매핑",
+      "latex": "\\hat{i}_k = \\arg\\min_{i\\in\\mathcal{C}_k}\\|\\mathbf{c}_i^k-\\mathbf{z}_k\\|_2^2,\\qquad \\mathbf{q}_k=\\mathbf{c}_{\\hat{i}_k}^k",
+      "description": "연속 잠재벡터를 코드북 인덱스로 이산화해 실제 피드백 가능한 표현으로 변환한다."
+    },
+    {
+      "name": "MI 하한 아이디어",
+      "latex": "I(X;Z)\\ge -\\log\\,\\mathbb{E}_{P_ZP_{Z'}}[\\delta(z-z')]",
+      "description": "코드워드가 균일하게 활용될수록 MI가 커지고 표현 효율이 높아진다는 직관을 제공한다."
+    },
+    {
+      "name": "Gaussian kernel 기반 MI 완화",
+      "latex": "I(X;Z)\\gtrsim -\\log\\,\\mathbb{E}_{P_ZP_{Z'}}\\!\\left[\\exp\\!\\left(-\\frac{\\|z-z'\\|_2^2}{2\\sigma_{\\mathrm{MI}}^2}\\right)\\right]",
+      "description": "indicator를 미분 가능한 형태로 바꿔 역전파 가능한 MI 정규화를 구현한다."
+    },
+    {
+      "name": "통합 학습 목적식",
+      "latex": "\\mathcal{L}=\\sum_{k=1}^{K}\\Big(-R_k-\\gamma I(\\mathbf{y}_k;\\mathbf{q}_k)+CL_k\\Big)",
+      "description": "rate 극대화, 코드북 사용 다양화, 양자화 안정화를 동시에 맞추는 핵심 학습식이다."
+    },
+    {
+      "name": "Commitment + STE",
+      "latex": "CL_k=\\beta\\|\\mathrm{sg}(\\mathbf{q}_k)-\\mathbf{z}_k\\|_2^2+\\|\\mathbf{q}_k-\\mathrm{sg}(\\mathbf{z}_k)\\|_2^2,\\quad \\mathbf{q}_k=\\mathbf{z}_k+\\mathrm{sg}(\\mathbf{q}_k-\\mathbf{z}_k)",
+      "description": "코드북-인코더 불일치를 줄이고, 비미분 양자화를 STE로 학습 가능하게 만든다."
+    }
+  ],
+  "architecture_detail": "## 1) 문제 설정: 복원 오차가 아니라 precoding 성능을 직접 최적화\n\n기존 CSI 피드백 연구는 주로 \\(\\|\\hat{H}-H\\|\\)를 줄이는 데 집중했지만, 이 논문은 **합 achievable rate**를 직접 목표로 둔다.\n\n$$\nR_k = \\log_2\\!\\left(1 + \\frac{|\\mathbf{h}_k^H\\mathbf{v}_k|^2}{\\sum_{j\\neq k}|\\mathbf{h}_k^H\\mathbf{v}_j|^2 + \\sigma_w^2}\\right),\\qquad R=\\sum_{k=1}^{K}R_k\n$$\n\n핵심 질문은 \"같은 피드백 비트에서 precoder를 얼마나 더 잘 만들 수 있는가\"이다.\n\n## 2) VQ-VAE 기반 UE-BS 파이프라인\n\n- UE k: 파일럿 \\(\\mathbf{y}_k\\) -> 인코더 -> 연속 잠재벡터 \\(\\mathbf{z}_k\\)\n- 양자화: 코드북 \\(\\mathcal{C}_k\\)에서 최근접 코드워드 선택\n- 피드백: 코드워드 **인덱스만** fixed-length 비트로 전송\n- BS: 복원 코드워드 \\(\\mathbf{q}_k\\)들을 이용해 precoder \\(\\mathbf{V}\\) 생성\n\n$$\n\\hat{i}_k = \\arg\\min_{i\\in\\mathcal{C}_k}\\|\\mathbf{c}_i^k-\\mathbf{z}_k\\|_2^2,\\qquad \\mathbf{q}_k=\\mathbf{c}_{\\hat{i}_k}^k\n$$\n\n즉, 아날로그 코드워드 자체가 아니라 디지털 인덱스를 보내는 구조로 실전 피드백 제약과 맞춘다.\n\n## 3) 왜 MI 정규화가 필요한가: codebook collapse 완화\n\nVQ 계열에서는 일부 코드워드만 과사용되는 collapse가 자주 발생한다. 그러면 같은 비트를 써도 표현 다양성이 떨어진다.\n\n이 논문은 \\(I(\\mathbf{y};\\mathbf{q})\\)를 키우는 방향으로 정규화해 코드북 사용 분포를 넓힌다.\n\n$$\nI(X;Z)\\ge -\\log\\,\\mathbb{E}_{P_ZP_{Z'}}[\\delta(z-z')]\n$$\n\n직접 미분이 어려운 항은 Gaussian kernel로 완화해 학습 가능하게 만든다.\n\n$$\nI(X;Z)\\gtrsim -\\log\\,\\mathbb{E}_{P_ZP_{Z'}}\\!\\left[\\exp\\!\\left(-\\frac{\\|z-z'\\|_2^2}{2\\sigma_{\\mathrm{MI}}^2}\\right)\\right]\n$$\n\n## 4) 통합 목적식: rate + MI + commitment\n\n학습 목표는 세 축을 동시에 맞춘다.\n\n$$\n\\mathcal{L}=\\sum_{k=1}^{K}\\Big(-R_k-\\gamma I(\\mathbf{y}_k;\\mathbf{q}_k)+CL_k\\Big)\n$$\n\n$$\nCL_k=\\beta\\|\\mathrm{sg}(\\mathbf{q}_k)-\\mathbf{z}_k\\|_2^2+\\|\\mathbf{q}_k-\\mathrm{sg}(\\mathbf{z}_k)\\|_2^2\n$$\n\n비미분 양자화는 STE로 우회한다.\n\n$$\n\\mathbf{q}_k=\\mathbf{z}_k+\\mathrm{sg}(\\mathbf{q}_k-\\mathbf{z}_k)\n$$\n\n## 5) 학습 흐름(실전 구현 관점)\n\n1. 인코더 출력 \\(\\mathbf{z}_k\\) 생성\n2. 코드북 최근접 매핑으로 \\(\\mathbf{q}_k\\) 생성\n3. BS에서 precoder \\(\\mathbf{V}\\)와 합 rate 계산\n4. MI 완화 항 계산으로 코드북 사용 다양성 유도\n5. 통합 목적식 역전파로 인코더/코드북/디코더 공동 업데이트\n\n## 6) 구현 체크리스트\n\n- \\(\\gamma\\): MI 정규화 강도(너무 크면 rate 최적화 방해)\n- \\(\\sigma_{\\mathrm{MI}}\\): kernel 폭(분포 평활화 강도)\n- 코드북 학습률 분리: 본체 파라미터와 다른 스케줄이 안정적\n- STE 구간에서 그래디언트 폭주/소실 모니터링\n- 코드북 사용 히스토그램(usage entropy) 로깅으로 collapse 조기 감지",
+  "category": "quantization",
+  "tags": [
+    "vq-vae",
+    "mutual-information",
+    "precoding",
+    "fixed-length-feedback",
+    "codebook-utilization",
+    "csi-feedback"
+  ],
+  "pdf_url": "https://arxiv.org/pdf/2602.02508",
+  "code_url": null,
+  "color_hex": "#4338CA",
+  "icon_name": null
+}

@@ -52,18 +52,33 @@ export default function Section6AppendixA({ onNavigate }: Section6AppendixAProps
         </div>
 
         <div className="grid md:grid-cols-2 gap-4 mb-4">
-          <div className="p-4 bg-blue-50 rounded-lg border border-blue-100">
-            <div className="font-bold text-blue-700 mb-1">Envelope: Rayleigh 분포</div>
+          <div className="p-4 bg-blue-50 dark:bg-blue-900/20 rounded-lg border border-blue-100 dark:border-blue-800">
+            <div className="font-bold text-blue-700 dark:text-blue-400 mb-1">Envelope: Rayleigh 분포</div>
             <BlockMath math={String.raw`|Z| \sim \text{Rayleigh}(\sigma/\sqrt{2})`} />
-            <p className="text-xs text-slate-500 mt-1">
-              크기(envelope)는 Rayleigh 분포를 따릅니다.
+            <p className="text-sm text-slate-600 dark:text-slate-400 mt-2">
+              복소 가우시안의 크기가 Rayleigh 분포를 따릅니다.
+              이것이{' '}
+              <button onClick={() => onNavigate('statistical')} className="cross-ref !text-xs">
+                Section 2.4
+              </button>
+              에서 본 Rayleigh fading의 수학적 유래입니다.
+            </p>
+            <p className="text-sm text-slate-600 dark:text-slate-400 mt-1">
+              <strong>Deep fade</strong>란 envelope이 0에 가까워지는 사건으로,
+              Rayleigh 분포에서는 이 확률이 무시할 수 없을 만큼 크기 때문에
+              다이버시티나 코딩으로 대비해야 합니다.
             </p>
           </div>
-          <div className="p-4 bg-indigo-50 rounded-lg border border-indigo-100">
-            <div className="font-bold text-indigo-700 mb-1">Power: Exponential 분포</div>
+          <div className="p-4 bg-indigo-50 dark:bg-indigo-900/20 rounded-lg border border-indigo-100 dark:border-indigo-800">
+            <div className="font-bold text-indigo-700 dark:text-indigo-400 mb-1">Power: Exponential 분포</div>
             <BlockMath math={String.raw`|Z|^2 \sim \text{Exponential}(1/\sigma^2)`} />
-            <p className="text-xs text-slate-500 mt-1">
-              전력(power)은 지수 분포를 따릅니다.
+            <p className="text-sm text-slate-600 dark:text-slate-400 mt-2">
+              <InlineMath math="|Z|^2" />이 지수분포를 따르므로 수신 전력도 지수분포입니다.
+            </p>
+            <p className="text-sm text-slate-600 dark:text-slate-400 mt-1">
+              이 덕분에 outage probability를 닫힌 형태로 계산할 수 있습니다:{' '}
+              <InlineMath math={String.raw`P(|h|^2 < x) = 1 - e^{-x/\sigma^2}`} />.
+              시스템 설계 시 목표 outage에 필요한 SNR 마진을 해석적으로 구할 수 있다는 것이 핵심입니다.
             </p>
           </div>
         </div>
@@ -115,34 +130,64 @@ export default function Section6AppendixA({ onNavigate }: Section6AppendixAProps
         </div>
 
         <div className="formula-block mb-4">
-          <h4 className="font-semibold text-blue-800 mb-2">Likelihood Ratio Test (LRT)</h4>
+          <h4 className="font-semibold text-blue-800 dark:text-blue-400 mb-2">Likelihood Ratio Test (LRT)</h4>
           <BlockMath math={String.raw`\Lambda(y) = \frac{p(y \mid H_1)}{p(y \mid H_0)} \underset{H_0}{\overset{H_1}{\gtrless}} \gamma`} />
-          <div className="text-sm text-slate-600 mt-2">
+          <div className="text-sm text-slate-600 dark:text-slate-400 mt-2">
             우도비(likelihood ratio)를 임계값 <InlineMath math="\gamma" />와 비교하여 가설을 판정합니다.
+          </div>
+          <div className="mt-3 p-3 bg-slate-50 dark:bg-slate-800 border border-slate-200 dark:border-slate-700 rounded-lg space-y-2">
+            <p className="text-sm text-slate-700 dark:text-slate-300">
+              <strong>직관:</strong> 두 가설 중 어느 것이 관측 <InlineMath math="y" />를 더 잘 설명하는지 비교합니다.
+              우도비가 1보다 크면 <InlineMath math="H_1" />이 더 그럴듯하다는 뜻입니다.
+            </p>
+            <p className="text-sm text-slate-700 dark:text-slate-300">
+              <strong>가우시안 잡음에서의 단순화:</strong> log를 취하면 지수 부분이 이차식이 되어,
+              결국 수신점과 각 가설 사이의 <em>거리 비교</em>로 환원됩니다.
+            </p>
           </div>
         </div>
 
         <div className="compare-grid mb-4">
-          <div className="compare-item border-blue-200 bg-blue-50/40">
-            <h4 className="font-bold text-blue-800 mb-2">MAP Rule</h4>
-            <p className="text-sm text-slate-600 mb-2">
+          <div className="compare-item border-blue-200 bg-blue-50/40 dark:bg-blue-900/20 dark:border-blue-700">
+            <h4 className="font-bold text-blue-800 dark:text-blue-400 mb-2">MAP Rule</h4>
+            <p className="text-sm text-slate-600 dark:text-slate-400 mb-2">
               사전확률 <InlineMath math="\pi_i = P(H_i)" />를 반영하여 사후확률을 최대화합니다.
             </p>
             <BlockMath math={String.raw`\hat{H}_{MAP} = \arg\max_i\; \pi_i \cdot p(y \mid H_i)`} />
-            <p className="text-xs text-slate-500 mt-1">
+            <p className="text-xs text-slate-500 dark:text-slate-400 mt-1">
               임계값: <InlineMath math="\gamma_{MAP} = \pi_0 / \pi_1" />
             </p>
+            <div className="mt-3 p-2.5 bg-blue-50 dark:bg-blue-900/30 border border-blue-100 dark:border-blue-800 rounded-lg">
+              <p className="text-sm text-slate-700 dark:text-slate-300">
+                사전에 <InlineMath math="H_0" />이 <InlineMath math="H_1" />보다 10배 흔하다면,
+                <InlineMath math="H_1" />이라고 판정하려면 그만큼 더 강한 증거가 필요합니다.
+                사전확률 비율만큼 임계값이 이동합니다.
+              </p>
+            </div>
           </div>
-          <div className="compare-item border-indigo-200 bg-indigo-50/40">
-            <h4 className="font-bold text-indigo-800 mb-2">ML Rule</h4>
-            <p className="text-sm text-slate-600 mb-2">
+          <div className="compare-item border-indigo-200 bg-indigo-50/40 dark:bg-indigo-900/20 dark:border-indigo-700">
+            <h4 className="font-bold text-indigo-800 dark:text-indigo-400 mb-2">ML Rule</h4>
+            <p className="text-sm text-slate-600 dark:text-slate-400 mb-2">
               사전확률이 같거나 미지일 때, 우도만으로 판정합니다.
             </p>
             <BlockMath math={String.raw`\hat{H}_{ML} = \arg\max_i\; p(y \mid H_i)`} />
-            <p className="text-xs text-slate-500 mt-1">
+            <p className="text-xs text-slate-500 dark:text-slate-400 mt-1">
               임계값: <InlineMath math="\gamma_{ML} = 1" /> (균등 사전확률)
             </p>
+            <div className="mt-3 p-2.5 bg-indigo-50 dark:bg-indigo-900/30 border border-indigo-100 dark:border-indigo-800 rounded-lg">
+              <p className="text-sm text-slate-700 dark:text-slate-300">
+                사전 정보 없이 순수하게 데이터만 보고 판단합니다.
+                동전 던지기에서 앞뒤 확률을 모를 때의 접근과 같습니다.
+              </p>
+            </div>
           </div>
+        </div>
+        <div className="p-3 bg-emerald-50 dark:bg-emerald-900/20 border border-emerald-200 dark:border-emerald-700 rounded-lg mb-4">
+          <div className="text-xs font-semibold text-emerald-700 dark:text-emerald-400 mb-1">언제 어떤 규칙을 쓰는가</div>
+          <p className="text-sm text-slate-700 dark:text-slate-300">
+            통신에서는 보통 심볼이 균등분포(equiprobable)이므로 ML이 곧 MAP이 됩니다.
+            레이더나 이상 탐지처럼 사건 발생 확률이 크게 다를 때만 MAP의 임계값 이동이 의미를 가집니다.
+          </p>
         </div>
 
         <div className="formula-block mb-4">

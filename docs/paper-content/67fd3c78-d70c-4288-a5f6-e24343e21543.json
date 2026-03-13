@@ -1,0 +1,71 @@
+{
+  "id": "67fd3c78-d70c-4288-a5f6-e24343e21543",
+  "title": "LLM.int8(): 8-bit Matrix Multiplication for Transformers at Scale",
+  "authors": [
+    "Tim Dettmers",
+    "Mike Lewis",
+    "Younes Belkada",
+    "Luke Zettlemoyer"
+  ],
+  "year": 2022,
+  "venue": "NeurIPS 2022 (arXiv 2208.07339)",
+  "doi": "10.48550/arXiv.2208.07339",
+  "arxiv_id": "2208.07339",
+  "abstract": "LLM.int8() is a two-part quantization method for transformer-scale matrix multiplication. It combines vector-wise quantization (row/column scaling constants per inner product) with mixed-precision decomposition for sparse high-magnitude outlier feature dimensions. This addresses scale-dependent quantization failure in large LLMs and enables strong memory reduction while preserving model quality at high parameter counts.",
+  "notes_summary": "Vector-wise quantization plus outlier-dimension decomposition is the core of LLM.int8() for large-scale LLM inference.",
+  "key_contributions": [
+    "Analyzes emergent outlier features as the main source of large-scale quantization breakdown.",
+    "Introduces vector-wise quantization for higher inner-product precision.",
+    "Introduces mixed-precision decomposition: outliers in FP16, bulk in INT8.",
+    "Demonstrates quality-preserving scaling trend at large model sizes.",
+    "Provides practical open-source implementation path via bitsandbytes."
+  ],
+  "algorithms": [
+    "Compute row/column scaling constants and quantize inputs/weights vector-wise.",
+    "Detect outlier feature dimensions above threshold alpha.",
+    "Compute outlier dimensions in FP16 and remaining dimensions in INT8.",
+    "Dequantize INT8 accumulation and add FP16 outlier contribution.",
+    "Apply across feed-forward and attention projection layers for full-model inference."
+  ],
+  "key_equations": [
+    {
+      "name": "Absmax quantization",
+      "latex": "\\mathbf{X}_{i8}=\\left\\lfloor\\frac{127}{\\|\\mathbf{X}_{f16}\\|_\\infty}\\mathbf{X}_{f16}\\right\\rceil",
+      "description": "Tensor is scaled into Int8 range by infinity norm."
+    },
+    {
+      "name": "Vector-wise matmul reconstruction",
+      "latex": "\\mathbf{C}_{f16}\\approx\\frac{1}{\\mathbf{c}_{x}\\otimes\\mathbf{c}_{w}}\\,\\mathbf{C}_{i32}=\\mathbf{S}\\cdot Q(\\mathbf{X}_{f16})Q(\\mathbf{W}_{f16})",
+      "description": "Per-inner-product scaling improves precision over single tensor constant."
+    },
+    {
+      "name": "Outlier set",
+      "latex": "O=\\{i\\mid\\exists\\,x^i,\\ |x^i|>\\alpha\\},\\quad \\alpha\\approx 6",
+      "description": "Dimensions with large magnitudes are isolated for high-precision path."
+    },
+    {
+      "name": "Mixed-precision decomposition",
+      "latex": "\\mathbf{C}_{f16}\\approx\\sum_{h\\in O}\\mathbf{X}_{f16}^h\\mathbf{W}_{f16}^h + \\mathbf{S}_{f16}\\sum_{h\\notin O}\\mathbf{X}_{i8}^h\\mathbf{W}_{i8}^h",
+      "description": "Combines sparse FP16 outlier computation with dense INT8 computation."
+    },
+    {
+      "name": "Int matmul reconstruction factor",
+      "latex": "\\mathbf{X}_{f16}\\mathbf{W}_{f16}\\approx S_{f16}\\cdot\\mathbf{C}_{i32}",
+      "description": "Maps integer accumulation back to floating output domain."
+    }
+  ],
+  "architecture_detail": "## 1) Failure Mode at Scale\n\nLarge transformers develop sparse but systematic outlier feature dimensions. Single-scale quantization loses resolution for the bulk when these outliers dominate dynamic range.\n\n## 2) Vector-wise Quantization\n\nInstead of one tensor-level scaling constant, LLM.int8() uses row/column constants per inner product.\n\n$$\n\\mathbf{C}_{f16}\\approx\\frac{1}{\\mathbf{c}_{x}\\otimes\\mathbf{c}_{w}}\\,\\mathbf{C}_{i32}\n$$\n\nThis improves quantization precision for most dimensions.\n\n## 3) Mixed-Precision Decomposition\n\nOutlier dimensions are separated and computed in FP16:\n\n$$\nO=\\{i\\mid |x^i|>\\alpha\\},\\quad \\alpha\\approx6\n$$\n\n$$\n\\mathbf{C}_{f16}\\approx\\sum_{h\\in O}\\mathbf{X}_{f16}^h\\mathbf{W}_{f16}^h + \\mathbf{S}_{f16}\\sum_{h\\notin O}\\mathbf{X}_{i8}^h\\mathbf{W}_{i8}^h\n$$\n\n## 4) Why It Works\n\n- Handles rare but critical outlier dimensions explicitly\n- Preserves high throughput for dense non-outlier computation\n- Improves scaling behavior of 8-bit inference in large models\n\n## 5) Practical Notes\n\n- Focus is on projection layers where parameter memory dominates\n- Benefits are strongest at larger model dimensions\n- Small models may not see net speedup after quant/dequant overhead\n\n## 6) Implementation Checklist\n\n- Tune and log outlier threshold alpha\n- Separate kernel timings for quantization, GEMM, and dequantization\n- Compare vector-wise only vs full decomposition\n- Benchmark quality + memory + throughput together\n- Lock framework/library versions for reproducibility",
+  "category": "quantization",
+  "tags": [
+    "llm-int8",
+    "vector-wise-quantization",
+    "mixed-precision-decomposition",
+    "outlier-features",
+    "bitsandbytes",
+    "transformer-inference"
+  ],
+  "pdf_url": "https://arxiv.org/pdf/2208.07339",
+  "code_url": "https://github.com/TimDettmers/bitsandbytes",
+  "color_hex": "#0D9488",
+  "icon_name": null
+}

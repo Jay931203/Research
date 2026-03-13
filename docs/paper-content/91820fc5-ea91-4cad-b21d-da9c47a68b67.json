@@ -1,0 +1,75 @@
+{
+  "id": "91820fc5-ea91-4cad-b21d-da9c47a68b67",
+  "title": "CLNet: Complex Input Lightweight Neural Network Designed for Massive MIMO CSI Feedback",
+  "authors": [
+    "Sijie Ji",
+    "Mo Li"
+  ],
+  "year": 2021,
+  "venue": "IEEE Wireless Communications Letters",
+  "doi": "10.1109/LWC.2021.3100493",
+  "arxiv_id": "2102.07507",
+  "abstract": "CLNet은 FDD Massive MIMO CSI 피드백에서 \"복소 채널의 물리 구조를 보존하면서도 경량화\"를 동시에 달성하려는 모델이다. 기존 CNN 기반 방법이 실수부/허수부를 단순 분리 채널로 처리하며 복소수 위상 정보를 충분히 반영하지 못한다는 문제를 지적하고, 1x1 forged complex-valued input layer와 채널/공간 주의(SE + CBAM)를 결합했다. 또한 디코더 블록 단순화와 hard-Sigmoid로 연산량을 줄여, CRNet 대비 평균 정확도 향상과 FLOPs 절감을 보고했다.",
+  "notes_summary": "복소수 CSI의 위상/진폭 구조를 보존하는 1x1 복소 입력층 + SE/CBAM 주의로 정확도를 끌어올리고, hard-Sigmoid/경량 디코더로 연산량까지 줄인 경량 CSI 피드백 모델.",
+  "key_contributions": [
+    "복소수 CSI를 실수/허수 독립 채널로 섞어버리는 기존 처리의 한계를 지적하고, 1x1 forged complex input으로 물리 의미 보존 경로를 제시했다.",
+    "입력층에 SE 채널 주의를 넣어 복소 임베딩 후 중요한 채널 표현을 재가중했다.",
+    "인코더에 CBAM spatial attention을 도입해 angle-delay 도메인의 cluster 경로에 집중하도록 설계했다.",
+    "디코더에서 필터 크기를 줄이고 활성함수를 hard-Sigmoid로 교체해 하드웨어 친화성과 경량성을 강화했다.",
+    "원문 실험 기준 CRNet 대비 평균 NMSE 개선(약 5.41%)과 평균 FLOPs 절감(약 24.1%)을 보고했다."
+  ],
+  "algorithms": [
+    "CSI를 angle-delay 도메인 \\(\\mathbf{H}_a\\)로 변환해 인코더 입력으로 사용한다.",
+    "forged complex input layer에서 1x1 convolution으로 실수/허수의 같은 위치 계수를 결합해 복소 물리량을 보존한다.",
+    "SE 블록으로 채널 중요도를 계산해 입력 임베딩을 채널별로 재보정한다.",
+    "CBAM spatial attention으로 경로 cluster가 집중된 공간 위치를 강조한다.",
+    "압축 코드워드를 피드백한 뒤 BS 디코더에서 경량 CRBlock 변형으로 CSI를 복원한다.",
+    "Sigmoid 대신 hard-Sigmoid를 사용해 비선형 표현력을 유지하면서 연산량을 줄인다."
+  ],
+  "key_equations": [
+    {
+      "name": "복소 채널 계수 표현",
+      "latex": "\\mathbf{H}(t)=\\sum_{k=1}^{N} a_k(t)e^{-j\\theta_k(t)}",
+      "description": "복소 CSI의 진폭 \\(a_k\\)와 위상 \\(\\theta_k\\)가 채널 물리량의 핵심임을 보여준다."
+    },
+    {
+      "name": "forged complex 1x1 임베딩",
+      "latex": "i_1(1,1)=[a_1]\\cdot[w_1]+[b_1]\\cdot[w_1]",
+      "description": "같은 위치의 실수/허수 계수를 1x1에서 결합해 위상-진폭 관계를 보존하려는 설계를 나타낸다."
+    },
+    {
+      "name": "SE 채널 주의",
+      "latex": "\\mathbf{s}=\\sigma\\!\\left(\\mathbf{W}_2\\,\\delta(\\mathbf{W}_1\\mathbf{z})\\right),\\quad \\tilde{\\mathcal{I}}_{:,:,i}=s_i\\,\\mathcal{I}_{:,:,i}",
+      "description": "채널 통계를 이용해 중요 채널을 강화하고 덜 중요한 채널을 억제한다."
+    },
+    {
+      "name": "CBAM spatial 주의",
+      "latex": "\\mathbf{F}_o=\\mathbf{F}_i\\odot\\sigma\\!\\left(f_c\\big([\\operatorname{AvgPool}(\\mathbf{F}_i);\\operatorname{MaxPool}(\\mathbf{F}_i)]\\big)\\right)",
+      "description": "공간 마스크를 통해 angle-delay 도메인의 유효 경로 영역에 집중한다."
+    },
+    {
+      "name": "hard-Sigmoid",
+      "latex": "h\\sigma(x)=\\frac{\\min(\\max(x+3,0),6)}{6}",
+      "description": "지수 연산이 필요한 Sigmoid를 선형 근사해 추론 효율을 높인다."
+    },
+    {
+      "name": "NMSE 지표",
+      "latex": "\\mathrm{NMSE}=\\mathbb{E}\\left\\{\\|\\mathbf{H}_a-\\hat{\\mathbf{H}}_a\\|_2^2/\\|\\mathbf{H}_a\\|_2^2\\right\\}",
+      "description": "원본 CSI와 복원 CSI 간 상대 오차를 측정하는 핵심 평가식."
+    }
+  ],
+  "architecture_detail": "## 1) 문제 설정: 정확도 개선과 경량화의 동시 달성\n\n기존 CSI 피드백 모델은 정확도를 높이면 계산량이 커지고, 경량화를 하면 정확도가 크게 떨어지는 경향이 있었다. CLNet은 이 트레이드오프를 줄이기 위해 **복소수 CSI 물리 구조를 보존하는 입력 설계**와 **주의 기반 특징 강화**를 결합한다.\n\n## 2) Forged Complex-Valued Input Layer\n\n복소 채널은 진폭과 위상 정보를 함께 가진다.\n\n$$\n\\mathbf{H}(t)=\\sum_{k=1}^{N} a_k(t)e^{-j\\theta_k(t)}\n$$\n\nCLNet은 일반 3x3 혼합 대신 1x1 point-wise 결합으로 같은 위치의 실수/허수를 함께 임베딩한다.\n\n$$\ni_1(1,1)=[a_1]\\cdot[w_1]+[b_1]\\cdot[w_1]\n$$\n\n핵심 의도는 \"복소수 계수의 물리적 대응 관계를 입력 단계에서 깨지지 않게 유지\"하는 것이다.\n\n## 3) 채널 주의(SE): 어떤 복소 임베딩이 중요한가\n\n입력 임베딩 \\(\\mathcal{I}\\)에서 전역 통계 \\(\\mathbf{z}\\)를 만든 뒤, 채널 주의 벡터 \\(\\mathbf{s}\\)를 계산한다.\n\n$$\n\\mathbf{s}=\\sigma\\!\\left(\\mathbf{W}_2\\,\\delta(\\mathbf{W}_1\\mathbf{z})\\right)\n$$\n\n$$\n\\tilde{\\mathcal{I}}_{:,:,i}=s_i\\,\\mathcal{I}_{:,:,i}\n$$\n\n즉, 채널별 중요도를 학습해 유효 표현은 키우고 불필요 표현은 줄인다.\n\n## 4) 공간 주의(CBAM): 경로 cluster에 집중\n\nangle-delay 도메인에서는 유효 경로가 군집 형태로 나타난다. CLNet은 CBAM spatial attention으로 이 영역을 강조한다.\n\n$$\n\\mathbf{F}_o=\\mathbf{F}_i\\odot\\sigma\\!\\left(f_c\\big([\\operatorname{AvgPool}(\\mathbf{F}_i);\\operatorname{MaxPool}(\\mathbf{F}_i)]\\big)\\right)\n$$\n\n결과적으로 인코더가 중요한 경로 패턴에 더 많은 표현력을 배정한다.\n\n## 5) 경량 디코더 + hard-Sigmoid\n\n- 디코더는 CRBlock 계열을 단순화(예: 필터 축소)해 BS 측 연산량을 줄인다.\n- Sigmoid 대신 hard-Sigmoid를 사용해 지수 연산 부담을 줄인다.\n\n$$\nh\\sigma(x)=\\frac{\\min(\\max(x+3,0),6)}{6}\n$$\n\n실제 배포 관점에서 커널 구현 및 수치 안정성 측면의 이점을 노린 설계다.\n\n## 6) 학습 지표와 보고 성능\n\n학습/평가는 NMSE를 사용한다.\n\n$$\n\\mathrm{NMSE}=\\mathbb{E}\\left\\{\\|\\mathbf{H}_a-\\hat{\\mathbf{H}}_a\\|_2^2/\\|\\mathbf{H}_a\\|_2^2\\right\\}\n$$\n\n원문 실험(COST2100 indoor/outdoor, 다중 압축비)에서는 CLNet이 CRNet 대비 평균 정확도 개선과 FLOPs 감소를 동시에 보고했다.",
+  "category": "cnn",
+  "tags": [
+    "clnet",
+    "complex-input",
+    "se-attention",
+    "cbam",
+    "lightweight",
+    "csi-feedback"
+  ],
+  "pdf_url": "https://arxiv.org/pdf/2102.07507",
+  "code_url": "https://github.com/SIJIEJI/CLNet",
+  "color_hex": "#0F766E",
+  "icon_name": null
+}

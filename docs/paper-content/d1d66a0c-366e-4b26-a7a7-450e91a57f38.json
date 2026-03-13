@@ -1,0 +1,56 @@
+{
+  "venue": "IEEE Wireless Communications Letters",
+  "doi": "10.1109/LWC.2025.3570965",
+  "notes_summary": "Eq.(1)~Eq.(8) 흐름으로 비트 할당·코드북·오토인코더를 함께 최적화하는 CSI 양자화 설계 논문.",
+  "abstract": "이 논문은 딥러닝 기반 CSI 피드백에서 인코더 출력 양자화를 핵심 문제로 다룬다. 기존 연구 다수는 인코더 출력 원소마다 동일한 비트를 배정하거나, 오토인코더 학습과 양자화를 분리해 최적화한다.\n\n저자들은 인코더 출력 원소별 동적 범위가 다르다는 관찰을 바탕으로 원소별 비트 할당을 도입하고, 인코더·디코더·코드북·비트 할당을 교대(Alternating) 방식으로 공동 최적화한다.\n\n핵심 설계는 두 가지다. 첫째, 정수 제약이 있는 비트 할당은 반복적 1비트 재분배 알고리즘으로 갱신하고, 나머지 모듈은 end-to-end로 학습한다. 둘째, 손실함수에서 로그 재구성 손실과 적응형 가중 양자화 손실을 결합해 STE 기반 학습의 forward/backward mismatch를 완화한다.\n\nCOST2100 시뮬레이션에서 제안법은 PCA, Lloyd, 균일 양자화, 벡터 양자화 기반 대비 NMSE를 일관되게 개선하며, 저비트 구간에서 특히 이득이 크다.",
+  "key_contributions": [
+    "인코더 출력 원소별 동적 범위 차이를 활용한 비균일 비트 할당 프레임워크를 제안했다.",
+    "Eq.(2),(3) 기반 반복 재분배(한 원소 -1bit, 다른 원소 +1bit)로 정수 비트 할당 문제를 실용적으로 최적화했다.",
+    "비트 할당, 코드북, 인코더, 디코더를 분리하지 않고 Alternating Training으로 공동 학습했다.",
+    "코드워드 간격 기반 적응형 가중치(alpha_m*)를 도입해 양자화 위험이 큰 구간에 더 큰 패널티를 부여했다.",
+    "log 재구성 손실을 사용해 손실이 매우 작아지는 후반 학습에서도 유효 gradient를 유지했다.",
+    "여러 baseline 및 동적 환경(서브캐리어 수/채널 통계 변화)에서 성능 이점을 검증했다."
+  ],
+  "algorithms": [
+    "CSI를 angle-delay domain으로 변환하고 truncation 후 인코더 입력 구성",
+    "각 출력 z_m을 원소별 코드북 W_m, 비트 B_m으로 스칼라 비균일 양자화(Eq.(1))",
+    "고정 인코더 출력 샘플 집합으로 K-means를 수행해 코드북 초기화/갱신",
+    "비트 재분배: 손실 증가 최소 원소 d와 손실 감소 최대 원소 a 선택(Eq.(2),(3))",
+    "고정 비트 할당에서 encoder/decoder/codebook를 Eq.(8) 손실로 end-to-end 학습",
+    "에폭 단위로 비트 할당 재갱신과 모듈 학습을 교대 수행(Alternating Training)",
+    "추론 시 학습된 비트 할당과 코드북으로 비트스트림 전송 후 BS 디코더 재구성"
+  ],
+  "key_equations": [
+    {
+      "name": "Eq.(1) 스칼라 양자화 매핑",
+      "latex": "z_m^q = w_{m,j},\\quad j = \\arg\\min_i (w_{m,i}-z_m)^2,\\ i=1,\\dots,2^{B_m}",
+      "description": "출력 원소 z_m을 해당 원소 전용 코드북 W_m의 최근접 코드워드로 매핑한다. B_m이 커지면 표현 해상도가 증가하고 양자화 오차가 줄어든다."
+    },
+    {
+      "name": "비트 예산 제약 하 양자화 목적",
+      "latex": "\\min_{\\{B_m\\}}\\ \\mathbb{E}\\|\\mathbf{z}^q-\\mathbf{z}\\|_2^2\\quad\\text{s.t.}\\quad\\sum_{m=1}^{M} B_m = MB",
+      "description": "총 비트 예산은 고정하고 원소별 비트를 재배치해 전체 양자화 손실을 최소화한다. 정수 제약 때문에 직접 미분 최적화가 어렵다."
+    },
+    {
+      "name": "Eq.(2),(3) 재분배 인덱스 선택",
+      "latex": "d=\\arg\\min_m\\{l[B_m-1]-l[B_m]\\},\\quad a=\\arg\\max_m\\{l[B_m]-l[B_m+1]\\}",
+      "description": "d는 1비트를 줄여도 손실 증가가 가장 작은 원소, a는 1비트를 늘렸을 때 손실 감소가 가장 큰 원소다. 각 반복에서 Bd-1, Ba+1로 갱신한다."
+    },
+    {
+      "name": "Eq.(4) 기존 결합 손실(고정 가중치)",
+      "latex": "\\frac{1}{|\\mathcal{D}|}\\sum\\left(\\|\\hat{H}-H\\|_2^2 + \\alpha\\|\\mathbf{z}^q-\\mathbf{z}\\|_2^2\\right)",
+      "description": "고정 alpha는 상황별 균형이 어렵다. alpha가 크면 재구성 품질이 희생되고, 작으면 양자화 mismatch 보정이 약해진다."
+    },
+    {
+      "name": "Eq.(7) 적응형 가중치",
+      "latex": "\\alpha_m^*=\\alpha\\,(w_{m,j}^{L}-w_{m,j}^{R})",
+      "description": "코드워드 이웃 간격이 클수록(양자화 위험이 클수록) 더 큰 패널티를 부여해 양자화 오류 누적을 억제한다."
+    },
+    {
+      "name": "Eq.(8) 제안 최종 손실",
+      "latex": "\\log\\!\\left(\\frac{1}{|\\mathcal{D}|}\\sum\\|\\hat{H}-H\\|_2^2\\right)+\\frac{1}{|\\mathcal{D}|}\\sum\\sum_{m=1}^{M}\\alpha_m^*(z_m^q-z_m)^2",
+      "description": "로그 재구성 손실로 작은 손실 구간의 gradient 소실을 줄이고, 적응형 양자화 항으로 STE mismatch 영향을 완화한다."
+    }
+  ],
+  "architecture_detail": "## 1) 문제 설정\n\nUE 인코더 출력 벡터 $\\mathbf{z}\\in\\mathbb{R}^M$는 디지털 피드백 전송 전에 양자화되어야 한다. 이 논문은 원소별로 서로 다른 비트폭을 허용하는 비균일 양자화를 채택한다.\n\n- 원소 $z_m$마다 비트 수 $B_m$를 독립적으로 둔다.\n- 원소 $z_m$마다 전용 코드북 $W_m=\\{w_{m,1},\\dots,w_{m,2^{B_m}}\\}$을 둔다.\n- 총 비트 예산은 고정: $\\sum_{m=1}^{M} B_m = MB$, $B_m\\in\\mathbb{Z}_{\\ge 0}$.\n\n$$\nz_m^q = w_{m,j},\\quad j = \\arg\\min_i (w_{m,i}-z_m)^2\n$$\n\n즉, 각 원소는 자기 코드북에서 가장 가까운 코드워드로 사상된다.\n\n## 2) 왜 균일 비트 할당이 손해인가\n\n인코더 출력 차원마다 분산(동적 범위)이 다르므로, 모든 차원에 동일 비트 수를 주면 고분산 차원의 왜곡이 커진다. 따라서 핵심은 **중요한 차원에 비트를 더 주고, 덜 중요한 차원에서 비트를 회수**하는 것이다.\n\n## 3) 비트 재분배 규칙 (Eq.(2),(3))\n\n1. 현재 할당 $\\mathbf{B}$에서 차원별 손실 $\\ell_m(B_m)$를 계산한다.\n2. 1비트 감소 시 손실 증가가 가장 작은 차원 $d$를 찾는다.\n3. 1비트 증가 시 손실 감소가 가장 큰 차원 $a$를 찾는다.\n4. $B_d\\leftarrow B_d-1$, $B_a\\leftarrow B_a+1$로 갱신한다.\n5. 전체 목적이 더 줄지 않을 때까지 반복한다.\n\n$$\nd=\\arg\\min_m\\{\\ell_m(B_m-1)-\\ell_m(B_m)\\},\\quad\na=\\arg\\max_m\\{\\ell_m(B_m)-\\ell_m(B_m+1)\\}\n$$\n\n## 4) Monotone Convergence Theorem 관점 해석\n\n비트 할당 목적함수를\n\n$$\nJ(\\mathbf{B})=\\sum_{m=1}^{M}\\ell_m(B_m),\\quad\n\\sum_{m=1}^{M}B_m=MB\n$$\n\n로 두면, 위 재분배는 매 반복에서 $J(\\mathbf{B}^{t+1})\\le J(\\mathbf{B}^{t})$를 만족하도록 설계된다.\n\n- 목적값 수열은 **단조 비증가**한다.\n- 양자화 손실은 하한(0) 아래로 내려갈 수 없다.\n- 정수 비트 + 고정 예산 제약으로 feasible set이 유한하므로 반복이 무한정 계속되지 않는다.\n\n따라서 이 알고리즘은 [Monotone Convergence Theorem](/glossary?q=Monotone%20Convergence%20Theorem) 관점에서 수렴 직관을 가진다. 다만 이는 전역 최적 보장이라기보다, 실용적인 지역 최적화 절차로 해석하는 것이 정확하다.\n\n## 5) 손실 설계 (Eq.(4)~Eq.(8))\n\n고정 가중치 $\\alpha$만 쓰면 재구성 손실과 양자화 손실의 균형이 불안정하다. 논문은 원소별 적응 가중치와 로그 재구성 손실을 함께 사용한다.\n\n$$\n\\alpha_m^*=\\alpha\\,(w_{m,j}^{L}-w_{m,j}^{R})\n$$\n\n$$\n\\mathcal{L}=\\log\\!\\left(\\frac{1}{|\\mathcal{D}|}\\sum\\|\\hat{H}-H\\|_2^2\\right)\n+\\frac{1}{|\\mathcal{D}|}\\sum\\sum_{m=1}^{M}\\alpha_m^*(z_m^q-z_m)^2\n$$\n\n해석하면, 코드워드 간격이 큰 차원에 더 큰 양자화 페널티를 부여해 mismatch를 줄이고, 로그 항으로 후반 학습의 그래디언트 소실을 완화한다.\n\n## 6) 교대 최적화(Alternating Optimization)\n\n- Stage A: 비트 할당 고정 후, 인코더/디코더/코드북을 end-to-end 학습.\n- Stage B: 비트 할당을 갱신하고 코드북을 K-means로 재계산.\n- A/B를 반복해 전체 파이프라인을 공동 최적화.\n\n이 흐름은 [Alternating Optimization](/glossary?q=Alternating%20Optimization), [Bit Allocation Optimization](/glossary?q=Bit%20Allocation%20Optimization), [Rate-Distortion Optimization](/glossary?q=Rate-Distortion%20Optimization), [Lagrangian Relaxation](/glossary?q=Lagrangian%20Relaxation) 관점에서 이해하면 가장 빠르다.\n\n## 7) 구현 체크리스트\n\n- 비트 재분배 주기(매 epoch vs 주기적 갱신)\n- K-means 샘플 수/배치 크기\n- 극단 코드워드 경계 처리\n- $\\log(\\cdot)$ 안정화용 $\\varepsilon$ 설정\n- 학습 중 비트 합 제약 $\\sum_m B_m=MB$ 검증 로깅"
+}

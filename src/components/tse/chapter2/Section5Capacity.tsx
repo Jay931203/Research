@@ -75,39 +75,70 @@ export default function Section5Capacity({ onNavigate }: Section5Props) {
 
       <div className="grid md:grid-cols-2 gap-4 mb-8">
         <div className="concept-card">
-          <h3 className="font-bold text-slate-800 mb-2">Large-scale fading</h3>
+          <h3 className="font-bold text-slate-800 dark:text-slate-200 mb-2">Large-scale fading</h3>
           <BlockMath math={String.raw`P_r \propto d^{-2}\text{ (free space)},\quad P_r \propto d^{-4}\text{ (ground reflection)}`} />
-          <p className="text-sm text-slate-600">
+          <p className="text-sm text-slate-600 dark:text-slate-400">
             거리와 지형이 평균 감쇠를 결정합니다.
             셀 반경과 전력 예산(link budget) 설계의 기초이며,
             섀도잉이 추가로 수 dB의 랜덤 변동을 만듭니다.
           </p>
+          <div className="mt-3 p-3 bg-amber-50 dark:bg-amber-900/20 border border-amber-200 dark:border-amber-700 rounded-lg">
+            <div className="text-xs font-semibold text-amber-700 dark:text-amber-400 mb-1">왜 중요한가</div>
+            <p className="text-sm text-slate-700 dark:text-slate-300">
+              기지국 배치 간격을 정하는 첫 번째 기준입니다.
+              <InlineMath math="d^{-2}" /> vs <InlineMath math="d^{-4}" />에 따라 셀 반경이 수 배 달라지며,
+              섀도잉 마진을 6-12 dB 더 잡아야 안정적 커버리지를 확보할 수 있습니다.
+            </p>
+          </div>
         </div>
         <div className="concept-card">
-          <h3 className="font-bold text-slate-800 mb-2">Small-scale fading</h3>
+          <h3 className="font-bold text-slate-800 dark:text-slate-200 mb-2">Small-scale fading</h3>
           <BlockMath math={String.raw`D_s \leftrightarrow T_c \sim 1/D_s,\quad T_d \leftrightarrow W_c \sim 1/T_d`} />
-          <p className="text-sm text-slate-600">
+          <p className="text-sm text-slate-600 dark:text-slate-400">
             시간/주파수 선택성이 코히런스 파라미터로 요약됩니다.
             이 네 값이 flat/selective, slow/fast 판정을 결정하며,
             수신기 복잡도와 파일럿 오버헤드의 하한을 정합니다.
           </p>
+          <div className="mt-3 p-3 bg-amber-50 dark:bg-amber-900/20 border border-amber-200 dark:border-amber-700 rounded-lg">
+            <div className="text-xs font-semibold text-amber-700 dark:text-amber-400 mb-1">직관적 이해</div>
+            <p className="text-sm text-slate-700 dark:text-slate-300">
+              <InlineMath math="D_s" />가 크다는 것은 채널이 빨리 변한다는 뜻이고,
+              <InlineMath math="T_d" />가 크다는 것은 주파수에 따라 채널이 많이 달라진다는 뜻입니다.
+              이 두 축이 수신기 복잡도를 결정합니다.
+            </p>
+          </div>
         </div>
         <div className="concept-card">
-          <h3 className="font-bold text-slate-800 mb-2">I/O model</h3>
+          <h3 className="font-bold text-slate-800 dark:text-slate-200 mb-2">I/O model</h3>
           <BlockMath math={String.raw`y[m]=\sum_{\ell} h_\ell[m]x[m-\ell]+w[m]`} />
-          <p className="text-sm text-slate-600">
+          <p className="text-sm text-slate-600 dark:text-slate-400">
             연속 전파를 탭 기반 baseband FIR 필터로 변환하여 수신기를 설계합니다.
             탭 수 <InlineMath math={String.raw`L`} />는 <InlineMath math={String.raw`T_d \cdot W`} />에 비례하며,
             이것이 등화기와 OFDM CP 길이를 결정합니다.
           </p>
+          <div className="mt-3 p-3 bg-amber-50 dark:bg-amber-900/20 border border-amber-200 dark:border-amber-700 rounded-lg">
+            <div className="text-xs font-semibold text-amber-700 dark:text-amber-400 mb-1">핵심 통찰</div>
+            <p className="text-sm text-slate-700 dark:text-slate-300">
+              이 단순한 FIR 필터가 수십억 개의 EM 산란 경로를 <InlineMath math="L" />개의 탭으로 요약한 것입니다.
+              <InlineMath math="L=1" />이면 단순 곱셈, <InlineMath math="L" />이 크면 OFDM이나 등화기가 필요합니다.
+            </p>
+          </div>
         </div>
         <div className="concept-card">
-          <h3 className="font-bold text-slate-800 mb-2">Statistical model</h3>
+          <h3 className="font-bold text-slate-800 dark:text-slate-200 mb-2">Statistical model</h3>
           <BlockMath math={String.raw`h_\ell[m]\sim\mathcal{CN}(0,\sigma_\ell^2)\text{ (Rayleigh)},\quad K\text{-factor for Rician}`} />
-          <p className="text-sm text-slate-600">
+          <p className="text-sm text-slate-600 dark:text-slate-400">
             탭 분포와 시간 상관함수가 outage 확률, 다이버시티 이득, 채널 추정 오차를 결정합니다.
             K-factor가 클수록 채널이 안정적이고, Rayleigh에서는 deep fade가 빈번합니다.
           </p>
+          <div className="mt-3 p-3 bg-amber-50 dark:bg-amber-900/20 border border-amber-200 dark:border-amber-700 rounded-lg">
+            <div className="text-xs font-semibold text-amber-700 dark:text-amber-400 mb-1">설계 관점</div>
+            <p className="text-sm text-slate-700 dark:text-slate-300">
+              탭의 정확한 값은 모르지만 분포를 알면 평균적 성능(ergodic capacity)과
+              최악의 성능(outage)을 모두 예측할 수 있습니다.
+              이것이 시스템 설계의 핵심 도구입니다.
+            </p>
+          </div>
         </div>
       </div>
 

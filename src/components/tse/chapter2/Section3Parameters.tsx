@@ -87,27 +87,128 @@ export default function Section3Parameters({ onNavigate }: Section3Props) {
 
       <div className="compare-grid mb-8">
         <div className="compare-item border-blue-200 bg-blue-50/40">
-          <h4 className="font-bold text-blue-800 mb-2">주파수 선택성 판정</h4>
-          <ul className="text-sm text-slate-600 list-disc list-inside space-y-1">
-            <li><InlineMath math={String.raw`W \ll W_c`} />: Flat fading</li>
-            <li><InlineMath math={String.raw`W \gg W_c`} />: Frequency-selective fading</li>
-          </ul>
+          <h4 className="font-bold text-blue-800 mb-3">주파수 선택성 판정</h4>
+
+          <div className="rounded-lg border border-emerald-200 bg-emerald-50/40 p-3 mb-3">
+            <div className="flex items-center gap-2 mb-1">
+              <span className="inline-block w-2.5 h-2.5 rounded-full bg-emerald-500 flex-shrink-0" />
+              <span className="font-semibold text-sm text-emerald-800">
+                <InlineMath math={String.raw`W \ll W_c`} />: Flat Fading
+              </span>
+              <span className="ml-auto text-xs font-medium text-emerald-600 bg-emerald-100 px-1.5 py-0.5 rounded">단순</span>
+            </div>
+            <p className="text-xs text-slate-600 leading-relaxed">
+              신호 대역폭이 코히런스 대역폭보다 훨씬 좁아서, <strong>대역폭 내에서 채널 이득이 거의 일정</strong>합니다.
+              모든 주파수 성분이 같은 감쇠와 위상을 겪기 때문에 심볼 파형이 보존되고 ISI가 발생하지 않습니다.
+              수신기는 단일 곱셈(1-tap)으로 등화할 수 있어 구조가 매우 단순합니다.
+            </p>
+          </div>
+
+          <div className="rounded-lg border border-red-200 bg-red-50/50 p-3">
+            <div className="flex items-center gap-2 mb-1">
+              <span className="inline-block w-2.5 h-2.5 rounded-full bg-red-500 flex-shrink-0" />
+              <span className="font-semibold text-sm text-red-800">
+                <InlineMath math={String.raw`W \gg W_c`} />: Frequency-Selective Fading
+              </span>
+              <span className="ml-auto text-xs font-medium text-red-600 bg-red-100 px-1.5 py-0.5 rounded">복잡</span>
+            </div>
+            <p className="text-xs text-slate-600 leading-relaxed">
+              신호 대역폭이 코히런스 대역폭을 크게 초과하여, <strong>주파수에 따라 채널 이득이 달라집니다</strong>.
+              서로 다른 주파수 성분이 다른 감쇠를 겪으므로 심볼이 왜곡(ISI)되며,
+              OFDM으로 대역을 분할하거나 다중 탭 등화기(equalizer)가 필요합니다.
+            </p>
+          </div>
+
+          <div className="mt-3 p-2.5 rounded-lg bg-slate-50 border border-slate-200">
+            <p className="text-xs text-slate-600">
+              <strong>설계 시사점:</strong> Flat이면 수신기가 단순해지고, selective면 OFDM이나 등화기가 필수입니다.
+              LTE/5G가 OFDM을 쓰는 근본 이유가 바로 광대역 채널의 frequency-selective 특성 때문입니다.
+            </p>
+          </div>
         </div>
+
         <div className="compare-item border-orange-200 bg-orange-50/40">
-          <h4 className="font-bold text-orange-800 mb-2">시간 선택성 판정</h4>
-          <ul className="text-sm text-slate-600 list-disc list-inside space-y-1">
-            <li><InlineMath math={String.raw`T_s \ll T_c`} />: Slow fading</li>
-            <li><InlineMath math={String.raw`T_s \gtrsim T_c`} />: Fast fading</li>
-          </ul>
+          <h4 className="font-bold text-orange-800 mb-3">시간 선택성 판정</h4>
+
+          <div className="rounded-lg border border-emerald-200 bg-emerald-50/40 p-3 mb-3">
+            <div className="flex items-center gap-2 mb-1">
+              <span className="inline-block w-2.5 h-2.5 rounded-full bg-emerald-500 flex-shrink-0" />
+              <span className="font-semibold text-sm text-emerald-800">
+                <InlineMath math={String.raw`T_s \ll T_c`} />: Slow Fading
+              </span>
+              <span className="ml-auto text-xs font-medium text-emerald-600 bg-emerald-100 px-1.5 py-0.5 rounded">단순</span>
+            </div>
+            <p className="text-xs text-slate-600 leading-relaxed">
+              심볼 구간이 코히런스 시간보다 훨씬 짧아서, <strong>한 심볼 구간 내에서 채널이 거의 변하지 않습니다</strong>.
+              한 번 채널을 추정하면 여러 심볼에 걸쳐 재사용할 수 있어 파일럿 오버헤드가 적고,
+              코히런트 검파(coherent detection)가 안정적으로 동작합니다.
+            </p>
+          </div>
+
+          <div className="rounded-lg border border-red-200 bg-red-50/50 p-3">
+            <div className="flex items-center gap-2 mb-1">
+              <span className="inline-block w-2.5 h-2.5 rounded-full bg-red-500 flex-shrink-0" />
+              <span className="font-semibold text-sm text-red-800">
+                <InlineMath math={String.raw`T_s \gtrsim T_c`} />: Fast Fading
+              </span>
+              <span className="ml-auto text-xs font-medium text-red-600 bg-red-100 px-1.5 py-0.5 rounded">복잡</span>
+            </div>
+            <p className="text-xs text-slate-600 leading-relaxed">
+              심볼 구간 중간에도 채널이 변해버려서, <strong>매 심볼마다 채널을 다시 추정</strong>해야 합니다.
+              파일럿 오버헤드가 크게 증가하며, 극단적인 경우 차등 변조(differential modulation)로
+              채널 추정 없이 검파하거나, 인터리빙으로 시간 다이버시티를 확보해야 합니다.
+            </p>
+          </div>
+
+          <div className="mt-3 p-2.5 rounded-lg bg-slate-50 border border-slate-200">
+            <p className="text-xs text-slate-600">
+              <strong>설계 시사점:</strong> Slow면 파일럿 간격을 넓게 잡아 효율을 높이고,
+              fast면 파일럿 밀도를 높이거나 차등 부호화를 고려해야 합니다.
+              이동 속도가 빨라질수록 fast fading 영역에 가까워집니다.
+            </p>
+          </div>
         </div>
       </div>
 
       <div id="underspread" className="insight mb-8">
         <div className="insight-title">Underspread Channel (TSE Chapter 2 Main Plot)</div>
-        <p className="text-sm text-amber-900">
+        <p className="text-sm text-amber-900 mb-3">
           실제 무선 채널은 보통 <InlineMath math={String.raw`T_d \ll T_c`} /> 조건을 만족하는 underspread 영역에 있습니다.
           이 성질 덕분에 탭 기반 모델과 파일럿 기반 추정이 실용적으로 작동합니다.
         </p>
+
+        <div className="space-y-2.5">
+          <div className="bg-amber-100/50 rounded-lg p-3 border border-amber-200">
+            <p className="text-sm font-semibold text-amber-800 mb-1">왜 대부분의 실제 채널은 underspread인가?</p>
+            <p className="text-xs text-amber-900 leading-relaxed">
+              Delay spread(<InlineMath math="T_d" />)는 다중경로 도착 시간차로 보통 <strong>us 단위</strong>이고,
+              coherence time(<InlineMath math="T_c" />)은 도플러에 의한 채널 변화 시간으로 보통 <strong>ms 단위</strong>입니다.
+              두 값 사이에 3자리(1000배) 이상의 차이가 존재하기 때문에, <InlineMath math={String.raw`T_d/T_c \ll 1`} /> 조건이
+              자연스럽게 성립합니다. 빛의 속도가 매우 빠르므로 경로 지연은 짧고, 이동체 속도가 빛보다 훨씬 느리므로 채널 변화는 상대적으로 느립니다.
+            </p>
+          </div>
+
+          <div className="bg-amber-100/50 rounded-lg p-3 border border-amber-200">
+            <p className="text-sm font-semibold text-amber-800 mb-1">만약 underspread가 아니라면?</p>
+            <p className="text-xs text-amber-900 leading-relaxed">
+              <InlineMath math={String.raw`T_d \gtrsim T_c`} />이면 채널이 <strong>자기 자신의 지연 구간 안에서도 변해버립니다</strong>.
+              이 경우 탭 지연 모델(<InlineMath math={String.raw`h(t,\tau)=\sum a_k(t)\delta(\tau-\tau_k)`} />)의
+              각 탭 계수 <InlineMath math="a_k(t)" />가 한 심볼 구간 내에서 급변하므로, 탭 모델 자체가 무의미해지고
+              파일럿 기반 채널 추정도 불가능해집니다. 다행히 실제 통신 환경에서는 이런 극단적 상황이 거의 발생하지 않습니다.
+            </p>
+          </div>
+
+          <div className="bg-amber-100/50 rounded-lg p-3 border border-amber-200">
+            <p className="text-sm font-semibold text-amber-800 mb-1">구체적 수치 예시</p>
+            <p className="text-xs text-amber-900 leading-relaxed">
+              LTE 도시 환경: <InlineMath math={String.raw`T_d \approx 1\,\mu\text{s}`} />,{' '}
+              <InlineMath math={String.raw`T_c \approx 2.5\,\text{ms}`} />{' '}
+              <InlineMath math={String.raw`\;\Rightarrow\; T_d/T_c \approx 0.0004`} /> (매우 강한 underspread).
+              즉, 채널이 변하기까지 걸리는 시간 안에 지연 확산의 2,500배에 달하는 시간이 있으므로,
+              수천 개의 심볼을 하나의 채널 추정값으로 안전하게 복조할 수 있습니다.
+            </p>
+          </div>
+        </div>
       </div>
 
       <ChannelParameterExplorer />
@@ -160,20 +261,114 @@ export default function Section3Parameters({ onNavigate }: Section3Props) {
       </div>
 
       <div className="concept-card mt-8" id="lte-example">
-        <h3 className="font-bold text-lg text-slate-800 mb-3">실전 예: LTE 2 GHz, 120 km/h, 도시 채널</h3>
-        <div className="grid md:grid-cols-2 gap-4 text-sm text-slate-600">
-          <div>
-            <div><InlineMath math={String.raw`f_D^{max}`} /> ≈ 222 Hz, <InlineMath math={String.raw`D_s`} /> ≈ 444 Hz</div>
-            <div><InlineMath math={String.raw`T_c`} /> ≈ 2.25 ms</div>
+        <h3 className="font-bold text-lg text-slate-800 mb-4">실전 예: LTE 2 GHz, 120 km/h, 도시 채널</h3>
+
+        <div className="space-y-4 mb-5">
+          <div className="rounded-xl border border-blue-200 bg-blue-50/40 p-4">
+            <h4 className="font-semibold text-sm text-blue-800 mb-2">Step 1: 도플러 계산</h4>
+            <div className="text-sm text-slate-600 mb-2">
+              이동 속도를 m/s로 변환: <InlineMath math={String.raw`v = 120\,\text{km/h} = \frac{120}{3.6} \approx 33.3\,\text{m/s}`} />
+            </div>
+            <BlockMath math={String.raw`f_D^{max} = \frac{v \cdot f_c}{c} = \frac{33.3 \times 2 \times 10^9}{3 \times 10^8} \approx 222\,\text{Hz}`} />
+            <div className="text-sm text-slate-600 mt-2">
+              Clarke 모델(균일 도래각) 가정 시: <InlineMath math={String.raw`D_s = 2 f_D^{max} \approx 444\,\text{Hz}`} />
+            </div>
           </div>
-          <div>
-            <div><InlineMath math={String.raw`T_d`} /> ≈ 1 μs이면 <InlineMath math={String.raw`W_c`} /> ≈ 1 MHz</div>
-            <div>20 MHz 시스템은 frequency-selective로 동작</div>
+
+          <div className="rounded-xl border border-orange-200 bg-orange-50/40 p-4">
+            <h4 className="font-semibold text-sm text-orange-800 mb-2">Step 2: 코히런스 파라미터 산출</h4>
+            <div className="grid md:grid-cols-2 gap-3 text-sm text-slate-600">
+              <div>
+                <div className="font-medium text-slate-700 mb-1">시간 코히런스:</div>
+                <BlockMath math={String.raw`T_c = \frac{1}{4 D_s} = \frac{1}{4 \times 444} \approx 0.56\,\text{ms}`} />
+                <p className="text-xs text-slate-500 mt-1">
+                  교재 기준(eq 2.45). 문헌에 따라 <InlineMath math={String.raw`1/D_s \approx 2.25\,\text{ms}`} />로 쓰기도 합니다.
+                </p>
+              </div>
+              <div>
+                <div className="font-medium text-slate-700 mb-1">주파수 코히런스:</div>
+                <BlockMath math={String.raw`W_c = \frac{1}{2 T_d} = \frac{1}{2 \times 10^{-6}} = 500\,\text{kHz}`} />
+                <p className="text-xs text-slate-500 mt-1">
+                  도시 환경 <InlineMath math={String.raw`T_d \approx 1\,\mu\text{s}`} /> 가정.
+                </p>
+              </div>
+            </div>
+          </div>
+
+          <div className="rounded-xl border border-emerald-200 bg-emerald-50/40 p-4">
+            <h4 className="font-semibold text-sm text-emerald-800 mb-2">Step 3: 선택성 판정 및 설계 결정</h4>
+            <div className="space-y-2 text-sm text-slate-600">
+              <div className="flex items-start gap-2">
+                <span className="inline-block w-2 h-2 rounded-full bg-red-500 mt-1.5 flex-shrink-0" />
+                <p>
+                  <strong>주파수:</strong> <InlineMath math={String.raw`W = 20\,\text{MHz} \gg W_c = 500\,\text{kHz}`} />{' '}
+                  <span className="font-medium text-red-700">frequency-selective</span>. 단일 반송파로는 ISI가 심해 OFDM이 필수입니다.
+                </p>
+              </div>
+              <div className="flex items-start gap-2">
+                <span className="inline-block w-2 h-2 rounded-full bg-emerald-500 mt-1.5 flex-shrink-0" />
+                <p>
+                  <strong>시간:</strong> LTE 심볼 길이 <InlineMath math={String.raw`T_s \approx 71.4\,\mu\text{s}`} /> (CP 포함){' '}
+                  <InlineMath math={String.raw`\ll T_c \approx 0.56\text{-}2.25\,\text{ms}`} />{' '}
+                  <span className="font-medium text-emerald-700">slow fading</span>. 한 슬롯(0.5ms) 내에서 채널이 거의 일정합니다.
+                </p>
+              </div>
+              <div className="flex items-start gap-2">
+                <span className="inline-block w-2 h-2 rounded-full bg-blue-500 mt-1.5 flex-shrink-0" />
+                <p>
+                  <strong>부반송파:</strong> LTE 부반송파 간격 <InlineMath math={String.raw`\Delta f = 15\,\text{kHz} \ll W_c = 500\,\text{kHz}`} />이므로,
+                  각 부반송파는 <span className="font-medium text-blue-700">flat fading</span>을 경험합니다.
+                  이것이 OFDM의 핵심 설계 원리입니다: 광대역 selective 채널을 좁은 flat 부채널들로 분할합니다.
+                </p>
+              </div>
+            </div>
           </div>
         </div>
-        <p className="text-xs text-slate-500 mt-3">
-          이 판정이 바로 OFDM 부반송파 수(1200개), 파일럿 밀도(시간·주파수 양 축), 등화기 복잡도 설계를 결정합니다.
-          LTE의 부반송파 간격 15 kHz는 <InlineMath math={String.raw`W_c`} /> ≈ 1 MHz보다 훨씬 좁아 각 부반송파가 flat fading을 경험합니다.
+
+        <div className="rounded-xl border border-violet-200 bg-violet-50/40 p-4 mb-4">
+          <h4 className="font-semibold text-sm text-violet-800 mb-2">시스템 비교: WiFi vs LTE vs 5G NR</h4>
+          <div className="overflow-x-auto">
+            <table className="w-full text-xs border-collapse">
+              <thead>
+                <tr className="bg-slate-100">
+                  <th className="text-left px-2.5 py-1.5 border border-slate-200 font-semibold text-slate-700">항목</th>
+                  <th className="text-center px-2.5 py-1.5 border border-slate-200 font-semibold text-slate-700">WiFi 5 GHz</th>
+                  <th className="text-center px-2.5 py-1.5 border border-slate-200 font-semibold text-blue-700">LTE 2 GHz</th>
+                  <th className="text-center px-2.5 py-1.5 border border-slate-200 font-semibold text-slate-700">5G NR 28 GHz</th>
+                </tr>
+              </thead>
+              <tbody>
+                {[
+                  { item: '대역폭 W', wifi: '80 MHz', lte: '20 MHz', nr: '400 MHz' },
+                  { item: '대표 속도 v', wifi: '~3 km/h (보행)', lte: '120 km/h', nr: '30 km/h' },
+                  { item: 'f_D^{max}', wifi: '~14 Hz', lte: '~222 Hz', nr: '~778 Hz' },
+                  { item: 'T_d (도시)', wifi: '~50 ns (실내)', lte: '~1 us', nr: '~100 ns' },
+                  { item: 'W_c', wifi: '~10 MHz', lte: '~500 kHz', nr: '~5 MHz' },
+                  { item: '부반송파 간격', wifi: '312.5 kHz', lte: '15 kHz', nr: '120 kHz' },
+                  { item: '주파수 선택성', wifi: 'Selective', lte: 'Selective', nr: 'Selective' },
+                ].map((row, i) => (
+                  <tr key={row.item} className={i % 2 === 0 ? 'bg-white' : 'bg-slate-50'}>
+                    <td className="px-2.5 py-1 border border-slate-200 text-slate-700 font-medium">
+                      {row.item.includes('^') || row.item.includes('_') ? <InlineMath math={row.item} /> : row.item}
+                    </td>
+                    <td className="px-2.5 py-1 border border-slate-200 text-center text-slate-600">{row.wifi}</td>
+                    <td className="px-2.5 py-1 border border-slate-200 text-center font-semibold text-blue-700">{row.lte}</td>
+                    <td className="px-2.5 py-1 border border-slate-200 text-center text-slate-600">{row.nr}</td>
+                  </tr>
+                ))}
+              </tbody>
+            </table>
+          </div>
+          <p className="text-xs text-slate-500 mt-2">
+            세 시스템 모두 광대역이라 frequency-selective이므로 OFDM을 사용합니다.
+            5G NR은 mmWave 고주파 대역에서 도플러가 훨씬 커지므로 부반송파 간격을 120 kHz로 넓혀
+            심볼 시간을 단축하고 도플러 내성을 확보합니다.
+          </p>
+        </div>
+
+        <p className="text-xs text-slate-500">
+          이 판정이 바로 OFDM 부반송파 수(1200개), 파일럿 밀도(시간/주파수 양 축), 등화기 복잡도 설계를 결정합니다.
+          위 계산 과정을 ChannelParameterExplorer에서 슬라이더를 움직이며 직접 확인해 보세요.
         </p>
       </div>
 

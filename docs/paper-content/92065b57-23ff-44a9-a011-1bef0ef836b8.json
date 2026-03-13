@@ -1,0 +1,72 @@
+{
+  "id": "92065b57-23ff-44a9-a011-1bef0ef836b8",
+  "title": "SCANet: A Lightweight Deep Learning Network for Massive MIMO CSI Feedback Based on Spatial and Channel Attention Mechanism",
+  "authors": [
+    "Huaqiang Chen",
+    "Weiqiang Tan",
+    "Jiajia Guo",
+    "Feiran Yang"
+  ],
+  "year": 2024,
+  "venue": "Physical Communication",
+  "doi": "10.1016/j.phycom.2024.102516",
+  "arxiv_id": null,
+  "abstract": "SCANet은 Massive MIMO CSI 피드백에서 정확도-복잡도 균형을 개선하기 위해 공간/채널 주의 기반 경량 구조를 제안한다. 인코더는 Transformer 기반 특징 추출과 SCAB(Spatial-Channel Attention Block)으로 중요 공간 위치와 채널을 강조하고, 디코더는 CNN+Transformer 결합 구조로 복원 품질을 확보한다. 원문 보고 기준으로 파라미터 수, 연산 복잡도, 피드백 오버헤드를 동시에 줄이면서 CLNet 대비 NMSE 개선을 달성한다.",
+  "notes_summary": "Encoder-Transformer + SCAB, Decoder-CNN/Transformer 융합으로 CSI 핵심 특징에 집중해 경량성과 복원 성능을 함께 올린 2024 SCANet.",
+  "key_contributions": [
+    "공간 주의와 채널 주의를 하나의 SCAB 모듈로 결합해 CSI 유효 특징을 선택적으로 강화했다.",
+    "인코더(ETB+SCAB)와 디코더(CNN+Transformer) 역할을 분리해 경량화와 복원 성능을 동시에 노렸다.",
+    "CLNet 대비 파라미터/복잡도/피드백 오버헤드 절감과 NMSE 개선을 함께 보고했다.",
+    "저압축률(예: 1/4) 구간에서도 attention 기반 특징 보강으로 성능 유지력을 높였다.",
+    "기존 CNN 계열 경량 CSI 모델과 Transformer 계열 전역 의존성 학습의 장점을 혼합했다."
+  ],
+  "algorithms": [
+    "CSI를 angle-delay 도메인 입력 텐서로 구성하고 초기 convolution으로 저수준 특징을 추출한다.",
+    "인코더 ETB(Encoder Transformer Block)에서 전역 상관관계를 학습한다.",
+    "SCAB에서 채널 주의와 공간 주의를 순차/결합 적용해 중요한 특징을 강조한다.",
+    "압축 코드워드를 생성해 uplink 피드백 비트로 전송한다.",
+    "디코더에서 CNN으로 지역 복원을 수행하고 Transformer로 장거리 의존성을 보강한다.",
+    "NMSE 손실 기반 end-to-end 학습으로 압축-복원 전체 경로를 최적화한다."
+  ],
+  "key_equations": [
+    {
+      "name": "채널 주의(표현식)",
+      "latex": "\\mathbf{M}_c(\\mathbf{F})=\\sigma\\!\\left(\\operatorname{MLP}(\\operatorname{AvgPool}(\\mathbf{F})) + \\operatorname{MLP}(\\operatorname{MaxPool}(\\mathbf{F}))\\right)",
+      "description": "채널별 중요도를 추정해 유효 채널을 강조하는 SCAB 구성식."
+    },
+    {
+      "name": "공간 주의(표현식)",
+      "latex": "\\mathbf{M}_s(\\mathbf{F})=\\sigma\\!\\left(f^{k\\times k}\\left([\\operatorname{AvgPool}_c(\\mathbf{F});\\operatorname{MaxPool}_c(\\mathbf{F})]\\right)\\right)",
+      "description": "공간 위치별 중요도를 추정해 핵심 경로 위치를 강조한다."
+    },
+    {
+      "name": "SCAB 특징 재가중",
+      "latex": "\\mathbf{F}'=\\mathbf{M}_c(\\mathbf{F})\\odot\\mathbf{F},\\qquad \\mathbf{F}''=\\mathbf{M}_s(\\mathbf{F}')\\odot\\mathbf{F}'",
+      "description": "채널-공간 두 축의 주의를 순차 적용해 특징 선택성을 높인다."
+    },
+    {
+      "name": "NMSE 평가식",
+      "latex": "\\mathrm{NMSE}=\\mathbb{E}\\left\\{\\|\\mathbf{H}_a-\\hat{\\mathbf{H}}_a\\|_2^2/\\|\\mathbf{H}_a\\|_2^2\\right\\}",
+      "description": "CSI 복원 품질을 비교하는 표준 지표."
+    },
+    {
+      "name": "압축비 정의",
+      "latex": "\\eta=\\frac{M}{2N_aN_c}",
+      "description": "입력 CSI 차원 대비 피드백 코드워드 차원의 비율(작을수록 강한 압축)."
+    }
+  ],
+  "architecture_detail": "## 1) 설계 목표: 경량화와 복원 정확도의 동시 개선\n\nSCANet은 \"가벼운 모델인데도 중요한 CSI 특징은 놓치지 않게\" 만드는 것이 목표다. 핵심은 단순 연산 축소가 아니라, **공간/채널 차원에서 중요한 특징만 선택적으로 강화**하는 것이다.\n\n## 2) 인코더: ETB + SCAB 조합\n\n- ETB(Encoder Transformer Block): 넓은 수용영역에서 전역 상관관계를 학습\n- SCAB(Spatial-Channel Attention Block): 공간/채널 주의 결합으로 유효 특징 강조\n\n채널 주의는 다음과 같이 쓸 수 있다.\n\n$$\n\\mathbf{M}_c(\\mathbf{F})=\\sigma\\!\\left(\\operatorname{MLP}(\\operatorname{AvgPool}(\\mathbf{F})) + \\operatorname{MLP}(\\operatorname{MaxPool}(\\mathbf{F}))\\right)\n$$\n\n공간 주의는 다음과 같은 형태다.\n\n$$\n\\mathbf{M}_s(\\mathbf{F})=\\sigma\\!\\left(f^{k\\times k}\\left([\\operatorname{AvgPool}_c(\\mathbf{F});\\operatorname{MaxPool}_c(\\mathbf{F})]\\right)\\right)\n$$\n\n두 주의를 결합하면\n\n$$\n\\mathbf{F}'=\\mathbf{M}_c(\\mathbf{F})\\odot\\mathbf{F},\\qquad \\mathbf{F}''=\\mathbf{M}_s(\\mathbf{F}')\\odot\\mathbf{F}'\n$$\n\n처럼 핵심 특징 중심 표현으로 정제된다.\n\n## 3) 디코더: CNN + Transformer 융합 복원\n\nSCANet 디코더는 지역 복원(CNN)과 전역 의존성 보강(Transformer)을 함께 사용한다. 이 구조는 저복잡도 복원 경로를 유지하면서, 단순 CNN만으로 놓치기 쉬운 장거리 연관 특징을 보완한다.\n\n## 4) 학습/평가 관점\n\n복원 품질은 NMSE 기준으로 평가한다.\n\n$$\n\\mathrm{NMSE}=\\mathbb{E}\\left\\{\\|\\mathbf{H}_a-\\hat{\\mathbf{H}}_a\\|_2^2/\\|\\mathbf{H}_a\\|_2^2\\right\\}\n$$\n\n압축비는\n\n$$\n\\eta=\\frac{M}{2N_aN_c}\n$$\n\n로 관리하며, 동일 \\(\\eta\\)에서 성능-복잡도 균형을 비교한다.\n\n## 5) 보고된 성능 포인트\n\n원문 초록 보고 기준으로 SCANet은 CLNet 대비 다음을 보고했다.\n\n- 파라미터 약 48.5% 감소\n- 연산 복잡도 약 37.1% 감소\n- 피드백 오버헤드 약 45.2% 감소(압축비 1/4 조건)\n- NMSE 개선: indoor 약 4.63%, outdoor 약 5.58%\n\n핵심은 attention 설계를 통해 단순 경량화에서 흔한 정확도 손실을 억제했다는 점이다.\n\n## 6) 구현 체크리스트\n\n- SCAB의 채널 축소 비율과 spatial kernel 크기 동시 튜닝\n- ETB 헤드 수/차원 수를 압축비별로 재조정\n- 디코더에서 CNN-Transformer 비중을 하드웨어 예산에 맞게 조절\n- NMSE뿐 아니라 실제 추론 지연(latency), 메모리 풋프린트 함께 로깅",
+  "category": "cnn",
+  "tags": [
+    "scanet",
+    "spatial-attention",
+    "channel-attention",
+    "lightweight",
+    "transformer",
+    "csi-feedback"
+  ],
+  "pdf_url": "https://doi.org/10.1016/j.phycom.2024.102516",
+  "code_url": null,
+  "color_hex": "#0369A1",
+  "icon_name": null
+}

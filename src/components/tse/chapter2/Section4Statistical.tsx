@@ -52,7 +52,26 @@ export default function Section4Statistical({ onNavigate }: Section4Props) {
           <div className="formula-block !my-2 !p-3">
             <BlockMath math={String.raw`f_R(r)=\frac{r}{\sigma^2}e^{-r^2/(2\sigma^2)},\quad r\ge0`} />
           </div>
-          <div className="text-xs text-slate-500">deep fade가 빈번해 outage 민감도가 큽니다.</div>
+          <div className="text-sm text-slate-600 mt-2 space-y-2">
+            <p>
+              <strong className="text-blue-700 dark:text-blue-400">σ²의 의미:</strong>{' '}
+              σ²은 총 산란 전력의 절반입니다. I/Q 각 성분이{' '}
+              <InlineMath math={String.raw`\mathcal{N}(0,\sigma^2)`} />을 따르므로,
+              envelope의 평균 전력은{' '}
+              <InlineMath math={String.raw`\mathbb{E}[R^2]=2\sigma^2`} />입니다.
+            </p>
+            <p>
+              <strong className="text-blue-700 dark:text-blue-400">물리적 직관:</strong>{' '}
+              σ가 클수록 평균 수신 전력이 크지만, deep fade의 절대 깊이도 커집니다.
+            </p>
+            <p>
+              <strong className="text-blue-700 dark:text-blue-400">PDF 형태:</strong>{' '}
+              Rayleigh PDF는{' '}
+              <InlineMath math={String.raw`r=\sigma`} />에서 최댓값을 가지고,{' '}
+              <InlineMath math={String.raw`r\to0`} />으로 갈수록 0이지만,
+              r이 매우 작은 구간의 누적 확률(CDF)이 상당히 커서 deep fade가 잦습니다.
+            </p>
+          </div>
         </div>
 
         <div className="compare-item border-red-200 bg-red-50/50">
@@ -64,27 +83,69 @@ export default function Section4Statistical({ onNavigate }: Section4Props) {
             K-factor가 클수록 채널이 안정적입니다.
           </p>
           <div className="formula-block !my-2 !p-3">
-            <BlockMath math={String.raw`K=\frac{\text{LOS power}}{\text{NLOS power}}`} />
+            <BlockMath math={String.raw`K=\frac{s^2}{2\sigma^2}=\frac{\text{LOS power}}{\text{NLOS power}}`} />
           </div>
-          <div className="text-xs text-slate-500">K가 커질수록 Rayleigh에서 AWGN에 가까워집니다.</div>
+          <div className="formula-block !my-2 !p-3">
+            <BlockMath math={String.raw`f_R(r)=\frac{r}{\sigma^2}\exp\!\Bigl(-\frac{r^2+s^2}{2\sigma^2}\Bigr)\,I_0\!\Bigl(\frac{rs}{\sigma^2}\Bigr),\quad r\ge0`} />
+          </div>
+          <div className="text-sm text-slate-600 mt-2 space-y-2">
+            <p>
+              <strong className="text-red-700 dark:text-red-400">각 항의 의미:</strong>{' '}
+              <InlineMath math={String.raw`s`} />는 LOS 성분의 크기,{' '}
+              <InlineMath math={String.raw`\sigma^2`} />은 산란 성분 전력의 절반(Rayleigh와 동일),{' '}
+              <InlineMath math={String.raw`\exp(\cdot)`} />항은 총 전력에 의한 감쇠입니다.
+            </p>
+            <p>
+              <strong className="text-red-700 dark:text-red-400">
+                <InlineMath math={String.raw`I_0`} /> (0차 변형 베셀 함수):
+              </strong>{' '}
+              LOS와 산란 성분이 간섭하는 정도를 나타냅니다.{' '}
+              <InlineMath math={String.raw`I_0(x)`} />는 항상 양수이고{' '}
+              <InlineMath math={String.raw`x`} />가 커지면 지수적으로 증가하여,
+              LOS가 강할수록 분포를 평균 쪽으로 집중시킵니다.
+            </p>
+            <p>
+              <strong className="text-red-700 dark:text-red-400">직관:</strong>{' '}
+              K가 크면 평균 주위로 집중된 분포(deep fade 드물),{' '}
+              <InlineMath math={String.raw`K=0`} />{' '}
+              <InlineMath math={String.raw`(s=0)`} />이면{' '}
+              <InlineMath math={String.raw`I_0(0)=1`} />이 되어 Rayleigh로 환원됩니다.
+            </p>
+          </div>
         </div>
       </div>
 
       <div className="concept-card mb-8" id="k-factor">
         <h3 className="font-bold text-lg text-slate-800 mb-3">2.4.2 Rayleigh/Rician의 연결</h3>
         <div className="grid md:grid-cols-3 gap-3 text-sm">
-          <div className="p-3 bg-blue-50 rounded-lg border border-blue-100">
-            <div className="font-bold text-blue-700">K = 0</div>
-            <div className="text-slate-600">순수 Rayleigh</div>
+          <div className="p-3 bg-blue-50 dark:bg-blue-900/30 rounded-lg border border-blue-100 dark:border-blue-800">
+            <div className="font-bold text-blue-700 dark:text-blue-400">K = 0</div>
+            <div className="text-slate-600 dark:text-slate-400">순수 Rayleigh</div>
           </div>
-          <div className="p-3 bg-amber-50 rounded-lg border border-amber-100">
-            <div className="font-bold text-amber-700">K = 5~10 dB</div>
-            <div className="text-slate-600">일반적 Rician</div>
+          <div className="p-3 bg-amber-50 dark:bg-amber-900/30 rounded-lg border border-amber-100 dark:border-amber-800">
+            <div className="font-bold text-amber-700 dark:text-amber-400">K = 5~10 dB</div>
+            <div className="text-slate-600 dark:text-slate-400">일반적 Rician</div>
           </div>
-          <div className="p-3 bg-green-50 rounded-lg border border-green-100">
-            <div className="font-bold text-green-700">K → ∞</div>
-            <div className="text-slate-600">거의 비페이딩</div>
+          <div className="p-3 bg-green-50 dark:bg-green-900/30 rounded-lg border border-green-100 dark:border-green-800">
+            <div className="font-bold text-green-700 dark:text-green-400">K → ∞</div>
+            <div className="text-slate-600 dark:text-slate-400">거의 비페이딩</div>
           </div>
+        </div>
+        <div className="mt-4 text-sm text-slate-600 dark:text-slate-400 space-y-2">
+          <p>
+            <strong className="text-slate-800 dark:text-slate-200">K 증가의 효과:</strong>{' '}
+            K=0(Rayleigh)에서 K→∞(비페이딩)으로 갈수록 분포가 평균 주위로 집중됩니다.
+            경험적으로, K가 10 dB 증가할 때마다 outage probability가 대략 한 자릿수(10배) 개선됩니다.
+          </p>
+          <p>
+            <strong className="text-slate-800 dark:text-slate-200">실제 환경 예시:</strong>
+          </p>
+          <ul className="list-disc list-inside ml-2 space-y-1">
+            <li>도심 NLOS (건물 사이): <InlineMath math={String.raw`K \approx 0`} /> (Rayleigh)</li>
+            <li>실내 LOS 복도: <InlineMath math={String.raw`K \approx 6\text{-}10\;\text{dB}`} /></li>
+            <li>교외 / 개활지 LOS: <InlineMath math={String.raw`K \approx 10\text{-}15\;\text{dB}`} /></li>
+            <li>위성 통신: <InlineMath math={String.raw`K \approx 15\text{-}20\;\text{dB}`} /> (거의 비페이딩)</li>
+          </ul>
         </div>
       </div>
 
@@ -94,11 +155,36 @@ export default function Section4Statistical({ onNavigate }: Section4Props) {
         <h3 className="font-bold text-lg text-slate-800 mb-3">2.4.3 Tap gain autocorrelation (Clarke/Jakes)</h3>
         <BlockMath math={String.raw`R_{h_\ell}[\Delta m]=\mathbb{E}[h_\ell[m]h_\ell^*[m+\Delta m]]`} />
         <BlockMath math={String.raw`R_{h_\ell}(\Delta t)\propto J_0(2\pi f_D\Delta t)`} />
-        <p className="text-sm text-slate-600 mt-2">
+        <p className="text-sm text-slate-600 dark:text-slate-400 mt-2">
           Clarke/Jakes 모델은 도래각이 수평면에서 균일하게 분포한다고 가정할 때의 시간 상관함수입니다.
-          <InlineMath math={String.raw`J_0`} />는 0차 베셀 함수로, <InlineMath math={String.raw`\Delta t`} />가 커질수록
-          상관이 감소하여 결국 0에 수렴합니다.
-          이 상관함수의 폭이 곧 채널 예측 가능 시간이며, <strong>파일럿 재전송 주기</strong>를 결정합니다.
+        </p>
+        <div className="mt-3 text-sm text-slate-600 dark:text-slate-400 space-y-2">
+          <p>
+            <strong className="text-slate-800 dark:text-slate-200">
+              <InlineMath math={String.raw`J_0`} />의 직관:
+            </strong>{' '}
+            <InlineMath math={String.raw`J_0(x)`} />는{' '}
+            <InlineMath math={String.raw`x=0`} />에서 1이고,{' '}
+            <InlineMath math={String.raw`x`} />가 커지면 0을 중심으로 진동하며 감쇠하는 함수입니다.
+            물리적으로는 시간이 멀어질수록 상관이 줄면서 진동하는 패턴을 나타냅니다.
+          </p>
+          <p>
+            <strong className="text-slate-800 dark:text-slate-200">수식의 의미:</strong>{' '}
+            <InlineMath math={String.raw`\Delta t=0`} />이면 상관=1(자기 자신과의 상관),{' '}
+            <InlineMath math={String.raw`\Delta t`} />가{' '}
+            <InlineMath math={String.raw`1/(2f_D)`} />를 넘으면 상관이 크게 줄어
+            채널이 사실상 &apos;새로운&apos; 독립적 값이 됩니다.
+            이 상관함수의 폭이 곧 채널 예측 가능 시간이며, <strong>파일럿 재전송 주기</strong>를 결정합니다.
+          </p>
+          <p>
+            <strong className="text-slate-800 dark:text-slate-200">파일럿 설계 기준:</strong>{' '}
+            <InlineMath math={String.raw`J_0`} />의 첫 번째 영점이{' '}
+            <InlineMath math={String.raw`\Delta t \approx 0.4/f_D`} />에서 발생합니다.
+            이 시간 내에 파일럿을 보내야 유효한 채널 추정이 가능하므로,
+            파일럿 간격의 상한이 됩니다.
+          </p>
+        </div>
+        <p className="text-sm text-slate-600 dark:text-slate-400 mt-2">
           아래 시뮬레이터에서 도플러에 따른 페이딩 시간 패턴을 직접 확인할 수 있습니다.
         </p>
       </div>
@@ -111,9 +197,36 @@ export default function Section4Statistical({ onNavigate }: Section4Props) {
           링크 신뢰도의 핵심 지표이며, 코딩·전력 제어·다이버시티 설계의 목표 기준이 됩니다.
         </p>
         <BlockMath math={String.raw`P_{out}=P\{|h|^2 < \gamma_{th}/\text{SNR}\}`} />
-        <p className="text-sm text-slate-600">
-          Rayleigh 채널에서는 <InlineMath math={String.raw`|h|^2`} />가 지수 분포이므로
-          outage가 높은 SNR에서도 <InlineMath math={String.raw`1/\text{SNR}`} />에만 비례하여 천천히 감소합니다.
+        <div className="mt-3 text-sm text-slate-600 dark:text-slate-400 space-y-2">
+          <p>
+            <strong className="text-slate-800 dark:text-slate-200">Rayleigh 채널의 유도:</strong>{' '}
+            Rayleigh 페이딩에서{' '}
+            <InlineMath math={String.raw`|h|^2 \sim \text{Exp}(1)`} /> (지수 분포)이므로,
+            CDF를 직접 계산할 수 있습니다:
+          </p>
+          <div className="formula-block !my-2 !p-3">
+            <BlockMath math={String.raw`P_{out} = 1 - \exp\!\Bigl(-\frac{\gamma_{th}}{\text{SNR}}\Bigr) \;\approx\; \frac{\gamma_{th}}{\text{SNR}} \quad (\text{high SNR})`} />
+          </div>
+          <p>
+            <strong className="text-slate-800 dark:text-slate-200">
+              왜 <InlineMath math={String.raw`1/\text{SNR}`} />에 비례하는가:
+            </strong>{' '}
+            높은 SNR 근사에서{' '}
+            <InlineMath math={String.raw`P_{out} \approx \gamma_{th}/\text{SNR}`} />이므로,
+            SNR을 10배 올려도 outage는 10배만 줄어듭니다.
+            이는 AWGN 채널에서 오류 확률이 SNR에 대해 지수적으로 감소하는 것과 대비됩니다.
+          </p>
+          <p className="p-2 bg-amber-50 dark:bg-amber-900/30 rounded border border-amber-200 dark:border-amber-800">
+            <strong className="text-amber-800 dark:text-amber-400">다이버시티의 동기:</strong>{' '}
+            1개 안테나의 근본적 한계가 바로 이{' '}
+            <InlineMath math={String.raw`1/\text{SNR}`} /> 비례 관계입니다.
+            L개의 독립 다이버시티 경로가 있으면{' '}
+            <InlineMath math={String.raw`P_{out} \propto (1/\text{SNR})^L`} />로 개선되어,
+            SNR 10배 증가 시 outage가{' '}
+            <InlineMath math={String.raw`10^L`} />배 줄어듭니다.
+          </p>
+        </div>
+        <p className="text-sm text-slate-600 dark:text-slate-400 mt-2">
           이 문제를 극복하는 것이 다이버시티 기법의 핵심 동기이며,
           <button onClick={() => onNavigate('appendix-a2')} className="cross-ref !text-xs ml-1">Appendix A.2</button>
           의 검출 오류 확률과 직접 연결됩니다.

@@ -1,0 +1,60 @@
+{
+  "id": "9c6faf30-583b-415d-83f9-50fc60a1d205",
+  "title": "A Lightweight Deep Network for Efficient CSI Feedback in Massive MIMO Systems",
+  "authors": [
+    "Yuyao Sun",
+    "Wei Xu",
+    "Le Liang",
+    "Ning Wang",
+    "Geoffery Ye Li",
+    "Xiaohu You"
+  ],
+  "year": 2021,
+  "venue": "IEEE Wireless Communications Letters",
+  "doi": "10.1109/LWC.2021.3083331",
+  "arxiv_id": null,
+  "abstract": "This paper proposes a lightweight deep CSI feedback network for massive MIMO with explicit focus on user-equipment deployment cost. It redesigns the encoder-decoder pipeline to reduce encoder complexity while preserving reconstruction quality at low feedback rates.",
+  "key_contributions": [
+    "Introduces a lightweight CSI feedback network tailored for resource-constrained UE inference.",
+    "Reduces encoder-side complexity through compact convolutional design while keeping decoder-side recovery capability strong.",
+    "Demonstrates improved complexity-accuracy trade-offs against prior CSI feedback baselines in low-rate settings.",
+    "Provides deployment-oriented analysis for practical massive MIMO feedback pipelines."
+  ],
+  "algorithms": [
+    "Transform channel matrix to angle-delay representation and normalize input.",
+    "Use lightweight convolutional encoder blocks to produce compact feedback codewords.",
+    "Transmit fixed-length codewords over the feedback link.",
+    "Apply stronger decoder refinement blocks at BS to recover high-fidelity CSI.",
+    "Train end-to-end with NMSE-driven objective and deployment-aware complexity tracking."
+  ],
+  "key_equations": [
+    {
+      "name": "Encoder Complexity (Convolutional FLOPs)",
+      "latex": "C_{\\mathrm{enc}} = \\sum_{l=1}^{L} H_l W_l K_l^2 C_{\\mathrm{in},l} C_{\\mathrm{out},l}",
+      "description": "Layer-wise encoder computation cost. Lightweight design focuses on lowering this sum for UE-side inference."
+    },
+    {
+      "name": "Depthwise-Separable Approximation",
+      "latex": "C_{\\mathrm{dw+pw}} = \\sum_{l=1}^{L} H_l W_l\\left(K_l^2 C_{\\mathrm{in},l} + C_{\\mathrm{in},l} C_{\\mathrm{out},l}\\right)",
+      "description": "A compact factorization view that highlights complexity savings over standard convolution blocks."
+    },
+    {
+      "name": "NMSE Objective",
+      "latex": "\\mathrm{NMSE}=\\mathbb{E}\\left[\\frac{\\|\\hat{\\mathbf{H}}-\\mathbf{H}\\|_2^2}{\\|\\mathbf{H}\\|_2^2}\\right]",
+      "description": "Primary reconstruction objective used to compare feedback quality under fixed rate constraints."
+    }
+  ],
+  "category": "cnn",
+  "tags": [
+    "lightweight",
+    "csi-feedback",
+    "massive-mimo",
+    "deployment",
+    "encoder-complexity"
+  ],
+  "pdf_url": "https://doi.org/10.1109/LWC.2021.3083331",
+  "code_url": null,
+  "notes_summary": "A deployment-oriented lightweight CSI feedback model that targets UE compute constraints while maintaining reconstruction quality.",
+  "color_hex": "#F97316",
+  "architecture_detail": "## 1) Problem Setup\nUE-side CSI feedback models must run under strict latency, memory, and energy budgets. The paper treats complexity as a first-class design objective, not just an implementation afterthought.\n\n## 2) Design Goal\nThe target is to minimize encoder compute while preserving reconstruction fidelity at BS. This creates a practical asymmetric architecture where UE encoder is compact and BS decoder handles heavier recovery.\n\n## 3) Lightweight Encoder Strategy\nThe encoder uses compact convolutional blocks and narrow channel dimensions to reduce FLOPs and parameter count. The design can be interpreted via [Depthwise Separable Convolution](/glossary?q=Depthwise%20Separable%20Convolution) style factorization and low-cost projection layers.\n\n## 4) Decoder-Side Compensation\nDecoder blocks are allowed to be relatively stronger because BS resources are less constrained. This asymmetry keeps end-to-end NMSE competitive under strict feedback budget.\n\n## 5) Complexity-NMSE Trade-off\nThe practical objective is not only lower NMSE but lower NMSE *at a fixed UE compute envelope*. The model is evaluated on both reconstruction accuracy and deployment efficiency.\n\n## 6) Key Training/Optimization Notes\n- End-to-end training with NMSE objective.\n- Monitor encoder FLOPs and parameter count alongside validation NMSE.\n- Keep feedback codeword length fixed to align with protocol constraints.\n\n## 7) Why This Paper Matters\nThis work systematically pushes CSI feedback architecture toward deployable UE models, complementing later quantization/bit-allocation studies that optimize transmission cost on top of lightweight networks."
+}

@@ -1,0 +1,50 @@
+{
+  "id": "f7b136c9-0921-43c7-93af-3cb3a1843f24",
+  "title": "Vector Quantized CSI Feedback with Learned Codebook",
+  "authors": [
+    "Jiajia Cui",
+    "Zhilin Lu",
+    "Jintao Wang"
+  ],
+  "year": 2023,
+  "venue": "검증 필요 (공식 원문 링크 미확인)",
+  "doi": null,
+  "arxiv_id": null,
+  "abstract": "현재 데이터베이스에 등록된 \"Vector Quantized CSI Feedback with Learned Codebook\" 항목은 요청된 검증 절차(arXiv 원문/PDF, DOI resolver, Crossref)에서 일치하는 공식 레코드를 찾지 못했다. 따라서 이 항목에는 논문 고유 수식/실험 설정을 단정적으로 채우지 않고, 검증 완료 전까지는 일반 VQ 기반 CSI 피드백 학습 포인트만 제공한다. 정확한 상세 업데이트를 위해서는 canonical arXiv 링크 또는 DOI가 필요하다.",
+  "notes_summary": "검증 상태: 미확인. 제목/저자/DOI 조합(기존 DOI: 10.1109/LSP.2023.3289234)은 arXiv/Crossref/DOI resolver에서 확인되지 않았다. 임시로 학습 가이드만 제공하며, 원문 링크 확보 후 즉시 상세 수식 기반으로 재작성 필요.",
+  "key_contributions": [
+    "기존 메타데이터의 실재성 검증(arXiv, Crossref, DOI resolver)을 수행해 미확인 상태를 명시했다.",
+    "검증 전 단계에서 허위 수식/결과 생성이 발생하지 않도록 안전 모드 콘텐츠로 전환했다.",
+    "원문 확보 시 즉시 반영할 수 있도록 VQ 기반 CSI 피드백 공통 학습 포인트를 구조화했다."
+  ],
+  "algorithms": [
+    "Step 1: 공식 메타데이터(arXiv ID, DOI, 출판 venue) 교차 검증",
+    "Step 2: 원문 PDF 확보 실패 시 paper-specific 수식/표를 강제로 생성하지 않음",
+    "Step 3: 검증 완료 전에는 일반 학습 흐름(코드북 양자화, commitment, STE, 재구성 평가)만 유지",
+    "Step 4: canonical 링크 확보 즉시 상세 수식/아키텍처/실험 설정으로 교체"
+  ],
+  "key_equations": [
+    {
+      "name": "일반 VQ 최근접 코드워드 선택(참고식)",
+      "latex": "\\mathbf{z}_q = \\mathbf{e}_{k^*},\\quad k^*=\\arg\\min_j\\|\\mathbf{z}-\\mathbf{e}_j\\|_2^2",
+      "description": "검증 대기 상태에서 제공하는 일반 VQ 원리 참고식이며, 본 항목의 paper-specific 원문 식으로 확정된 값은 아니다."
+    },
+    {
+      "name": "일반 VQ-VAE 학습식(참고식)",
+      "latex": "\\mathcal{L}=\\mathcal{L}_{\\mathrm{rec}}+\\|\\mathrm{sg}(\\mathbf{z})-\\mathbf{e}_{k^*}\\|_2^2+\\beta\\|\\mathbf{z}-\\mathrm{sg}(\\mathbf{e}_{k^*})\\|_2^2",
+      "description": "원문 검증 전 임시 학습식. 실제 논문의 정확한 손실은 원문 확보 후 교체 필요."
+    }
+  ],
+  "architecture_detail": "## 1) 검증 상태\n\n이 항목은 현재 **공식 원문(arXiv/PDF/DOI) 확인이 완료되지 않은 상태**다.\n\n- 기존 DOI(10.1109/LSP.2023.3289234) 해석 실패(HTTP 404)\n- arXiv에서 동일 제목 매칭 실패\n- Crossref/학술 인덱스에서도 동일 레코드 확정 실패\n\n따라서 아래 내용은 \"VQ 기반 CSI 피드백 일반 학습 가이드\"로만 해석해야 한다.\n\n## 2) 원문 확인 전 학습 프레임\n\n- 인코더 출력 잠재벡터를 코드북 최근접 벡터로 치환\n- 코드워드 인덱스 전송으로 피드백 비트 절감\n- commitment + STE로 양자화 비미분 문제를 우회\n- NMSE/rate 관점에서 재구성 품질 평가\n\n$$\n\\mathbf{z}_q = \\mathbf{e}_{k^*},\\qquad\nk^*=\\arg\\min_j\\|\\mathbf{z}-\\mathbf{e}_j\\|_2^2\n$$\n\n## 3) 즉시 반영 가능한 다음 단계\n\n- canonical arXiv 링크 또는 DOI를 제공받는 즉시,\n- 논문 고유 수식/알고리즘/실험표 기반으로 본 섹션을 전면 교체,\n- 알고리즘 카드/수식 카드/리마인드 박스까지 paper-specific 형태로 재작성한다.\n\n현재는 정확성을 위해 검증 대기 상태를 명확히 유지한다.",
+  "category": "quantization",
+  "tags": [
+    "verification-needed",
+    "vq-vae",
+    "learned-codebook",
+    "csi-feedback"
+  ],
+  "pdf_url": null,
+  "code_url": null,
+  "color_hex": "#4338CA",
+  "icon_name": null
+}

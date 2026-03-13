@@ -1,0 +1,158 @@
+{
+  "title": "Mamba: Linear-Time Sequence Modeling with Selective State Spaces",
+  "authors": [
+    "Albert Gu",
+    "Tri Dao"
+  ],
+  "year": 2024,
+  "venue": "ICLR 2024 (arXiv 2312.00752)",
+  "doi": "10.48550/arXiv.2312.00752",
+  "arxiv_id": "2312.00752",
+  "abstract": "Mamba는 기존 구조화 상태공간 모델(S4 등)의 핵심 한계인 **선형 시불변(LTI) 제약**을 해결한 선택적 상태공간 모델(Selective SSM, S6)이다. 기존 S4는 파라미터 행렬 A, B, C가 모든 타임스텝에서 고정되어 있어, 입력 내용에 따라 정보를 선택적으로 기억하거나 잊는 **content-based reasoning**이 불가능했다. 이 한계는 Selective Copying이나 Induction Heads 같은 합성 과제에서 명확히 드러난다.\n\nMamba는 B, C, 그리고 이산화 스텝 크기 Delta를 **입력 의존적(input-dependent)**으로 만들어 이 문제를 해결한다. 특히 Delta는 softplus를 통해 양수로 제한되며, Delta가 클수록 현재 입력을 더 강하게 반영(remember)하고, 작을수록 이전 상태를 더 많이 유지(forget)하는 **forget/remember 게이트** 역할을 수행한다. 이러한 선택 메커니즘은 N=1, A=-1, B=1인 특수 경우에서 GRU의 게이팅과 정확히 동치(Theorem 1)임이 증명되었다.\n\n입력 의존적 파라미터로 인해 효율적인 합성곱 표현이 불가능해지지만, 저자들은 FlashAttention에서 영감을 받은 **하드웨어 인식 병렬 스캔(hardware-aware parallel scan)** 알고리즘을 설계했다. 핵심 전략은 (1) SSM 파라미터를 HBM에서 SRAM으로 직접 로드하여 이산화-재귀-출력을 퓨전 커널로 수행, (2) 결합법칙(associativity)을 이용한 병렬 연관 스캔, (3) 역전파 시 중간 상태를 저장하지 않고 재계산하는 것이다. 이로써 O(BLDN)의 선형 시간 복잡도와 O(BLD + DN)의 IO 복잡도를 달성한다.\n\nMamba 블록은 Transformer의 Attention+MLP 이중 구조를 하나의 블록으로 단순화했다. 입력을 두 브랜치로 분할하여 한쪽은 Conv1d → SiLU → Selective SSM을, 다른 쪽은 SiLU 게이팅을 적용한 후 원소별 곱으로 결합한다. 위치 임베딩이 필요 없으며, 파라미터 수는 Transformer 층당 12D^2와 동일한 약 6ED^2(E=2)를 2개 층으로 맞춘다.\n\nMamba-3B 모델은 언어 모델링에서 동일 크기 Transformer를 능가하고 2배 크기 Transformer와 동등한 성능을 보였다. DNA(HG38), 오디오(YouTubeMix, SC09)에서도 최고 성능을 달성했으며, 추론 처리량은 Transformer 대비 5배, 시퀀스 길이에 대해 선형 스케일링을 보인다. Mamba는 Transformer의 강력한 대안으로서 시퀀스 모델링 분야에 근본적인 패러다임 전환을 촉발하였다.",
+  "notes_summary": "S4의 LTI 한계를 입력 의존적 B, C, Delta로 극복한 선택적 SSM. 하드웨어 인식 병렬 스캔으로 선형 시간 복잡도 달성. Attention+MLP를 단일 Mamba 블록으로 대체하여 Transformer 대안 제시.",
+  "key_contributions": [
+    "기존 SSM의 LTI(선형 시불변) 제약을 분석하고, 입력 의존적 파라미터(B, C, Delta)를 도입한 선택적 상태공간 모델(S6)을 제안하여 content-based reasoning을 가능하게 했다.",
+    "선택 메커니즘이 기존 RNN 게이팅(GRU, LSTM)의 일반화임을 이론적으로 증명했다(Theorem 1: N=1, A=-1, B=1에서 GRU와 동치).",
+    "Delta 파라미터가 연속-이산 변환의 스텝 크기이자 forget/remember 게이트 역할을 동시에 수행하는 이중 해석을 제시했다.",
+    "FlashAttention 아이디어를 SSM에 적용한 하드웨어 인식 병렬 스캔 알고리즘을 설계하여, 커널 퓨전 + 병렬 스캔 + 역전파 재계산으로 O(BLDN) 선형 시간 복잡도를 달성했다.",
+    "Transformer의 Attention+MLP 이중 블록을 단일 Mamba 블록(Conv1d + Selective SSM + SiLU 게이팅)으로 대체하는 단순화된 아키텍처를 제안했다.",
+    "위치 임베딩 없이도 인과적 시퀀스 모델링이 가능함을 보여, 아키텍처 단순화에 기여했다.",
+    "언어(Pile), DNA(HG38), 오디오(YouTubeMix/SC09) 등 다양한 모달리티에서 동일 크기 Transformer를 능가하거나 동등한 성능을 달성하며, Mamba-3B가 Transformer-6B에 필적하는 스케일링 법칙을 보였다.",
+    "추론 시 5배 높은 처리량과 시퀀스 길이에 대한 선형 스케일링을 실증하여, KV 캐시 없는 효율적 추론의 가능성을 열었다.",
+    "Selective Copying과 Induction Heads 합성 과제에서 LTI 모델의 근본적 한계를 실험적으로 입증하고, 선택적 SSM이 이를 완벽히 해결함을 보였다."
+  ],
+  "algorithms": [
+    "Step 1: 입력 시퀀스 x를 선형 투영으로 확장(D → ED)하여 두 브랜치로 분할한다.",
+    "Step 2: 첫 번째 브랜치에 인과적 Conv1d(커널 크기 d_conv)를 적용하여 로컬 컨텍스트를 캡처한다.",
+    "Step 3: Conv1d 출력에 SiLU(Swish) 활성화를 적용한다.",
+    "Step 4: 활성화된 입력 x_t로부터 선택적 파라미터를 생성한다 — B_t = S_B(x_t), C_t = S_C(x_t), Delta_t = softplus(Linear_1(x_t) + Parameter).",
+    "Step 5: Delta_t를 이용한 ZOH 이산화로 시변 파라미터를 계산한다 — A_bar_t = exp(Delta_t * A), B_bar_t = Delta_t * B_t.",
+    "Step 6: 하드웨어 인식 선택적 스캔을 수행한다 — HBM에서 SRAM으로 파라미터를 로드하고, 결합법칙 기반 병렬 연관 스캔으로 h_t = A_bar_t * h_{t-1} + B_bar_t * x_t를 계산하고, y_t = C_t * h_t를 출력한 후 SRAM에서 HBM으로 결과를 기록한다.",
+    "Step 7: 두 번째 브랜치의 SiLU 활성화 출력과 SSM 출력을 원소별 곱(게이팅)으로 결합한다.",
+    "Step 8: 게이팅된 출력을 선형 투영으로 축소(ED → D)하고 잔차 연결 후 LayerNorm을 적용한다.",
+    "Step 9: 역전파 시 중간 상태(B, L, D, N 크기)를 저장하지 않고, 입력을 HBM에서 다시 로드하여 SRAM에서 재계산한다.",
+    "Step 10: L개의 Mamba 블록을 순차적으로 쌓고, 최종 출력에 언어 모델 헤드(임베딩 가중치 공유)를 적용한다."
+  ],
+  "key_equations": [
+    {
+      "name": "연속 시간 상태공간 모델",
+      "latex": "h'(t) = \\mathbf{A}\\,h(t) + \\mathbf{B}\\,x(t), \\qquad y(t) = \\mathbf{C}\\,h(t)",
+      "description": "SSM의 기본 연속 시간 형태. h(t)는 N차원 은닉 상태, A는 N×N 상태 전이 행렬(대각), B는 N×1 입력 투영, C는 1×N 출력 투영이다. LTI 모델에서는 A, B, C가 시간에 독립적이다."
+    },
+    {
+      "name": "ZOH 이산화 (시불변)",
+      "latex": "\\bar{\\mathbf{A}} = \\exp(\\Delta\\,\\mathbf{A}), \\qquad \\bar{\\mathbf{B}} = (\\Delta\\,\\mathbf{A})^{-1}(\\exp(\\Delta\\,\\mathbf{A}) - \\mathbf{I}) \\cdot \\Delta\\,\\mathbf{B}",
+      "description": "Zero-Order Hold 이산화 규칙. 연속 파라미터를 이산 타임스텝으로 변환한다. 실무에서 B_bar는 근사적으로 Delta * B로 단순화되며, A_bar = exp(Delta * A)는 대각 행렬이므로 원소별 지수 함수로 효율 계산 가능하다."
+    },
+    {
+      "name": "이산 SSM 재귀 (LTI)",
+      "latex": "h_t = \\bar{\\mathbf{A}}\\,h_{t-1} + \\bar{\\mathbf{B}}\\,x_t, \\qquad y_t = \\mathbf{C}\\,h_t",
+      "description": "이산화 후 재귀 형태. LTI에서는 A_bar, B_bar, C가 모든 t에서 동일하므로 합성곱으로 펼칠 수 있지만, 선택적 SSM에서는 시변이므로 합성곱이 불가능하다."
+    },
+    {
+      "name": "LTI 합성곱 커널",
+      "latex": "\\overline{\\mathbf{K}} = (\\mathbf{C}\\bar{\\mathbf{B}},\\; \\mathbf{C}\\bar{\\mathbf{A}}\\bar{\\mathbf{B}},\\; \\ldots,\\; \\mathbf{C}\\bar{\\mathbf{A}}^{L-1}\\bar{\\mathbf{B}}), \\qquad y = x * \\overline{\\mathbf{K}}",
+      "description": "LTI SSM은 길이 L의 1D 합성곱 커널으로 펼칠 수 있어 O(L log L) FFT 기반 학습이 가능하다. 선택적 SSM에서는 이 경로가 차단된다 — 이것이 하드웨어 인식 병렬 스캔이 필요한 핵심 이유이다."
+    },
+    {
+      "name": "선택적 파라미터 생성",
+      "latex": "\\mathbf{B}_t = S_B(x_t) \\in \\mathbb{R}^{N}, \\qquad \\mathbf{C}_t = S_C(x_t) \\in \\mathbb{R}^{N}, \\qquad \\Delta_t = \\text{softplus}\\!\\left(S_\\Delta(x_t) + \\text{Parameter}_\\Delta\\right)",
+      "description": "S_B, S_C는 Linear_N 투영(입력 x_t에서 N차원으로), S_Delta는 Linear_1 투영을 Broadcast_D로 확장한 것이다. softplus는 Delta를 양수로 보장한다. 이 세 파라미터가 입력에 의존하게 되면서 content-aware 선택이 가능해진다."
+    },
+    {
+      "name": "시변 이산화 및 선택적 SSM 재귀",
+      "latex": "\\bar{\\mathbf{A}}_t = \\exp(\\Delta_t \\cdot \\mathbf{A}), \\quad \\bar{\\mathbf{B}}_t = \\Delta_t \\cdot \\mathbf{B}_t, \\quad h_t = \\bar{\\mathbf{A}}_t\\,h_{t-1} + \\bar{\\mathbf{B}}_t\\,x_t, \\quad y_t = \\mathbf{C}_t\\,h_t",
+      "description": "Mamba의 핵심 재귀. 매 타임스텝마다 A_bar_t, B_bar_t, C_t가 달라지므로 시퀀스의 각 토큰이 자신의 forget/remember 비율을 결정한다. A는 학습 가능한 대각 행렬(시불변)으로 유지되어 안정성을 보장한다."
+    },
+    {
+      "name": "병렬 연관 스캔 이항 연산자",
+      "latex": "(\\bar{\\mathbf{A}}_i,\\, \\mathbf{b}_i) \\bullet (\\bar{\\mathbf{A}}_j,\\, \\mathbf{b}_j) = (\\bar{\\mathbf{A}}_j \\cdot \\bar{\\mathbf{A}}_i,\\;\\; \\bar{\\mathbf{A}}_j \\cdot \\mathbf{b}_i + \\mathbf{b}_j)",
+      "description": "Blelloch (1990) 병렬 prefix sum의 SSM 적용. 원소 c_t = (A_bar_t, B_bar_t * x_t)를 정의하면, 이 이항 연산자는 결합법칙을 만족하므로 O(log L) 깊이의 병렬 트리로 전체 시퀀스의 은닉 상태를 동시에 계산할 수 있다."
+    },
+    {
+      "name": "GRU 동치 (Theorem 1)",
+      "latex": "\\text{When } N\\!=\\!1,\\; \\mathbf{A}\\!=\\!{-1},\\; \\mathbf{B}\\!=\\!1: \\quad g_t = \\sigma(\\text{Linear}(x_t)), \\quad h_t = (1-g_t)\\,h_{t-1} + g_t\\,x_t",
+      "description": "선택적 SSM의 특수 경우가 GRU/LSTM의 게이팅과 동치임을 증명. g_t = sigma(Linear(x_t))는 Delta에서 유도된 게이트로, A_bar = 1-g, B_bar = g와 정확히 대응한다. 이는 선택 메커니즘이 고전적 RNN 게이팅의 엄격한 일반화임을 보여준다."
+    },
+    {
+      "name": "IO 복잡도 (하드웨어 인식 스캔)",
+      "latex": "\\text{FLOPs: } O(BLDN), \\qquad \\text{IO: } O(BLD + DN) \\quad \\text{(vs. naive } O(BLDN) \\text{ IO)}",
+      "description": "B=배치, L=시퀀스 길이, D=모델 차원, N=상태 차원. 커널 퓨전으로 크기 (B,L,D,N)의 중간 텐서를 HBM에 쓰지 않아 IO가 N배 감소한다. 입출력은 (B,L,D) 크기만 HBM ↔ SRAM 전송한다."
+    },
+    {
+      "name": "Mamba 블록 연산 흐름",
+      "latex": "\\begin{aligned} &x' = \\sigma(\\text{Linear}^{(\\text{gate})}(x)) \\odot \\text{SSM}(\\text{SiLU}(\\text{Conv1d}(\\text{Linear}^{(\\text{in})}(x)))) \\\\ &\\text{output} = \\text{Linear}^{(\\text{out})}(x') + x \\quad (\\text{residual}) \\end{aligned}",
+      "description": "Mamba 블록의 전체 흐름. Linear_in은 D→ED 확장, Conv1d는 인과적 1D 합성곱(커널 d_conv=4), SiLU는 Swish 활성화, SSM은 선택적 상태공간 연산, gate 브랜치의 SiLU와 원소별 곱(gating) 후 Linear_out은 ED→D 축소. 잔차 연결과 LayerNorm(또는 RMSNorm)이 적용된다."
+    },
+    {
+      "name": "인과적 1D 합성곱",
+      "latex": "z_t = \\sum_{k=0}^{d_{\\text{conv}}-1} w_k \\cdot x'_{t-k}, \\qquad d_{\\text{conv}} = 4 \\;(\\text{default})",
+      "description": "Selective SSM에 입력하기 전 로컬 컨텍스트를 캡처하는 인과적 Conv1d. 미래 토큰을 참조하지 않으며, SSM이 전역 의존성을 처리하기 전에 인접 토큰 간 패턴을 감지하는 역할이다. H3 아키텍처의 shift-SSM에서 영감받았다."
+    },
+    {
+      "name": "Mamba 블록 파라미터 수",
+      "latex": "\\text{Per block: } \\approx 3ED^2 + O(EDN), \\quad E=2 \\;\\Rightarrow\\; \\text{Two blocks} \\approx 12D^2 \\;(\\approx \\text{Transformer layer: } 12D^2)",
+      "description": "E=확장 비율(기본 2). 선형 투영이 지배적이며(2ED^2 입력 + ED^2 출력 = 3ED^2), SSM 내부 투영(Delta, B, C)은 O(EDN)으로 소량이다. Mamba 2개 블록 ≈ Transformer 1개 층(Attention 4D^2 + MLP 8D^2)과 파라미터 수가 동일하다."
+    },
+    {
+      "name": "HiPPO 초기화 (A 행렬)",
+      "latex": "A_n = -(n+1), \\quad n = 0, 1, \\ldots, N-1 \\qquad (\\text{S4D-Real 초기화})",
+      "description": "A 행렬은 S4D-Real 규칙으로 초기화된다. 이산 모달리티(텍스트, DNA)에서는 실수값이 복소수값보다 우수하다. HiPPO 이론에 기반하여 장거리 의존성을 효과적으로 추적하는 르장드르 다항식 계수를 근사한다."
+    }
+  ],
+  "architecture_detail": "## 1) S4의 LTI 한계와 선택 메커니즘의 동기\n\n기존 S4/S4D는 파라미터 A, B, C가 시간에 독립적인 **선형 시불변(LTI)** 시스템이다. LTI의 장점은 합성곱 커널로 펼쳐 FFT 기반 \\(O(L \\log L)\\) 병렬 학습이 가능하다는 것이다. 그러나 이는 치명적인 약점이 있다: 모든 입력 토큰에 동일한 가중치를 적용하므로 **입력 내용에 따라 정보를 선택적으로 필터링하는 능력이 부재**하다. Selective Copying 과제(무작위 위치의 토큰을 기억해야 함)에서 S4는 18% 정확도에 그친 반면, Mamba는 97% 이상을 달성한다.\n\n## 2) Mamba 블록 아키텍처: 두 브랜치와 게이팅\n\n각 Mamba 블록은 Transformer의 Multi-Head Attention + MLP 이중 구조를 **하나의 블록으로 통합**한다. 입력 텐서 \\(x \\in \\mathbb{R}^{B \\times L \\times D}\\)에 대해:\n\n1. **선형 확장**: \\(x\\)를 두 개의 선형 투영으로 \\(D \\to ED\\) (E=2) 확장하여 두 브랜치 생성\n2. **브랜치 A (SSM 경로)**: Conv1d → SiLU → Selective SSM → 출력\n3. **브랜치 B (게이트 경로)**: SiLU 활성화만 적용\n4. **게이팅**: 두 브랜치를 원소별 곱(Hadamard product)으로 결합\n5. **선형 축소**: \\(ED \\to D\\) 투영 후 잔차 연결 + LayerNorm\n\n이 설계는 H3 아키텍처(SSM 기반)와 gated MLP(SwiGLU 등)를 결합한 것으로, 게이트 브랜치가 MLP의 비선형 변환 역할을 대신하면서 SSM이 시퀀스 믹싱을 담당한다.\n\n## 3) Conv1d의 역할: 로컬 컨텍스트 사전 처리\n\nSelective SSM에 입력을 넣기 전, 인과적 1D 합성곱(커널 크기 \\(d_{\\text{conv}}=4\\))을 적용한다. 이것이 필요한 이유는:\n\n- **SSM은 전역 의존성에 특화**: 재귀 구조로 먼 과거 정보를 상태에 압축하지만, 인접 토큰 간 로컬 패턴(예: n-gram) 캡처에는 비효율적\n- **Conv1d가 로컬 패치 역할**: \\(d_{\\text{conv}}=4\\) 범위 내의 토큰 간 상호작용을 미리 캡처하여, SSM이 더 추상적인 전역 패턴에 집중할 수 있게 함\n- **H3에서의 영감**: H3 아키텍처가 shift-SSM으로 로컬 정보를 처리한 것과 동일한 동기\n- **인과성 보장**: 패딩을 왼쪽에만 적용하여 미래 토큰 참조를 방지\n\n## 4) 하드웨어 인식 선택적 스캔: 커널 퓨전 + 병렬 스캔 + 재계산\n\n선택적 SSM의 시변 파라미터는 LTI의 합성곱 경로를 차단한다. 나이브한 재귀 구현은 \\(O(BLDN)\\)의 순차적 연산으로 매우 느리다. 이를 해결하기 위한 세 가지 핵심 전략:\n\n### 4.1) 커널 퓨전 (Kernel Fusion)\nFlashAttention의 핵심 통찰 — \"GPU 연산 속도보다 메모리 로딩이 병목\"을 SSM에 적용한다. SSM 파라미터 (\\(\\Delta, A, B, C\\))를 HBM(고대역폭 메모리, 느림)에서 SRAM(온칩 메모리, 빠름)으로 직접 로드하고, **이산화 → 재귀 → 출력 계산을 SRAM 내에서 모두 수행**한 후 최종 결과만 HBM에 기록한다. 이로써 크기 \\((B,L,D,N)\\)의 중간 텐서가 HBM에 기록되지 않아 IO가 \\(N\\)배 감소한다.\n\n$$\n\\text{IO 복잡도: } O(BLD + DN) \\quad \\text{vs. naive } O(BLDN)\n$$\n\n### 4.2) 병렬 연관 스캔 (Parallel Associative Scan)\nSSM 재귀는 순차적이지만, 결합법칙(associativity)을 만족하는 이항 연산자를 정의하면 Blelloch (1990) 알고리즘으로 병렬화할 수 있다:\n\n$$\n(\\bar{A}_i, b_i) \\bullet (\\bar{A}_j, b_j) = (\\bar{A}_j \\bar{A}_i,\\; \\bar{A}_j b_i + b_j)\n$$\n\n이 연산자는 결합법칙을 만족하므로, 바이너리 트리 구조의 up-sweep과 down-sweep으로 \\(O(L)\\) 작업을 \\(O(\\log L)\\) 깊이에 완료한다.\n\n### 4.3) 역전파 재계산 (Backward Recomputation)\n순전파에서 크기 \\((B,L,D,N)\\)의 중간 상태를 저장하면 메모리 O(BLDN)이 필요하다. 대신, 역전파 시 입력을 HBM에서 다시 로드하여 중간 상태를 SRAM에서 재계산한다. 이는 FlashAttention의 backward recomputation과 동일한 전략이다.\n\n## 5) 메모리 계층 (HBM vs SRAM)과 FlashAttention 아이디어의 적용\n\nGPU의 메모리 계층:\n- **SRAM**: ~20MB, ~19TB/s 대역폭 (매우 빠르지만 작음)\n- **HBM**: ~40GB, ~1.5TB/s 대역폭 (크지만 ~13배 느림)\n\nFlashAttention은 어텐션 행렬을 HBM에 구체화하지 않고 SRAM에서 타일별로 계산하여 IO 병목을 해결했다. Mamba는 이 아이디어를 SSM에 적용한다:\n- 나이브 구현: \\((\\Delta, A, B, C)\\) 이산화 결과 \\((\\bar{A}, \\bar{B})\\)를 HBM에 저장 → \\((B,L,D,N)\\) 크기의 IO 발생\n- 퓨전 구현: 이산화와 재귀를 SRAM에서 일괄 수행 → 입출력 \\((B,L,D)\\)만 HBM 전송\n\n이것이 \"IO-aware\" 또는 \"hardware-aware\" 알고리즘이라 불리는 이유이다.\n\n## 6) Transformer 블록과의 비교\n\n| 측면 | Transformer | Mamba |\n|------|------------|-------|\n| 구조 | MHA + MLP (2개 서브블록) | 단일 Mamba 블록 |\n| 시퀀스 믹싱 | Attention (O(L^2)) | Selective SSM (O(L)) |\n| 채널 믹싱 | MLP (SwiGLU 등) | 게이트 브랜치 + 선형 투영 |\n| 위치 인코딩 | 필수 (RoPE/ALiBi 등) | 불필요 (재귀 구조가 위치 인식) |\n| 추론 KV 캐시 | O(L) 메모리 필요 | 고정 크기 상태 O(DN) |\n| 파라미터/층 | ~12D^2 | ~6ED^2 = 6D^2 (2블록 = 12D^2) |\n| 학습 병렬화 | 완전 병렬 | 병렬 스캔 (약간 순차적) |\n\n## 7) 위치 임베딩이 불필요한 이유\n\nMamba의 재귀 구조 \\(h_t = \\bar{A}_t h_{t-1} + \\bar{B}_t x_t\\)는 본질적으로 시간 순서를 인코딩한다. 토큰이 상태에 통합되는 순서 자체가 위치 정보를 담고 있으며, \\(\\Delta_t\\)의 시변 특성이 상대적 위치 감각을 제공한다. 이는 Transformer가 permutation-equivariant하여 위치 인코딩이 필수인 것과 대비된다.\n\n## 8) 벤치마크 결과 요약\n\n- **언어 모델링 (Pile)**: Mamba-3B가 동일 크기 Transformer++를 능가하고, Transformer-6B에 필적\n- **DNA (HG38)**: 컨텍스트 1M 토큰까지 단조 성능 향상, HyenaDNA는 장거리에서 성능 하락 (LTI 한계)\n- **오디오 (SC09)**: 6.1M 파라미터 Mamba가 23M 파라미터 SaShiMi와 동등한 FID\n- **합성 과제**: Selective Copying >97%, Induction Heads 학습 길이 대비 4000배(1M)까지 완벽 일반화\n- **추론 속도**: Transformer 대비 5배 처리량, 시퀀스 길이에 선형 스케일링\n\n## 9) 스케일링 법칙\n\nMamba는 모델 크기 대비 perplexity 감소 곡선이 Transformer보다 일관되게 아래에 위치한다. 즉, 동일 compute budget에서 더 낮은 perplexity를 달성하며, 이 갭은 모델이 커질수록 유지 또는 확대된다. H3, Hyena, RWKV 등 기존 subquadratic 모델들은 크기가 커져도 Transformer와의 갭이 좁혀지지 않는 반면, Mamba는 최초로 이 갭을 닫은 선형 시간 모델이다.",
+  "category": "transformer",
+  "tags": [
+    "selective-ssm",
+    "state-space-model",
+    "mamba",
+    "parallel-scan",
+    "hardware-aware",
+    "linear-complexity",
+    "sequence-modeling",
+    "gating-mechanism",
+    "transformer-alternative",
+    "flash-attention-inspired"
+  ],
+  "pdf_url": "https://arxiv.org/pdf/2312.00752",
+  "code_url": "https://github.com/state-spaces/mamba",
+  "color_hex": "#059669",
+  "icon_name": null,
+  "difficulty_level": "advanced",
+  "prerequisites": [
+    "상태공간 모델(SSM) 기초: 연속 시간 h'(t) = Ah(t) + Bx(t), 이산화, 전달함수 개념",
+    "S4/S4D 구조: HiPPO 초기화, 대각 파라미터화, 합성곱 커널 표현",
+    "RNN 게이팅 메커니즘: GRU의 update/reset gate, LSTM의 forget/input gate 원리",
+    "Zero-Order Hold (ZOH) 이산화: 연속-이산 변환에서 스텝 크기 Delta의 역할",
+    "GPU 메모리 계층: HBM vs SRAM 대역폭 차이, 메모리 바운드 vs 연산 바운드 구분",
+    "FlashAttention의 핵심 아이디어: 타일링, 커널 퓨전, 역전파 재계산",
+    "병렬 prefix sum (Blelloch scan): 결합법칙 기반 병렬 축약의 원리",
+    "Transformer 아키텍처: Multi-Head Attention + MLP 구조, 위치 인코딩, KV 캐시",
+    "자기회귀 언어 모델링: 인과적 마스킹, perplexity, 스케일링 법칙 기초",
+    "기본 제어 이론: 선형 시불변(LTI) 시스템 vs 시변(LTV) 시스템의 차이"
+  ],
+  "learning_objectives": [
+    "LTI SSM이 content-based reasoning에 실패하는 이유를 Selective Copying 과제를 통해 설명할 수 있다.",
+    "Mamba의 선택적 파라미터(B_t, C_t, Delta_t)가 어떻게 생성되고, 각각 어떤 역할을 하는지 기술할 수 있다.",
+    "Delta가 forget/remember 게이트 역할을 수행하는 메커니즘을 ZOH 이산화와 연결하여 유도할 수 있다.",
+    "Theorem 1 (N=1, A=-1, B=1에서 GRU 동치)을 직접 유도하고, 선택 메커니즘이 RNN 게이팅의 일반화임을 증명할 수 있다.",
+    "병렬 연관 스캔의 이항 연산자를 정의하고, 결합법칙을 만족함을 검증할 수 있다.",
+    "하드웨어 인식 알고리즘의 세 가지 전략(커널 퓨전, 병렬 스캔, 재계산)이 각각 어떤 병목을 해결하는지 IO 복잡도로 분석할 수 있다.",
+    "Mamba 블록의 두 브랜치(SSM 경로, 게이트 경로) 구조를 그리고, 각 구성요소의 텐서 차원 변화를 추적할 수 있다.",
+    "Conv1d가 Selective SSM 이전에 필요한 이유를 로컬/전역 컨텍스트 분업 관점에서 설명할 수 있다.",
+    "Mamba와 Transformer의 구조적/복잡도적 차이를 표로 정리하고, 각각의 강점과 약점을 비교할 수 있다.",
+    "Mamba의 스케일링 법칙이 기존 subquadratic 모델(H3, Hyena, RWKV)과 어떻게 다른지 설명할 수 있다."
+  ],
+  "self_check_questions": [
+    "S4 같은 LTI SSM이 Selective Copying 과제에서 실패하는 근본적 이유는 무엇이며, Mamba는 이를 어떻게 해결하는가?",
+    "Delta_t가 크면 모델은 현재 입력을 '기억'하는가 '잊는'가? A_bar = exp(Delta * A)와 B_bar = Delta * B에서 이 관계를 유도하라.",
+    "Theorem 1의 조건(N=1, A=-1, B=1, tau_Delta=softplus)에서 h_t = (1-g_t)h_{t-1} + g_t*x_t가 유도되는 과정을 단계별로 기술하라.",
+    "선택적 SSM에서 합성곱 커널 표현이 불가능한 이유를 수학적으로 설명하고, 이것이 하드웨어 인식 알고리즘이 필요한 이유와 어떻게 연결되는지 서술하라.",
+    "병렬 연관 스캔의 이항 연산자 (A_i, b_i) * (A_j, b_j) = (A_j*A_i, A_j*b_i + b_j)가 결합법칙을 만족함을 증명하라.",
+    "Mamba의 IO 복잡도가 O(BLD + DN)인 반면, 나이브 구현은 O(BLDN)인 이유를 HBM/SRAM 메모리 계층과 커널 퓨전 관점에서 설명하라.",
+    "Mamba 블록에서 Conv1d를 제거하면 어떤 성능 저하가 예상되는가? 로컬 컨텍스트와 전역 의존성의 분업 관점에서 논의하라.",
+    "Mamba가 위치 임베딩 없이 시퀀스의 순서 정보를 인코딩할 수 있는 이유를 Transformer와 비교하여 설명하라.",
+    "Mamba-3B가 Transformer-3B를 능가하고 Transformer-6B에 필적하는 이유를 선택 메커니즘과 아키텍처 효율성 측면에서 분석하라.",
+    "Mamba의 추론 시 고정 크기 상태 O(DN)과 Transformer의 KV 캐시 O(L)을 비교하고, 장시퀀스에서의 실용적 이점을 논의하라."
+  ]
+}

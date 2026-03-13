@@ -1,0 +1,76 @@
+{
+  "id": "0c5617e2-2988-4d30-aed4-94c92f7ab105",
+  "title": "Vector Quantization for Deep-Learning-Based CSI Feedback with Shape-Gain Decomposition",
+  "authors": [
+    "Junyong Shin",
+    "Yujin Kang",
+    "Yo-Seb Jeon"
+  ],
+  "year": 2024,
+  "venue": "IEEE Wireless Communications Letters 2024",
+  "doi": "10.1109/LWC.2024.3415633",
+  "arxiv_id": "2403.07355",
+  "abstract": "본 논문(공식 제목: Vector Quantization for Deep-Learning-Based CSI Feedback in Massive MIMO Systems)은 VQ-VAE 기반 CSI 피드백의 연산 복잡도를 줄이기 위해 latent sub-vector를 크기(gain)와 방향(shape)으로 분해해 각각 다른 양자화기를 적용한다. gain은 clipped μ-law 변환 기반 비균일 스칼라 양자화로 처리하고, shape은 단위구면에서 Grassmannian 코드북을 사용해 양자화한다. 또한 nested shape codebook을 이용한 multi-rate 설계를 도입해 단일 구조로 여러 피드백 비트를 지원한다. 결과적으로 동일 피드백 오버헤드에서 기존 VQ-VAE 대비 더 나은 NMSE-복잡도 절충을 보인다.",
+  "notes_summary": "shape-gain 분해로 VQ-VAE의 계산복잡도(O(2^B))를 O(2^{max(B_mag,B_dir)}) 수준으로 낮추면서 NMSE를 개선한 핵심 논문. clipped μ-law gain quantizer + Grassmannian shape codebook + nested multi-rate 학습이 포인트다.",
+  "key_contributions": [
+    "latent vector를 gain과 shape로 분해해 각각 특성에 맞는 양자화기를 설계하는 shape-gain VQ 프레임워크를 제안했다.",
+    "gain 양자화에 clipped μ-law 기반 비균일 스칼라 양자화를 도입해 실제 분포 집중 구간의 해상도를 높였다.",
+    "shape 양자화에 trainable Grassmannian 코드북을 사용해 방향 정보 손실을 줄였다.",
+    "nested codebook과 가중 손실을 결합한 multi-rate 학습으로 한 구조에서 여러 피드백 레이트를 지원했다.",
+    "원 논문 기준으로 동일 오버헤드에서 기존 VQ-VAE 대비 더 나은 NMSE와 연산복잡도 절충을 확인했다."
+  ],
+  "algorithms": [
+    "Step 1: 인코더 출력 z를 N개 sub-vector z_i (차원 D)로 분할한다.",
+    "Step 2: 각 z_i를 ||z_i|| (gain)와 z_i/||z_i|| (shape)로 분해한다.",
+    "Step 3: gain은 clipped μ-law 변환 h 후 B_mag-bit 균일 양자화 f_u를 거쳐 Q_mag로 복원한다.",
+    "Step 4: shape는 Grassmannian 코드북 B_dir에서 최소 각거리 기준으로 코드워드를 선택해 Q_dir를 얻는다.",
+    "Step 5: z_{q,i} = Q_mag(||z_i||) · Q_dir(z_i/||z_i||)로 결합해 양자화 latent를 만들고 디코더로 CSI를 복원한다.",
+    "Step 6: multi-rate 모드에서는 큰 코드북부터 학습한 뒤 빈도 기반 하위 코드북을 초기화하고 nested loss로 순차 학습한다."
+  ],
+  "key_equations": [
+    {
+      "name": "기본 VQ-VAE 손실",
+      "latex": "\\mathcal{L}_{\\mathrm{vq}}=\\|\\hat{\\mathbf{H}}-\\tilde{\\mathbf{H}}_{\\mathrm{ad}}\\|_{F}^{2}+\\|\\mathrm{sg}(\\mathbf{z})-\\mathbf{z}_q\\|_2^2+\\beta\\|\\mathbf{z}-\\mathrm{sg}(\\mathbf{z}_q)\\|_2^2",
+      "description": "재구성 손실 + codebook 손실 + commitment 손실로 구성되는 VQ-VAE 기본 목적함수."
+    },
+    {
+      "name": "Shape-Gain 2단 양자화",
+      "latex": "\\mathbf{z}_{q,i}=Q_{\\mathrm{mag}}(\\|\\mathbf{z}_i\\|)\\cdot \\mathbf{Q}_{\\mathrm{dir}}\\!\\left(\\frac{\\mathbf{z}_i}{\\|\\mathbf{z}_i\\|}\\right)",
+      "description": "크기와 방향을 분리해 양자화함으로써 복잡도와 왜곡을 함께 제어한다."
+    },
+    {
+      "name": "Gain 균일 양자화 함수 (변환 영역)",
+      "latex": "f_u(x)=A\\left\\{\\frac{\\operatorname{round}(2^{B_{\\mathrm{mag}}}x/A-0.5)+0.5}{2^{B_{\\mathrm{mag}}}}\\right\\}",
+      "description": "변환된 범위 [0, A]에서 균일 레벨을 사용하는 gain 양자화 핵심 식."
+    },
+    {
+      "name": "Clipped μ-law 변환",
+      "latex": "\\hat h_{\\mu}(x)=\\begin{cases}h_{\\mu}(x),&0\\le x\\le \\frac{(1+\\mu)^A-1}{\\mu}\\sqrt{D}\\\\A,&\\frac{(1+\\mu)^A-1}{\\mu}\\sqrt{D}<x\\le\\sqrt{D}\\end{cases}",
+      "description": "분포가 몰린 영역에 양자화 레벨을 집중시키기 위한 clipping 변환."
+    },
+    {
+      "name": "Shape 코드워드 선택",
+      "latex": "\\mathbf{Q}_{\\mathrm{dir}}(\\tilde{\\mathbf{z}}_i)=\\arg\\min_{\\mathbf{b}_k\\in\\mathcal{B}_{\\mathrm{dir}}} d(\\tilde{\\mathbf{z}}_i,\\mathbf{b}_k),\\quad d(\\mathbf{c}_1,\\mathbf{c}_2)=\\sqrt{1-|\\mathbf{c}_1^H\\mathbf{c}_2|^2}",
+      "description": "단위벡터 간 각거리(Grassmannian 관점)를 최소화하는 방향 코드워드 선택 규칙."
+    },
+    {
+      "name": "Nested Multi-Rate 손실",
+      "latex": "\\mathcal{L}^{(l)}_{\\mathrm{nvq}}=\\frac{1}{\\sum_{k=1}^{l}\\gamma^k}\\sum_{j=1}^{l}\\gamma^j\\Big(\\|\\hat{\\mathbf{H}}^{(j)}-\\tilde{\\mathbf{H}}_{\\mathrm{ad}}\\|_F^2+\\|\\mathrm{sg}(\\mathbf{z})-\\mathbf{z}_q^{(j)}\\|_2^2+\\beta\\|\\mathbf{z}-\\mathrm{sg}(\\mathbf{z}_q^{(j)})\\|_2^2\\Big)",
+      "description": "여러 레이트 코드북을 동시에 보정해 저/고레이트 성능을 함께 유지한다."
+    }
+  ],
+  "architecture_detail": "## 1) 왜 Shape-Gain 분해가 필요한가\n\n기존 VQ-VAE는 각 sub-vector를 큰 코드북 전체와 비교해야 하므로, 코드북 크기가 커질수록 양자화 연산량이 급증한다. 논문은 이를 **크기(gain)와 방향(shape)**으로 나눠 계산량을 낮춘다.\n\n- 기존 복잡도 스케일: \\(\\mathcal{O}(2^B)\\)\n- 제안 복잡도 스케일: \\(\\mathcal{O}(2^{\\max\\{B_{\\mathrm{mag}},B_{\\mathrm{dir}}\\}})\\)\n\n## 2) 2단 양자화 코어 식\n\n잠재 sub-vector \\(\\mathbf{z}_i\\)에 대해:\n\n$$\n\\mathbf{z}_{q,i}=Q_{\\mathrm{mag}}(\\|\\mathbf{z}_i\\|)\\cdot \\mathbf{Q}_{\\mathrm{dir}}\\!\\left(\\frac{\\mathbf{z}_i}{\\|\\mathbf{z}_i\\|}\\right)\n$$\n\n즉, \"얼마나 큰가\"와 \"어느 방향인가\"를 분리해 각각 최적 도구로 양자화한다.\n\n## 3) Gain 양자화: clipped μ-law + 균일 양자화\n\ngain은 \\([0,\\sqrt{D}]\\) 구간에서 분포가 한쪽에 몰리므로, 먼저 변환 \\(h(x)\\)로 \\([0,A]\\)로 매핑한 뒤 균일 양자화를 적용한다.\n\n$$\nf_u(x)=A\\left\\{\\frac{\\operatorname{round}(2^{B_{\\mathrm{mag}}}x/A-0.5)+0.5}{2^{B_{\\mathrm{mag}}}}\\right\\}\n$$\n\n$$\n\\hat h_{\\mu}(x)=\\begin{cases}\nh_{\\mu}(x),&0\\le x\\le \\frac{(1+\\mu)^A-1}{\\mu}\\sqrt{D}\\\\\nA,&\\frac{(1+\\mu)^A-1}{\\mu}\\sqrt{D}<x\\le\\sqrt{D}\n\\end{cases}\n$$\n\n실무적으로는 round 비미분 문제를 step-wise tanh 기반 soft-gradient로 우회한다.\n\n## 4) Shape 양자화: Grassmannian 코드북\n\n정규화된 방향 벡터 \\(\\tilde{\\mathbf{z}}_i=\\mathbf{z}_i/\\|\\mathbf{z}_i\\|\\)를 단위벡터 코드북과 비교한다.\n\n$$\n\\mathbf{Q}_{\\mathrm{dir}}(\\tilde{\\mathbf{z}}_i)=\\arg\\min_{\\mathbf{b}_k\\in\\mathcal{B}_{\\mathrm{dir}}} d(\\tilde{\\mathbf{z}}_i,\\mathbf{b}_k),\\quad d(\\mathbf{c}_1,\\mathbf{c}_2)=\\sqrt{1-|\\mathbf{c}_1^H\\mathbf{c}_2|^2}\n$$\n\n초기 코드북은 Grassmannian line packing 해로 시작하고, 학습 중 gradient로 갱신 후 unit-norm 재정규화한다.\n\n## 5) Multi-Rate Nested Codebook\n\n논문은 큰 shape 코드북을 먼저 학습한 뒤, **자주 선택된 코드워드**를 기준으로 하위 레이트 코드북을 초기화한다.\n\n$$\n\\mathcal{B}_{\\mathrm{dir}}^{(1)}\\supset\\mathcal{B}_{\\mathrm{dir}}^{(2)}\\supset\\cdots\\supset\\mathcal{B}_{\\mathrm{dir}}^{(L)}\n$$\n\n그리고 weighted nested loss로 각 레이트를 함께 학습해, 단순 개별 학습 대비 저/고레이트 성능 균형을 개선한다.\n\n## 6) 실험 세팅 핵심값 (원문)\n\n- COST2100 (indoor 5.3GHz, outdoor 300MHz)\n- \\(N_t=32,\\ N_c=1024,\\ \\tilde N_c=32\\)\n- train/val/test = 100000/30000/20000\n- Adam, lr=0.001, epoch=1000\n- quantization params: \\(A=0.6,\\ B_{\\mathrm{mag}}=4,\\ D=16,\\ \\mu=255,\\ \\beta=0.25,\\ \\tau=8\\)\n\n요약하면, 이 논문은 **VQ 성능은 유지/향상하면서 연산비용을 줄이도록 코드북 구조 자체를 재설계**한 것이 본질이다.",
+  "category": "quantization",
+  "tags": [
+    "shape-gain",
+    "vector-quantization",
+    "vq-vae",
+    "grassmannian",
+    "multi-rate-codebook",
+    "csi-feedback"
+  ],
+  "pdf_url": "https://arxiv.org/pdf/2403.07355",
+  "code_url": null,
+  "color_hex": "#4338CA",
+  "icon_name": null
+}

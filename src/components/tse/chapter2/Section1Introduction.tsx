@@ -49,8 +49,32 @@ export default function Section1Introduction({ onNavigate }: Section1Props) {
 
       <div className="formula-block mb-6" id="free-space-model">
         <h4 className="font-semibold text-blue-800 mb-3">2.1.1 Free-space, fixed antennas (Friis)</h4>
-        <BlockMath math={String.raw`P_r = P_t G_t G_r\left(\frac{\lambda}{4\pi d}\right)^2`} />
-        <div className="text-sm text-slate-600 mt-2">
+        <p className="text-sm text-slate-600 mb-3">
+          자유공간, 원거리장(far field), 시간조화(time-harmonic) 조건에서 수신 안테나의 반작용이 없다고 가정합니다.
+          이 조건에서 전기장과 주파수 응답은:
+        </p>
+        <BlockMath math={String.raw`E(f,t,r,\theta,\psi) = \frac{\alpha(f,\theta,\psi)\cos\!\bigl(2\pi f(t - r/c)\bigr)}{r}`} />
+        <div className="mt-2 p-3 bg-indigo-50 dark:bg-indigo-900/20 rounded-lg border border-indigo-100 dark:border-indigo-800">
+          <div className="text-xs font-semibold text-indigo-700 dark:text-indigo-400 mb-1">주파수 응답 (Transfer Function)</div>
+          <BlockMath math={String.raw`H(f) \;:=\; \frac{\alpha(f,\theta,\psi)\,e^{-j2\pi f r/c}}{r}`} />
+          <p className="text-xs text-slate-600 dark:text-slate-400 mt-1">
+            이 시스템은 <strong>LTI(선형시불변)</strong>입니다 — 송수신기가 고정이므로 <InlineMath math="r" />이 상수.
+            위상항 <InlineMath math="e^{-j2\pi fr/c}" />는 전파 지연을 나타내고, <InlineMath math="1/r" /> 감쇠가 곱해집니다.
+          </p>
+        </div>
+        <div className="grid md:grid-cols-2 gap-3 mt-3 text-sm text-slate-600 dark:text-slate-400">
+          <div className="p-2 bg-blue-50 dark:bg-blue-900/20 rounded border border-blue-100 dark:border-blue-800">
+            <div className="font-semibold text-blue-700 dark:text-blue-400">전기장 감쇠</div>
+            <BlockMath math={String.raw`|E| \propto r^{-1},\quad |E|^2 \propto r^{-2}`} />
+            <div className="text-xs">전기장은 거리에 반비례, 전력(|E|²)은 거리 제곱에 반비례</div>
+          </div>
+          <div className="p-2 bg-green-50 dark:bg-green-900/20 rounded border border-green-100 dark:border-green-800">
+            <div className="font-semibold text-green-700 dark:text-green-400">Friis 수신 전력</div>
+            <BlockMath math={String.raw`P_r = P_t G_t G_r\!\left(\frac{\lambda}{4\pi d}\right)^{\!2}`} />
+            <div className="text-xs">안테나 이득을 포함한 실용 공식</div>
+          </div>
+        </div>
+        <div className="text-sm text-slate-600 dark:text-slate-400 mt-3">
           장애물 없이 신호가 직진하는 이상적인 경우입니다.
           이때도 거리가 2배면 수신전력은 1/4로 줄어듭니다(<InlineMath math="d^{-2}" />).
           모든 경로손실 모델의 출발점이 되며,
@@ -59,15 +83,38 @@ export default function Section1Introduction({ onNavigate }: Section1Props) {
       </div>
 
       <div className="concept-card mb-6" id="moving-antenna-model">
-        <h4 className="font-semibold text-slate-800 mb-2">2.1.2 Free-space, moving antenna</h4>
-        <p className="text-sm text-slate-600 mb-2">
-          송신기 또는 수신기가 이동하면, 경로 길이가 시간에 따라 변하면서
-          수신 신호의 주파수가 이동합니다. 이것이 <strong>도플러 시프트(Doppler shift)</strong>입니다.
-          이동 방향과 전파 방향이 이루는 각도 <InlineMath math={String.raw`\theta`} />에 따라
-          시프트의 크기와 부호가 달라집니다.
+        <h4 className="font-semibold text-slate-800 dark:text-slate-200 mb-2">2.1.2 Free-space, moving antenna</h4>
+        <p className="text-sm text-slate-600 dark:text-slate-400 mb-3">
+          수신기가 속도 <InlineMath math="v" />로 이동하면, 시스템은 더 이상 LTI가 아닙니다.
+          거리가 시간의 함수가 되면서 <strong>시변(time-variant)</strong> 특성이 나타납니다.
         </p>
+        <div className="p-3 bg-slate-50 dark:bg-slate-800 rounded-lg border border-slate-200 dark:border-slate-700 mb-3">
+          <div className="text-xs font-semibold text-slate-700 dark:text-slate-300 mb-2">도플러 시프트 유도 과정</div>
+          <div className="space-y-2">
+            <div className="flex items-start gap-2">
+              <span className="shrink-0 w-5 h-5 rounded-full bg-blue-100 dark:bg-blue-900 text-blue-700 dark:text-blue-300 text-xs flex items-center justify-center font-bold">1</span>
+              <div className="text-sm text-slate-600 dark:text-slate-400">
+                이동 거리: <InlineMath math={String.raw`r(t) = r_0 + vt`} />
+              </div>
+            </div>
+            <div className="flex items-start gap-2">
+              <span className="shrink-0 w-5 h-5 rounded-full bg-blue-100 dark:bg-blue-900 text-blue-700 dark:text-blue-300 text-xs flex items-center justify-center font-bold">2</span>
+              <div className="text-sm text-slate-600 dark:text-slate-400">
+                수신 전기장에 대입:
+              </div>
+            </div>
+          </div>
+          <BlockMath math={String.raw`E = \frac{\alpha\cos\!\bigl(2\pi f\bigl[\bigl(1-\tfrac{v}{c}\bigr)t - \tfrac{r_0}{c}\bigr]\bigr)}{r_0 + vt}`} />
+          <div className="flex items-start gap-2">
+            <span className="shrink-0 w-5 h-5 rounded-full bg-blue-100 dark:bg-blue-900 text-blue-700 dark:text-blue-300 text-xs flex items-center justify-center font-bold">3</span>
+            <div className="text-sm text-slate-600 dark:text-slate-400">
+              주파수가 <InlineMath math={String.raw`f \to (1 - v/c)f`} />로 변환됨 → 도플러 시프트:
+            </div>
+          </div>
+          <BlockMath math={String.raw`D_1 = -\frac{fv}{c}`} />
+        </div>
         <BlockMath math={String.raw`f_D = \frac{v f_c}{c}\cos\theta`} />
-        <p className="text-xs text-slate-500 mt-2">
+        <p className="text-xs text-slate-500 dark:text-slate-500 mt-2">
           전파 방향으로 접근하면(<InlineMath math={String.raw`\theta=0`} />) 최대 양의 시프트,
           멀어지면(<InlineMath math={String.raw`\theta=\pi`} />) 최대 음의 시프트가 발생합니다.
           직교 방향(<InlineMath math={String.raw`\theta=\pi/2`} />)에서는 도플러가 0입니다.
@@ -104,16 +151,27 @@ export default function Section1Introduction({ onNavigate }: Section1Props) {
             이 값의 역수가 채널이 주파수에서 일정하다고 볼 수 있는 폭(coherence bandwidth)입니다.
           </p>
         </div>
-        <p className="text-xs text-slate-500 mt-2">
-          수신기가 이동하면(2.1.4) 두 경로에 각각 다른 도플러 시프트(<InlineMath math="D_1=-fv/c" />,{' '}
-          <InlineMath math="D_2=+fv/c" />)가 생기며, 도플러 확산 <InlineMath math="D_s=D_2-D_1=2fv/c" />가 발생합니다.
-          이것이 아래 Two-Ray Lab에서 확인할 수 있는 간섭 패턴입니다.
-        </p>
+        <div className="mt-3 p-3 bg-purple-50 dark:bg-purple-900/20 rounded-lg border border-purple-100 dark:border-purple-800">
+          <div className="text-xs font-semibold text-purple-700 dark:text-purple-400 mb-1">2.1.4 이동 시: Doppler Spread &amp; Coherence Time</div>
+          <p className="text-xs text-slate-600 dark:text-slate-400 mb-2">
+            수신기가 이동하면 두 경로에 각각 다른 도플러 시프트가 적용됩니다:
+          </p>
+          <BlockMath math={String.raw`D_1 = -\frac{fv}{c},\quad D_2 = +\frac{fv}{c}`} />
+          <BlockMath math={String.raw`D_s = D_2 - D_1 = \frac{2fv}{c}`} />
+          <BlockMath math={String.raw`T_c = \frac{1}{2D_s} \quad\Leftarrow\quad \frac{4\pi f v}{c}\cdot\frac{c}{4fv} = \pi`} />
+          <p className="text-xs text-slate-600 dark:text-slate-400 mt-1">
+            위상차가 <InlineMath math="\pi" /> 변하는 데 걸리는 시간이 coherence time이며,
+            이 시간 내에서는 채널이 거의 일정하다고 볼 수 있습니다.
+          </p>
+        </div>
       </div>
 
       <div className="concept-card mb-6" id="ground-plane-model">
-        <h4 className="font-semibold text-slate-800 mb-2">2.1.5 Reflection from a Ground Plane</h4>
-        <p className="text-sm text-slate-600 mb-2">
+        <h4 className="font-semibold text-slate-800 dark:text-slate-200 mb-2">2.1.5 Reflection from a Ground Plane</h4>
+        <div className="mb-2 p-2 bg-rose-50 dark:bg-rose-900/20 rounded border border-rose-100 dark:border-rose-800 text-xs text-rose-800 dark:text-rose-300">
+          <strong>조건:</strong> <InlineMath math={String.raw`r \gg h_s,\; h_r`} /> 이고 <InlineMath math={String.raw`r_1 - r_2 \ll \lambda`} /> — 반사 시 부호 반전(sign reversal)이 핵심
+        </div>
+        <p className="text-sm text-slate-600 dark:text-slate-400 mb-2">
           송수신 안테나가 모두 지면 위에 있을 때, 수평 거리 <InlineMath math="r" />이 안테나 높이에 비해
           충분히 커지면 직접 경로와 지면 반사 경로의 <strong>경로 차이가 0에 수렴</strong>합니다.
           반사 시 부호가 반전되므로 두 경로가 거의 상쇄되며, 수신 전력은 예상보다 훨씬 빠르게 감소합니다.
@@ -151,16 +209,38 @@ export default function Section1Introduction({ onNavigate }: Section1Props) {
           <li><strong>거리 감쇠</strong>: 지수 <InlineMath math="n" />이 환경을 반영 (자유공간 2, 도심 3~5)</li>
           <li><strong>섀도잉</strong> <InlineMath math="X_{\\sigma}" />: 로그정규 분포 <InlineMath math={String.raw`\sim\mathcal{N}(0,\sigma^2)`} />(dB 스케일)로 장소별 랜덤 변동을 포착</li>
         </ul>
-        <p className="text-xs text-slate-500 mt-2">
+        <div className="mt-3 p-3 bg-emerald-50 dark:bg-emerald-900/20 rounded-lg border border-emerald-100 dark:border-emerald-800">
+          <div className="text-xs font-semibold text-emerald-700 dark:text-emerald-400 mb-1">빠른 감쇠가 도움이 되는 이유</div>
+          <p className="text-xs text-slate-600 dark:text-slate-400">
+            직관과 달리, 빠른 신호 감쇠는 셀룰러 시스템에서 <strong>이점</strong>이 됩니다.
+            인접 셀 간 간섭이 줄어들어 주파수 재사용이 용이해지기 때문입니다.
+            즉, 셀이 <strong>커버리지 제한</strong>이 아닌 <strong>용량 제한</strong> 상태가 되어
+            전체 시스템 용량이 증가합니다.
+          </p>
+        </div>
+        <p className="text-xs text-slate-500 dark:text-slate-500 mt-2">
           이 모델은 셀 커버리지 계획의 핵심 도구이며, <InlineMath math={String.raw`\sigma`} />는 보통 6~12 dB 범위입니다.
         </p>
       </div>
 
       <div className="insight" id="multi-reflector-model">
         <div className="insight-title">2.1.7 반사체가 수백 개라면? — 통계 모델이 필요한 이유</div>
-        <p className="text-sm text-amber-900">
+        <p className="text-sm text-amber-900 dark:text-amber-200 mb-2">
           반사체가 하나일 때는 기하학적 해석이 가능하지만,
           실제 환경에서는 수십~수백 개의 산란체가 존재하여 개별 추적이 사실상 불가능합니다.
+        </p>
+        <div className="grid md:grid-cols-2 gap-3 mb-3">
+          <div className="p-2 bg-amber-100/50 dark:bg-amber-900/30 rounded border border-amber-200 dark:border-amber-700 text-xs text-amber-900 dark:text-amber-200">
+            <strong>선형성은 유지:</strong> 경로가 아무리 많아도 합의 원리는 성립합니다.
+            다만 반사체 배치에 따라 경로 수식이 달라질 뿐입니다
+            (예: <InlineMath math={String.raw`[d/(d-r)]^2`} /> vs <InlineMath math={String.raw`[2d-r]^2`} />).
+          </div>
+          <div className="p-2 bg-amber-100/50 dark:bg-amber-900/30 rounded border border-amber-200 dark:border-amber-700 text-xs text-amber-900 dark:text-amber-200">
+            <strong>산란(scattering):</strong> 개별 경로 합 대신,
+            무한히 작은 경로 차이를 갖는 <strong>적분</strong>으로 모델링하는 것이 현실적입니다.
+          </div>
+        </div>
+        <p className="text-sm text-amber-900 dark:text-amber-200">
           이 복잡성을 다루기 위해 TSE는 두 가지 추상화를 도입합니다:
           (1) 연속 전파를 이산 탭으로 요약하는{' '}
           <button onClick={() => onNavigate('io-model')} className="cross-ref !text-xs">2.2 I/O 모델</button>,
