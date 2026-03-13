@@ -26,24 +26,12 @@ const CnnVsSsmViz = dynamic(
   () => import('@/components/my-research/infographics/CnnVsSsmViz'),
   { ssr: false },
 );
-const HessianCurvatureViz = dynamic(
-  () => import('@/components/my-research/infographics/HessianCurvatureViz'),
-  { ssr: false },
-);
-const PolicySpaceViz = dynamic(
-  () => import('@/components/my-research/infographics/PolicySpaceViz'),
-  { ssr: false },
-);
 const ReliabilityViz = dynamic(
   () => import('@/components/my-research/infographics/ReliabilityViz'),
   { ssr: false },
 );
 const TwoLevelDistortionViz = dynamic(
   () => import('@/components/my-research/infographics/TwoLevelDistortionViz'),
-  { ssr: false },
-);
-const SparsityViz = dynamic(
-  () => import('@/components/my-research/infographics/SparsityViz'),
   { ssr: false },
 );
 const BudgetOutageViz = dynamic(
@@ -89,28 +77,16 @@ const TOC_SECTIONS = [
 
 const EQUATIONS = [
   {
-    name: 'IDFT 지연 도메인 변환',
+    name: '지연 도메인 변환',
     latex: String.raw`\mathbf{H}_d[\ell] = \frac{1}{\sqrt{N_f}} \sum_{n=0}^{N_f-1} \mathbf{H}[n]\, e^{j 2\pi n\ell/N_f}`,
     description:
-      'OFDM 채널 행렬 H[n]을 주파수 도메인에서 지연 도메인으로 변환합니다. 각 지연 탭 ℓ에 대해 모든 부반송파의 기여를 합산합니다.',
+      '주파수 도메인 CSI를 IDFT로 지연 도메인 탭으로 변환합니다. 이후 각 탭을 각도 도메인으로 다시 변환하여 delay--angular 표현을 구성합니다.',
   },
   {
     name: '각도 도메인 변환',
     latex: String.raw`\mathbf{X}[\ell] = \mathbf{F}_r \mathbf{H}_d[\ell] \mathbf{F}_t^{\mathsf{H}}`,
     description:
-      'DFT 행렬 F_r, F_t를 이용하여 지연 도메인 채널을 각도-지연 도메인으로 변환합니다. Off-grid 효과로 에너지가 여러 각도 빈에 퍼집니다.',
-  },
-  {
-    name: '인코더 MSE 분해',
-    latex: String.raw`\mathcal{L}(f_\theta, g_\phi) = \underbrace{\mathcal{I}(f_\theta)}_{\text{인코더 정보 하한}} + \underbrace{\mathcal{A}(g_\phi)}_{\text{디코더 근사 오차}}`,
-    description:
-      '전체 MSE 손실을 두 항으로 분해합니다. 첫 번째 항은 인코더 구조에 의해 결정되며, 두 번째 항은 디코더 용량을 늘려 줄일 수 있습니다.',
-  },
-  {
-    name: 'SSM 소프트 테일 경계',
-    latex: String.raw`R_{\mathrm{soft}}(L) \lesssim c_3\sum_{d=L+1}^{\infty}\frac{e^{-\alpha d}}{1+d} = \mathcal{O}\!\left(\frac{e^{-\alpha L}}{1+L}\right)`,
-    description:
-      '지평선 L 너머의 SSM 집약 기여. 지수 감쇠(e^{-αL})와 다항 감쇠(1/(1+L))의 곱으로, 하드 절단 O(L⁻¹)보다 지수 배율로 빠르게 감소합니다.',
+      '지연 도메인 채널을 각도 도메인으로 사상합니다. off-grid 경로가 있을 때 에너지가 여러 각도 빈으로 퍼지며, 이것이 롱테일 구조와 soft locality 논의의 출발점입니다.',
   },
   {
     name: '하드 국소성 절단 손실',
@@ -119,34 +95,40 @@ const EQUATIONS = [
       'CNN 수용장 반경 L 바깥의 테일 에너지. 다항 감쇠 O(L⁻¹)이므로 절단 손실을 줄이려면 L을 크게 늘려야 합니다 → UE 연산량·지연 증가.',
   },
   {
-    name: '양자화 내성 (명제)',
-    latex: String.raw`\|\mathbf{y}_t - \hat{\mathbf{y}}_t\| \le \left(\frac{L_\Psi L_{\Phi,\theta}}{1-\rho} + L_{\Psi,\theta}\right)\|\Delta\boldsymbol{\theta}\|`,
+    name: 'SSM 소프트 테일 기여',
+    latex: String.raw`R_{\mathrm{soft}}(L) \lesssim c_3\sum_{d=L+1}^{\infty}\frac{e^{-\alpha d}}{1+d} = \mathcal{O}\!\left(\frac{e^{-\alpha L}}{1+L}\right)`,
     description:
-      '수축적 SSM의 양자화 내성 경계. ρ<1이면 재귀를 통한 섭동 증폭이 없어, 출력 오차가 토큰 길이 t와 무관하게 ‖Δθ‖의 선형 배수로 균일 유계됩니다.',
+      '안정적인 SSM이 먼 계수를 hard cutoff 없이 지수적으로 감쇠된 가중치로 집약하는 효과를 나타냅니다. 하드 절단보다 tail 기여가 훨씬 빠르게 감소합니다.',
   },
   {
-    name: 'Hessian 민감도 대리 함수',
-    latex: String.raw`\Omega_m(b) \triangleq \mathrm{Tr}(\mathbf{H}_m)\,\|\Delta\boldsymbol{\theta}_m^{(b)}\|_2^2`,
+    name: '무선 상태의 구조 지표',
+    latex: String.raw`\zeta(\mathbf{X}_a) = 1 - \operatorname{tr}\!\left(P^\top K_d\, P\, K_a\right)`,
     description:
-      '블록 m을 b비트로 양자화했을 때의 손실 증가를 근사합니다. Tr(H_m)은 Hessian 행렬의 대각합으로 민감도를 나타내고, ‖Δθ‖²는 양자화 오차의 크기입니다.',
+      '현재 CSI가 얼마나 compact한지 혹은 diffuse한지를 요약하는 구조 상태입니다. 작을수록 encoder-friendly한 국소 구조, 클수록 leakage tail이 강한 확산 구조를 의미합니다.',
   },
   {
-    name: 'KL 정제 기준',
-    latex: String.raw`J(\pi) = D_{\mathrm{KL}}\!\left(p_{\mathrm{enc}}^{(\pi)} \| p_{\mathrm{enc}}^{(\mathrm{FP32})}\right)`,
+    name: '정규화된 신뢰성 shortfall',
+    latex: String.raw`V_i(\pi;\gamma) = \frac{[\gamma\, r_i^{\mathrm{ref}} - r_i(\pi)]_+}{\gamma\, r_i^{\mathrm{ref}} + \eta_r}`,
     description:
-      '정책 π 하에서 인코더의 출력 분포가 FP32 기준 분포와 얼마나 다른지 측정합니다. KL 발산을 최소화하면 양자화로 인한 분포 이동이 최소화됩니다.',
+      '앵커 정책 대비 현재 정책이 rate reliability 목표를 얼마나 못 맞췄는지 정규화하여 측정합니다. NMSE가 아니라 전송률 기반 reliability shortfall을 직접 제어합니다.',
   },
   {
-    name: '신뢰성 위반 비용',
-    latex: String.raw`V_{t,\pi} = \mathbf{1}\!\left[r_t(\pi) < \gamma r_{\mathrm{ref}}\right] + \beta \frac{\max(0,\, \gamma r_{\mathrm{ref}} - r_t(\pi))}{\gamma r_{\mathrm{ref}} + \varepsilon}`,
+    name: '상태-조건부 importance surface',
+    latex: String.raw`\Omega_{m,b}(\boldsymbol{\xi}) \triangleq \mathbb{E}\!\left[\Delta V_i(m,b;\gamma)\,\middle|\,\boldsymbol{\xi}_i=\boldsymbol{\xi}\right]`,
     description:
-      '시간 t에 정책 π를 적용했을 때의 신뢰성 위반 비용입니다. 첫 번째 항은 아웃에이지 발생 여부(0/1)이고, 두 번째 항은 초과 위반 크기에 비례한 소프트 패널티입니다.',
+      'block m을 bit-width b로 둘 때 생기는 기대 reliability 손실 증가를 상태 ξ=(ρ,ζ)에 조건부로 평균낸 표면입니다. 이것이 RP-MPQ 오프라인 정책 구성의 핵심입니다.',
   },
   {
-    name: '온라인 정책 결정',
-    latex: String.raw`\pi_t^\star = \mathop{\arg\min}_{\pi \in \Pi_{\mathcal{C}}} \left( w_t V_{t,\pi} + \lambda \kappa_\pi \right)`,
+    name: '상태별 정책 최적화',
+    latex: String.raw`\pi^*(\boldsymbol{\xi}) = \arg\min_{\pi\in\Pi}\left[\sum_{m=1}^{M}\widehat{\Omega}_{m,\pi_m}(\boldsymbol{\xi}) + \lambda\,\kappa_\pi\right]`,
     description:
-      '타임슬롯 t에서 후보 정책 집합 Π_C 중 신뢰성 비용과 연산 비용의 가중합을 최소화하는 정책을 선택합니다. w_t는 채널 희소성에 따른 적응형 가중치입니다.',
+      '각 상태 cell마다 importance surface와 compute cost를 함께 최소화하는 mixed-precision 정책을 구합니다. λ는 long-term UE budget을 만족하도록 오프라인에서 조정됩니다.',
+  },
+  {
+    name: '온라인 정책 조회',
+    latex: String.raw`\boldsymbol{\xi}_t=(\rho_t,\zeta(\mathbf{X}_a)),\qquad \pi_t=\mu(\boldsymbol{\xi}_t),\qquad \tilde{\mathbf{z}}_t=f_\theta(\mathbf{X}_a;\pi_t)`,
+    description:
+      '온라인 단계에서는 현재 상태를 계산한 뒤 미리 구축한 state-to-policy map에서 정책을 한 번 조회하고, 그 정책으로 인코더를 실행합니다. 온라인 최적화는 존재하지 않습니다.',
   },
 ] as const;
 
@@ -433,25 +415,59 @@ export default function MyResearchPage() {
                 {/* White body */}
                 <div className="bg-white p-6 dark:bg-gray-900 dark:ring-1 dark:ring-gray-800">
                   <p className="leading-relaxed text-gray-700 dark:text-gray-300">
-                    FDD 대규모 MIMO 시스템에서 UE 측 추론 제약 하의 CSI 피드백을 신뢰성 관점에서 연구합니다.
-                    UE에는 경량 SSM 기반 인코더(Mamba), BS에는 고용량 Transformer 디코더를 배치하는{' '}
-                    <span className="font-semibold text-indigo-700 dark:text-indigo-300">비대칭 오토인코더</span>를 제안하고,
-                    혼합 정밀도 양자화 스케줄링(RP-MPQ)으로 런타임에 신뢰성을 보존합니다.
+                    이 연구는 FDD massive MIMO에서{' '}
+                    <span className="font-semibold text-indigo-700 dark:text-indigo-300">UE latency·energy·compute 제약</span> 아래
+                    CSI feedback을 어떻게 신뢰성 있게 유지할지를 다룹니다. 핵심은 UE에는 경량 Mamba-style SSM encoder,
+                    BS에는 고용량 Transformer decoder를 두는{' '}
+                    <span className="font-semibold text-indigo-700 dark:text-indigo-300">asymmetric CSI feedback autoencoder</span>와,
+                    그 위에서 동작하는{' '}
+                    <span className="font-semibold text-emerald-700 dark:text-emerald-300">Reliability-Preserving Mixed-Precision Quantization Scheduling (RP-MPQ)</span>
+                    입니다. RP-MPQ는 reconstruction NMSE만 보지 않고 실제 downlink rate shortfall과 outage risk를 기준으로
+                    precision policy를 설계하며, 오프라인에서는 상태별 정책을 미리 구성하고 온라인에서는 단 한 번의 lookup만 수행합니다.
                   </p>
 
                   <div className="mt-4 flex flex-wrap gap-2">
                     <span className="rounded-full bg-blue-100 px-3 py-1 text-xs font-semibold text-blue-700 dark:bg-blue-900/30 dark:text-blue-300">
-                      신뢰성 기반 정식화
+                      Rate / Outage reliability
                     </span>
                     <span className="rounded-full bg-purple-100 px-3 py-1 text-xs font-semibold text-purple-700 dark:bg-purple-900/30 dark:text-purple-300">
-                      비대칭 오토인코더
+                      Asymmetric SSM–Transformer AE
                     </span>
                     <span className="rounded-full bg-green-100 px-3 py-1 text-xs font-semibold text-green-700 dark:bg-green-900/30 dark:text-green-300">
-                      RP-MPQ 프레임워크
+                      Offline LUT + Online O(1)
                     </span>
                     <span className="rounded-full border border-dashed border-gray-300 px-3 py-1 text-xs font-medium text-gray-500 dark:border-gray-600 dark:text-gray-400">
                       제출 준비 중
                     </span>
+                  </div>
+
+                  <div className="mt-5 grid grid-cols-1 gap-3 sm:grid-cols-3">
+                    {[
+                      {
+                        title: 'Architecture',
+                        body: 'UE는 quantization-robust Mamba encoder, BS는 expressive Transformer decoder로 역할을 분리합니다.',
+                      },
+                      {
+                        title: 'Offline RP-MPQ',
+                        body: '상태 ξ=(ρ, ζ)별 importance surface를 추정하고, long-term UE budget 아래 정책 map μ(ξ)를 구축합니다.',
+                      },
+                      {
+                        title: 'Online RP-MPQ',
+                        body: '현재 CSI에서 ζ를 계산하고 μ(ξ_t)를 조회해 곧바로 mixed-precision policy를 적용합니다.',
+                      },
+                    ].map((item) => (
+                      <div
+                        key={item.title}
+                        className="rounded-xl border border-gray-200 bg-gray-50/80 p-4 dark:border-gray-800 dark:bg-gray-800/70"
+                      >
+                        <p className="text-xs font-semibold uppercase tracking-[0.12em] text-gray-500 dark:text-gray-400">
+                          {item.title}
+                        </p>
+                        <p className="mt-2 text-sm leading-relaxed text-gray-700 dark:text-gray-300">
+                          {item.body}
+                        </p>
+                      </div>
+                    ))}
                   </div>
                 </div>
               </div>
@@ -907,52 +923,158 @@ export default function MyResearchPage() {
                 className={`overflow-hidden transition-all duration-300 ${collapsed['section-offline'] ? 'max-h-0' : 'max-h-[9999px]'}`}
               >
                 <Card>
-                  {/* 4.1 */}
-                  <SubSectionHeading number="4.1" title="혼합 정밀도 정책 공간" />
-                  <p className="mb-5 text-sm leading-relaxed text-gray-700 dark:text-gray-300">
-                    M개 블록 각각에 B = {'{'}2, 4, 8, 16{'}'} 비트 중 하나를 할당하면 정책 공간의 크기는{' '}
-                    <span className="font-mono font-semibold text-indigo-600 dark:text-indigo-400">|Π| = 4^M</span>
-                    으로 지수적으로 증가합니다. M = 6이면 4096가지로 완전 탐색이 불가합니다.
-                  </p>
+                  <div className="mb-5 rounded-xl border border-emerald-200 bg-emerald-50 px-4 py-3 dark:border-emerald-900/40 dark:bg-emerald-900/10">
+                    <p className="text-sm leading-relaxed text-emerald-800 dark:text-emerald-200">
+                      RP-MPQ의 오프라인 단계는{' '}
+                      <span className="font-semibold">UE encoder weights에만 mixed precision</span>을 적용하고,
+                      activations는 INT16, feedback latent quantization은 고정한 채 진행됩니다.
+                      핵심은 Hessian-based block saliency가 아니라{' '}
+                      <span className="font-semibold">상태 ξ=(ρ, ζ)에 조건부인 reliability importance surface</span>를
+                      먼저 만들고, 그 surface로 상태별 정책 map μ(ξ)를 미리 구축하는 데 있습니다.
+                    </p>
+                  </div>
 
-                  {/* 4.2 */}
-                  <SubSectionHeading number="4.2" title="Hessian 기반 민감도 대리 함수" />
+                  <SubSectionHeading number="4.1" title="혼합 정밀도 정책 공간과 비용" />
                   <p className="mb-3 text-sm leading-relaxed text-gray-700 dark:text-gray-300">
-                    블록 m을 b비트로 양자화했을 때의 손실 증가를 다음 대리 함수로 근사합니다:
+                    UE-side encoder의 M개 블록에 대해 bit-width 집합 <span className="font-mono text-xs text-indigo-600 dark:text-indigo-400">{'{'}16, 8, 4, 2{'}'}</span>
+                    에서 하나씩 고르면 정책은 block-wise assignment가 됩니다. 정책 공간은 빠르게 폭발하므로, 각 정책을 직접 전수 평가하는 방식은 사용할 수 없습니다.
                   </p>
-                  <div className="mb-4 overflow-x-auto rounded-lg bg-amber-50 p-3 dark:bg-amber-900/20">
+                  <div className="mb-4 grid grid-cols-1 gap-3 lg:grid-cols-2">
+                    <div className="overflow-x-auto rounded-lg bg-indigo-50 p-3 dark:bg-indigo-900/20">
+                      <p className="mb-1 text-xs font-semibold text-indigo-700 dark:text-indigo-300">정책 정의</p>
+                      <div className="text-gray-900 dark:text-gray-100">
+                        <EquationRenderer latex={String.raw`\pi \triangleq (b_1, b_2, \ldots, b_M), \qquad b_m \in \mathcal{B}`} />
+                      </div>
+                    </div>
+                    <div className="overflow-x-auto rounded-lg bg-indigo-50 p-3 dark:bg-indigo-900/20">
+                      <p className="mb-1 text-xs font-semibold text-indigo-700 dark:text-indigo-300">정책 공간과 비용</p>
+                      <div className="text-gray-900 dark:text-gray-100">
+                        <EquationRenderer latex={String.raw`|\Pi| = |\mathcal{B}|^M,\qquad \kappa_{\pi} \triangleq \sum_{m=1}^{M}\kappa_m(b_m)`} />
+                      </div>
+                    </div>
+                  </div>
+
+                  <div className="mb-6 grid grid-cols-1 gap-3 sm:grid-cols-2">
+                    <div className="rounded-lg border border-blue-200 bg-blue-50 p-4 dark:border-blue-900/40 dark:bg-blue-900/10">
+                      <p className="mb-1 text-xs font-bold text-blue-700 dark:text-blue-300">왜 어려운가?</p>
+                      <p className="text-xs leading-relaxed text-blue-600 dark:text-blue-400">
+                        정책 수가 bit-width 후보 수의 M제곱으로 증가하므로 moderate M에서도 brute-force가 불가능합니다.
+                      </p>
+                    </div>
+                    <div className="rounded-lg border border-slate-200 bg-slate-50 p-4 dark:border-slate-800 dark:bg-slate-800/80">
+                      <p className="mb-1 text-xs font-bold text-slate-700 dark:text-slate-300">오프라인 목표</p>
+                      <p className="text-xs leading-relaxed text-slate-600 dark:text-slate-400">
+                        모든 정책을 다 시험하는 대신, 상태마다 어떤 block-bit 조합이 reliability에 치명적인지 surface로 요약합니다.
+                      </p>
+                    </div>
+                  </div>
+
+                  <SubSectionHeading number="4.2" title="무선 상태와 reliability shortfall" />
+                  <p className="mb-3 text-sm leading-relaxed text-gray-700 dark:text-gray-300">
+                    RP-MPQ는 현재 무선 환경을 단순한 SNR 하나가 아니라{' '}
+                    <span className="font-semibold">수신 SNR ρ와 CSI 구조 지표 ζ</span>의 2차원 상태로 요약합니다.
+                    ζ는 delay--angular energy map이 얼마나 compact한지 혹은 leakage tail이 강한지를 나타냅니다.
+                    policy의 품질은 NMSE가 아니라, anchor policy 대비 목표 rate를 얼마나 못 맞췄는지로 측정합니다.
+                  </p>
+                  <div className="mb-4 grid grid-cols-1 gap-3 lg:grid-cols-2">
+                    <div className="overflow-x-auto rounded-lg bg-amber-50 p-3 dark:bg-amber-900/20">
+                      <p className="mb-1 text-xs font-semibold text-amber-700 dark:text-amber-300">구조 상태 ζ</p>
+                      <div className="text-gray-900 dark:text-gray-100">
+                        <EquationRenderer latex={String.raw`\zeta(\mathbf{X}_a) = 1 - \operatorname{tr}\!\left(P^\top K_d\, P\, K_a\right)`} />
+                      </div>
+                    </div>
+                    <div className="overflow-x-auto rounded-lg bg-rose-50 p-3 dark:bg-rose-900/20">
+                      <p className="mb-1 text-xs font-semibold text-rose-700 dark:text-rose-300">정규화 shortfall</p>
+                      <div className="text-gray-900 dark:text-gray-100">
+                        <EquationRenderer latex={String.raw`V_i(\pi;\gamma) = \frac{[\gamma\, r_i^{\mathrm{ref}} - r_i(\pi)]_+}{\gamma\, r_i^{\mathrm{ref}} + \eta_r}`} />
+                      </div>
+                    </div>
+                  </div>
+
+                  <div className="mb-6 grid grid-cols-1 gap-3 sm:grid-cols-3">
+                    {[
+                      ['ρ', '수신 SNR이 높을수록 같은 quantization error가 rate degradation으로 더 직접 연결됩니다.'],
+                      ['ζ', '작으면 compact한 CSI, 크면 diffuse multipath / off-grid leakage가 강한 CSI입니다.'],
+                      ['γ', 'reference rate 대비 어느 수준까지 보존할지를 정하는 reliability target입니다.'],
+                    ].map(([label, body]) => (
+                      <div
+                        key={label}
+                        className="rounded-lg border border-gray-200 bg-gray-50 p-4 dark:border-gray-800 dark:bg-gray-800/70"
+                      >
+                        <p className="text-xs font-bold uppercase tracking-[0.14em] text-gray-500 dark:text-gray-400">{label}</p>
+                        <p className="mt-2 text-xs leading-relaxed text-gray-700 dark:text-gray-300">{body}</p>
+                      </div>
+                    ))}
+                  </div>
+
+                  <SubSectionHeading number="4.3" title="State-conditioned importance surface 추정" />
+                  <p className="mb-3 text-sm leading-relaxed text-gray-700 dark:text-gray-300">
+                    이제 각 block m을 bit-width b로 바꿨을 때 reliability shortfall이 얼마나 늘어나는지를 상태 ξ에 조건부로 평균내어 surface를 만듭니다.
+                    이 surface는 “어떤 block이 중요하냐”를 고정된 saliency가 아니라{' '}
+                    <span className="font-semibold">현재 무선 상태에 따라 달라지는 reliability sensitivity</span>로 해석하게 해 줍니다.
+                  </p>
+                  <div className="mb-4 overflow-x-auto rounded-lg bg-emerald-50 p-3 dark:bg-emerald-900/20">
                     <div className="text-gray-900 dark:text-gray-100">
-                      <EquationRenderer latex={String.raw`\Omega_m(b) \triangleq \mathrm{Tr}(\mathbf{H}_m)\,\|\Delta\boldsymbol{\theta}_m^{(b)}\|_2^2`} />
+                      <EquationRenderer latex={String.raw`\Omega_{m,b}(\boldsymbol{\xi}) \triangleq \mathbb{E}\!\left[\Delta V_i(m,b;\gamma)\,\middle|\,\boldsymbol{\xi}_i=\boldsymbol{\xi}\right]`} />
                     </div>
                   </div>
 
-                  <HessianCurvatureViz />
+                  <div className="mb-6 grid grid-cols-1 gap-3 md:grid-cols-3">
+                    <div className="rounded-lg border border-teal-200 bg-teal-50 p-4 dark:border-teal-900/40 dark:bg-teal-900/10">
+                      <p className="mb-1 text-xs font-bold text-teal-700 dark:text-teal-300">Raw cell average</p>
+                      <p className="text-xs leading-relaxed text-teal-600 dark:text-teal-400">
+                        상태 공간 (ρ, ζ)을 quantile grid로 나눈 뒤, 각 cell에서 block-bit marginal shortfall을 평균냅니다.
+                      </p>
+                    </div>
+                    <div className="rounded-lg border border-violet-200 bg-violet-50 p-4 dark:border-violet-900/40 dark:bg-violet-900/10">
+                      <p className="mb-1 text-xs font-bold text-violet-700 dark:text-violet-300">Shrinkage stabilization</p>
+                      <p className="text-xs leading-relaxed text-violet-600 dark:text-violet-400">
+                        sample이 적은 cell은 global block-bit mean으로 부분 수축시켜 과적합과 noisy estimate를 막습니다.
+                      </p>
+                    </div>
+                    <div className="rounded-lg border border-orange-200 bg-orange-50 p-4 dark:border-orange-900/40 dark:bg-orange-900/10">
+                      <p className="mb-1 text-xs font-bold text-orange-700 dark:text-orange-300">Monotone calibration</p>
+                      <p className="text-xs leading-relaxed text-orange-600 dark:text-orange-400">
+                        high SNR에서 sensitivity가 줄고, diffuse CSI에서 sensitivity가 커지는 물리적 monotonicity를 isotonic하게 보정합니다.
+                      </p>
+                    </div>
+                  </div>
+
+                  <SubSectionHeading number="4.4" title="상태별 정책 최적화와 policy map μ(ξ)" />
+                  <p className="mb-3 text-sm leading-relaxed text-gray-700 dark:text-gray-300">
+                    importance surface가 준비되면 각 state cell마다 reliability loss surrogate와 compute cost의 합을 최소화하는 policy를 고릅니다.
+                    λ는 long-term average UE budget을 만족하도록 오프라인에서만 조정되고, 결과는 state-to-policy map으로 저장됩니다.
+                  </p>
+                  <div className="mb-4 overflow-x-auto rounded-lg bg-sky-50 p-3 dark:bg-sky-900/20">
+                    <div className="text-gray-900 dark:text-gray-100">
+                      <EquationRenderer latex={String.raw`\pi^*(\boldsymbol{\xi}) = \arg\min_{\pi\in\Pi}\left[\sum_{m=1}^{M}\widehat{\Omega}_{m,\pi_m}(\boldsymbol{\xi}) + \lambda\,\kappa_\pi\right],\qquad \mu(\boldsymbol{\xi})=\pi^*(\boldsymbol{\xi})`} />
+                    </div>
+                  </div>
+
+                  <div className="grid grid-cols-1 gap-3 lg:grid-cols-[1fr_auto_1fr_auto_1fr]">
+                    {[
+                      ['Step 1', 'State binning', '(ρ, ζ) grid를 만들고 sample들을 상태별로 나눕니다.'],
+                      ['Step 2', 'Importance estimation', '각 cell에서 block-bit reliability shortfall을 평균·보정합니다.'],
+                      ['Step 3', 'State-wise optimization', '각 cell마다 budget-aware mixed-precision policy를 선택합니다.'],
+                    ].map((item, index) => (
+                      <div key={item[0]} className="contents">
+                        <div className="rounded-xl border border-gray-200 bg-gray-50 p-4 dark:border-gray-800 dark:bg-gray-800/70">
+                          <p className="text-xs font-bold uppercase tracking-[0.14em] text-indigo-600 dark:text-indigo-300">{item[0]}</p>
+                          <p className="mt-2 text-sm font-semibold text-gray-800 dark:text-gray-200">{item[1]}</p>
+                          <p className="mt-2 text-xs leading-relaxed text-gray-600 dark:text-gray-400">{item[2]}</p>
+                        </div>
+                        {index < 2 && (
+                          <div className="hidden items-center justify-center lg:flex">
+                            <ChevronRight className="h-5 w-5 text-gray-400" />
+                          </div>
+                        )}
+                      </div>
+                    ))}
+                  </div>
+
                   <InfographicCaption>
-                    Hessian의 대각 원소 합(Tr(H))이 클수록 해당 블록의 양자화 민감도가 높음을 나타냅니다.
+                    새 RP-MPQ 오프라인 단계의 핵심은 고정 saliency ranking이 아니라, 상태 ξ마다 달라지는 reliability importance surface로 policy map μ(ξ)를 구축하는 것입니다.
                   </InfographicCaption>
-
-                  {/* 4.3 */}
-                  <div className="mt-6">
-                    <SubSectionHeading number="4.3" title="ILP 기반 후보 생성 → KL 정제" />
-                    <div className="mb-4 flex flex-wrap items-center gap-3">
-                      <div className="flex flex-col items-center rounded-lg border border-blue-200 bg-blue-50 px-4 py-3 dark:border-blue-800 dark:bg-blue-900/20">
-                        <span className="text-xs font-bold text-blue-700 dark:text-blue-300">STEP 1</span>
-                        <span className="mt-1 text-xs text-blue-600 dark:text-blue-400">ILP 후보 생성</span>
-                        <span className="text-[10px] text-blue-500">4^M → K개</span>
-                      </div>
-                      <ChevronRight className="h-5 w-5 flex-shrink-0 text-gray-400" />
-                      <div className="flex flex-col items-center rounded-lg border border-purple-200 bg-purple-50 px-4 py-3 dark:border-purple-800 dark:bg-purple-900/20">
-                        <span className="text-xs font-bold text-purple-700 dark:text-purple-300">STEP 2</span>
-                        <span className="mt-1 text-xs text-purple-600 dark:text-purple-400">KL 정제</span>
-                        <span className="text-[10px] text-purple-500">K개 → Π_C</span>
-                      </div>
-                    </div>
-
-                    <PolicySpaceViz />
-                    <InfographicCaption>
-                      ILP로 후보를 좁힌 후, KL 발산 기준으로 블록 간 상호작용까지 고려한 최적 정책을 선택합니다.
-                    </InfographicCaption>
-                  </div>
                 </Card>
               </div>
             </section>
@@ -969,53 +1091,80 @@ export default function MyResearchPage() {
                 className={`overflow-hidden transition-all duration-300 ${collapsed['section-online'] ? 'max-h-0' : 'max-h-[9999px]'}`}
               >
                 <Card>
-                  {/* 5.1 */}
-                  <SubSectionHeading number="5.1" title="신뢰성 위반 비용" />
+                  <div className="mb-5 rounded-xl border border-blue-200 bg-blue-50 px-4 py-3 dark:border-blue-900/40 dark:bg-blue-900/10">
+                    <p className="text-sm leading-relaxed text-blue-800 dark:text-blue-200">
+                      온라인 RP-MPQ의 핵심은{' '}
+                      <span className="font-semibold">runtime optimization을 없애는 것</span>입니다.
+                      오프라인에서 이미 μ(ξ)를 완성했기 때문에, 실제 UE는 현재 CSI에서 상태만 계산하고 즉시 policy를 조회합니다.
+                    </p>
+                  </div>
+
+                  <SubSectionHeading number="5.1" title="온라인 의사결정 규칙" />
                   <p className="mb-3 text-sm leading-relaxed text-gray-700 dark:text-gray-300">
-                    시간 t에서 정책 π를 적용했을 때의 신뢰성 위반 비용을 다음과 같이 정의합니다:
+                    매 CSI realization마다 UE는 현재 SNR과 구조 상태 ζ만 계산하고, 그 상태에 맞는 mixed-precision policy를 표에서 꺼내 씁니다.
+                    즉, 정책 선택은 search가 아니라 lookup입니다.
                   </p>
-                  <div className="mb-3 overflow-x-auto rounded-lg bg-red-50 p-3 dark:bg-red-900/20">
+                  <div className="mb-4 overflow-x-auto rounded-lg bg-green-50 p-3 dark:bg-green-900/20">
                     <div className="text-gray-900 dark:text-gray-100">
-                      <EquationRenderer latex={String.raw`V_{t,\pi} = \mathbf{1}\!\left[r_t(\pi) < \gamma r_{\mathrm{ref}}\right] + \beta \frac{\max(0,\, \gamma r_{\mathrm{ref}} - r_t(\pi))}{\gamma r_{\mathrm{ref}} + \varepsilon}`} />
+                      <EquationRenderer latex={String.raw`\boldsymbol{\xi}_t=(\rho_t,\zeta(\mathbf{X}_a)),\qquad \pi_t=\mu(\boldsymbol{\xi}_t),\qquad \tilde{\mathbf{z}}_t=f_\theta(\mathbf{X}_a;\pi_t)`} />
                     </div>
                   </div>
-                  <p className="mb-4 text-sm leading-relaxed text-gray-600 dark:text-gray-400">
-                    희소성 가중치{' '}
-                    <span className="font-mono text-xs text-gray-800 dark:text-gray-200">w_t = 1 + α · s_t</span>는
-                    Hoyer 측도로 채널 행렬의 희소성 s_t를 측정합니다.
-                    희소한 채널일수록 양자화 민감도가 커지므로 신뢰성 비용에 더 높은 가중치를 부여합니다.
-                  </p>
 
-                  <SparsityViz />
-                  <InfographicCaption>
-                    채널 유형별 지연-각도 도메인 에너지 분포와 Hoyer 측도: 희소 채널은 소수 계수에 에너지가 집중되어 양자화에 더 취약합니다.
-                  </InfographicCaption>
+                  <div className="mb-6 grid grid-cols-1 gap-3 md:grid-cols-4">
+                    {[
+                      ['1', 'State sensing', '현재 SNR ρ_t와 구조 상태 ζ(X_a)를 계산합니다.'],
+                      ['2', 'Cell lookup', '오프라인에서 만든 μ(ξ)에서 해당 state cell의 policy를 꺼냅니다.'],
+                      ['3', 'Mixed-precision encoding', '선택된 block-wise bit-width로 UE encoder를 실행합니다.'],
+                      ['4', 'Feedback', '양자화된 latent를 BS에 전송하고, BS는 고용량 decoder로 복원합니다.'],
+                    ].map(([step, title, body]) => (
+                      <div
+                        key={step}
+                        className="rounded-lg border border-gray-200 bg-gray-50 p-4 dark:border-gray-800 dark:bg-gray-800/70"
+                      >
+                        <div className="flex items-center gap-2">
+                          <span className="flex h-6 w-6 items-center justify-center rounded-full bg-emerald-100 text-xs font-bold text-emerald-700 dark:bg-emerald-900/30 dark:text-emerald-300">
+                            {step}
+                          </span>
+                          <p className="text-sm font-semibold text-gray-800 dark:text-gray-200">{title}</p>
+                        </div>
+                        <p className="mt-2 text-xs leading-relaxed text-gray-600 dark:text-gray-400">{body}</p>
+                      </div>
+                    ))}
+                  </div>
 
-                  {/* 5.2 */}
-                  <SubSectionHeading number="5.2" title="온라인 의사결정 규칙" />
-                  <p className="mb-3 text-sm leading-relaxed text-gray-700 dark:text-gray-300">
-                    각 타임슬롯 t에서 후보 정책 집합 Π_C 중 최적 정책을 선택합니다:
+                  <SubSectionHeading number="5.2" title="온라인 복잡도와 practical overhead" />
+                  <p className="mb-4 text-sm leading-relaxed text-gray-700 dark:text-gray-300">
+                    온라인 비용은 구조 상태 ζ 계산과 table lookup뿐입니다. 따라서 실제 overhead는 encoder inference에 비해 미미하고,
+                    reliability-aware adaptation을 넣어도 runtime optimization latency가 붙지 않습니다.
                   </p>
-                  <div className="mb-3 overflow-x-auto rounded-lg bg-green-50 p-3 dark:bg-green-900/20">
-                    <div className="text-gray-900 dark:text-gray-100">
-                      <EquationRenderer latex={String.raw`\pi_t^\star = \mathop{\arg\min}_{\pi \in \Pi_{\mathcal{C}}} \left( w_t V_{t,\pi} + \lambda \kappa_\pi \right)`} />
+                  <div className="mb-6 grid grid-cols-1 gap-3 sm:grid-cols-2">
+                    <div className="rounded-lg border border-slate-200 bg-slate-50 p-4 dark:border-slate-800 dark:bg-slate-800/80">
+                      <p className="mb-1 text-xs font-bold text-slate-700 dark:text-slate-300">Offline</p>
+                      <p className="text-xs leading-relaxed text-slate-600 dark:text-slate-400">
+                        importance surface 추정, λ 보정, state-wise policy optimization은 모두 배포 전에 한 번만 수행됩니다.
+                      </p>
+                    </div>
+                    <div className="rounded-lg border border-emerald-200 bg-emerald-50 p-4 dark:border-emerald-900/40 dark:bg-emerald-900/10">
+                      <p className="mb-1 text-xs font-bold text-emerald-700 dark:text-emerald-300">Online</p>
+                      <p className="text-xs leading-relaxed text-emerald-600 dark:text-emerald-400">
+                        UE는 ξ_t 계산 + μ(ξ_t) lookup + encoder 실행만 하면 됩니다. 온라인 최적화는 아예 존재하지 않습니다.
+                      </p>
                     </div>
                   </div>
-                  <p className="mb-4 text-sm leading-relaxed text-gray-600 dark:text-gray-400">
-                    λ는 라그랑지안 이완으로 결정되며, 장기 연산 예산 제약을 만족하도록 온라인 업데이트됩니다.
-                    κ_π는 정책 π의 연산 비용(BOP)입니다.
-                  </p>
 
                   <BudgetOutageViz />
                   <InfographicCaption>
-                    파레토 프론티어: 동일 예산(BOP 절약률)에서 RP-MPQ가 일관되게 가장 낮은 아웃에이지를 달성합니다.
+                    같은 평균 UE-side BOP 예산에서도, state-conditioned online selection이 static policy보다 outage cliff를 더 늦게 만듭니다.
                   </InfographicCaption>
 
-                  {/* 5.3 */}
-                  <SubSectionHeading number="5.3" title="신뢰성 보존 결과" />
+                  <SubSectionHeading number="5.3" title="동일 평균 예산에서의 reliability 개선" />
+                  <p className="mb-3 text-sm leading-relaxed text-gray-700 dark:text-gray-300">
+                    정적인 uniform precision이나 static mixed precision과 비교하면, RP-MPQ는 sample마다 다른 state를 반영하므로
+                    같은 average cost에서도 reliability target을 더 자주 만족시킵니다. 효과는 특히 high-saving 구간에서 더 크게 나타납니다.
+                  </p>
                   <ReliabilityViz />
                   <InfographicCaption>
-                    동일한 평균 연산 예산 하에서 RP-MPQ 온라인 선택이 아웃에이지(outage)를 크게 줄입니다.
+                    동일한 평균 연산 예산 하에서 RP-MPQ 온라인 선택이 rate-based outage를 가장 크게 줄입니다.
                   </InfographicCaption>
                 </Card>
               </div>
@@ -1035,13 +1184,13 @@ export default function MyResearchPage() {
                 <Card>
                   <div className="mb-5 rounded-lg bg-gray-50 px-4 py-3 dark:bg-gray-800">
                     <p className="font-mono text-xs text-gray-600 dark:text-gray-400">
-                      실험 환경: COST 2100 (실외, 5.3GHz), N_t=32, N_r=1, CR=1/4
+                      실험 환경: COST 2100 outdoor, N_t=32, N_r=1, N_f=1024, N_a=32, CR=1/4, SNR = 10 / 20 / 30 dB
                     </p>
                   </div>
 
                   {/* Table 1 */}
                   <p className="mb-2 text-sm font-bold text-gray-800 dark:text-gray-200">
-                    Table 1. 구조적 성능 비교 (FP32)
+                    Table 1. FP32 baseline 구조 비교 (CR = 1/4)
                   </p>
                   <div className="mb-6 overflow-x-auto rounded-xl border border-gray-200 dark:border-gray-700">
                     <table className="w-full text-xs">
@@ -1050,14 +1199,17 @@ export default function MyResearchPage() {
                           <th className="px-4 py-2 text-left font-semibold text-gray-600 dark:text-gray-400">모델</th>
                           <th className="px-4 py-2 text-center font-semibold text-gray-600 dark:text-gray-400">NMSE (dB)</th>
                           <th className="px-4 py-2 text-center font-semibold text-gray-600 dark:text-gray-400">인코더 FLOPs (M)</th>
+                          <th className="px-4 py-2 text-center font-semibold text-gray-600 dark:text-gray-400">전체 FLOPs (M)</th>
                         </tr>
                       </thead>
                       <tbody className="divide-y divide-gray-100 dark:divide-gray-800">
                         {[
-                          { model: 'CsiNet', nmse: '-8.95', flops: '2.71', highlight: false },
-                          { model: 'CsiNet+', nmse: '-12.40', flops: '12.29', highlight: false },
-                          { model: 'TransNet', nmse: '-14.86', flops: '17.86', highlight: false },
-                          { model: 'Mamba-Transformer AE (Ours)', nmse: '-15.34', flops: '4.87', highlight: true },
+                          { model: 'CsiNet', nmse: '-8.75', flops: '1.09', total: '5.41', highlight: false },
+                          { model: 'CsiNet+', nmse: '-12.40', flops: '1.45', total: '24.57', highlight: false },
+                          { model: 'CRNet', nmse: '-12.71', flops: '1.20', total: '5.12', highlight: false },
+                          { model: 'CLNet', nmse: '-12.87', flops: '1.35', total: '4.05', highlight: false },
+                          { model: 'TransNet', nmse: '-14.86', flops: '17.83', total: '35.72', highlight: false },
+                          { model: 'MT-AE (Ours)', nmse: '-15.37', flops: '4.70', total: '22.53', highlight: true },
                         ].map((row) => (
                           <tr
                             key={row.model}
@@ -1073,6 +1225,9 @@ export default function MyResearchPage() {
                             <td className={`px-4 py-2 text-center font-mono ${row.highlight ? 'font-bold text-indigo-700 dark:text-indigo-300' : 'text-gray-600 dark:text-gray-400'}`}>
                               {row.flops}
                             </td>
+                            <td className={`px-4 py-2 text-center font-mono ${row.highlight ? 'font-bold text-indigo-700 dark:text-indigo-300' : 'text-gray-600 dark:text-gray-400'}`}>
+                              {row.total}
+                            </td>
                           </tr>
                         ))}
                       </tbody>
@@ -1081,7 +1236,7 @@ export default function MyResearchPage() {
 
                   {/* Table 2 */}
                   <p className="mb-2 text-sm font-bold text-gray-800 dark:text-gray-200">
-                    Table 2. 균일 양자화 성능 비교
+                    Table 2. Uniform weight quantization (activations INT16 고정)
                   </p>
                   <div className="mb-4 overflow-x-auto rounded-xl border border-gray-200 dark:border-gray-700">
                     <table className="w-full text-xs">
@@ -1095,12 +1250,18 @@ export default function MyResearchPage() {
                       </thead>
                       <tbody className="divide-y divide-gray-100 dark:divide-gray-800">
                         {[
-                          { model: 'CsiNet', prec: 'INT16', nmse: '-8.95', bop: '75%', highlight: false, bad: false },
-                          { model: 'CsiNet', prec: 'INT8', nmse: '0.68', bop: '87.5%', highlight: false, bad: true },
-                          { model: 'CsiNet', prec: 'INT4', nmse: '17.35', bop: '93.75%', highlight: false, bad: true },
-                          { model: 'Mamba-Transformer', prec: 'INT16', nmse: '-15.34', bop: '75%', highlight: true, bad: false },
-                          { model: 'Mamba-Transformer', prec: 'INT8', nmse: '-15.12', bop: '87.5%', highlight: true, bad: false },
-                          { model: 'Mamba-Transformer', prec: 'INT4', nmse: '0.04', bop: '93.75%', highlight: true, bad: false },
+                          { model: 'CsiNet', prec: 'INT16', nmse: '-8.74', bop: '75%', highlight: false, bad: false },
+                          { model: 'CsiNet', prec: 'INT8', nmse: '1.46†', bop: '87.5%', highlight: false, bad: true },
+                          { model: 'CsiNet', prec: 'INT4', nmse: '19.40†', bop: '93.75%', highlight: false, bad: true },
+                          { model: 'CRNet', prec: 'INT16', nmse: '-12.71', bop: '75%', highlight: false, bad: false },
+                          { model: 'CRNet', prec: 'INT8', nmse: '-3.57', bop: '87.5%', highlight: false, bad: true },
+                          { model: 'CRNet', prec: 'INT4', nmse: '10.36†', bop: '93.75%', highlight: false, bad: true },
+                          { model: 'CLNet', prec: 'INT16', nmse: '-12.82', bop: '75%', highlight: false, bad: false },
+                          { model: 'CLNet', prec: 'INT8', nmse: '0.15†', bop: '87.5%', highlight: false, bad: true },
+                          { model: 'CLNet', prec: 'INT4', nmse: '23.36†', bop: '93.75%', highlight: false, bad: true },
+                          { model: 'MT-AE (Ours)', prec: 'INT16', nmse: '-15.37', bop: '75%', highlight: true, bad: false },
+                          { model: 'MT-AE (Ours)', prec: 'INT8', nmse: '-15.19', bop: '87.5%', highlight: true, bad: false },
+                          { model: 'MT-AE (Ours)', prec: 'INT4', nmse: '0.03†', bop: '93.75%', highlight: true, bad: false },
                         ].map((row, i) => (
                           <tr
                             key={i}
@@ -1122,9 +1283,9 @@ export default function MyResearchPage() {
 
                   <div className="rounded-lg border border-indigo-200 bg-indigo-50 px-4 py-3 dark:border-indigo-800 dark:bg-indigo-900/20 mb-6">
                     <p className="text-xs leading-relaxed text-indigo-700 dark:text-indigo-300">
-                      <span className="font-bold">핵심 관찰:</span> Mamba-Transformer는 INT8에서도 NMSE -15.12 dB를 유지하지만,
-                      CsiNet은 INT8에서 이미 0.68 dB로 급격히 성능이 저하됩니다.
-                      이는 Mamba 인코더의 양자화 내성이 현저히 높음을 보여줍니다.
+                      <span className="font-bold">핵심 관찰:</span> 제안한 MT-AE는 INT8에서도 거의 손실 없이 NMSE를 유지하지만,
+                      CNN baselines는 INT16 이후 급격히 무너집니다. 이 구조적 quantization robustness가 바로 이후 RP-MPQ를
+                      aggressive saving 구간까지 밀어붙일 수 있게 해 주는 기반입니다.
                     </p>
                   </div>
 
