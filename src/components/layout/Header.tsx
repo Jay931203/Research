@@ -80,10 +80,10 @@ export default function Header({ onSearchClick }: HeaderProps = {}) {
             내 연구
           </HeaderLink>
           <HeaderLink href="/tse" active={pathname.startsWith('/tse')}>
-            Tse 세미나
+            무선통신 세미나
           </HeaderLink>
           <HeaderLink href="/seminar" active={pathname.startsWith('/seminar')}>
-            세미나
+            페이퍼 세미나
           </HeaderLink>
           <HeaderLink href="/qual-exam" active={pathname === '/qual-exam'}>
             논자시
@@ -177,14 +177,14 @@ export default function Header({ onSearchClick }: HeaderProps = {}) {
               onClick={() => setMobileMenuOpen(false)}
               active={pathname.startsWith('/tse')}
             >
-              Tse 세미나
+              무선통신 세미나
             </MobileHeaderLink>
             <MobileHeaderLink
               href="/seminar"
               onClick={() => setMobileMenuOpen(false)}
               active={pathname.startsWith('/seminar')}
             >
-              세미나
+              페이퍼 세미나
             </MobileHeaderLink>
             <MobileHeaderLink
               href="/qual-exam"

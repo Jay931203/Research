@@ -23,7 +23,7 @@ const cards = [
   },
   {
     href: '/tse',
-    title: 'Tse 세미나',
+    title: '무선통신 세미나',
     description: 'David Tse의 무선통신 기초 교재 — 채널 모델링, 점대점 통신, 채널 용량을 인터랙티브로 학습.',
     icon: <Radio className="h-6 w-6 text-indigo-600" />,
     accent: 'hover:ring-indigo-200/50 dark:hover:ring-indigo-500/20',
@@ -32,7 +32,7 @@ const cards = [
   },
   {
     href: '/seminar',
-    title: '세미나',
+    title: '페이퍼 세미나',
     description: '논문 세미나에서 다룬 주제들을 인터랙티브 시각화와 함께 정리합니다.',
     icon: <MessageSquare className="h-6 w-6 text-teal-600" />,
     accent: 'hover:ring-teal-200/50 dark:hover:ring-teal-500/20',

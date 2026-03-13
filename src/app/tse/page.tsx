@@ -70,7 +70,7 @@ export default function TseSeminarPage() {
               TSE SEMINAR
             </p>
             <h1 className="text-3xl font-black leading-tight text-slate-900 dark:text-slate-100 sm:text-4xl">
-              Tse 세미나
+              무선통신 세미나
             </h1>
             <p className="mt-2 text-base text-slate-500 dark:text-slate-400">
               David Tse &mdash; Fundamentals of Wireless Communication

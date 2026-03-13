@@ -51,10 +51,10 @@ export default function SeminarListPage() {
               SEMINARS
             </p>
             <h1 className="text-3xl font-black leading-tight text-slate-900 dark:text-slate-100 sm:text-4xl">
-              세미나
+              페이퍼 세미나
             </h1>
             <p className="mt-2 text-base text-slate-500 dark:text-slate-400">
-              연구 세미나에서 다룬 논문들을 인터랙티브하게 정리합니다.
+              페이퍼 세미나에서 다룬 논문들을 인터랙티브하게 정리합니다.
             </p>
           </div>
 
@@ -67,7 +67,7 @@ export default function SeminarListPage() {
                 </svg>
               </div>
               <div>
-                <h2 className="text-xl font-bold text-slate-800 dark:text-slate-100">연구실 세미나</h2>
+                <h2 className="text-xl font-bold text-slate-800 dark:text-slate-100">페이퍼 세미나</h2>
                 <p className="text-sm text-slate-400 dark:text-slate-500">{labSeminars.length}개 세미나</p>
               </div>
             </div>
