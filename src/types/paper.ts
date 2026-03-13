@@ -7,6 +7,7 @@ export type PaperCategory =
   | 'transformer'
   | 'cnn'
   | 'representation_learning'
+  | 'wireless_communication'
   | 'other';
 
 export interface Equation {

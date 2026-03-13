@@ -283,10 +283,12 @@ export default function LimitedFeedbackSurveyStudyFull() {
           </div>
           <div className="bg-white p-6 dark:bg-gray-900 dark:ring-1 dark:ring-gray-800">
             <p className="leading-relaxed text-gray-700 dark:text-gray-300">
-              이 논문의 핵심 질문: <span className="font-semibold text-teal-700 dark:text-teal-300">&ldquo;소수의 피드백 비트만으로도 완전 CSI에 근접하는 성능을 달성할 수 있는가?&rdquo;</span>
-              답은 시나리오에 따라 달라집니다. 단일 사용자에서는 <strong>B비트만으로 충분</strong>(SNR 무관)하지만,
-              다중 사용자에서는 <strong>B가 SNR에 비례</strong>해야 합니다.
-              이 근본적 차이가 논문의 가장 중요한 통찰입니다.
+              이 논문의 핵심 질문: <span className="font-semibold text-teal-700 dark:text-teal-300">&ldquo;송신기가 채널 정보를 모를 때, 수신기가 몇 비트만 알려주면 충분한가?&rdquo;</span>
+                여기서 &ldquo;채널 정보&rdquo;란 송신기에서 수신기까지 전파가 어떻게 전달되는지를 나타내는 수학적 표현(채널 행렬 H)입니다.
+                이상적으로는 H 전체를 알려주면 좋지만, 역방향 링크의 대역폭이 제한되어 있으므로 B비트의 인덱스만 보낼 수 있습니다.
+                놀라운 결과: <strong>사용자가 1명일 때는 B를 고정해도 SNR(신호 대 잡음비)이 아무리 높아져도 성능 손실이 bounded</strong>되지만,
+                <strong>여러 사용자가 동시에 통신할 때는 B를 SNR에 비례해서 늘려야</strong> 합니다.
+                이 근본적 차이의 원인은, 다중 사용자 환경에서는 양자화 오차가 &ldquo;다른 사용자에 대한 간섭&rdquo;으로 작용하기 때문입니다.
             </p>
             <div className="mt-4 flex flex-wrap gap-2">
               {['Limited Feedback', 'Codebook Design', 'Grassmannian Packing', 'MISO Beamforming', 'MIMO Precoding', 'MU-MIMO', 'OFDM', 'Scaling Law', 'CDI/CQI', '3GPP Standards'].map(tag => (
@@ -304,8 +306,12 @@ export default function LimitedFeedbackSurveyStudyFull() {
           <Card>
             <SubSectionHeading number="1.1" title="논문의 체계적 분류 매트릭스" />
             <p className="mb-3 text-sm leading-relaxed text-gray-700 dark:text-gray-300">
-              Love et al.은 무선 시스템의 제한된 피드백을 <strong>안테나 구성 × 대역폭 × 사용자 수</strong>의 세 축으로 분류합니다.
-              이 매트릭스가 논문 전체의 골격이며, 각 조합마다 핵심 결과와 설계 원칙이 다릅니다.
+              Love et al.은 무선 시스템의 제한된 피드백을 세 가지 축으로 분류합니다:
+              <strong>(1) 안테나 구성</strong> &mdash; SA(Single Antenna, 안테나 1개)인지 MA(Multiple Antenna, 여러 개)인지,
+              <strong>(2) 대역폭</strong> &mdash; NB(Narrowband, 단일 주파수)인지 BB(Broadband, OFDM처럼 여러 서브캐리어)인지,
+              <strong>(3) 사용자 수</strong> &mdash; SU(Single User, 1명)인지 MU(Multiple User, 여러 명 동시)인지.
+              이 세 축의 조합(예: SU-MA-NB = 사용자 1명, 안테나 여러 개, 협대역)마다 피드백 설계 원칙이 완전히 달라집니다.
+              아래 표에서 각 조합의 핵심 기법과 필요한 비트 수를 정리했습니다.
             </p>
             <div className="mb-5 overflow-x-auto rounded-xl border border-gray-200 dark:border-gray-700">
               <table className="w-full text-xs">
@@ -319,12 +325,12 @@ export default function LimitedFeedbackSurveyStudyFull() {
                 </thead>
                 <tbody className="divide-y divide-gray-100 dark:divide-gray-800">
                   {[
-                    { sc: 'SU-SA-NB', tech: 'SNR 양자화, On/Off, ARQ', fb: 'SNR 또는 Rate', scale: '상수 (소수 비트)' },
-                    { sc: 'SU-SA-BB', tech: 'OFDM 서브캐리어 할당', fb: '서브캐리어 On/Off, AMC', scale: '서브밴드 수에 비례' },
-                    { sc: 'SU-MA-NB (MISO)', tech: '코드북 빔포밍 (핵심)', fb: 'CDI: h/||h|| → 인덱스', scale: 'SNR 무관 (상수)' },
-                    { sc: 'SU-MA-NB (MIMO)', tech: '프리코딩 행렬 (SVD)', fb: 'G(Nt,r) 부분공간', scale: 'SNR 무관, rank에 비례' },
-                    { sc: 'SU-MA-BB', tech: 'OFDM+프리코딩, 보간', fb: '파일럿 서브캐리어의 CDI', scale: '서브밴드 수 × CDI 비트' },
-                    { sc: 'MU-MA-NB', tech: 'ZF 빔포밍 + CDI/CQI', fb: 'CDI + CQI 분리', scale: 'B ≥ (M-1)log₂(SNR)' },
+                    { sc: '1명·1안테나·협대역', tech: 'SNR 양자화, On/Off 전력제어', fb: '수신 SNR 값', scale: '상수 (소수 비트)' },
+                    { sc: '1명·1안테나·광대역', tech: 'OFDM 서브캐리어별 할당', fb: '서브캐리어별 On/Off', scale: '서브밴드 수에 비례' },
+                    { sc: '1명·다중안테나·협대역 (MISO)', tech: '코드북 빔포밍 ★핵심', fb: '채널 방향 → 코드북 인덱스', scale: 'SNR 무관 (상수)' },
+                    { sc: '1명·다중안테나·협대역 (MIMO)', tech: '프리코딩 행렬 양자화', fb: '부분공간 인덱스', scale: 'SNR 무관, rank에 비례' },
+                    { sc: '1명·다중안테나·광대역', tech: 'OFDM + 프리코딩 + 보간', fb: '일부 서브캐리어의 방향', scale: '서브밴드 수 × 방향 비트' },
+                    { sc: '다중사용자·다중안테나', tech: 'ZF 빔포밍 + 방향/품질 분리', fb: '방향(CDI) + 품질(CQI)', scale: 'B ≥ (M-1)log₂(SNR)' },
                   ].map((r, i) => (
                     <tr key={i} className={i === 5 ? 'bg-teal-50/50 dark:bg-teal-900/10' : 'hover:bg-gray-50 dark:hover:bg-gray-800/50'}>
                       <td className="px-3 py-2 font-semibold text-teal-700 dark:text-teal-300">{r.sc}</td>
@@ -384,9 +390,10 @@ export default function LimitedFeedbackSurveyStudyFull() {
               <div className="rounded-lg border border-teal-200 bg-teal-50 p-4 dark:border-teal-800 dark:bg-teal-900/20">
                 <p className="mb-1 text-xs font-bold text-teal-700 dark:text-teal-300">SNR 양자화 (Lloyd 알고리즘)</p>
                 <p className="text-xs text-teal-600 dark:text-teal-400">
-                  수신 SNR γ = |h[k]|²을 B비트로 양자화. 최적 양자화기는 Lloyd-Max 알고리즘으로 설계하여
-                  왜곡을 최소화하는 2^B개의 경계와 대표값을 찾습니다.
-                  채널 분포(예: Rayleigh)에 맞춘 비균일 양자화가 핵심.
+                  수신기가 측정한 신호 품질(SNR) γ = |h[k]|² × P/N₀ 값을 B비트로 표현합니다.
+                  예를 들어 B=2비트면 4단계(예: 나쁨/보통/좋음/매우좋음)로 나누는 것입니다.
+                  Lloyd-Max 알고리즘은 이 4단계의 경계값을 채널 통계에 맞춰 최적으로 배치합니다.
+                  Rayleigh 페이딩처럼 낮은 SNR이 자주 발생하는 환경에서는 낮은 쪽을 더 촘촘하게 나누는 비균일 양자화가 효과적입니다.
                 </p>
               </div>
               <div className="rounded-lg border border-cyan-200 bg-cyan-50 p-4 dark:border-cyan-800 dark:bg-cyan-900/20">
@@ -442,11 +449,13 @@ export default function LimitedFeedbackSurveyStudyFull() {
               <EquationRenderer latex={String.raw`y[k] = \mathbf{h}^T[k]\, \mathbf{x}[k] + n[k], \quad \mathbf{x}[k] = \sqrt{\rho}\, \mathbf{f}[k]\, s[k], \quad \|\mathbf{f}\| = 1`} />
             </div>
             <p className="mb-3 text-sm text-gray-700 dark:text-gray-300">
-              최적 빔포밍 벡터는 <strong>정합 필터(MRT)</strong>: f = h*/||h||. 수신 SNR = ρ|h^T f|².
-              이를 정확히 피드백하려면 (M_t - 1)개의 복소수가 필요합니다(위상 모호성 제거 후).
+              채널 h를 완벽히 알 때의 최적 빔포밍 벡터는 채널 방향과 정확히 일치시키는 것입니다: f = h*/||h|| (정합 필터, Matched Filter / MRT).
+              이렇게 하면 수신 SNR이 ρ||h||²로 최대화됩니다. 즉 모든 안테나의 에너지가 수신기 방향으로 집중됩니다.
+              하지만 f를 정확히 전달하려면 (M_t - 1)개의 복소수를 보내야 합니다. 왜 M_t가 아니라 M_t-1인가 하면, f의 크기는 항상 1이고 전체 위상은 성능에 영향을 주지 않으므로 &ldquo;방향&rdquo;만 전달하면 되기 때문입니다.
             </p>
             <p className="mb-3 text-sm text-gray-700 dark:text-gray-300">
-              B비트 코드북 기반 빔포밍: 코드북 F = &#123;f₁, ..., f_{'{'}2^B{'}'}&#125;에서 최적 선택:
+              대신 코드북 방식을 씁니다: 송수신기가 미리 2^B개의 빔포밍 후보 벡터 목록(코드북 F)을 공유합니다.
+              수신기는 채널 h를 측정한 뒤, 이 목록에서 가장 성능이 좋은 후보의 번호(인덱스)를 B비트로 송신기에 알려줍니다:
             </p>
             <div className="mb-4 overflow-x-auto rounded-lg bg-teal-50 px-4 py-3 dark:bg-teal-900/20">
               <EquationRenderer latex={String.raw`n_{\text{opt}} = \arg\max_{1 \leq i \leq 2^B} |\mathbf{h}^T \mathbf{f}_i|^2, \quad C = \log_2(1 + \rho\, |\mathbf{h}^T \mathbf{f}|^2)`} />
@@ -593,8 +602,11 @@ export default function LimitedFeedbackSurveyStudyFull() {
               <EquationRenderer latex={String.raw`y_i[k] = \mathbf{h}_i^T[k]\, \mathbf{x}[k] + n_i[k], \quad \mathbf{x}[k] = \sqrt{\rho}\, \mathbf{F}[k]\, \mathbf{s}[k]`} />
             </div>
             <p className="mb-3 text-sm text-gray-700 dark:text-gray-300">
-              ZF 빔포밍으로 다중 사용자 간섭을 제거하려면, 송신기가 모든 사용자의 채널 방향을 정확히 알아야 합니다.
-              양자화 오차가 있으면 <strong>잔여 간섭(residual interference)</strong>이 발생합니다.
+              기지국은 각 사용자에게 신호를 보내면서 다른 사용자에게는 간섭이 가지 않도록 빔을 설계해야 합니다.
+              이를 위한 대표적 방법이 ZF(Zero-Forcing) 빔포밍으로, 사용자 k의 빔을 다른 사용자들의 채널 방향과 직교(수직)하게 만듭니다.
+              이렇게 하면 이론적으로 간섭이 0이 됩니다. 하지만 이를 위해서는 모든 사용자의 채널 방향을 <strong>정확히</strong> 알아야 합니다.
+              코드북으로 양자화된 (근사적인) 채널 방향을 사용하면, 빔이 완벽히 직교하지 못해서 <strong>잔여 간섭(residual interference)</strong>이 남게 됩니다.
+              이 잔여 간섭의 크기가 SNR에 비례한다는 것이 MU-MIMO 피드백의 핵심 문제입니다.
             </p>
 
             <SubSectionHeading number="5.2" title="Jindal (2006) 스케일링 법칙" />
@@ -603,11 +615,14 @@ export default function LimitedFeedbackSurveyStudyFull() {
             </div>
             <div className="mb-4 rounded-lg border border-indigo-200 bg-indigo-50 px-4 py-3 dark:border-indigo-800 dark:bg-indigo-900/20">
               <p className="text-xs leading-relaxed text-indigo-800 dark:text-indigo-200">
-                <span className="font-bold">SU vs MU 근본적 차이:</span> 단일 사용자에서 양자화 오차는 <strong>원하는 신호의 SNR 손실</strong>만 유발하므로 B를 고정해도 multiplexing gain 유지.
-                그러나 다중 사용자에서 양자화 오차는 <strong>다른 사용자에 대한 간섭</strong>으로 작용하며,
-                잔여 간섭 전력이 SNR × 2^{'{-B/(M-1)}'}에 비례합니다.
-                B가 고정이면 SNR 증가 시 간섭이 무한히 커져 sum rate에 상한(ceiling)이 생깁니다.
-                B = (M-1)log₂(SNR)으로 스케일링해야 완전 CSI의 multiplexing gain M·log₂(SNR)을 달성합니다.
+                <span className="font-bold">SU vs MU의 근본적 차이를 단계별로 설명합니다:</span><br />
+                <strong>① 단일 사용자(SU):</strong> 양자화 오차가 있으면, 빔이 채널 방향에서 약간 벗어나서 수신 신호가 줄어듭니다.
+                하지만 SNR이 높아지면 신호 자체가 커지므로, 줄어든 비율은 동일해도 절대 성능은 계속 좋아집니다. 그래서 B를 고정해도 됩니다.<br />
+                <strong>② 다중 사용자(MU):</strong> 양자화 오차가 있으면, ZF 빔이 완벽히 직교하지 못해서 다른 사용자에게 간섭이 누출됩니다.
+                문제는 SNR을 높이면(전송 전력을 키우면) 원하는 신호뿐 아니라 <strong>간섭도 같이 커진다</strong>는 것입니다.
+                구체적으로, 잔여 간섭 전력이 SNR × 2^(-B/(M-1))에 비례합니다.<br />
+                <strong>③ 결론:</strong> B를 고정하면 SNR을 아무리 올려도 SINR(신호 대 간섭+잡음비)이 일정 값 이상 올라가지 않는 &ldquo;천장(ceiling)&rdquo;이 생깁니다.
+                이를 피하려면 SNR이 2배 올라갈 때마다 B를 (M-1)비트 추가해야 합니다. 이것이 B ≥ (M-1)log₂(SNR) 법칙입니다.
               </p>
             </div>
 
@@ -669,16 +684,18 @@ export default function LimitedFeedbackSurveyStudyFull() {
                 <p className="mb-1 text-xs font-bold text-teal-700 dark:text-teal-300">CDI (Channel Direction Information)</p>
                 <div className="my-2 overflow-x-auto"><EquationRenderer latex={String.raw`\text{CDI} = \frac{\mathbf{h}}{\|\mathbf{h}\|} \;\xrightarrow{\text{코드북}}\; B_{\text{dir}} \text{ bits}`} /></div>
                 <p className="text-xs text-teal-600 dark:text-teal-400">
-                  채널의 <strong>방향</strong>을 Grassmannian 코드북으로 양자화.
-                  빔포밍/프리코딩 벡터를 결정. 3GPP에서 <strong>PMI (Precoding Matrix Indicator)</strong>로 표준화.
+                  채널 벡터 h에서 크기(||h||)를 제거하고 <strong>방향(h/||h||)</strong>만 추출하여 코드북으로 양자화합니다.
+                  이 방향 정보가 송신기의 빔을 어느 쪽으로 향할지 결정합니다.
+                  3GPP LTE/NR에서는 이것을 <strong>PMI(Precoding Matrix Indicator)</strong>라고 부르며, 코드북에서 선택된 프리코딩 행렬의 인덱스를 의미합니다.
                 </p>
               </div>
               <div className="rounded-lg border border-purple-200 bg-purple-50 p-4 dark:border-purple-800 dark:bg-purple-900/20">
                 <p className="mb-1 text-xs font-bold text-purple-700 dark:text-purple-300">CQI (Channel Quality Indicator)</p>
                 <div className="my-2 overflow-x-auto"><EquationRenderer latex={String.raw`\text{CQI} = \|\mathbf{h}\|^2 \text{ or effective SINR} \;\xrightarrow{\text{스칼라 양자화}}\; B_q \text{ bits}`} /></div>
                 <p className="text-xs text-purple-600 dark:text-purple-400">
-                  채널의 <strong>크기</strong> 또는 유효 SINR을 스칼라 양자화.
-                  MCS 선택, 스케줄링, 전력 제어에 사용. 3GPP에서 <strong>CQI</strong> (동일 명칭) + <strong>RI (Rank Indicator)</strong>로 표준화.
+                  채널의 <strong>크기(||h||²)</strong>, 또는 빔포밍 적용 후의 유효 SINR을 숫자 하나로 양자화합니다.
+                  송신기는 이 값을 보고 &ldquo;이 사용자에게 얼마나 빠른 데이터 전송이 가능한지&rdquo;를 판단하여 변조/코딩 방식(MCS)을 선택합니다.
+                  3GPP에서는 <strong>CQI</strong>(동일 명칭, 4비트로 15단계)로 보고하며, 추가로 <strong>RI(Rank Indicator)</strong>가 동시에 몇 개 스트림을 보낼지를 알려줍니다.
                 </p>
               </div>
             </div>

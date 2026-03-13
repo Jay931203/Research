@@ -21,6 +21,7 @@ export const CATEGORY_COLORS: Record<string, string> = {
   transformer: '#8b5cf6',
   cnn: '#10b981',
   representation_learning: '#0f766e',
+  wireless_communication: '#0284c7',
   other: '#6b7280',
 };
 
@@ -31,6 +32,7 @@ export const CATEGORY_LABELS: Record<string, string> = {
   transformer: 'Transformer',
   cnn: 'CNN',
   representation_learning: 'Representation Learning',
+  wireless_communication: 'Wireless Communication',
   other: 'Other',
 };
 
@@ -122,6 +124,7 @@ export function getEdgeStrokeWidth(strength: number): number {
 }
 
 export type ResearchTopic =
+  | 'wireless_communication'
   | 'csi_architecture'
   | 'csi_quantization'
   | 'general_quantization'
@@ -130,6 +133,7 @@ export type ResearchTopic =
   | 'other';
 
 export const RESEARCH_TOPIC_ORDER: ResearchTopic[] = [
+  'wireless_communication',
   'csi_architecture',
   'csi_quantization',
   'general_quantization',
@@ -139,6 +143,7 @@ export const RESEARCH_TOPIC_ORDER: ResearchTopic[] = [
 ];
 
 export const RESEARCH_TOPIC_LABELS: Record<ResearchTopic, string> = {
+  wireless_communication: 'Wireless Communication',
   csi_architecture: 'CSI Architecture',
   csi_quantization: 'CSI Quantization',
   general_quantization: 'General Quantization',
@@ -148,6 +153,7 @@ export const RESEARCH_TOPIC_LABELS: Record<ResearchTopic, string> = {
 };
 
 export const RESEARCH_TOPIC_COLORS: Record<ResearchTopic, string> = {
+  wireless_communication: '#0284c7',
   csi_architecture: '#2563eb',
   csi_quantization: '#059669',
   general_quantization: '#dc2626',
@@ -240,6 +246,7 @@ export function inferResearchTopic(input: ResearchTopicInput): ResearchTopic {
     containsAny(haystack, REPRESENTATION_KEYWORDS) ||
     REPRESENTATION_TOKENS.some((token) => tokenSet.has(token));
 
+  if (category === 'wireless_communication') return 'wireless_communication';
   if (hasStateSpace) return 'state_space';
   if (hasCSI && hasQuantization) return 'csi_quantization';
   if (hasQuantization) return 'general_quantization';

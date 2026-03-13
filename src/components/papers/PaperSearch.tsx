@@ -22,6 +22,7 @@ const CATEGORIES = [
   { value: 'transformer', label: 'Transformer' },
   { value: 'cnn', label: 'CNN' },
   { value: 'representation_learning', label: 'Representation Learning' },
+  { value: 'wireless_communication', label: 'Wireless Communication' },
   { value: 'other', label: 'Other' },
 ];
 

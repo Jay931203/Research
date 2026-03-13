@@ -53,6 +53,7 @@ function toPaperNodes(
           | 'transformer'
           | 'cnn'
           | 'representation_learning'
+          | 'wireless_communication'
           | 'other',
       },
       familiarity_level: paper.familiarity_level,
