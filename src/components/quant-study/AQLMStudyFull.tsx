@@ -6,7 +6,6 @@ import {
   BrainCircuit,
   ChevronDown,
   Cpu,
-  FlaskConical,
   GraduationCap,
   Hash,
 } from 'lucide-react';
@@ -81,30 +80,6 @@ function EqCard({ idx, name, latex, description }: {
   );
 }
 
-function QuizSection({ questions }: { questions: { q: string; a: string }[] }) {
-  const [revealed, setRevealed] = useState<Set<number>>(new Set());
-  const toggle = (i: number) => setRevealed(prev => { const n = new Set(prev); n.has(i) ? n.delete(i) : n.add(i); return n; });
-  return (
-    <div className="space-y-3">
-      {questions.map(({ q, a }, i) => (
-        <div key={i} className="rounded-xl border border-gray-200 bg-white dark:border-gray-700 dark:bg-gray-900">
-          <button onClick={() => toggle(i)} className="flex w-full items-start gap-3 p-4 text-left">
-            <span className="flex h-6 w-6 flex-shrink-0 items-center justify-center rounded-full bg-gray-100 text-xs font-bold text-gray-600 dark:bg-gray-800 dark:text-gray-400">Q{i + 1}</span>
-            <span className="flex-1 text-sm font-medium text-gray-700 dark:text-gray-300">{q}</span>
-            <ChevronDown className={`h-4 w-4 flex-shrink-0 text-gray-400 transition-transform ${revealed.has(i) ? 'rotate-180' : ''}`} />
-          </button>
-          {revealed.has(i) && (
-            <div className="mx-4 mb-4 rounded-lg border border-emerald-200 bg-emerald-50 px-4 py-3 dark:border-emerald-800 dark:bg-emerald-900/20">
-              <p className="text-sm leading-relaxed text-gray-700 dark:text-gray-300">
-                <span className="mr-1 font-bold text-green-600 dark:text-green-400">A:</span>{a}
-              </p>
-            </div>
-          )}
-        </div>
-      ))}
-    </div>
-  );
-}
 
 /* ── Main component ──────────────────────────────────────────── */
 
@@ -519,35 +494,6 @@ export default function AQLMStudyFull() {
             </div>
           </Card>
         </div>
-      </section>
-
-      {/* ── Quiz ─────────────────────────────────────────────── */}
-      <section id="aqlm-quiz" className="scroll-mt-20">
-        <SectionHeading icon={<FlaskConical className="h-5 w-5" />} title="자기 점검 (연구자 수준)" />
-        <Card>
-          <QuizSection questions={[
-            {
-              q: 'AQLM의 가산(additive) 구조가 단일 코드북 VQ보다 근본적으로 우수한 이유는?',
-              a: '단일 코드북 K=65536: 학습 시 65536개 코드워드를 동시에 최적화 → 차원의 저주, 학습 불안정. M=2 코드북 K=256: 512개 코드워드만 학습, 하지만 가산 구조로 256² = 65536가지 표현 가능. 추가 이점: 각 코드북이 잔차(residual)를 점진적으로 줄이므로, m번째 코드북은 (m-1)번째까지의 근사 오차를 보정. 이 계층적 표현이 실제 가중치 분포를 훨씬 잘 포착합니다.',
-            },
-            {
-              q: '빔 서치가 순수 탐욕적(greedy) 탐색보다 반드시 나은 이유를 M=2 예시로 설명하라.',
-              a: 'M=2, K=256일 때: 그리디는 m=1 코드 b_1을 먼저 최소화 → b_1이 결정되면 b_2를 최소화. 문제: 전역적으로 (b_1, b_2) 쌍이 최적이라도, b_1만 볼 때는 다른 후보가 더 좋을 수 있음. 빔 서치(B=8): m=1에서 상위 8개 후보 b_1^(1)...b_1^(8) 유지 → m=2에서 각각에 대해 최적 b_2 탐색 → 8가지 (b_1, b_2) 쌍 중 최적 선택. 탐색 공간: 그리디 O(K) vs 빔서치 O(B·K), 품질: 전역 최적에 훨씬 가깝습니다.',
-            },
-            {
-              q: 'STE를 사용한 전역 미세조정이 레이어별 최적화보다 나은 이유와 STE의 한계는?',
-              a: '레이어별 최적화: 레이어 ℓ의 입력 X^(ℓ)을 고정(FP16로 가정). 실제로는 이전 레이어의 양자화 오차가 X^(ℓ)을 변경 → 레이어 간 오차 누적. 전역 SGD: 전체 forward pass를 통해 실제 X^(ℓ)을 사용 → 레이어 간 보상 가능. 한 레이어가 이전 레이어의 오차를 "흡수"하도록 학습 가능. STE 한계: (1) 편향된 기울기 추정 → 느린 수렴, (2) 코드 인덱스가 자주 바뀌면 불안정, (3) 전체 모델을 메모리에 올려야 함 (70B 모델에서 비용 큰).',
-            },
-            {
-              q: 'AQLM 2비트 PPL 5.22가 FP16 5.47보다 낮은 것이 가능한 이유는?',
-              a: '직관: 양자화는 항상 오차를 추가한다고 생각하지만, 전역 미세조정은 일종의 정규화(regularization) 효과를 줄 수 있습니다. 기존 FP16 가중치는 원래 훈련 손실에 최적화되었지만, WikiText-2 perplexity에 과적합(overfit)될 수 있습니다. 전역 SGD 미세조정은 C4 데이터로 재학습하므로, 일반화 성능이 개선될 수 있습니다. 또한, 양자화 노이즈 자체가 드롭아웃과 유사한 정규화 역할을 할 수 있습니다. 이는 모델 크기와 데이터 특성에 의존하는 현상입니다.',
-            },
-            {
-              q: 'AQLM의 가산 양자화 구조가 CSI 피드백 코드북 설계에 주는 시사점은?',
-              a: 'CSI 피드백 코드북(3GPP Type I/II): 현재는 단일 DFT 기반 코드북 + 선택적 오버샘플링. AQLM 아이디어 적용: (1) 다중 코드북 합: 채널 벡터를 M개 코드북의 합으로 표현 → 동일 피드백 비트에서 훨씬 세밀한 CSI 복원. (2) 학습 기반 코드북: 실제 채널 통계(각도 스프레드, 지연 스프레드)에 맞게 코드북 학습 → DFT 기반보다 우수. (3) 빔 서치 피드백: UE가 빔 서치로 최적 코드 인덱스 선택 후 전송 → 기지국 재구성. 현재 CSI-RS 측정 프레임워크에 자연스럽게 통합 가능.',
-            },
-          ]} />
-        </Card>
       </section>
     </div>
     </GlossaryText>

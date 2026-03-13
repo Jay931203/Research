@@ -6,7 +6,6 @@ import {
   BrainCircuit,
   ChevronDown,
   Cpu,
-  FlaskConical,
   GraduationCap,
   Hash,
   Shuffle,
@@ -97,33 +96,6 @@ function EqCard({ idx, name, latex, description, color = 'indigo' }: {
   );
 }
 
-function QuizSection({ questions, color = 'indigo' }: { questions: { q: string; a: string }[]; color?: string }) {
-  const [revealed, setRevealed] = useState<Set<number>>(new Set());
-  const toggle = (i: number) => setRevealed(prev => { const n = new Set(prev); n.has(i) ? n.delete(i) : n.add(i); return n; });
-  const bgMap: Record<string, string> = {
-    indigo: 'border-indigo-200 bg-indigo-50 dark:border-indigo-800 dark:bg-indigo-900/20',
-  };
-  return (
-    <div className="space-y-3">
-      {questions.map(({ q, a }, i) => (
-        <div key={i} className="rounded-xl border border-gray-200 bg-white dark:border-gray-700 dark:bg-gray-900">
-          <button onClick={() => toggle(i)} className="flex w-full items-start gap-3 p-4 text-left">
-            <span className="flex h-6 w-6 flex-shrink-0 items-center justify-center rounded-full bg-gray-100 text-xs font-bold text-gray-600 dark:bg-gray-800 dark:text-gray-400">Q{i + 1}</span>
-            <span className="flex-1 text-sm font-medium text-gray-700 dark:text-gray-300">{q}</span>
-            <ChevronDown className={`h-4 w-4 flex-shrink-0 text-gray-400 transition-transform ${revealed.has(i) ? 'rotate-180' : ''}`} />
-          </button>
-          {revealed.has(i) && (
-            <div className={`mx-4 mb-4 rounded-lg border px-4 py-3 ${bgMap[color] ?? bgMap.indigo}`}>
-              <p className="text-sm leading-relaxed text-gray-700 dark:text-gray-300">
-                <span className="mr-1 font-bold text-green-600 dark:text-green-400">A:</span>{a}
-              </p>
-            </div>
-          )}
-        </div>
-      ))}
-    </div>
-  );
-}
 
 /* ── Notation Table ──────────────────────────────────────────── */
 
@@ -646,35 +618,6 @@ export default function QuIPStudyFull() {
             </div>
           </Card>
         </div>
-      </section>
-
-      {/* ── Quiz ─────────────────────────────────────────────── */}
-      <section id="quip-quiz" className="scroll-mt-20">
-        <SectionHeading icon={<FlaskConical className="h-5 w-5" />} title="자기 점검 (연구자 수준)" />
-        <Card>
-          <QuizSection color="indigo" questions={[
-            {
-              q: 'QuIP의 "guarantee"가 무엇이며, 이것이 기존 GPTQ와 근본적으로 다른 점은?',
-              a: 'QuIP는 비간섭(μ ≈ 1) 조건 하에서 E_actual ≤ (nσ²_x/‖W‖²_F)μ²·E_proxy를 수학적으로 보장합니다. GPTQ는 Hessian 가중 최적화(LDLQ와 유사)를 쓰지만, 이론적 actual error bound를 제공하지 않습니다. 결정적 차이: QuIP는 비간섭 처리로 proxy error 최소화가 actual error 최소화를 보장하는 조건(μ = O(1))을 능동적으로 만들어냅니다.',
-            },
-            {
-              q: 'LDL^T 분해가 Cholesky(GPTQ) 대비 이론적으로 어떤 이점을 제공하는가?',
-              a: 'Cholesky: H = LL^T (L: 하삼각, 양의 정부호 필요). LDL^T: H = LDL^T (L: 단위 하삼각, D: 양의 대각). LDL^T는 H가 반정부호(semi-definite)인 경우에도 안정적이며, D의 대각 원소가 각 열의 "중요도"를 직접 인코딩합니다. 비간섭 전처리 후에는 H ≈ I (등방성)에 가까워지므로 LDL^T ≈ I·I·I가 되어 단순 RTN과 유사해지는데, 이것이 이론적으로 최적임을 QuIP는 증명합니다.',
-            },
-            {
-              q: '추론 시 Q_L, Q_R을 저장하지 않아도 되는 이유를 수식으로 설명하라.',
-              a: 'Ŵ = Q_L^T · Quant(Q_L W Q_R^T) · Q_R. 추론 시: Ŵx = Q_L^T · Q_L · W · Q_R^T · Q_R · x + 오차 = Wx + 오차. Q_L^T Q_L = I, Q_R^T Q_R = I (직교 행렬). 따라서 Ŵ 자체만 저장하면 됩니다. 이는 비간섭 처리가 "양자화 전처리"에만 영향을 미치고, 저장/추론 형식은 일반 행렬과 동일함을 의미합니다.',
-            },
-            {
-              q: 'μ(W) = 1은 어떤 행렬인가? 실제 LLM에서 μ가 큰 이유는?',
-              a: 'μ(W) = 1이면 max|W_ij| = ‖W‖_F/√(mn)이고, 이는 모든 원소의 절댓값이 동일한 경우입니다. 실제 LLM에서 μ가 큰 이유: (1) Attention의 softmax 포화 현상으로 특정 가중치가 극단적으로 커짐, (2) LayerNorm이 없는 구간에서 스케일이 누적됨, (3) FFN의 SiLU/GELU 비선형성이 특정 방향의 가중치를 증폭. 실제로 Llama-2의 일부 레이어에서 μ > 10이 관찰됩니다.',
-            },
-            {
-              q: 'QuIP의 비간섭 처리가 CSI 압축 연구에 주는 시사점은?',
-              a: '채널 행렬 H_c는 일반적으로 coherent합니다 (강한 LoS 성분, 상관 안테나 등). 만약 비간섭 프리코더 P를 적용해 PH_c가 비간섭이 되면, 각 채널 계수를 저비트로 균등하게 양자화해도 복원 오차의 이론적 상한이 성립합니다. 이는 CSI 피드백 비트 할당에서 "모든 채널에 동일 비트"가 최적임을 시사 — 현재의 비선형 비트 할당보다 단순하면서도 성능 보장 가능.',
-            },
-          ]} />
-        </Card>
       </section>
     </div>
     </GlossaryText>

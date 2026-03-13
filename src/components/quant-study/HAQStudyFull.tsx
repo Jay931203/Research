@@ -6,7 +6,6 @@ import {
   BrainCircuit,
   ChevronDown,
   Cpu,
-  FlaskConical,
   GraduationCap,
   Hash,
   Layers,
@@ -94,33 +93,6 @@ function EqCard({ idx, name, latex, description, color = 'amber' }: {
   );
 }
 
-function QuizSection({ questions, color = 'amber' }: { questions: { q: string; a: string }[]; color?: string }) {
-  const [revealed, setRevealed] = useState<Set<number>>(new Set());
-  const toggle = (i: number) => setRevealed(prev => { const n = new Set(prev); n.has(i) ? n.delete(i) : n.add(i); return n; });
-  const bgMap: Record<string, string> = {
-    amber: 'border-amber-200 bg-amber-50 dark:border-amber-800 dark:bg-amber-900/20',
-  };
-  return (
-    <div className="space-y-3">
-      {questions.map(({ q, a }, i) => (
-        <div key={i} className="rounded-xl border border-gray-200 bg-white dark:border-gray-700 dark:bg-gray-900">
-          <button onClick={() => toggle(i)} className="flex w-full items-start gap-3 p-4 text-left">
-            <span className="flex h-6 w-6 flex-shrink-0 items-center justify-center rounded-full bg-gray-100 text-xs font-bold text-gray-600 dark:bg-gray-800 dark:text-gray-400">Q{i + 1}</span>
-            <span className="flex-1 text-sm font-medium text-gray-700 dark:text-gray-300">{q}</span>
-            <ChevronDown className={`h-4 w-4 flex-shrink-0 text-gray-400 transition-transform ${revealed.has(i) ? 'rotate-180' : ''}`} />
-          </button>
-          {revealed.has(i) && (
-            <div className={`mx-4 mb-4 rounded-lg border px-4 py-3 ${bgMap[color] ?? bgMap.amber}`}>
-              <p className="text-sm leading-relaxed text-gray-700 dark:text-gray-300">
-                <span className="mr-1 font-bold text-green-600 dark:text-green-400">A:</span>{a}
-              </p>
-            </div>
-          )}
-        </div>
-      ))}
-    </div>
-  );
-}
 
 /* ── HAQ Policy Visualization ────────────────────────────────── */
 
@@ -748,31 +720,6 @@ export default function HAQStudyFull() {
             </div>
           </Card>
         </div>
-      </section>
-
-      {/* ── Quiz ─────────────────────────────────────────────── */}
-      <section id="haq-quiz" className="scroll-mt-20">
-        <SectionHeading icon={<FlaskConical className="h-5 w-5" />} title="자기 점검 (연구자 수준)" />
-        <Card>
-          <QuizSection color="amber" questions={[
-            {
-              q: 'FLOPs가 하드웨어 지연의 충분한 대리 지표가 아닌 이유를, DW-Conv를 예로 들어 루프라인 모델 관점에서 설명하라.',
-              a: 'FLOPs는 연산량만 측정하고 메모리 접근 패턴을 무시합니다. 루프라인 모델에서 DW-Conv는 파라미터 수가 적어(3×3×c 대신 9×c) 연산 집약도(FLOPs/Bytes)가 낮습니다. 즉 메모리 바운드 영역에 위치합니다. 이 경우 FLOPs를 절반으로 줄여도 메모리 대역폭이 병목이므로 지연은 절반이 되지 않습니다. 반면 비트폭을 낮추면 Bytes가 직접 줄어 대역폭 병목이 완화됩니다. 엣지 FPGA에서 DW-Conv에 2비트를 할당하는 HAQ 정책이 FLOPs 기반 방법보다 실제로 훨씬 더 빠른 이유입니다.',
-            },
-            {
-              q: 'HAQ가 DQN 등 이산 RL 대신 DDPG(연속 행동)를 선택한 이유는? 연속 → 이산 변환 과정에서 발생하는 문제와 해결책은?',
-              a: '이산 조합 탐색 공간이 7^12 ≈ 13억으로 DQN의 Q-테이블이나 이산 행동 공간 탐색이 비현실적입니다. DDPG는 연속 공간 [0,1]에서 정책을 학습하므로 일반화가 용이하고 탐색 효율이 높습니다. 문제: 연속 → 이산 매핑(round 함수)이 미분 불가능하여 역전파가 끊깁니다. 해결: Critic은 TD 오차로 업데이트되고(미분 불필요), Actor는 Critic의 Q 기울기를 연속 행동 공간에서 역전파하므로 round 함수의 미분 불가능성이 Actor 학습에 직접 영향을 미치지 않습니다. 실제로 a_k ∈ [0,1]에서의 부드러운 Q 기울기로 Actor를 업데이트합니다.',
-            },
-            {
-              q: '동일한 MobileNetV1 모델에 HAQ를 적용했을 때, 엣지(Zynq-7020)와 클라우드(VU9P)에서 최적 비트폭 정책이 정반대로 나타나는 근본 원인은?',
-              a: '엣지 FPGA(Zynq-7020)는 DSP와 BRAM이 제한되어 메모리 대역폭이 병목입니다. DW-Conv는 메모리 바운드이므로 비트폭을 2-3비트로 낮추면 대역폭 절감 효과가 직접적입니다. 반면 클라우드 FPGA(VU9P)는 연산 자원과 대역폭 모두 넉넉하여 DW-Conv도 연산 유닛을 충분히 활용합니다. 이 경우 DW-Conv 비트폭을 낮춰도 지연 개선이 미미하고 정확도 손실만 커집니다. 따라서 하드웨어의 루프라인 Ridge Point 위치가 레이어별 최적 비트폭을 결정하며, 이것이 하드웨어마다 정책이 달라지는 근본 원인입니다.',
-            },
-            {
-              q: '10차원 상태 벡터에서 prev_action(o₁₀)을 포함하는 이유는 무엇이며, is_depthwise(o₈)는 에이전트 학습에 어떤 역할을 하는가?',
-              a: 'prev_action(o₁₀) 포함 이유: 각 레이어의 최적 비트폭이 인접 레이어의 비트폭에 의존합니다(정확도 관점: 인접 레이어 오차의 보상 효과). 또한 연속 에피소드에서 에이전트가 "지금까지 얼마나 예산을 소비했는가"를 추론하도록 돕습니다. Markovian 가정이 완전히 성립하도록 시퀀셜 컨텍스트를 제공. is_depthwise(o₈) 역할: 에이전트가 하드웨어 시뮬레이터 보상으로부터 "DW-Conv(is_dw=1) + 엣지 하드웨어 → 낮은 비트 = 높은 보상"이라는 규칙을 학습하게 합니다. 이 특징 없이는 에이전트가 레이어 구조와 하드웨어 이득의 연결 고리를 찾기 어렵습니다.',
-            },
-          ]} />
-        </Card>
       </section>
 
     </div>

@@ -5,7 +5,6 @@ import {
   BarChart2,
   BrainCircuit,
   ChevronDown,
-  FlaskConical,
   Hash,
   Layers,
   Network,
@@ -95,33 +94,6 @@ function EqCard({ idx, name, latex, description, color = 'blue' }: {
   );
 }
 
-function QuizSection({ questions, color = 'blue' }: { questions: { q: string; a: string }[]; color?: string }) {
-  const [revealed, setRevealed] = useState<Set<number>>(new Set());
-  const toggle = (i: number) => setRevealed(prev => { const n = new Set(prev); n.has(i) ? n.delete(i) : n.add(i); return n; });
-  const bgMap: Record<string, string> = {
-    blue: 'border-blue-200 bg-blue-50 dark:border-blue-800 dark:bg-blue-900/20',
-  };
-  return (
-    <div className="space-y-3">
-      {questions.map(({ q, a }, i) => (
-        <div key={i} className="rounded-xl border border-gray-200 bg-white dark:border-gray-700 dark:bg-gray-900">
-          <button onClick={() => toggle(i)} className="flex w-full items-start gap-3 p-4 text-left">
-            <span className="flex h-6 w-6 flex-shrink-0 items-center justify-center rounded-full bg-gray-100 text-xs font-bold text-gray-600 dark:bg-gray-800 dark:text-gray-400">Q{i + 1}</span>
-            <span className="flex-1 text-sm font-medium text-gray-700 dark:text-gray-300">{q}</span>
-            <ChevronDown className={`h-4 w-4 flex-shrink-0 text-gray-400 transition-transform ${revealed.has(i) ? 'rotate-180' : ''}`} />
-          </button>
-          {revealed.has(i) && (
-            <div className={`mx-4 mb-4 rounded-lg border px-4 py-3 ${bgMap[color] ?? bgMap.blue}`}>
-              <p className="text-sm leading-relaxed text-gray-700 dark:text-gray-300">
-                <span className="mr-1 font-bold text-green-600 dark:text-green-400">A:</span>{a}
-              </p>
-            </div>
-          )}
-        </div>
-      ))}
-    </div>
-  );
-}
 
 /* ── Architecture Comparison SVG ─────────────────────────────── */
 
@@ -636,31 +608,6 @@ export default function CsiFBNetStudyFull() {
             </div>
           </Card>
         </div>
-      </section>
-
-      {/* ── Quiz ─────────────────────────────────────────────── */}
-      <section id="csifbnet-quiz" className="scroll-mt-20">
-        <SectionHeading icon={<FlaskConical className="h-5 w-5" />} title="자기 점검 (연구자 수준)" />
-        <Card>
-          <QuizSection color="blue" questions={[
-            {
-              q: 'CsiFBNet의 디코더 출력은 무엇이며, 이것이 기존 CsiNet 디코더와 어떻게 다른가?',
-              a: 'CsiFBNet의 디코더는 CSI 복원값(H-hat)이 아니라 빔포밍 벡터 w를 직접 출력합니다. CsiNet에서는 디코더가 H-hat을 출력하고, 이를 별도의 빔포밍 알고리즘(예: MRT에서는 w = H-hat/||H-hat||)에 입력하여 w를 계산하는 2단계 과정이 필요합니다. CsiFBNet은 이 2단계를 하나의 DNN으로 통합하여 압축된 코드워드에서 빔포밍 벡터를 직접 추론합니다. 이렇게 하면 복원 오차가 빔포밍 계산으로 전파되는 문제를 근본적으로 제거합니다.',
-            },
-            {
-              q: 'NMSE가 더 나쁘면서 BF gain이 더 좋을 수 있는 이유는 무엇인가?',
-              a: '제한된 피드백 비트로 채널을 압축할 때, NMSE 최적화와 BF gain 최적화는 서로 다른 정보에 비트를 할당합니다. NMSE는 채널의 모든 성분을 균등하게 복원하려 하지만, BF gain은 채널의 방향(direction) 정보만 정확하면 됩니다. CsiFBNet의 인코더는 채널의 진폭 세부사항이나 작은 성분의 복원을 포기하고, 빔포밍에 가장 중요한 주요 방향 정보에 비트를 집중합니다. 결과적으로 전체 복원 오차(NMSE)는 커지지만, 빔포밍 벡터의 방향 정렬도는 더 높아집니다. 이는 MSE와 태스크 성능 사이의 비선형 관계를 보여주는 핵심 사례입니다.',
-            },
-            {
-              q: 'Single-cell에서 최적 빔포밍 벡터는 무엇이며, 이때의 BF gain은?',
-              a: 'w* = h/||h||, 즉 채널 방향의 단위벡터(MRT: Maximum Ratio Transmission)입니다. 이때 BF gain G = |h^H w*|^2 / ||h||^2 = |h^H h / ||h|| |^2 / ||h||^2 = ||h||^4 / (||h||^2 * ||h||^2) = 1로 최대값을 달성합니다. 즉 빔을 채널 방향에 완벽히 정렬시키면 모든 채널 에너지를 활용할 수 있습니다. CsiFBNet의 목표는 제한된 피드백 비트로도 w를 w*에 최대한 가깝게 만드는 것이며, 이는 결국 h의 방향 정보를 효율적으로 전달하는 문제로 귀결됩니다.',
-            },
-            {
-              q: 'CsiFBnet-m이 CsiFBnet-s보다 우수한 이유와, 추가로 필요한 정보는 무엇인가?',
-              a: 'CsiFBnet-m은 desired 채널(h_d)뿐만 아니라 interfering 채널(h_i)도 인코더에 입력으로 받아, 셀 간 간섭을 고려한 조정된 빔포밍 벡터를 출력합니다. CsiFBnet-s는 자기 셀의 채널만 보고 빔포밍을 결정하므로 인접 셀 간섭을 무시합니다. CsiFBnet-m에서는 사용자가 인접 기지국의 채널도 추정하여 피드백해야 하므로 추가 피드백 오버헤드가 필요하지만, 태스크 지향 압축 덕분에 간섭 채널의 핵심 정보(간섭 방향)만 효율적으로 전달하여 적은 추가 비트로도 큰 성능 이득을 얻습니다. 이는 조정 빔포밍(coordinated beamforming)을 E2E 학습으로 구현한 것입니다.',
-            },
-          ]} />
-        </Card>
       </section>
 
     </div>

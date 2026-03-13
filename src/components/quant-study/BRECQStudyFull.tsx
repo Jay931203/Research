@@ -6,7 +6,6 @@ import {
   BrainCircuit,
   ChevronDown,
   Cpu,
-  FlaskConical,
   GraduationCap,
   Hash,
   Layers,
@@ -92,33 +91,6 @@ function EqCard({ idx, name, latex, description, color = 'blue' }: {
   );
 }
 
-function QuizSection({ questions, color = 'blue' }: { questions: { q: string; a: string }[]; color?: string }) {
-  const [revealed, setRevealed] = useState<Set<number>>(new Set());
-  const toggle = (i: number) => setRevealed(prev => { const n = new Set(prev); n.has(i) ? n.delete(i) : n.add(i); return n; });
-  const bgMap: Record<string, string> = {
-    blue: 'border-blue-200 bg-blue-50 dark:border-blue-800 dark:bg-blue-900/20',
-  };
-  return (
-    <div className="space-y-3">
-      {questions.map(({ q, a }, i) => (
-        <div key={i} className="rounded-xl border border-gray-200 bg-white dark:border-gray-700 dark:bg-gray-900">
-          <button onClick={() => toggle(i)} className="flex w-full items-start gap-3 p-4 text-left">
-            <span className="flex h-6 w-6 flex-shrink-0 items-center justify-center rounded-full bg-gray-100 text-xs font-bold text-gray-600 dark:bg-gray-800 dark:text-gray-400">Q{i + 1}</span>
-            <span className="flex-1 text-sm font-medium text-gray-700 dark:text-gray-300">{q}</span>
-            <ChevronDown className={`h-4 w-4 flex-shrink-0 text-gray-400 transition-transform ${revealed.has(i) ? 'rotate-180' : ''}`} />
-          </button>
-          {revealed.has(i) && (
-            <div className={`mx-4 mb-4 rounded-lg border px-4 py-3 ${bgMap[color] ?? bgMap.blue}`}>
-              <p className="text-sm leading-relaxed text-gray-700 dark:text-gray-300">
-                <span className="mr-1 font-bold text-green-600 dark:text-green-400">A:</span>{a}
-              </p>
-            </div>
-          )}
-        </div>
-      ))}
-    </div>
-  );
-}
 
 /* ── BlockGranularityViz ─────────────────────────────────────── */
 
@@ -737,31 +709,6 @@ export default function BRECQStudyFull() {
             </div>
           </Card>
         </div>
-      </section>
-
-      {/* ── Quiz ─────────────────────────────────────────────── */}
-      <section id="brecq-quiz" className="scroll-mt-20">
-        <SectionHeading icon={<FlaskConical className="h-5 w-5" />} title="자기 점검 (연구자 수준)" />
-        <Card>
-          <QuizSection color="blue" questions={[
-            {
-              q: 'PTQ에서 그래디언트가 0에 가깝다는 가정이 왜 성립하며, 이것이 BRECQ 이론에서 어떤 역할을 하는가?',
-              a: 'PTQ는 이미 수렴한(사전학습 완료된) 모델에 적용합니다. 경사 하강법이 수렴했다면 1차 최적성 조건 E[∇L(w)] ≈ 0이 성립합니다(정확히는 기댓값 그래디언트, 미니배치 노이즈로 정확히 0은 아니지만 충분히 작음). 테일러 전개에서 g̅(w) ≈ 0이면 1차 항이 소멸하고 2차 항 (1/2)Δw^T H̄ Δw만 남습니다. 이 덕분에 BRECQ는 "Hessian 2차 항을 최소화 = 양자화 손실 최소화"라는 이론적으로 깔끔한 목적 함수를 도출할 수 있습니다. 만약 파인튜닝 중인 모델처럼 g̅ ≠ 0이면 1차 항도 고려해야 하므로 이 단순화가 성립하지 않습니다.',
-            },
-            {
-              q: '왜 블록 단위 재구성이 레이어 단위나 네트워크 전체보다 우수한가? 이론적 이유와 실험적 근거를 함께 설명하라.',
-              a: '이론적으로: 양자화 손실은 "레이어 간 의존성 포착 오차"와 "일반화 오차"의 합으로 분해됩니다. 레이어 단위는 의존성을 무시해 첫 번째 항이 크고, 네트워크 전체는 보정 데이터(수백~천 장)에 과적합돼 두 번째 항이 커집니다. 블록 단위는 ResNet의 Residual Block처럼 설계상 독립 단위를 기준으로 최적화하므로 두 오차 모두 균형을 이룹니다. 실험적으로: ResNet-50 INT4에서 레이어 74.10%, 블록 76.29%, 스테이지 75.80%, 전체 네트워크 73.20%로 블록이 명확히 최고 성능을 보입니다.',
-            },
-            {
-              q: 'Fisher 정보 대각 근사가 전체 Hessian 대비 어떤 한계가 있으며, BRECQ에서 이 근사가 그럼에도 잘 작동하는 이유는?',
-              a: '한계: (1) 비대각 원소(off-diagonal) 무시 → 출력 뉴런 간 상관관계 미반영. (2) Fisher = Hessian 동치는 손실이 negative log-likelihood일 때만 정확 (cross-entropy 등). (3) 대각 근사는 뉴런 간 양자화 오차 상호작용을 포착 못함. 그럼에도 잘 작동하는 이유: (1) PTQ에서의 목표는 "절대 최적"이 아닌 "충분히 좋은" 양자화이며, 대각 근사도 중요한 뉴런(큰 Fisher 값)을 잘 식별합니다. (2) 블록 단위 재구성이 이미 공간 내 최적화를 수행하므로 Hessian 근사 오차를 일부 보상합니다. (3) 실제로 대부분의 신경망에서 Hessian이 대각 지배적(diagonally dominant)이어서 비대각 항 무시의 영향이 작습니다.',
-            },
-            {
-              q: 'BRECQ를 트랜스포머 모델(BERT, ViT 등)에 적용할 때 예상되는 어려움과 연구 방향은?',
-              a: '어려움: (1) 트랜스포머 블록은 Multi-head Attention + FFN으로 구성되며, Attention의 softmax가 비선형 상호작용을 만들어 2차 테일러 근사의 정확도가 떨어질 수 있습니다. (2) KV 캐시의 동적 활성화 값이 입력에 따라 크게 변동해 보정 데이터 의존성이 높아집니다. (3) LLM은 파라미터 수가 수십억이어서 Fisher 계산 비용도 증가합니다. (4) 트랜스포머의 Attention 가중치 행렬은 특이값이 급격히 감소하는 low-rank 구조로 coherent하여 균일 양자화에 불리합니다. 연구 방향: (1) Attention 특화 블록 정의 (예: Head 단위), (2) GPTQ/QuIP처럼 Hessian 기반 순차 양자화와 결합, (3) SmoothQuant처럼 활성화 이상치 사전 처리 후 BRECQ 적용.',
-            },
-          ]} />
-        </Card>
       </section>
 
     </div>

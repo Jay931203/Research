@@ -5,7 +5,6 @@ import {
   BarChart2,
   BrainCircuit,
   ChevronDown,
-  FlaskConical,
   Hash,
   Layers,
   Network,
@@ -93,33 +92,6 @@ function EqCard({ idx, name, latex, description, color = 'amber' }: {
   );
 }
 
-function QuizSection({ questions, color = 'amber' }: { questions: { q: string; a: string }[]; color?: string }) {
-  const [revealed, setRevealed] = useState<Set<number>>(new Set());
-  const toggle = (i: number) => setRevealed(prev => { const n = new Set(prev); n.has(i) ? n.delete(i) : n.add(i); return n; });
-  const bgMap: Record<string, string> = {
-    amber: 'border-amber-200 bg-amber-50 dark:border-amber-800 dark:bg-amber-900/20',
-  };
-  return (
-    <div className="space-y-3">
-      {questions.map(({ q, a }, i) => (
-        <div key={i} className="rounded-xl border border-gray-200 bg-white dark:border-gray-700 dark:bg-gray-900">
-          <button onClick={() => toggle(i)} className="flex w-full items-start gap-3 p-4 text-left">
-            <span className="flex h-6 w-6 flex-shrink-0 items-center justify-center rounded-full bg-gray-100 text-xs font-bold text-gray-600 dark:bg-gray-800 dark:text-gray-400">Q{i + 1}</span>
-            <span className="flex-1 text-sm font-medium text-gray-700 dark:text-gray-300">{q}</span>
-            <ChevronDown className={`h-4 w-4 flex-shrink-0 text-gray-400 transition-transform ${revealed.has(i) ? 'rotate-180' : ''}`} />
-          </button>
-          {revealed.has(i) && (
-            <div className={`mx-4 mb-4 rounded-lg border px-4 py-3 ${bgMap[color] ?? bgMap.amber}`}>
-              <p className="text-sm leading-relaxed text-gray-700 dark:text-gray-300">
-                <span className="mr-1 font-bold text-green-600 dark:text-green-400">A:</span>{a}
-              </p>
-            </div>
-          )}
-        </div>
-      ))}
-    </div>
-  );
-}
 
 /* ── Architecture Comparison SVG ─────────────────────────────── */
 
@@ -672,31 +644,6 @@ export default function CarpiStudyFull() {
             </div>
           </Card>
         </div>
-      </section>
-
-      {/* ── Quiz ─────────────────────────────────────────────── */}
-      <section id="carpi-quiz" className="scroll-mt-20">
-        <SectionHeading icon={<FlaskConical className="h-5 w-5" />} title="자기 점검 (연구자 수준)" />
-        <Card>
-          <QuizSection color="amber" questions={[
-            {
-              q: 'CsiNet이 채널 H를 완벽하게 복원(MSE=0)하더라도 Sum-Rate가 최적이 되지 않을 수 있는 경우가 있는가? 있다면 어떤 상황인가?',
-              a: 'MSE=0이면 H = H-hat이므로 ZF 프리코딩은 정확한 간섭 제거를 수행하고 Sum-Rate도 최적이 됩니다. 그러나 핵심은 유한 비트 B에서 MSE=0은 달성 불가능하다는 점입니다. 유한 B에서 MSE를 최소화하는 것은 "모든 성분의 오차를 균등하게 줄이는" 전략인데, 프리코딩에는 고유 벡터 방향의 정확도가 더 중요합니다. 동일한 비트 예산으로 "MSE를 최소화하는 압축"과 "프리코딩 성능을 최대화하는 압축"은 다른 최적해를 가집니다. 예를 들어, 채널의 null-space 방향 오차는 프리코딩에 치명적이지만 MSE 관점에서는 큰 고유값 방향 오차와 동등하게 취급됩니다.',
-            },
-            {
-              q: '파일럿 행렬 P를 End-to-End로 학습하는 것이 고정 DFT 파일럿보다 유리한 이유를 설명하라.',
-              a: 'DFT 파일럿은 모든 방향을 균등하게 프로빙하여 채널 추정에 최적화되어 있습니다. 그러나 프리코딩 목적으로는 모든 방향이 동등하게 중요하지 않습니다. 학습된 파일럿은 채널 분포와 프리코딩 태스크에 맞춰 특정 방향(예: 사용자들이 주로 위치하는 각도 범위)에 에너지를 집중할 수 있습니다. 또한 파일럿 수가 안테나 수보다 적은 경우(under-determined), DFT 파일럿은 정보 손실이 불가피하지만 학습된 파일럿은 프리코딩에 필요한 정보를 우선적으로 보존하는 최적의 관측 행렬 역할을 합니다. 이는 압축 센싱의 관측 행렬 최적화와 유사한 효과입니다.',
-            },
-            {
-              q: 'End-to-End 학습에서 양자화기를 미분 가능하게 만드는 기법(STE, Gumbel-Softmax)이 필요한 이유와 각각의 장단점은?',
-              a: '양자화(round 함수)는 불연속이므로 기울기가 0(또는 미정의)이며 역전파가 불가능합니다. STE(Straight-Through Estimator): 순전파 시 실제 양자화를 수행하고, 역전파 시 기울기를 그대로 통과시킵니다(기울기=1 근사). 장점은 구현이 간단하고 실제 양자화 값으로 학습한다는 점. 단점은 순전파와 역전파의 불일치로 인한 학습 불안정. Gumbel-Softmax: 카테고리컬 분포를 온도 파라미터 tau로 연속 근사합니다. tau→0이면 실제 양자화에 수렴. 장점은 이론적으로 더 정확한 기울기 추정. 단점은 tau 스케줄링이 필요하고 고차원에서 분산이 증가할 수 있음. 두 방법 모두 학습 시와 추론 시의 양자화 동작 차이(train-test mismatch)가 존재하며, 이를 줄이는 것이 실용적 과제입니다.',
-            },
-            {
-              q: 'Carpi의 태스크 지향 접근이 "낮은 피드백 비트"에서 특히 큰 이득을 보이는 근본 원인을 정보 이론적 관점에서 설명하라.',
-              a: '제한된 비트 예산 B에서 인코더는 채널 H의 전체 정보 중 B비트 분량만 선택적으로 전달해야 합니다. MSE 최적화는 채널의 모든 성분을 균등하게 복원하는 데 비트를 분배하지만, 프리코딩에 실제 필요한 정보(주요 고유공간의 방향)는 채널 전체 정보의 일부입니다. B가 작을수록 "어떤 정보를 전달할 것인가"의 선택이 중요해지며, 태스크 지향 인코더는 프리코딩에 불필요한 정보(예: 약한 경로의 진폭 세부사항)를 과감히 버리고 핵심 정보(간섭 방향)에 비트를 집중합니다. 이는 Rate-Distortion 이론에서 왜곡 측도(distortion measure)를 MSE에서 태스크 관련 측도로 바꾸면 동일한 R(D)에서 더 높은 태스크 성능을 달성할 수 있다는 원리와 일맥상통합니다. B가 충분히 크면 모든 정보를 전달할 수 있어 차이가 줄어듭니다.',
-            },
-          ]} />
-        </Card>
       </section>
 
     </div>

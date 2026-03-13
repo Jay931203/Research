@@ -94,33 +94,6 @@ function EqCard({ idx, name, latex, description, color = 'blue' }: {
   );
 }
 
-function QuizSection({ questions, color = 'blue' }: { questions: { q: string; a: string }[]; color?: string }) {
-  const [revealed, setRevealed] = useState<Set<number>>(new Set());
-  const toggle = (i: number) => setRevealed(prev => { const n = new Set(prev); n.has(i) ? n.delete(i) : n.add(i); return n; });
-  const bgMap: Record<string, string> = {
-    blue: 'border-blue-200 bg-blue-50 dark:border-blue-800 dark:bg-blue-900/20',
-  };
-  return (
-    <div className="space-y-3">
-      {questions.map(({ q, a }, i) => (
-        <div key={i} className="rounded-xl border border-gray-200 bg-white dark:border-gray-700 dark:bg-gray-900">
-          <button onClick={() => toggle(i)} className="flex w-full items-start gap-3 p-4 text-left">
-            <span className="flex h-6 w-6 flex-shrink-0 items-center justify-center rounded-full bg-gray-100 text-xs font-bold text-gray-600 dark:bg-gray-800 dark:text-gray-400">Q{i + 1}</span>
-            <span className="flex-1 text-sm font-medium text-gray-700 dark:text-gray-300">{q}</span>
-            <ChevronDown className={`h-4 w-4 flex-shrink-0 text-gray-400 transition-transform ${revealed.has(i) ? 'rotate-180' : ''}`} />
-          </button>
-          {revealed.has(i) && (
-            <div className={`mx-4 mb-4 rounded-lg border px-4 py-3 ${bgMap[color] ?? bgMap.blue}`}>
-              <p className="text-sm leading-relaxed text-gray-700 dark:text-gray-300">
-                <span className="mr-1 font-bold text-green-600 dark:text-green-400">A:</span>{a}
-              </p>
-            </div>
-          )}
-        </div>
-      ))}
-    </div>
-  );
-}
 
 /* ── Main component ──────────────────────────────────────────── */
 
@@ -695,29 +668,6 @@ export default function S4StudyFull() {
       </section>
 
       {/* ── 8. 자기 점검 ────────────────────────────────────── */}
-      <section id="s4-quiz" className="scroll-mt-20">
-        <SectionHeading icon={<GraduationCap className="h-5 w-5" />} title="자기 점검" />
-        <Card>
-          <QuizSection color="blue" questions={[
-            {
-              q: 'S4가 제안하는 "이중 계산 모드"(컨볼루션 훈련 + 순환 추론)의 원리와, 이것이 기존 Transformer 대비 어떤 실용적 이점을 제공하는지 설명하라.',
-              a: 'S4의 상태공간 모델은 연속 ODE를 ZOH로 이산화하면 x_k = Abark x_{k-1} + Bbark u_k 형태의 선형 순환이 됩니다. 이 순환을 풀어쓰면 y_k = Sigma CAbari Bbar * u_{k-i}로 컨볼루션과 동치입니다. 따라서 동일한 파라미터(A, B, C, Delta)로 두 가지 연산이 가능합니다. 훈련 시: 컨볼루션 모드로 전체 시퀀스를 FFT로 O(L log L)에 병렬 처리. 추론 시: 순환 모드로 O(1) 메모리, 상수 시간 per step. 반면 Transformer는 훈련/추론 모두 O(L^2) 어텐션이 필요하고, KV-cache로도 추론 시 O(L) 메모리가 필요합니다.',
-            },
-            {
-              q: 'NPLR 분해가 필요한 이유는 무엇이며, 왜 단순 대각화로는 HiPPO 행렬을 효율적으로 처리할 수 없는가?',
-              a: 'HiPPO-LegS A 행렬은 비정규(non-normal) 행렬이어서 직교 대각화가 불가능합니다. 단순히 고유값 분해하면 조건수가 매우 나빠져 수치적으로 불안정하고, 대각 근사(S4D)는 정보를 손실합니다. NPLR 분해 A = V Lambda V* - PQ*는 "대각 + 저랭크 보정"으로 HiPPO의 구조를 정확히 보존하면서, 컨볼루션 커널 계산을 Cauchy kernel Sigma C_i/(omega-lambda_i)로 변환합니다. Cauchy kernel은 O(N) FFT로 계산 가능하므로, 전체 복잡도가 O((N+L)log(N+L))로 줄어듭니다.',
-            },
-            {
-              q: 'S4가 Long Range Arena의 Path-X(16384 스텝)에서 유일하게 성공한 모델인 이유를 HiPPO 초기화와 NPLR의 관점에서 설명하라.',
-              a: 'Path-X는 128x128 이미지를 1차원 시퀀스(16384 토큰)로 펼쳐 경로를 추적하는 태스크로, 시퀀스 처음과 끝의 장거리 의존성이 필수입니다. (1) HiPPO-LegS 초기화: 그래디언트가 Theta(1/t)로 다항식 감쇠하여 16384 스텝에서도 학습 신호가 전달됩니다. (2) NPLR 분해: O((N+L)logL) 복잡도로 L=16384도 실용적 훈련이 가능합니다. Transformer는 O(L^2)=O(2.7억) 어텐션으로 메모리/계산 모두 불가능하고, 게이트 RNN은 지수 그래디언트 소실로 16384 스텝의 의존성을 학습할 수 없습니다.',
-            },
-            {
-              q: '이산화 스텝 크기 Delta가 S4 모델의 행동에 미치는 영향을 설명하고, Delta를 학습 가능 파라미터로 설정하는 것의 의미는?',
-              a: 'Delta는 연속 시간 ODE를 이산 시퀀스로 변환하는 시간 해상도를 결정합니다. Delta가 작으면: 미세한 시간 변화를 포착하지만 장거리 의존성 포착이 어려움(많은 스텝 필요). Delta가 크면: 시간 해상도가 낮아지지만 한 스텝이 넓은 시간 범위를 커버하여 장거리 패턴 포착이 용이. Delta를 학습 가능하게 하면 각 채널/레이어가 자체적으로 최적 시간 스케일을 학습합니다. 이는 Multi-head attention이 다양한 패턴을 포착하는 것과 유사하게, 다양한 Delta 값이 다양한 시간 스케일의 특징을 포착합니다. Mamba는 이 아이디어를 더 발전시켜 Delta를 입력 의존적으로 만듭니다.',
-            },
-          ]} />
-        </Card>
-      </section>
 
     </div>
     </GlossaryText>

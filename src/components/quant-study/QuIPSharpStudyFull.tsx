@@ -5,7 +5,6 @@ import {
   BarChart2,
   BrainCircuit,
   ChevronDown,
-  FlaskConical,
   GraduationCap,
   Hash,
   Layers,
@@ -94,30 +93,6 @@ function EqCard({ idx, name, latex, description, color = 'purple' }: {
   );
 }
 
-function QuizSection({ questions }: { questions: { q: string; a: string }[] }) {
-  const [revealed, setRevealed] = useState<Set<number>>(new Set());
-  const toggle = (i: number) => setRevealed(prev => { const n = new Set(prev); n.has(i) ? n.delete(i) : n.add(i); return n; });
-  return (
-    <div className="space-y-3">
-      {questions.map(({ q, a }, i) => (
-        <div key={i} className="rounded-xl border border-gray-200 bg-white dark:border-gray-700 dark:bg-gray-900">
-          <button onClick={() => toggle(i)} className="flex w-full items-start gap-3 p-4 text-left">
-            <span className="flex h-6 w-6 flex-shrink-0 items-center justify-center rounded-full bg-gray-100 text-xs font-bold text-gray-600 dark:bg-gray-800 dark:text-gray-400">Q{i + 1}</span>
-            <span className="flex-1 text-sm font-medium text-gray-700 dark:text-gray-300">{q}</span>
-            <ChevronDown className={`h-4 w-4 flex-shrink-0 text-gray-400 transition-transform ${revealed.has(i) ? 'rotate-180' : ''}`} />
-          </button>
-          {revealed.has(i) && (
-            <div className="mx-4 mb-4 rounded-lg border border-purple-200 bg-purple-50 px-4 py-3 dark:border-purple-800 dark:bg-purple-900/20">
-              <p className="text-sm leading-relaxed text-gray-700 dark:text-gray-300">
-                <span className="mr-1 font-bold text-green-600 dark:text-green-400">A:</span>{a}
-              </p>
-            </div>
-          )}
-        </div>
-      ))}
-    </div>
-  );
-}
 
 // Hadamard bit-parity helper
 function bin(n: number): number { return n; }
@@ -562,35 +537,6 @@ export default function QuIPSharpStudyFull() {
             </div>
           </Card>
         </div>
-      </section>
-
-      {/* ── Quiz ─────────────────────────────────────────────── */}
-      <section id="qs-quiz" className="scroll-mt-20">
-        <SectionHeading icon={<FlaskConical className="h-5 w-5" />} title="자기 점검 (연구자 수준)" />
-        <Card>
-          <QuizSection questions={[
-            {
-              q: 'Hadamard 변환이 랜덤 직교 행렬과 동일한 비간섭 효과를 내는 수학적 이유는?',
-              a: '(Q_L W Q_R^T)_{ij} = (1/n) Σ_k Σ_l d_k^L H_{ik}^n W_{kl} d_l^R H_{jl}^n. 각 d_i ~ ±1 iid이므로 교차항의 기댓값은 0, 분산은 ‖W‖²_F/(mn). 즉 각 원소는 평균 0, 분산 ‖W‖²_F/(mn)인 독립 분포를 따름 — 랜덤 직교 행렬의 경우와 동일. 집중 부등식으로 max 원소가 O(sqrt(log(mn)‖W‖²_F/(mn)))임을 보일 수 있음.',
-            },
-            {
-              q: 'E8 격자의 NSM이 Z^8보다 작은 직관적 이유는? 양자화 이론에서 NSM이 중요한 이유는?',
-              a: 'NSM은 격자의 Voronoi 셀 모양이 구(sphere)에 얼마나 가까운지 측정합니다. 구가 가장 이상적인 Voronoi 셀 (등방성 오차). E8의 Voronoi 셀은 Z^8의 초입방체보다 구에 훨씬 가깝습니다 — 240개 최소 벡터가 만드는 대칭성 덕분. NSM이 중요한 이유: 균일 입력 분포에서 평균 양자화 오차 = G(Λ) · V(Λ)^{2/n} · n. 따라서 G(Λ)를 줄이면 동일 비트 수에서 오차가 줄어듭니다.',
-            },
-            {
-              q: 'QuIP#에서 "E8 격자 코드북"이 학습된 VQ 코드북과 근본적으로 다른 점은?',
-              a: 'VQ 코드북(LBG, k-means 등): 특정 데이터 분포에 맞게 학습. 일반화 어려움, 데이터 의존적. E8: 수학적으로 고정된 격자, 데이터 독립적. 균일 분포(비간섭 처리 후 WHT 출력은 거의 균일)에서 E8이 이론적 최솟값에 가까운 NSM을 가짐. 또한 E8 decoding이 O(1)인 반면, k-means 코드북의 nearest neighbor 탐색은 O(K).',
-            },
-            {
-              q: '8차원 E8 양자화 인덱스를 저장할 때 실제 비트 수 계산 방법은?',
-              a: 'E8 격자의 각 Voronoi 셀 코드워드 수: 2^16 = 65536개의 서로 다른 8D 격자점을 2비트/원소로 커버. 즉 8개 원소에 대해 16비트(= 8 × 2비트) 인덱스를 사용. 이 16비트 인덱스가 E8 격자의 어떤 점인지 lookup table로 복원. 실제 저장: 원소당 2비트. 단, 스케일 α는 별도 저장(FP16 또는 FP8).',
-            },
-            {
-              q: 'QuIP#의 접근이 CSI 피드백 압축에 주는 시사점을 구체적으로 논하라.',
-              a: 'CSI 피드백에서도 두 가지 개선이 가능합니다. ① WHT 비간섭: 채널 행렬 H_c에 Hadamard 전처리를 적용하면 O(n log n)으로 비간섭 상태로 변환 가능. 수신기에서 미리 약속된 Hadamard 행렬만 사용하므로 오버헤드 없음. ② 격자 코드북: CSI 양자화에서 스칼라 코드북 대신 E8 등 고차원 격자를 사용하면 동일 피드백 비트에서 채널 복원 오차를 14% 줄일 수 있음. 특히 massive MIMO에서 수백 개 안테나 계수를 함께 양자화하면 시너지 극대화.',
-            },
-          ]} />
-        </Card>
       </section>
     </div>
     </GlossaryText>

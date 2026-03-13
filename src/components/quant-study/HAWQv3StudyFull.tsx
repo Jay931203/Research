@@ -6,7 +6,6 @@ import {
   BrainCircuit,
   ChevronDown,
   Cpu,
-  FlaskConical,
   GraduationCap,
   Hash,
   Layers,
@@ -93,34 +92,6 @@ function EqCard({ idx, name, latex, description, color = 'purple' }: {
   );
 }
 
-function QuizSection({ questions, color = 'purple' }: { questions: { q: string; a: string }[]; color?: string }) {
-  const [revealed, setRevealed] = useState<Set<number>>(new Set());
-  const toggle = (i: number) => setRevealed(prev => { const n = new Set(prev); n.has(i) ? n.delete(i) : n.add(i); return n; });
-  const bgMap: Record<string, string> = {
-    purple: 'border-purple-200 bg-purple-50 dark:border-purple-800 dark:bg-purple-900/20',
-    indigo: 'border-indigo-200 bg-indigo-50 dark:border-indigo-800 dark:bg-indigo-900/20',
-  };
-  return (
-    <div className="space-y-3">
-      {questions.map(({ q, a }, i) => (
-        <div key={i} className="rounded-xl border border-gray-200 bg-white dark:border-gray-700 dark:bg-gray-900">
-          <button onClick={() => toggle(i)} className="flex w-full items-start gap-3 p-4 text-left">
-            <span className="flex h-6 w-6 flex-shrink-0 items-center justify-center rounded-full bg-gray-100 text-xs font-bold text-gray-600 dark:bg-gray-800 dark:text-gray-400">Q{i + 1}</span>
-            <span className="flex-1 text-sm font-medium text-gray-700 dark:text-gray-300">{q}</span>
-            <ChevronDown className={`h-4 w-4 flex-shrink-0 text-gray-400 transition-transform ${revealed.has(i) ? 'rotate-180' : ''}`} />
-          </button>
-          {revealed.has(i) && (
-            <div className={`mx-4 mb-4 rounded-lg border px-4 py-3 ${bgMap[color] ?? bgMap.purple}`}>
-              <p className="text-sm leading-relaxed text-gray-700 dark:text-gray-300">
-                <span className="mr-1 font-bold text-green-600 dark:text-green-400">A:</span>{a}
-              </p>
-            </div>
-          )}
-        </div>
-      ))}
-    </div>
-  );
-}
 
 /* ── DyadicViz ───────────────────────────────────────────────── */
 
@@ -665,31 +636,6 @@ out = float(q_out) * (Sw * Sh / Sa)  // FP32 나눗셈/곱셈`}</code>
             </div>
           </Card>
         </div>
-      </section>
-
-      {/* ── Quiz ─────────────────────────────────────────────── */}
-      <section id="hawq-quiz" className="scroll-mt-20">
-        <SectionHeading icon={<FlaskConical className="h-5 w-5" />} title="자기 점검 (연구자 수준)" />
-        <Card>
-          <QuizSection color="purple" questions={[
-            {
-              q: '가짜 양자화(fake quantization)에서 숨겨진 FP32 오차가 후반 레이어에 집중되는 이유는 무엇인가?',
-              a: '딥 네트워크의 후반 레이어일수록 활성화의 스케일 팩터(S_a) 값이 다양해지고, 레이어 간 스케일 비율(S_w·S_h/S_a)이 극단적인 값을 취하는 경우가 많습니다. FP32 재정규화 시 이 비율을 정확히 표현할 수 있지만, 정수 근사(다이아딕 없이)는 상대 오차가 누적됩니다. 또한 잔차 연결이 있는 구조에서는 두 브랜치의 스케일 불일치가 가산될 때마다 오차가 복합됩니다. HAWQ-V3 실험에서는 95% 이상의 오차가 재정규화 단계에서 발생함을 실증했습니다.',
-            },
-            {
-              q: '다이아딕 수 b/2^c가 비트 시프트와 동치인 이유를 수식으로 설명하라.',
-              a: '정수 x에 b/2^c를 곱하면 (x·b)/2^c입니다. 정수 나눗셈 중 2의 거듭제곱으로 나누는 것은 정확히 오른쪽 비트 시프트와 같습니다: (x·b) >> c = floor((x·b)/2^c). 따라서 x·(b/2^c) = (x*b)>>c로, INT 곱셈 한 번과 비트 시프트 한 번으로 완결됩니다. 나눗셈 명령(IDIV)이나 FP 변환이 전혀 필요 없으며, 현대 CPU/GPU에서 비트 시프트는 단일 사이클 연산입니다. b와 c는 오프라인에서 round(S·2^c)=b로 계산하여 모델에 저장합니다.',
-            },
-            {
-              q: 'HAWQ-V3의 ILP가 RL(HAQ) 기반 혼합 정밀도 탐색보다 수천 배 빠른 이유는?',
-              a: 'RL 접근(HAQ 등)은 혼합 정밀도 배열 공간(예: 50레이어 × 3비트 선택 = 3^50 조합)을 정책 네트워크로 탐색하며, 각 조합 평가에 전체 또는 부분 파인튜닝과 정확도 측정이 필요합니다. 반면 HAWQ-V3의 ILP는 (1) Hessian 트레이스가 비트폭별 오차를 사전 계산된 스칼라로 요약하고, (2) 제약 함수(Size, BOPS)가 선형이므로, (3) 오픈소스 ILP 솔버가 분기한정법(branch-and-bound)으로 수초 내 전역 최적해를 보장합니다. 핵심: 탐색 공간을 다항식 복잡도 문제로 변환했기 때문입니다.',
-            },
-            {
-              q: 'BN Fusion이 정수 전용 추론에 왜 필수적이며, 적용 시 주의사항은?',
-              a: 'BatchNorm은 running_mean(μ), running_var(σ²), weight(γ), bias(β)라는 FP32 통계를 사용합니다. 이 통계를 정수화하면 심각한 정밀도 손실이 발생합니다(σ는 소수점 이하의 작은 값). BN Fusion은 Ŵ = (γ/σ)W, b̂ = β - (γ/σ)μ로 Conv에 통합하여 BN 레이어 자체를 제거합니다. 주의사항: (1) 반드시 eval 모드 전환 후 적용 (train 중 running stat 변경 방지), (2) σ ≈ 0인 채널은 클리핑(수치 불안정), (3) BN fusion 후 가중치 범위가 달라지므로 스케일 팩터 재계산 필요.',
-            },
-          ]} />
-        </Card>
       </section>
 
     </div>

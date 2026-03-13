@@ -4,7 +4,6 @@ import { useCallback, useMemo, useState } from 'react';
 import {
   BrainCircuit,
   ChevronDown,
-  FlaskConical,
   GraduationCap,
   Hash,
   Layers,
@@ -93,34 +92,6 @@ function EqCard({ idx, name, latex, description, color = 'purple' }: {
   );
 }
 
-function QuizSection({ questions, color = 'purple' }: { questions: { q: string; a: string }[]; color?: string }) {
-  const [revealed, setRevealed] = useState<Set<number>>(new Set());
-  const toggle = (i: number) => setRevealed(prev => { const n = new Set(prev); n.has(i) ? n.delete(i) : n.add(i); return n; });
-  const bgMap: Record<string, string> = {
-    purple: 'border-purple-200 bg-purple-50 dark:border-purple-800 dark:bg-purple-900/20',
-    amber: 'border-amber-200 bg-amber-50 dark:border-amber-800 dark:bg-amber-900/20',
-  };
-  return (
-    <div className="space-y-3">
-      {questions.map(({ q, a }, i) => (
-        <div key={i} className="rounded-xl border border-gray-200 bg-white dark:border-gray-700 dark:bg-gray-900">
-          <button onClick={() => toggle(i)} className="flex w-full items-start gap-3 p-4 text-left">
-            <span className="flex h-6 w-6 flex-shrink-0 items-center justify-center rounded-full bg-gray-100 text-xs font-bold text-gray-600 dark:bg-gray-800 dark:text-gray-400">Q{i + 1}</span>
-            <span className="flex-1 text-sm font-medium text-gray-700 dark:text-gray-300">{q}</span>
-            <ChevronDown className={`h-4 w-4 flex-shrink-0 text-gray-400 transition-transform ${revealed.has(i) ? 'rotate-180' : ''}`} />
-          </button>
-          {revealed.has(i) && (
-            <div className={`mx-4 mb-4 rounded-lg border px-4 py-3 ${bgMap[color] ?? bgMap.purple}`}>
-              <p className="text-sm leading-relaxed text-gray-700 dark:text-gray-300">
-                <span className="mr-1 font-bold text-green-600 dark:text-green-400">A:</span>{a}
-              </p>
-            </div>
-          )}
-        </div>
-      ))}
-    </div>
-  );
-}
 
 /* ── Main component ──────────────────────────────────────────── */
 
@@ -499,29 +470,6 @@ export default function HiPPOStudyFull() {
       </section>
 
       {/* ── 7. 자기 점검 ───────────────────────────────────── */}
-      <section id="hippo-quiz" className="scroll-mt-20">
-        <SectionHeading icon={<FlaskConical className="h-5 w-5" />} title="자기 점검 (연구자 수준)" />
-        <Card>
-          <QuizSection color="purple" questions={[
-            {
-              q: 'HiPPO가 "과거를 어떻게 기억할 것인가?"를 수학적으로 어떻게 정의하며, 이것이 전이행렬 A를 어떻게 결정하는지 설명하라.',
-              a: 'HiPPO는 측도 mu(t)(x)로 "시점 x의 과거 정보가 현재 t에서 얼마나 중요한가"를 정의합니다. 입력 함수 f를 이 측도 하에서 N개 직교 다항식 {g_n}에 투영하면, 투영 계수 c(t)의 시간 발전이 ODE dc/dt = A(t)c(t) + B(t)f(t)로 기술됩니다. 여기서 A(t)와 B(t)는 측도 mu(t)와 직교 다항식 기저에 의해 유일하게 결정됩니다. 즉, 측도 선택이 곧 메모리 동역학(A 행렬)을 결정합니다.',
-            },
-            {
-              q: 'HiPPO-LegS의 시간 척도 등변성(timescale equivariance)이란 무엇이며, 왜 이것이 실용적으로 중요한가?',
-              a: '시간 척도 등변성은 입력 함수 f(t)를 f(alpha*t)로 시간 축 스케일링하면 출력 계수도 동일하게 스케일링되는 성질입니다. 수학적으로 mu(t) = 1/t * 1_{[0,t]}가 이 성질을 만족하는 유일한 측도입니다. 실용적 중요성: (1) 시간 윈도우 theta 같은 하이퍼파라미터가 불필요, (2) 짧은 시퀀스로 훈련하고 긴 시퀀스에 일반화 가능(length generalization), (3) 다양한 시간 스케일의 패턴을 하나의 모델로 포착 가능.',
-            },
-            {
-              q: 'HiPPO-LegS의 그래디언트가 Theta(1/t)로 다항식 감쇠하는 것이, 기존 RNN의 lambda^t 지수 감쇠와 비교하여 장거리 의존성 학습에 미치는 구체적 차이는?',
-              a: 'RNN에서 lambda < 1이면 그래디언트가 lambda^t로 지수 소실하여 t=100만 되어도 0.95^100 = 0.006으로 사실상 학습 불가합니다. 반면 HiPPO-LegS는 1/t이므로 t=100에서도 0.01로 여전히 유의미한 기울기가 전달됩니다. t=1000에서 RNN은 10^{-22}이지만 HiPPO는 10^{-3}입니다. 이 차이가 Sequential MNIST(784 스텝), PathX(16384 스텝) 등 장거리 벤치마크에서 HiPPO 기반 모델의 성공을 설명합니다.',
-            },
-            {
-              q: 'LegT 측도(슬라이딩 윈도우)가 LMU(Legendre Memory Unit)와 동치임을 설명하고, LagT에서 N=1이면 GRU 게이팅과 동치가 되는 이유를 설명하라.',
-              a: 'LegT는 mu(t) = 1/theta * 1_{[t-theta, t]}로 최근 theta 시간만 균일 기억합니다. 이 측도에서 유도한 A, B 행렬이 Legendre Memory Unit(Voelker et al., 2019)의 상태 전이 행렬과 정확히 일치합니다. LagT는 mu(t) = e^{-(t-x)}로 지수 감쇠 가중이며, N=1(상태 1개)로 축소하면 dc/dt = -c + f(t)가 됩니다. 이를 이산화하면 c_t = (1-alpha)c_{t-1} + alpha*f_t 형태로, GRU의 업데이트 게이트 z_t와 동일한 지수 이동 평균 구조가 됩니다.',
-            },
-          ]} />
-        </Card>
-      </section>
 
     </div>
     </GlossaryText>

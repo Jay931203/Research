@@ -23,7 +23,10 @@ import {
   List,
   Minus,
   Plus,
+  Radio,
+  Signal,
   Star,
+  TrendingUp,
   Zap,
 } from 'lucide-react';
 import Header from '@/components/layout/Header';
@@ -120,6 +123,14 @@ const CsiFBNetStudyFull = dynamic(
   () => import('@/components/csi-feedback-study/CsiFBNetStudyFull'),
   { ssr: false },
 );
+const LimitedFeedbackSurveyStudyFull = dynamic(
+  () => import('@/components/csi-feedback-study/LimitedFeedbackSurveyStudyFull'),
+  { ssr: false },
+);
+const AdaRoundStudyFull = dynamic(
+  () => import('@/components/quant-study/AdaRoundStudyFull'),
+  { ssr: false },
+);
 
 // arxiv_id → full study content (replaces generic template for these papers)
 const FULL_STUDY_REGISTRY: Record<string, React.ComponentType> = {
@@ -138,6 +149,8 @@ const FULL_STUDY_REGISTRY: Record<string, React.ComponentType> = {
   'cs/0603065':  JindalStudyFull,       // Jindal 2006 MIMO BC
   '2302.11526':  CarpiStudyFull,        // Carpi 2023 Precoding-oriented
   '2011.06099':  CsiFBNetStudyFull,    // CsiFBnet 2021 BF-gain CSI Feedback
+  'love-heath-2008-survey': LimitedFeedbackSurveyStudyFull, // Love et al. 2008 Limited Feedback Survey
+  '2004.10568': AdaRoundStudyFull,     // AdaRound (Nagel et al. 2020)
 };
 
 /* ------------------------------------------------------------------ */
@@ -165,7 +178,6 @@ const FULL_STUDY_TOC_REGISTRY: Record<
     { id: 'quip-equations',   label: '핵심 수식',       icon: Hash },
     { id: 'quip-results',     label: '실험 결과',       icon: List },
     { id: 'quip-limits',      label: '한계 & 전망',     icon: CheckCircle2 },
-    { id: 'quip-quiz',        label: '자기 점검',       icon: FlaskConical },
     { id: 'section-notes',    label: '학습 노트',       icon: Layers },
   ],
   '2402.04396': [
@@ -177,7 +189,6 @@ const FULL_STUDY_TOC_REGISTRY: Record<
     { id: 'qs-lattice-theory',  label: '격자 양자화 이론',  icon: Hash },
     { id: 'qs-equations',       label: '핵심 수식',         icon: Hash },
     { id: 'qs-results',         label: '실험 결과',         icon: List },
-    { id: 'qs-quiz',            label: '자기 점검',         icon: FlaskConical },
     { id: 'section-notes',      label: '학습 노트',         icon: Layers },
   ],
   '2401.06118': [
@@ -188,7 +199,6 @@ const FULL_STUDY_TOC_REGISTRY: Record<
     { id: 'aqlm-finetuning',  label: '전역 미세조정',   icon: GraduationCap },
     { id: 'aqlm-equations',   label: '핵심 수식',        icon: Hash },
     { id: 'aqlm-results',     label: '실험 결과',        icon: List },
-    { id: 'aqlm-quiz',        label: '자기 점검',        icon: FlaskConical },
     { id: 'section-notes',    label: '학습 노트',        icon: Layers },
   ],
   '1811.08886': [
@@ -199,7 +209,6 @@ const FULL_STUDY_TOC_REGISTRY: Record<
     { id: 'haq-hardware',    label: '하드웨어 피드백',   icon: Star },
     { id: 'haq-equations',   label: '핵심 수식',         icon: Hash },
     { id: 'haq-results',     label: '실험 결과',         icon: List },
-    { id: 'haq-quiz',        label: '자기 점검',         icon: FlaskConical },
     { id: 'section-notes',   label: '학습 노트',         icon: Layers },
   ],
   '2102.05426': [
@@ -210,7 +219,6 @@ const FULL_STUDY_TOC_REGISTRY: Record<
     { id: 'brecq-fisher',      label: 'Fisher 근사',      icon: Cpu },
     { id: 'brecq-equations',   label: '핵심 수식',        icon: Hash },
     { id: 'brecq-results',     label: '실험 결과',        icon: List },
-    { id: 'brecq-quiz',        label: '자기 점검',        icon: FlaskConical },
     { id: 'section-notes',     label: '학습 노트',        icon: Layers },
   ],
   '2011.10680': [
@@ -221,7 +229,6 @@ const FULL_STUDY_TOC_REGISTRY: Record<
     { id: 'hawq-integration',  label: 'BN 융합 & 정수화', icon: GraduationCap },
     { id: 'hawq-equations',    label: '핵심 수식',        icon: Hash },
     { id: 'hawq-results',      label: '실험 결과',        icon: List },
-    { id: 'hawq-quiz',         label: '자기 점검',        icon: FlaskConical },
     { id: 'section-notes',     label: '학습 노트',        icon: Layers },
   ],
   '1911.07346': [
@@ -233,7 +240,6 @@ const FULL_STUDY_TOC_REGISTRY: Record<
     { id: 'ap-viz',           label: '비트 절삭 시각화',  icon: Star },
     { id: 'ap-equations',     label: '핵심 수식',         icon: Hash },
     { id: 'ap-results',       label: '실험 결과',         icon: List },
-    { id: 'ap-quiz',          label: '자기 점검',         icon: FlaskConical },
     { id: 'section-notes',    label: '학습 노트',         icon: Layers },
   ],
   '1902.05690': [
@@ -245,7 +251,6 @@ const FULL_STUDY_TOC_REGISTRY: Record<
     { id: 'autoq-storage',     label: '저장 오버헤드',     icon: Cpu },
     { id: 'autoq-equations',   label: '핵심 수식',         icon: Hash },
     { id: 'autoq-results',     label: '실험 결과',         icon: List },
-    { id: 'autoq-quiz',        label: '자기 점검',         icon: FlaskConical },
     { id: 'section-notes',     label: '학습 노트',         icon: Layers },
   ],
   '2008.07669': [
@@ -255,7 +260,6 @@ const FULL_STUDY_TOC_REGISTRY: Record<
     { id: 'hippo-viz',        label: '시각화',            icon: Zap },
     { id: 'hippo-equations',  label: '핵심 수식',         icon: Hash },
     { id: 'hippo-impact',     label: '후속 연구 영향',    icon: Layers },
-    { id: 'hippo-quiz',       label: '자기 점검',         icon: FlaskConical },
     { id: 'section-notes',    label: '학습 노트',         icon: Layers },
   ],
   '2111.00396': [
@@ -266,7 +270,6 @@ const FULL_STUDY_TOC_REGISTRY: Record<
     { id: 's4-nplr',          label: 'NPLR 분해',        icon: GraduationCap },
     { id: 's4-equations',     label: '핵심 수식',         icon: Hash },
     { id: 's4-results',       label: '실험 결과',         icon: List },
-    { id: 's4-quiz',          label: '자기 점검',         icon: FlaskConical },
     { id: 'section-notes',    label: '학습 노트',         icon: Layers },
   ],
   '2312.00752': [
@@ -277,7 +280,6 @@ const FULL_STUDY_TOC_REGISTRY: Record<
     { id: 'mamba-hardware',   label: '하드웨어 알고리즘', icon: Cpu },
     { id: 'mamba-equations',  label: '핵심 수식',         icon: Hash },
     { id: 'mamba-results',    label: '실험 결과',         icon: List },
-    { id: 'mamba-quiz',       label: '자기 점검',         icon: FlaskConical },
     { id: 'section-notes',    label: '학습 노트',         icon: Layers },
   ],
   'love-heath-2003': [
@@ -287,7 +289,6 @@ const FULL_STUDY_TOC_REGISTRY: Record<
     { id: 'grass-codebook',       label: '코드북 설계',        icon: Cpu },
     { id: 'grass-equations',      label: '핵심 수식',          icon: Hash },
     { id: 'grass-scaling',        label: '스케일링 법칙',      icon: Zap },
-    { id: 'grass-quiz',           label: '자기 점검',          icon: FlaskConical },
     { id: 'section-notes',        label: '학습 노트',          icon: Layers },
   ],
   'cs/0603065': [
@@ -297,7 +298,6 @@ const FULL_STUDY_TOC_REGISTRY: Record<
     { id: 'jindal-scaling',       label: '스케일링 법칙',     icon: Zap },
     { id: 'jindal-equations',     label: '핵심 수식',         icon: Hash },
     { id: 'jindal-implications',  label: '시사점',            icon: Star },
-    { id: 'jindal-quiz',          label: '자기 점검',         icon: FlaskConical },
     { id: 'section-notes',        label: '학습 노트',         icon: Layers },
   ],
   '2302.11526': [
@@ -307,8 +307,18 @@ const FULL_STUDY_TOC_REGISTRY: Record<
     { id: 'carpi-loss',           label: '손실 함수 설계',     icon: GraduationCap },
     { id: 'carpi-equations',      label: '핵심 수식',          icon: Hash },
     { id: 'carpi-results',        label: '실험 결과',          icon: List },
-    { id: 'carpi-quiz',           label: '자기 점검',          icon: FlaskConical },
     { id: 'section-notes',        label: '학습 노트',          icon: Layers },
+  ],
+  'love-heath-2008-survey': [
+    { id: 'lfsurvey-overview',       label: '개요',               icon: BookOpen },
+    { id: 'lfsurvey-core',           label: '핵심 문제',          icon: Signal },
+    { id: 'lfsurvey-beamforming',    label: '빔포밍 & 코드북',    icon: Radio },
+    { id: 'lfsurvey-multiplexing',   label: '공간 다중화',        icon: Layers },
+    { id: 'lfsurvey-multiuser',      label: 'MU-MIMO 스케일링',   icon: TrendingUp },
+    { id: 'lfsurvey-equations',      label: '핵심 수식',          icon: Hash },
+    { id: 'lfsurvey-practical',      label: '실용 가이드라인',    icon: List },
+    { id: 'lfsurvey-evolution',      label: '진화 계보',          icon: Zap },
+    { id: 'section-notes',           label: '학습 노트',          icon: Layers },
   ],
   '2011.06099': [
     { id: 'csifbnet-overview',       label: '개요',               icon: BookOpen },
@@ -316,7 +326,16 @@ const FULL_STUDY_TOC_REGISTRY: Record<
     { id: 'csifbnet-loss',           label: '손실 함수 설계',     icon: Zap },
     { id: 'csifbnet-equations',      label: '핵심 수식',          icon: Hash },
     { id: 'csifbnet-results',        label: '실험 결과',          icon: List },
-    { id: 'csifbnet-quiz',           label: '자기 점검',          icon: FlaskConical },
+    { id: 'section-notes',           label: '학습 노트',          icon: Layers },
+  ],
+  '2004.10568': [
+    { id: 'adaround-overview',       label: '개요',               icon: BookOpen },
+    { id: 'adaround-problem',        label: '문제 제기',          icon: FileText },
+    { id: 'adaround-algorithm',      label: '알고리즘',           icon: Cpu },
+    { id: 'adaround-theory',         label: '이론적 분석',        icon: GraduationCap },
+    { id: 'adaround-equations',      label: '핵심 수식',          icon: Hash },
+    { id: 'adaround-results',        label: '실험 결과',          icon: List },
+    { id: 'adaround-impact',         label: '영향 & 후속 연구',   icon: Zap },
     { id: 'section-notes',           label: '학습 노트',          icon: Layers },
   ],
 };
@@ -335,7 +354,6 @@ const TOC_SECTIONS: Array<{ id: string; label: string; icon: React.ComponentType
   { id: 'section-infographic', label: '인터랙티브', icon: FlaskConical },
   { id: 'section-shared-techniques', label: '공통 기술', icon: Zap },
   { id: 'section-related', label: '연계 논문', icon: Link2 },
-  { id: 'section-self-check', label: '셀프 체크', icon: CheckCircle2 },
   { id: 'section-notes', label: '학습 노트', icon: Layers },
 ];
 
@@ -1593,31 +1611,6 @@ export default function PaperStudyPage() {
             </section>
 
             {/* ===== Section: Self Check ===== */}
-            {!!paper.self_check_questions?.length && (
-            <section id="section-self-check" className="scroll-mt-20">
-              <SectionHeading icon={<CheckCircle2 className="h-5 w-5" />} title="셀프 체크" collapsed={!!collapsed['section-self-check']} onToggle={() => toggleSection('section-self-check')} />
-              <div className={`overflow-hidden transition-all duration-300 ${collapsed['section-self-check'] ? 'max-h-0' : 'max-h-[2000px]'}`}>
-              <div className="rounded-xl bg-white p-6 shadow-sm dark:bg-gray-900 dark:shadow-none dark:ring-1 dark:ring-gray-800">
-                <p className="mb-4 text-xs text-gray-500 dark:text-gray-400">
-                  이 논문을 충분히 이해했는지 스스로 확인해 보세요
-                </p>
-                <div className="space-y-3">
-                  {paper.self_check_questions.map((question, idx) => (
-                    <div
-                      key={idx}
-                      className="flex gap-3 rounded-lg border border-gray-100 bg-gray-50/60 px-4 py-3 dark:border-gray-700 dark:bg-gray-800/60"
-                    >
-                      <span className="flex h-6 w-6 flex-shrink-0 items-center justify-center rounded-full bg-indigo-100 text-xs font-bold text-indigo-600 dark:bg-indigo-900/30 dark:text-indigo-300">
-                        Q{idx + 1}
-                      </span>
-                      <p className="text-sm leading-relaxed text-gray-700 dark:text-gray-300">{question}</p>
-                    </div>
-                  ))}
-                </div>
-              </div>
-              </div>
-            </section>
-            )}
 
             {/* ===== Section 8: Notes ===== */}
             <section id="section-notes" className="scroll-mt-20">

@@ -6,7 +6,6 @@ import {
   BrainCircuit,
   ChevronDown,
   Cpu,
-  FlaskConical,
   GraduationCap,
   Hash,
   Layers,
@@ -91,33 +90,6 @@ function EqCard({ idx, name, latex, description, color = 'emerald' }: {
   );
 }
 
-function QuizSection({ questions, color = 'emerald' }: { questions: { q: string; a: string }[]; color?: string }) {
-  const [revealed, setRevealed] = useState<Set<number>>(new Set());
-  const toggle = (i: number) => setRevealed(prev => { const n = new Set(prev); n.has(i) ? n.delete(i) : n.add(i); return n; });
-  const bgMap: Record<string, string> = {
-    emerald: 'border-emerald-200 bg-emerald-50 dark:border-emerald-800 dark:bg-emerald-900/20',
-  };
-  return (
-    <div className="space-y-3">
-      {questions.map(({ q, a }, i) => (
-        <div key={i} className="rounded-xl border border-gray-200 bg-white dark:border-gray-700 dark:bg-gray-900">
-          <button onClick={() => toggle(i)} className="flex w-full items-start gap-3 p-4 text-left">
-            <span className="flex h-6 w-6 flex-shrink-0 items-center justify-center rounded-full bg-gray-100 text-xs font-bold text-gray-600 dark:bg-gray-800 dark:text-gray-400">Q{i + 1}</span>
-            <span className="flex-1 text-sm font-medium text-gray-700 dark:text-gray-300">{q}</span>
-            <ChevronDown className={`h-4 w-4 flex-shrink-0 text-gray-400 transition-transform ${revealed.has(i) ? 'rotate-180' : ''}`} />
-          </button>
-          {revealed.has(i) && (
-            <div className={`mx-4 mb-4 rounded-lg border px-4 py-3 ${bgMap[color] ?? bgMap.emerald}`}>
-              <p className="text-sm leading-relaxed text-gray-700 dark:text-gray-300">
-                <span className="mr-1 font-bold text-emerald-600 dark:text-emerald-400">A:</span>{a}
-              </p>
-            </div>
-          )}
-        </div>
-      ))}
-    </div>
-  );
-}
 
 /* ── BitTruncationViz ─────────────────────────────────────────── */
 
@@ -691,31 +663,6 @@ export default function AnyPrecisionStudyFull() {
             </div>
           </Card>
         </div>
-      </section>
-
-      {/* ── Quiz ─────────────────────────────────────────────── */}
-      <section id="ap-quiz" className="scroll-mt-20">
-        <SectionHeading icon={<FlaskConical className="h-5 w-5" />} title="자기 점검 (연구자 수준)" />
-        <Card>
-          <QuizSection color="emerald" questions={[
-            {
-              q: 'tanh 정규화가 없다면 비트 절삭이 왜 실패하는가? 정보 이론적 관점으로 설명하라.',
-              a: 'tanh 없이 정규분포 가중치를 직접 N비트 균일 양자화하면, 대부분의 가중치(분포의 중심 부근)가 정수 표현의 중간 값에 몰립니다. 즉, 8비트로 저장할 때 상위 비트는 거의 항상 0이 됩니다. 예: 대부분의 가중치가 [-0.1, 0.1] 범위에 있다면 상위 6비트는 전부 0. 이 상태에서 하위 비트를 절삭하면 사실상 모든 정보를 잃습니다. tanh는 이 분포를 거의 균일분포로 변환하므로, 비트별로 정보량이 균등해져 상위 N비트가 의미 있는 정보를 담게 됩니다.',
-            },
-            {
-              q: 'Dynamic BatchNorm이 없으면 단일 모델의 공동 학습이 왜 어려운가? 구체적으로 어떤 충돌이 발생하는가?',
-              a: '1비트 가중치는 표현 공간이 {-1, +1} 두 값뿐이므로, BN 입력의 분산이 매우 작고 특정 패턴에 편향됩니다. 8비트는 연속값에 가까워 분산이 큽니다. 공유 BN이 8비트 활성화 분포에 맞게 μ, σ를 학습하면 1비트는 올바르게 정규화되지 않고, 반대로 1비트에 맞추면 8비트가 망가집니다. 또한 1비트 학습 그래디언트가 γ, β를 1비트에 특화된 방향으로 당기면서 8비트 최적화를 방해합니다. Dynamic BN은 이 충돌을 정밀도별 독립 파라미터로 완전히 해소합니다.',
-            },
-            {
-              q: '커리큘럼 순서가 왜 FP32→8→4→2→1비트여야 하는가? 역순(1→2→4→8)이나 동시 학습과 비교하여 설명하라.',
-              a: '고정밀도 먼저 학습하는 이유: ①교사 품질 보장 - FP32가 먼저 수렴해야 8비트의 믿을 만한 soft label을 제공. ②지식 격차 최소화 - 인접한 정밀도 간 증류(8→4, 4→2, 2→1)가 멀리 떨어진 정밀도 간(FP32→1)보다 효율적. ③간섭 최소화 - 고정밀도가 안정화된 후 저정밀도를 추가하므로 역방향 간섭이 없음. 역순(1→8)의 경우 1비트의 거친 표현이 먼저 가중치를 왜곡하여 고비트 수렴을 어렵게 만듭니다. 동시 학습은 모든 정밀도의 그래디언트가 충돌하여 어느 정밀도에서도 최적 수렴이 어렵습니다.',
-            },
-            {
-              q: '단일 Any-Precision 모델이 전용 모델을 능가하는 현상의 이론적 해석은? 이것이 앙상블과 어떻게 다른가?',
-              a: '단일 모델 우위의 이론적 해석: 다중 정밀도 커리큘럼 KD가 강력한 정규화 효과를 냅니다. 저비트 학습은 가중치에 "robust한 특징만 보존하라"는 압력을 가하고, 이것이 고비트 모델에서도 일반화(generalization) 향상으로 이어집니다. 이는 dropout이나 knowledge distillation의 정규화 효과와 유사한 원리입니다. 앙상블과의 차이: 앙상블은 N개 독립 모델의 예측을 평균하는 것으로, 추론 시 N배 연산이 필요합니다. Any-Precision은 N개 정밀도를 하나의 모델로 처리하며, 어느 하나의 정밀도만 선택해 단일 모델 비용으로 추론합니다. 성능 향상은 앙상블 효과가 아닌 다중 작업 학습(multi-task learning)의 정규화 효과에 기인합니다.',
-            },
-          ]} />
-        </Card>
       </section>
 
     </div>

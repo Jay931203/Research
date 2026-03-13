@@ -6,7 +6,6 @@ import {
   BrainCircuit,
   ChevronDown,
   Cpu,
-  FlaskConical,
   GraduationCap,
   Hash,
   Layers,
@@ -97,33 +96,6 @@ function EqCard({ idx, name, latex, description, color = 'emerald' }: {
   );
 }
 
-function QuizSection({ questions, color = 'emerald' }: { questions: { q: string; a: string }[]; color?: string }) {
-  const [revealed, setRevealed] = useState<Set<number>>(new Set());
-  const toggle = (i: number) => setRevealed(prev => { const n = new Set(prev); n.has(i) ? n.delete(i) : n.add(i); return n; });
-  const bgMap: Record<string, string> = {
-    emerald: 'border-emerald-200 bg-emerald-50 dark:border-emerald-800 dark:bg-emerald-900/20',
-  };
-  return (
-    <div className="space-y-3">
-      {questions.map(({ q, a }, i) => (
-        <div key={i} className="rounded-xl border border-gray-200 bg-white dark:border-gray-700 dark:bg-gray-900">
-          <button onClick={() => toggle(i)} className="flex w-full items-start gap-3 p-4 text-left">
-            <span className="flex h-6 w-6 flex-shrink-0 items-center justify-center rounded-full bg-gray-100 text-xs font-bold text-gray-600 dark:bg-gray-800 dark:text-gray-400">Q{i + 1}</span>
-            <span className="flex-1 text-sm font-medium text-gray-700 dark:text-gray-300">{q}</span>
-            <ChevronDown className={`h-4 w-4 flex-shrink-0 text-gray-400 transition-transform ${revealed.has(i) ? 'rotate-180' : ''}`} />
-          </button>
-          {revealed.has(i) && (
-            <div className={`mx-4 mb-4 rounded-lg border px-4 py-3 ${bgMap[color] ?? bgMap.emerald}`}>
-              <p className="text-sm leading-relaxed text-gray-700 dark:text-gray-300">
-                <span className="mr-1 font-bold text-green-600 dark:text-green-400">A:</span>{a}
-              </p>
-            </div>
-          )}
-        </div>
-      ))}
-    </div>
-  );
-}
 
 /* ── Main component ──────────────────────────────────────────── */
 
@@ -715,29 +687,6 @@ export default function MambaStudyFull() {
       </section>
 
       {/* ── 8. 자기 점검 ────────────────────────────────────── */}
-      <section id="mamba-quiz" className="scroll-mt-20">
-        <SectionHeading icon={<FlaskConical className="h-5 w-5" />} title="자기 점검 (연구자 수준)" />
-        <Card>
-          <QuizSection color="emerald" questions={[
-            {
-              q: 'Mamba의 "선택적 메커니즘"이 S4의 LTI 한계를 어떻게 해결하며, 이것이 Transformer의 어텐션과 어떻게 비교되는지 설명하라.',
-              a: 'S4는 A, B, C, Delta가 고정(LTI)이어서 입력 내용에 관계없이 동일한 커널로 처리합니다. 이는 "어떤 토큰이 중요한지" 판단이 불가능합니다. Mamba는 Delta(x), B(x), C(x)를 입력 x의 선형 투영으로 만들어 매 스텝 동역학이 달라집니다. 큰 Delta(x) -> exp(-Delta*a) ≈ 0으로 과거 상태 리셋하고 현재 입력 강하게 기록. 작은 Delta(x) -> 과거 상태 유지. Transformer 어텐션은 모든 토큰 쌍의 관계를 명시적으로 계산(O(L^2))하지만, Mamba는 고정 크기 상태(O(N))에 중요 정보를 압축합니다. 표현력은 제한적이지만, 실제 성능은 3B 스케일에서 Transformer와 동등하며 추론 효율은 5배 이상 빠릅니다.',
-            },
-            {
-              q: 'Mamba가 S4의 효율적인 컨볼루션 모드를 포기하고 병렬 스캔으로 전환한 이유는? 병렬 스캔의 시간 복잡도와 한계를 설명하라.',
-              a: 'S4의 컨볼루션 커널 K = (CB_bar, CA_bar*B_bar, CA_bar^2*B_bar, ...)는 A, B, C가 고정일 때만 미리 계산 가능합니다. Mamba에서는 A_bar(x_k), B_bar(x_k)가 입력마다 다르므로 커널이 고정되지 않아 FFT 컨볼루션이 불가능합니다. 대신 재귀 x_k = a_k*x_{k-1} + b_k를 결합적 연산의 prefix sum으로 병렬화합니다. 복잡도: work O(L), span O(log L)이므로 P개 프로세서에서 O(L/P + log L). 한계: (1) 완전한 O(1) per-step이 아니라 span이 O(log L)이므로 초장거리에서 상수 추론은 순환 모드가 필요, (2) GPU warp 크기(32)에 맞춘 구현이 필요하여 하드웨어 의존적, (3) 역전파 시 중간 상태 저장이 필요하지만 재계산으로 해결.',
-            },
-            {
-              q: 'exp(-Delta(x)*a_i)가 LSTM의 forget gate와 수학적으로 유사하다는 것을 구체적으로 보이고, Mamba가 LSTM 대비 가지는 이점을 설명하라.',
-              a: 'LSTM: h_t = f_t * h_{t-1} + i_t * g_t where f_t = sigma(W_f*[h_{t-1}, x_t]). Mamba: x_k^i = exp(-Delta(u_k)*a_i)*x_{k-1}^i + Delta(u_k)*b_i(u_k)*u_k. 둘 다 "과거 상태를 얼마나 유지할지"를 [0,1] 범위의 게이트로 결정합니다. exp(-Delta*a) <-> f_t. 차이점: (1) Mamba는 연속 시간에서 유도되어 HiPPO 초기화(다항식 그래디언트)와 자연 결합 -> LSTM보다 장거리 학습 우수. (2) 차원별(per-dimension) 독립 게이팅으로 상태 N이 커도 파라미터가 선형 증가. (3) 병렬 스캔으로 O(L) 훈련 가능 vs LSTM O(L) 순차. (4) 컨볼루션+SSM 융합 아키텍처로 로컬+글로벌 패턴 동시 포착.',
-            },
-            {
-              q: 'Mamba 블록의 아키텍처(SSM + Conv1d + SiLU gate)가 Transformer의 MHA + FFN 구조와 비교하여 어떤 구조적 이점을 가지며, 이것이 파라미터 효율성에 미치는 영향을 설명하라.',
-              a: 'Transformer: [LayerNorm -> QKV projection -> Attention O(L^2) -> Output projection -> Residual] + [LayerNorm -> Up projection -> Activation -> Down projection -> Residual]. 총 2개 서브레이어, 4개 행렬곱. Mamba: [LayerNorm -> Linear expand(2D) -> 분기: (Conv1d -> SiLU -> SSM) * (SiLU gate) -> Linear contract(D) -> Residual]. 1개 블록에 MHA(SSM=글로벌 의존성)와 FFN(gate=비선형 변환)을 융합. 파라미터 이점: (1) QKV 3개 투영이 1개로 통합, (2) FFN의 4D 확장이 2D로 축소, (3) KV-cache 불필요(상태 크기 O(N) 고정). 결과: 동일 파라미터 예산에서 더 많은 레이어를 쌓을 수 있어, Mamba-3B가 Transformer-3B와 동등한 성능을 달성하면서 추론 속도는 5배 빠릅니다.',
-            },
-          ]} />
-        </Card>
-      </section>
 
     </div>
     </GlossaryText>

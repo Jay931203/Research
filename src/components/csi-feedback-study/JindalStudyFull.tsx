@@ -4,7 +4,6 @@ import { useCallback, useMemo, useState } from 'react';
 import {
   BookOpen,
   ChevronDown,
-  FlaskConical,
   Hash,
   Lightbulb,
   Radio,
@@ -91,34 +90,6 @@ function EqCard({ idx, name, latex, description, color = 'purple' }: {
   );
 }
 
-function QuizSection({ questions, color = 'violet' }: { questions: { q: string; a: string }[]; color?: string }) {
-  const [revealed, setRevealed] = useState<Set<number>>(new Set());
-  const toggle = (i: number) => setRevealed(prev => { const n = new Set(prev); n.has(i) ? n.delete(i) : n.add(i); return n; });
-  const bgMap: Record<string, string> = {
-    violet: 'border-violet-200 bg-violet-50 dark:border-violet-800 dark:bg-violet-900/20',
-    purple: 'border-purple-200 bg-purple-50 dark:border-purple-800 dark:bg-purple-900/20',
-  };
-  return (
-    <div className="space-y-3">
-      {questions.map(({ q, a }, i) => (
-        <div key={i} className="rounded-xl border border-gray-200 bg-white dark:border-gray-700 dark:bg-gray-900">
-          <button onClick={() => toggle(i)} className="flex w-full items-start gap-3 p-4 text-left">
-            <span className="flex h-6 w-6 flex-shrink-0 items-center justify-center rounded-full bg-gray-100 text-xs font-bold text-gray-600 dark:bg-gray-800 dark:text-gray-400">Q{i + 1}</span>
-            <span className="flex-1 text-sm font-medium text-gray-700 dark:text-gray-300">{q}</span>
-            <ChevronDown className={`h-4 w-4 flex-shrink-0 text-gray-400 transition-transform ${revealed.has(i) ? 'rotate-180' : ''}`} />
-          </button>
-          {revealed.has(i) && (
-            <div className={`mx-4 mb-4 rounded-lg border px-4 py-3 ${bgMap[color] ?? bgMap.violet}`}>
-              <p className="text-sm leading-relaxed text-gray-700 dark:text-gray-300">
-                <span className="mr-1 font-bold text-green-600 dark:text-green-400">A:</span>{a}
-              </p>
-            </div>
-          )}
-        </div>
-      ))}
-    </div>
-  );
-}
 
 /* ── Scaling Law Visualization ──────────────────────────────── */
 
@@ -644,31 +615,6 @@ export default function JindalStudyFull() {
             </div>
           </Card>
         </div>
-      </section>
-
-      {/* ── Quiz ─────────────────────────────────────────────── */}
-      <section id="jindal-quiz" className="scroll-mt-20">
-        <SectionHeading icon={<FlaskConical className="h-5 w-5" />} title="자기 점검 (연구자 수준)" />
-        <Card>
-          <QuizSection color="violet" questions={[
-            {
-              q: 'Point-to-Point MIMO에서는 피드백 비트 B가 SNR과 무관하게 고정되어도 다중화 이득을 유지할 수 있는 반면, 브로드캐스트 채널에서는 B가 SNR과 함께 증가해야 하는 이유를 물리적으로 설명하라.',
-              a: 'P2P MIMO에서는 수신기가 자신의 채널만 처리하면 되므로, CSI 없이도 SVD 기반 공간 다중화가 가능합니다. 피드백은 송신 빔포밍을 통한 배열 이득(power gain) 개선에 활용되므로, B가 고정되어도 DoF는 유지됩니다. 반면 BC에서는 기지국이 여러 사용자에게 동시 전송하므로, 각 사용자의 채널 방향을 정확히 알아야 다른 사용자에 대한 간섭(MUI)을 제거할 수 있습니다. ZF 빔포밍에서 양자화 오차로 인한 잔여 간섭은 SNR에 비례하여 증가합니다. SNR이 2배(+3dB)가 되면 잔여 간섭 전력도 2배가 되므로, 이를 상쇄하려면 양자화 오차를 절반으로 줄여야 하고, RVQ 상한에 의해 이는 (M-1)비트 추가에 해당합니다.',
-            },
-            {
-              q: 'RVQ의 양자화 오차 상한 E[sin²θ] ≤ 2^{-B/(M-1)}에서 지수의 분모가 (M-1)인 이유를 "차원의 저주" 관점에서 설명하라.',
-              a: 'M차원 복소 단위 구의 표면은 실수 (2M-2) ≈ 2(M-1) 차원의 매니폴드입니다(정규화 제약 제거 후). 2^B개 코드워드로 이 매니폴드를 균등하게 덮을 때, 각 코드워드가 담당하는 보로노이 영역의 "반지름"은 전체 표면적/코드워드 수의 1/(M-1) 제곱근에 비례합니다. 구체적으로, 각 보로노이 영역의 체적은 전체 체적의 2^{-B}이고, (M-1)차원 구에서 체적은 반지름의 (M-1)제곱에 비례하므로, 반지름² ∝ 2^{-B/(M-1)}입니다. 차원이 높아질수록(M이 커질수록) 동일한 B로 달성 가능한 양자화 정밀도가 기하급수적으로 나빠집니다.',
-            },
-            {
-              q: '이 논문의 스케일링 법칙이 i.i.d. Rayleigh 채널을 가정하는데, 실제 채널에서 딥러닝 기반 CSI 압축이 이 한계를 "극복"할 수 있는 근본 이유는 무엇인가?',
-              a: 'Jindal의 분석은 채널 벡터가 M차원 구 위에 등방적으로 분포하는 i.i.d. Rayleigh 채널을 가정합니다. 이 경우 채널에 구조(structure)가 없으므로 RVQ가 최적에 가깝고, 양자화 오차는 차원의 저주를 피할 수 없습니다. 그러나 실제 무선 채널은 제한된 산란체, 안테나 간 공간 상관, 주파수 선택적 페이딩 등으로 인해 채널 행렬이 저차원 매니폴드(low-rank structure) 위에 놓입니다. 유효 자유도가 M보다 훨씬 작습니다. DL 기반 인코더는 이 저차원 구조를 비선형 변환으로 학습하여, 실제 채널이 존재하는 부분 공간만을 효율적으로 표현합니다. 따라서 유효 차원이 줄어들어 같은 B로도 훨씬 작은 양자화 오차를 달성할 수 있습니다.',
-            },
-            {
-              q: 'M=64 안테나, SNR=20dB 환경에서 Jindal의 스케일링 법칙이 요구하는 피드백 비트 수를 계산하고, 이것이 5G NR 시스템에 시사하는 바를 설명하라.',
-              a: 'B = (M-1) × log₂(SNR) = 63 × log₂(100) = 63 × 6.644 ≈ 418비트. 5G NR의 Type II 코드북은 서브밴드당 약 11~22비트(PMI)를 피드백하며, 52개 서브밴드 × 20비트 ≈ 1040비트 수준입니다. 그러나 이는 광대역+서브밴드 분리 구조로 차원을 줄인 결과이며, Jindal의 418비트는 단일 서브밴드의 이론적 하한입니다. 전체 대역에 걸쳐서는 수천 비트가 필요하므로, NR의 코드북 구조는 빔 공간의 희소성(sparsity)을 이용한 차원 축소를 필수적으로 수행합니다. Massive MIMO에서 완전한 CSI 재구성을 위해서는 CsiNet류의 학습 기반 압축이 유일한 현실적 대안입니다.',
-            },
-          ]} />
-        </Card>
       </section>
 
     </div>

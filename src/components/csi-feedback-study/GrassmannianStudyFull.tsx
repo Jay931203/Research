@@ -5,7 +5,6 @@ import {
   BookOpen,
   ChevronDown,
   Circle,
-  FlaskConical,
   Globe,
   Hash,
   Layers,
@@ -94,33 +93,6 @@ function EqCard({ idx, name, latex, description, color = 'sky' }: {
   );
 }
 
-function QuizSection({ questions, color = 'sky' }: { questions: { q: string; a: string }[]; color?: string }) {
-  const [revealed, setRevealed] = useState<Set<number>>(new Set());
-  const toggle = (i: number) => setRevealed(prev => { const n = new Set(prev); n.has(i) ? n.delete(i) : n.add(i); return n; });
-  const bgMap: Record<string, string> = {
-    sky: 'border-sky-200 bg-sky-50 dark:border-sky-800 dark:bg-sky-900/20',
-  };
-  return (
-    <div className="space-y-3">
-      {questions.map(({ q, a }, i) => (
-        <div key={i} className="rounded-xl border border-gray-200 bg-white dark:border-gray-700 dark:bg-gray-900">
-          <button onClick={() => toggle(i)} className="flex w-full items-start gap-3 p-4 text-left">
-            <span className="flex h-6 w-6 flex-shrink-0 items-center justify-center rounded-full bg-gray-100 text-xs font-bold text-gray-600 dark:bg-gray-800 dark:text-gray-400">Q{i + 1}</span>
-            <span className="flex-1 text-sm font-medium text-gray-700 dark:text-gray-300">{q}</span>
-            <ChevronDown className={`h-4 w-4 flex-shrink-0 text-gray-400 transition-transform ${revealed.has(i) ? 'rotate-180' : ''}`} />
-          </button>
-          {revealed.has(i) && (
-            <div className={`mx-4 mb-4 rounded-lg border px-4 py-3 ${bgMap[color] ?? bgMap.sky}`}>
-              <p className="text-sm leading-relaxed text-gray-700 dark:text-gray-300">
-                <span className="mr-1 font-bold text-green-600 dark:text-green-400">A:</span>{a}
-              </p>
-            </div>
-          )}
-        </div>
-      ))}
-    </div>
-  );
-}
 
 /* ── Grassmannian Packing Visualization ─────────────────────── */
 
@@ -625,31 +597,6 @@ export default function GrassmannianStudyFull() {
             </p>
           </Card>
         </div>
-      </section>
-
-      {/* ── Quiz ─────────────────────────────────────────────── */}
-      <section id="grass-quiz" className="scroll-mt-20">
-        <SectionHeading icon={<FlaskConical className="h-5 w-5" />} title="자기 점검 (연구자 수준)" />
-        <Card>
-          <QuizSection color="sky" questions={[
-            {
-              q: '빔포밍 벡터가 복소 단위 구가 아닌 Grassmann 다양체 G(t,1) 위에 놓인다고 보는 이유를, 위상 모호성(phase ambiguity) 관점에서 설명하라.',
-              a: '빔포밍 성능 지표 ||Hw||^2은 w에 임의의 위상 e^{j theta}를 곱해도 변하지 않습니다: ||H(e^{j theta} w)||^2 = ||Hw||^2. 따라서 w와 e^{j theta} w는 빔포밍 관점에서 동일한 해입니다. 이 위상 모호성(phase ambiguity)으로 인해, 빔포밍 벡터의 실질적 자유도는 벡터 자체가 아닌 그것이 생성하는 1차원 부분공간입니다. 이러한 1차원 부분공간의 집합이 Grassmann 다양체 G(t,1)이며, 복소 단위 구 S^{2t-1}을 위상 동치류(equivalence class)로 나눈 상공간(quotient space)입니다. 코드북을 단위 구가 아닌 G(t,1) 위에서 설계해야 불필요한 위상 중복 없이 진정한 방향 다양성을 확보할 수 있습니다.',
-            },
-            {
-              q: '코달 거리(chordal distance) 최대화와 최대 상관(max correlation) 최소화가 동치인 이유를 수식으로 보이고, 이것이 코드북 설계에 갖는 실용적 의미를 설명하라.',
-              a: '코달 거리 정의: d_c(w1, w2) = sqrt(1 - |w1^H w2|^2). 최소 코달 거리를 최대화하면 min_{i!=j} sqrt(1 - |ci^H cj|^2)를 최대화하는 것인데, sqrt와 1-x 변환이 단조 변환이므로 이는 max_{i!=j} |ci^H cj|^2를 최소화하는 것과 동치입니다. 실용적 의미: (1) 높은 최소 코달 거리는 어떤 채널 방향이 주어져도 가장 가까운 코드워드가 충분히 가까이 있음을 보장하여 최악의 경우 양자화 오차를 줄입니다. (2) 낮은 최대 상관은 코드워드 선택의 모호성을 줄여 잡음이 있는 채널 추정 환경에서도 안정적인 피드백을 가능하게 합니다. (3) Welch bound를 달성하는 코드북은 두 기준 모두에서 최적이며, 이 bound에 대한 근접도가 코드북 품질의 정량적 지표가 됩니다.',
-            },
-            {
-              q: '스케일링 법칙 2^{-B/(t-1)}에서 분모의 (t-1)이 의미하는 바를 Grassmann 다양체의 차원과 연결하여 설명하고, Massive MIMO에서의 시사점을 논하라.',
-              a: 'G(t,1)의 실수 차원은 2(t-1)입니다(복소 사영 공간 CP^{t-1}과 동형). 이 다양체 위에 2^B개의 점을 균일하게 패킹할 때, 커버리지 반경(각 코드워드가 담당하는 영역의 반경)은 (2^B)^{-1/dim} = 2^{-B/(2(t-1))}에 비례합니다. 용량 손실이 코달 거리의 제곱에 비례하므로 2^{-2B/(2(t-1))} = 2^{-B/(t-1)}이 됩니다. 즉 분모 (t-1)은 Grassmann 다양체의 복소 차원(=실수 차원/2)을 반영합니다. Massive MIMO 시사점: t가 64나 128이 되면, 같은 손실 수준을 유지하기 위해 B가 (t-1)에 비례해 증가해야 합니다. 예를 들어 t=2에서 B=4로 충분했다면, t=64에서는 B가 약 63배인 ~252비트가 필요합니다. 이는 전통적 코드북 방식의 근본적 한계이며, Massive MIMO에서는 채널 구조(각도 희소성 등)를 활용한 압축 센싱이나 딥러닝 기반 피드백이 필수적인 이유입니다.',
-            },
-            {
-              q: '이 논문의 Grassmannian 코드북 프레임워크가 이후 CsiNet 등 딥러닝 기반 CSI 피드백 연구에 미친 이론적 영향을 설명하라.',
-              a: 'Grassmannian 프레임워크의 핵심 기여는 세 가지 차원에서 후속 연구에 영향을 미쳤습니다. (1) 문제 정립: CSI 피드백을 "고차원 다양체 위의 양자화" 문제로 정립한 것은, CsiNet이 오토인코더로 CSI를 압축하는 접근과 동일한 본질입니다. 코드북 = 코드워드 집합은 오토인코더의 잠재 공간(latent space)에 대응합니다. (2) 스케일링 법칙: 2^{-B/(t-1)} 법칙이 보여준 "안테나 수에 비례하는 피드백 증가"라는 한계는, CsiNet 등이 채널의 구조적 희소성을 활용하여 이 한계를 깨려는 동기를 제공했습니다. (3) 성능 하한: Grassmannian 코드북은 구조 가정 없는 최적 코드북이므로, 딥러닝 방법의 성능을 평가할 때 이론적 벤치마크(특히 저차원)로 사용됩니다. CsiNet이 Grassmannian 한계를 넘는 것은 채널 분포의 사전 정보(공간 상관, 지연 구조)를 학습했기 때문입니다.',
-            },
-          ]} />
-        </Card>
       </section>
 
     </div>

@@ -6,7 +6,6 @@ import {
   BrainCircuit,
   ChevronDown,
   Cpu,
-  FlaskConical,
   GraduationCap,
   Hash,
   Layers,
@@ -93,33 +92,6 @@ function EqCard({ idx, name, latex, description, color = 'pink' }: {
   );
 }
 
-function QuizSection({ questions, color = 'pink' }: { questions: { q: string; a: string }[]; color?: string }) {
-  const [revealed, setRevealed] = useState<Set<number>>(new Set());
-  const toggle = (i: number) => setRevealed(prev => { const n = new Set(prev); n.has(i) ? n.delete(i) : n.add(i); return n; });
-  const bgMap: Record<string, string> = {
-    pink: 'border-pink-200 bg-pink-50 dark:border-pink-800 dark:bg-pink-900/20',
-  };
-  return (
-    <div className="space-y-3">
-      {questions.map(({ q, a }, i) => (
-        <div key={i} className="rounded-xl border border-gray-200 bg-white dark:border-gray-700 dark:bg-gray-900">
-          <button onClick={() => toggle(i)} className="flex w-full items-start gap-3 p-4 text-left">
-            <span className="flex h-6 w-6 flex-shrink-0 items-center justify-center rounded-full bg-gray-100 text-xs font-bold text-gray-600 dark:bg-gray-800 dark:text-gray-400">Q{i + 1}</span>
-            <span className="flex-1 text-sm font-medium text-gray-700 dark:text-gray-300">{q}</span>
-            <ChevronDown className={`h-4 w-4 flex-shrink-0 text-gray-400 transition-transform ${revealed.has(i) ? 'rotate-180' : ''}`} />
-          </button>
-          {revealed.has(i) && (
-            <div className={`mx-4 mb-4 rounded-lg border px-4 py-3 ${bgMap[color] ?? bgMap.pink}`}>
-              <p className="text-sm leading-relaxed text-gray-700 dark:text-gray-300">
-                <span className="mr-1 font-bold text-green-600 dark:text-green-400">A:</span>{a}
-              </p>
-            </div>
-          )}
-        </div>
-      ))}
-    </div>
-  );
-}
 
 /* ── KernelVarianceViz ───────────────────────────────────────── */
 
@@ -771,31 +743,6 @@ export default function AutoQStudyFull() {
             </div>
           </Card>
         </div>
-      </section>
-
-      {/* ── Quiz ─────────────────────────────────────────────── */}
-      <section id="autoq-quiz" className="scroll-mt-20">
-        <SectionHeading icon={<FlaskConical className="h-5 w-5" />} title="자기 점검 (연구자 수준)" />
-        <Card>
-          <QuizSection color="pink" questions={[
-            {
-              q: 'AutoQ가 단일 RL 에이전트 대신 HIRO(계층적 RL)를 사용한 근본적인 이유는 무엇인가?',
-              a: '커널별 양자화의 탐색 공간은 7^(Σc_out) ≈ 7^3968 (ResNet-18 기준)으로 단일 DDPG로는 탐색 자체가 불가능합니다. HIRO는 이를 HLC(레이어 목표, L차원 연속 공간)와 LLC(커널 할당, 각 레이어 c_out개)로 분해합니다. HLC가 제약 조건(목표 비트폭)을 제시하면 LLC는 그 안에서 훨씬 작은 공간을 탐색합니다. 결과적으로 200 에피소드(DDPG 250)에 수렴하며 20% 빠른 학습을 보입니다.',
-            },
-            {
-              q: '내부 보상(Intrinsic Reward)과 외부 보상(Extrinsic Reward)의 역할이 어떻게 나뉘는가? 설계 원칙을 설명하라.',
-              a: '외부 보상은 HLC가 받으며, 전체 네트워크의 정확도·지연·에너지를 종합 평가합니다 — "최종 성과" 신호입니다. 내부 보상은 LLC가 받으며, (1) HLC가 제시한 목표 비트 예산을 얼마나 정확히 달성했는지(목표 달성 오차)와 (2) 커널별 하드웨어 성능의 두 항으로 구성됩니다. 이 분리 설계의 핵심은 "보상 희소성(reward sparsity)" 해결입니다: 전체 네트워크를 평가한 후에야 보상이 오면 LLC는 신호를 늦게 받습니다. 내부 보상으로 각 레이어 처리 후 즉각 피드백을 주어 학습을 가속합니다.',
-            },
-            {
-              q: 'ζ를 0.1에서 0.8로 동적으로 증가시키는 설계 근거는 무엇인가?',
-              a: '훈련 초기(ζ=0.1)에는 LLC가 HLC 목표 달성(비트 예산 준수)에 집중해야 합니다. 목표조차 달성하지 못하는 상태에서 성능 최적화는 무의미하기 때문입니다. LLC가 제약 준수를 학습한 후, ζ를 높여 실제 하드웨어 성능 향상으로 초점을 이동합니다. 이는 커리큘럼 학습(Curriculum Learning)과 유사한 원리로, "쉬운 것 먼저 (목표 달성) → 어려운 것 나중에 (성능 최적화)" 순서로 학습 목표를 점진적으로 강화합니다.',
-            },
-            {
-              q: 'QBN 인덱스(커널당 4비트) 저장이 실용적으로 타당한 이유를 수치로 설명하라.',
-              a: 'ResNet-18을 예로 들면: 총 커널 수 Σc_out ≈ 3,968개. 커널당 4비트 인덱스 → 총 3,968 × 4 = 15,872 비트 ≈ 2KB. 모델 전체 가중치 크기(평균 4비트 기준) ≈ 11M 파라미터 × 4비트 = 44Mb ≈ 5.5MB. 따라서 오버헤드 = 2KB / 5.5MB ≈ 0.04% (논문 보고 0.07%는 실제 혼합 비트 기준). 하드웨어에서는 커널 처리 전 4비트 QBN 인덱스를 읽어 해당 스케일·오프셋 파라미터를 선택하는 간단한 MUX 회로로 구현 가능합니다. 이 무시할 수 있는 오버헤드가 커널별 양자화를 실제 배포 가능하게 만듭니다.',
-            },
-          ]} />
-        </Card>
       </section>
 
     </div>
