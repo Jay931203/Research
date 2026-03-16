@@ -344,15 +344,15 @@ samp {
 }
 
 .tse-content .toc-item.active {
-  @apply text-blue-600 font-semibold border-blue-500 bg-blue-50/60;
+  @apply text-blue-600 font-semibold border-l-[3px] border-blue-500 bg-blue-50/80;
 }
 
 .tse-content .toc-item.section-highlight {
-  @apply text-slate-700 border-blue-200;
+  @apply text-slate-700 border-blue-200 bg-blue-50/30;
 }
 
 .tse-content .toc-item.toc-subsection.active {
-  @apply text-blue-600 font-medium;
+  @apply text-blue-600 font-medium bg-blue-50/60;
 }
 
 /* Comparison grid */
@@ -466,7 +466,7 @@ samp {
 }
 
 .dark .tse-content .toc-item.active {
-  @apply text-blue-400 bg-blue-900/20 border-blue-500;
+  @apply text-blue-400 bg-blue-900/30 border-l-[3px] border-blue-400;
 }
 
 .dark .tse-content .toc-item.toc-section {
@@ -474,7 +474,7 @@ samp {
 }
 
 .dark .tse-content .toc-item.section-highlight {
-  @apply text-slate-300 border-blue-700;
+  @apply text-slate-300 border-blue-700 bg-blue-900/10;
 }
 
 .dark .tse-content .compare-item {

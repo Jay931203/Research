@@ -1,6 +1,6 @@
 'use client';
 
-import { useState, useEffect, useCallback } from 'react';
+import { useState, useEffect, useCallback, useRef } from 'react';
 
 export interface TocItem {
   id: string;
@@ -15,6 +15,7 @@ interface TableOfContentsProps {
 
 export default function TableOfContents({ items, onNavigate }: TableOfContentsProps) {
   const [activeId, setActiveId] = useState('');
+  const activeRef = useRef<HTMLButtonElement | null>(null);
 
   useEffect(() => {
     const observer = new IntersectionObserver(
@@ -44,6 +45,16 @@ export default function TableOfContents({ items, onNavigate }: TableOfContentsPr
     return () => observer.disconnect();
   }, [items]);
 
+  // Auto-scroll TOC to keep active item visible
+  useEffect(() => {
+    if (activeRef.current) {
+      activeRef.current.scrollIntoView({
+        behavior: 'smooth',
+        block: 'nearest',
+      });
+    }
+  }, [activeId]);
+
   const navigateTo = useCallback((id: string) => {
     if (onNavigate) {
       onNavigate(id);
@@ -67,8 +78,20 @@ export default function TableOfContents({ items, onNavigate }: TableOfContentsPr
     return false;
   }, [items, activeId]);
 
+  // Find active item's parent section index for progress indicator
+  const activeIndex = items.findIndex(item => item.id === activeId);
+  const totalSections = items.filter(item => item.level === 1).length;
+  const activeSectionIndex = (() => {
+    for (let i = activeIndex; i >= 0; i--) {
+      if (items[i]?.level === 1) {
+        return items.filter((it, idx) => it.level === 1 && idx <= i).length;
+      }
+    }
+    return 0;
+  })();
+
   return (
-    <nav className="space-y-0.5">
+    <nav className="space-y-0.5 relative">
       {items.map((item, index) => {
         const isLevel1 = item.level === 1;
         const isActive = activeId === item.id;
@@ -77,6 +100,7 @@ export default function TableOfContents({ items, onNavigate }: TableOfContentsPr
         return (
           <button
             key={item.id}
+            ref={isActive ? activeRef : undefined}
             onClick={() => navigateTo(item.id)}
             aria-current={isActive ? 'location' : undefined}
             className={[
@@ -90,6 +114,14 @@ export default function TableOfContents({ items, onNavigate }: TableOfContentsPr
           </button>
         );
       })}
+      {/* Section progress at bottom */}
+      {totalSections > 0 && (
+        <div className="mt-4 pt-3 border-t border-slate-200 dark:border-slate-700 px-3">
+          <div className="text-[10px] font-medium text-slate-400 dark:text-slate-500">
+            Section {activeSectionIndex} / {totalSections}
+          </div>
+        </div>
+      )}
     </nav>
   );
 }
