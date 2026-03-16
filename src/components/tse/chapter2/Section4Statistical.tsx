@@ -37,7 +37,16 @@ export default function Section4Statistical({ onNavigate }: Section4Props) {
           <li>탭 계수 <InlineMath math={String.raw`h_\ell[m]`} />를 <strong>원형대칭 복소 가우시안 과정</strong>으로 근사</li>
           <li>서로 다른 지연 빈의 탭은 독립으로, 같은 탭의 시간 상관은 도플러 스펙트럼으로 모델링</li>
           <li>목표: 개별 경로를 모르더라도 파일럿 설계, 링크 적응, outage 분석이 가능하도록 함</li>
+        
         </ul>
+        <div className="mt-3 p-3 bg-slate-50 border border-slate-200 rounded-lg">
+          <p className="text-xs font-semibold text-slate-700 mb-1">왜 모델이 필요한가?</p>
+          <p className="text-xs text-slate-600">
+            모델 없이는 경험에만 의존하여 설계해야 합니다 — 창의적인 시스템 설계가 불가능합니다.
+            통계 모델은 <strong>필터 탭 계수</strong>를 모델링합니다: 각 탭에 충분히 많은 경로가 합산되므로,
+            개별 경로 대신 탭 단위의 통계적 모델링이 충분한 경로 집계(수십~수백 경로 → 하나의 탭)가 자연스럽게 성립합니다.
+          </p>
+        </div>
       </div>
 
       <div className="compare-grid mb-8">
@@ -51,6 +60,13 @@ export default function Section4Statistical({ onNavigate }: Section4Props) {
           </p>
           <div className="formula-block !my-2 !p-3">
             <BlockMath math={String.raw`f_R(r)=\frac{r}{\sigma^2}e^{-r^2/(2\sigma^2)},\quad r\ge0`} />
+          </div>
+          <div className="formula-block !my-2 !p-3">
+            <h4 className="font-semibold text-blue-700 text-xs mb-1">탭 전력: 지수분포</h4>
+            <BlockMath math={String.raw`|h_\\ell[m]|^2 \\sim \\text{Exp}(1/\\sigma_\\ell^2): \\quad f(x) = \\frac{1}{\\sigma_\\ell^2} e^{-x/\\sigma_\\ell^2}, \\quad x \\ge 0`} />
+            <p className="text-xs text-slate-500 mt-1">
+              Rayleigh envelope의 제곱(전력)은 지수분포를 따릅니다. 이 덕분에 outage probability를 닫힌 형태(closed-form)로 계산할 수 있습니다.
+            </p>
           </div>
           <div className="text-sm text-slate-600 mt-2 space-y-2">
             <p>
@@ -87,6 +103,22 @@ export default function Section4Statistical({ onNavigate }: Section4Props) {
           </div>
           <div className="formula-block !my-2 !p-3">
             <BlockMath math={String.raw`f_R(r)=\frac{r}{\sigma^2}\exp\!\Bigl(-\frac{r^2+s^2}{2\sigma^2}\Bigr)\,I_0\!\Bigl(\frac{rs}{\sigma^2}\Bigr),\quad r\ge0`} />
+          </div>
+          <div className="formula-block !my-2 !p-3">
+            <h4 className="font-semibold text-red-700 text-xs mb-1">κ-parameterization (탭 모델)</h4>
+            <BlockMath math={String.raw`h_\\ell[m] = \\sqrt{\\frac{\\kappa}{\\kappa+1}} \\sigma_\\ell , e^{j\\theta} + \\sqrt{\\frac{1}{\\kappa+1}} \\mathcal{CN}(0, \\sigma_\\ell^2)`} />
+            <div className="grid md:grid-cols-2 gap-2 mt-2 text-xs">
+              <div className="p-2 bg-white rounded border border-red-100">
+                <span className="font-semibold text-red-700">첫번째 항:</span> LOS 경로 (고정 위상 <InlineMath math="e^{j\theta}" />)
+              </div>
+              <div className="p-2 bg-white rounded border border-red-100">
+                <span className="font-semibold text-red-700">두번째 항:</span> 산란 경로 집합체 (<InlineMath math="\mathcal{CN}" />)
+              </div>
+            </div>
+            <p className="text-xs text-slate-500 mt-1">
+              <InlineMath math="\kappa" /> = specular path 에너지 / scattered paths 에너지 (K-factor).
+              <InlineMath math="\kappa = 0" />이면 Rayleigh, <InlineMath math="\kappa \to \infty" />이면 비페이딩.
+            </p>
           </div>
           <div className="text-sm text-slate-600 mt-2 space-y-2">
             <p>
@@ -158,6 +190,21 @@ export default function Section4Statistical({ onNavigate }: Section4Props) {
         <p className="text-sm text-slate-600 dark:text-slate-400 mt-2">
           Clarke/Jakes 모델은 도래각이 수평면에서 균일하게 분포한다고 가정할 때의 시간 상관함수입니다.
         </p>
+        <div className="mt-3 p-3 bg-slate-50 border border-slate-200 rounded-lg">
+          <p className="text-xs font-semibold text-slate-700 mb-2">탭 상관함수의 핵심 성질</p>
+          <ul className="text-xs text-slate-600 list-disc list-inside space-y-1">
+            <li><strong>WSS 가정:</strong> 상관함수 <InlineMath math="R_\ell[n]" />가 시간 <InlineMath math="m" />의 함수가 아닌 시간차 <InlineMath math="n" />만의 함수 (Wide-Sense Stationary)</li>
+            <li><strong>탭 간 독립:</strong> <InlineMath math={String.raw`h_\\ell[m]`} />과 <InlineMath math={String.raw`h_{\\ell'}[m']`} />는 <InlineMath math={String.raw`\\ell \\neq \\ell'`} />이면 독립 (Uncorrelated Scattering)</li>
+            <li><strong>에너지 프로파일:</strong> <InlineMath math={String.raw`R_\\ell[0] = \\sigma_\\ell^2`} />는 <InlineMath math="\ell" />-번째 탭의 평균 에너지에 비례</li>
+          </ul>
+        </div>
+        <div className="mt-3 p-3 bg-amber-50 border border-amber-200 rounded-lg">
+          <p className="text-xs font-semibold text-amber-800 mb-1">대역틭 증가의 효과</p>
+          <p className="text-xs text-slate-600">
+            대역틭 <InlineMath math="W" />가 커지면: (1) 탭 간격 <InlineMath math="1/W" />가 좁아져 각 탭에 포함되는 경로 수가 줄어들고,
+            Rayleigh 근사가 덜 정확해집니다. (2) sinc 커널이 좁아져 에너지 프로파일 <InlineMath math={String.raw`R_\\ell[0]`} />이 더 세밀한(fine-grained) 정보를 담게 됩니다.
+          </p>
+        </div>
         <div className="mt-3 text-sm text-slate-600 dark:text-slate-400 space-y-2">
           <p>
             <strong className="text-slate-800 dark:text-slate-200">

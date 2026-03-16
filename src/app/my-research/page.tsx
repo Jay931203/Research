@@ -30,10 +30,7 @@ const ReliabilityViz = dynamic(
   () => import('@/components/my-research/infographics/ReliabilityViz'),
   { ssr: false },
 );
-const TwoLevelDistortionViz = dynamic(
-  () => import('@/components/my-research/infographics/TwoLevelDistortionViz'),
-  { ssr: false },
-);
+// TwoLevelDistortionViz removed -- no longer used after paper revision
 const BudgetOutageViz = dynamic(
   () => import('@/components/my-research/infographics/BudgetOutageViz'),
   { ssr: false },
@@ -50,10 +47,7 @@ const HardVsSoftTailViz = dynamic(
   () => import('@/components/my-research/infographics/HardVsSoftTailViz'),
   { ssr: false },
 );
-const QuantRobustProofViz = dynamic(
-  () => import('@/components/my-research/infographics/QuantRobustProofViz'),
-  { ssr: false },
-);
+// QuantRobustProofViz removed -- no longer used after paper revision
 
 /* ------------------------------------------------------------------ */
 /*  ToC                                                                 */
@@ -578,29 +572,20 @@ export default function MyResearchPage() {
 
                   {/* 2.3 */}
                   <div className="mt-6">
-                    <SubSectionHeading number="2.3" title="UE 제약과 왜곡 분해" />
-                    <div className="grid grid-cols-1 gap-3 sm:grid-cols-2">
-                      <div className="rounded-lg border border-red-200 bg-red-50 p-4 dark:border-red-900/40 dark:bg-red-900/10">
-                        <p className="mb-1 text-xs font-bold text-red-700 dark:text-red-300">구조적 왜곡 (인코더 정보 하한)</p>
-                        <p className="text-xs leading-relaxed text-red-600 dark:text-red-400">
-                          인코더가 X_a를 z로 압축할 때 버려지는 정보. 인코더 구조에 의해 하한이 결정됩니다.
-                          디코더를 아무리 키워도 줄일 수 없는 성분입니다.
-                        </p>
-                      </div>
-                      <div className="rounded-lg border border-orange-200 bg-orange-50 p-4 dark:border-orange-900/40 dark:bg-orange-900/10">
-                        <p className="mb-1 text-xs font-bold text-orange-700 dark:text-orange-300">운영적 열화 (정밀도 유발)</p>
-                        <p className="text-xs leading-relaxed text-orange-600 dark:text-orange-400">
-                          혼합 정밀도 추론으로 인한 추가 왜곡. 런타임 양자화 정책에 따라 동적으로 변화합니다.
-                          RP-MPQ가 제어하는 대상입니다.
-                        </p>
-                      </div>
+                    <SubSectionHeading number="2.3" title="UE Constraints and Design Perspective" />
+                    <p className="mb-3 text-sm leading-relaxed text-gray-700 dark:text-gray-300">
+                      CSI feedback is constrained by UE-side latency, energy, and compute limits.
+                      This motivates architectures with a lightweight UE-side encoder and a higher-capacity BS-side decoder.
+                    </p>
+                    <div className="rounded-lg border border-blue-200 bg-blue-50 p-4 dark:border-blue-900/40 dark:bg-blue-900/10">
+                      <p className="mb-1 text-xs font-bold text-blue-700 dark:text-blue-300">UE-BS Asymmetry</p>
+                      <p className="text-xs leading-relaxed text-blue-600 dark:text-blue-400">
+                        UE는 전력, 지연, 연산 자원이 제한되어 경량 인코더가 필수적입니다.
+                        반면 BS는 충분한 자원을 갖고 있으므로 고용량 디코더를 배치할 수 있습니다.
+                        이러한 비대칭 구조는 제한된 UE 측 연산 자원 하에서 최대의 복원 품질을 달성하기 위한 설계 기반입니다.
+                      </p>
                     </div>
                   </div>
-
-                  <TwoLevelDistortionViz />
-                  <InfographicCaption>
-                    실제 논문 NMSE 데이터 기반: 같은 양자화 정밀도에서도 모델 구조에 따라 운영적 열화 크기가 극적으로 다릅니다.
-                  </InfographicCaption>
                 </Card>
               </div>
             </section>
@@ -617,38 +602,14 @@ export default function MyResearchPage() {
                 className={`overflow-hidden transition-all duration-300 ${collapsed['section-architecture'] ? 'max-h-0' : 'max-h-[9999px]'}`}
               >
                 <Card>
-                  {/* 3.1 인코더 유발 정보 하한 */}
-                  <SubSectionHeading number="3.1" title="UE–BS 비대칭성과 인코더 유발 정보 하한" />
+                  {/* 3.1 UE-BS 비대칭성 */}
+                  <SubSectionHeading number="3.1" title="UE-BS 비대칭 구조와 롱테일 국소성" />
                   <p className="mb-3 text-sm leading-relaxed text-gray-700 dark:text-gray-300">
-                    잠재 변수 <span className="font-mono text-xs text-indigo-600 dark:text-indigo-400">Z := f_θ(X_a)</span>를 정의하면,
-                    전체 MSE 손실은 조건부 기댓값의 직교 분해 성질에 의해 정확히 두 항으로 분리됩니다:
+                    UE 측 인코더는 경량이어야 하지만, 지연-각도 도메인 CSI는 off-grid 경로로 인한
+                    롱테일 구조를 가집니다. 인코더 설계에서 이 롱테일을 어떻게 다루느냐가
+                    아키텍처 선택의 핵심 기준이 됩니다. 아래에서 하드 국소성(CNN)과 소프트 국소성(SSM)의
+                    테일 처리 방식을 비교합니다.
                   </p>
-                  <div className="mb-3 overflow-x-auto rounded-lg bg-indigo-50 p-3 dark:bg-indigo-900/20">
-                    <div className="text-gray-900 dark:text-gray-100">
-                      <EquationRenderer latex={String.raw`\mathcal{L}(f_\theta, g_\phi) = \underbrace{\mathbb{E}\!\left[\|\mathbf{X}_a - \mathbb{E}[\mathbf{X}_a\mid\mathbf{Z}]\|_F^2\right]}_{\text{인코더 유발 정보 하한}} + \underbrace{\mathbb{E}\!\left[\|\mathbb{E}[\mathbf{X}_a\mid\mathbf{Z}] - g_\phi(\mathbf{Z})\|_F^2\right]}_{\text{디코더 근사 오차}}`} />
-                    </div>
-                  </div>
-                  <div className="mb-5 grid grid-cols-1 gap-2 sm:grid-cols-2 text-xs">
-                    <div className="rounded-lg border border-red-200 bg-red-50 p-3 dark:border-red-900/40 dark:bg-red-900/10">
-                      <p className="mb-1 font-bold text-red-700 dark:text-red-300">인코더 정보 하한</p>
-                      <p className="leading-relaxed text-red-600 dark:text-red-400">
-                        이상적 디코더 하에서 최소 달성 가능 왜곡. Z에 보존된 정보량에만 의존.
-                        <span className="font-semibold"> 인코더 구조가 결정 — BS 디코더를 키워도 줄일 수 없음.</span>
-                      </p>
-                    </div>
-                    <div className="rounded-lg border border-orange-200 bg-orange-50 p-3 dark:border-orange-900/40 dark:bg-orange-900/10">
-                      <p className="mb-1 font-bold text-orange-700 dark:text-orange-300">디코더 근사 오차</p>
-                      <p className="leading-relaxed text-orange-600 dark:text-orange-400">
-                        비이상적 디코더로 인한 오차. BS 측 디코더 용량 증가로 줄일 수 있음.
-                        <span className="font-semibold"> RP-MPQ의 조정 대상.</span>
-                      </p>
-                    </div>
-                  </div>
-
-                  <TwoLevelDistortionViz />
-                  <InfographicCaption>
-                    실제 논문 NMSE 데이터 기반: 같은 양자화 정밀도에서도 모델 구조에 따라 운영적 열화 크기가 극적으로 다릅니다.
-                  </InfographicCaption>
 
                   {/* 3.2 롱테일 특성 */}
                   <div className="mt-7">
@@ -762,25 +723,6 @@ export default function MyResearchPage() {
                       단, 원거리 계수는 완전히 버려지지 않고 재귀적으로 집약됩니다 (소프트 메모리).
                     </p>
 
-                    {/* Remark: Laplace mixture */}
-                    <div className="mb-4 rounded-xl border border-dashed border-purple-300 dark:border-purple-700 bg-purple-50 dark:bg-purple-950/20 px-4 py-3">
-                      <p className="mb-2 text-xs font-bold text-purple-700 dark:text-purple-300 uppercase tracking-wide">
-                        비고 — 다항 포락선의 Laplace 혼합 표현
-                      </p>
-                      <p className="mb-2 text-xs text-purple-700 dark:text-purple-400 leading-relaxed">
-                        롱테일 다항 포락선은 지수 모드의 연속 혼합으로 정확히 표현됩니다:
-                      </p>
-                      <div className="overflow-x-auto rounded-lg bg-white dark:bg-slate-900 px-3 py-2">
-                        <div className="text-gray-900 dark:text-gray-100">
-                          <EquationRenderer latex={String.raw`\frac{1}{d+1} = \int_{0}^{\infty} e^{-(d+1)\alpha}\,d\alpha = \int_{0}^{\infty} e^{-\alpha}\, e^{-\alpha d}\,d\alpha`} />
-                        </div>
-                      </div>
-                      <p className="mt-2 text-xs text-purple-600 dark:text-purple-400 leading-relaxed">
-                        따라서 느린 다항 감쇠 = 지수 감쇠 모드의 연속체. 유한 차원 SSM은 A의 고유구조를 통해
-                        유한 개의 지수 모드를 실현하며, 제한된 UE 복잡도 하에서 롱테일 국소성을 위한 구조적 사전(prior)을 제공합니다.
-                      </p>
-                    </div>
-
                     {/* Interactive tail comparison */}
                     <HardVsSoftTailViz />
                     <InfographicCaption>
@@ -788,53 +730,30 @@ export default function MyResearchPage() {
                     </InfographicCaption>
                   </div>
 
-                  {/* 3.5 양자화 내성 명제 */}
+                  {/* 3.5 양자화 내성 */}
                   <div className="mt-7">
                     <SubSectionHeading number="3.5" title="수축적 상태 공간 인코더의 양자화 내성" />
-                    <p className="mb-3 text-sm leading-relaxed text-gray-700 dark:text-gray-300">
-                      UE 측 추론은 저정밀도 실행이 필요합니다. 훈련 후 가중치 양자화를
-                      <span className="font-mono text-xs text-indigo-600 dark:text-indigo-400 mx-1">θ̂ = θ + Δθ</span>
-                      로 모델링하면, 아래 명제는 상태 재귀가 균일 수축적일 때 양자화 오차가
-                      토큰 길이에 따라 증폭되지 않음을 형식화합니다.
-                    </p>
-
-                    {/* Proposition box */}
-                    <div className="mb-4 rounded-xl border-2 border-indigo-300 dark:border-indigo-700 bg-white dark:bg-slate-900 overflow-hidden">
-                      <div className="bg-indigo-50 dark:bg-indigo-950/30 px-4 py-2.5 flex items-center gap-2">
-                        <span className="rounded-md bg-indigo-600 text-white px-2.5 py-0.5 text-xs font-black">명제</span>
-                        <span className="text-sm font-bold text-slate-800 dark:text-slate-100">
-                          수축적 상태 공간 갱신의 섭동 내성
-                        </span>
-                      </div>
-                      <div className="px-4 py-3 text-xs text-slate-700 dark:text-slate-300 space-y-2">
-                        <p className="leading-relaxed">
-                          선택적 SSM 인코더 블록을{' '}
-                          <span className="font-mono text-indigo-600 dark:text-indigo-400">s_{'{t+1}'} = Φ_t(s_t, u_t; θ)</span>,{' '}
-                          <span className="font-mono text-indigo-600 dark:text-indigo-400">y_t = Ψ_t(s_t; θ)</span>로 쓰고,
-                          동일 입력·초기화 하에서 양자화 파라미터{' '}
-                          <span className="font-mono text-indigo-600 dark:text-indigo-400">θ̂ = θ + Δθ</span>를 적용하자.
-                          Φ_t가 상태에 대해 수축률 ρ∈[0,1)을 가지며 각 함수가 Lipschitz 연속이면,
-                          출력 편차는 모든 t에 대해 균일하게:
-                        </p>
-                        <div className="overflow-x-auto rounded-lg bg-indigo-50 dark:bg-indigo-900/20 px-3 py-2">
-                          <div className="text-gray-900 dark:text-gray-100">
-                            <EquationRenderer latex={String.raw`\|\mathbf{y}_t - \hat{\mathbf{y}}_t\| \le \left(\frac{L_\Psi L_{\Phi,\theta}}{1-\rho} + L_{\Psi,\theta}\right)\|\Delta\boldsymbol{\theta}\|`} />
-                          </div>
-                        </div>
-                        <p className="leading-relaxed text-slate-600 dark:text-slate-400">
-                          <span className="font-bold text-slate-700 dark:text-slate-300">해석:</span>{' '}
-                          한계가 t에 의존하지 않으므로, ρ&lt;1이 재귀를 통한 섭동 증폭을 방지합니다.
-                          Mamba처럼 Φ_t가 입력 의존적인 선택적 SSM에서도,
-                          운영 범위에서 균일 수축성이 성립하면 동일한 결론이 유효합니다.
-                        </p>
-                      </div>
+                    <div className="mb-4 rounded-xl border border-indigo-200 dark:border-indigo-800 bg-indigo-50 dark:bg-indigo-950/20 px-4 py-4">
+                      <p className="text-sm leading-relaxed text-gray-700 dark:text-gray-300 mb-3">
+                        UE-side inference requires low-precision execution, and post-training quantization
+                        introduces parameter perturbations{' '}
+                        <span className="font-mono text-xs text-indigo-600 dark:text-indigo-400">θ̂ = θ + Δθ</span>.
+                      </p>
+                      <p className="text-sm leading-relaxed text-gray-700 dark:text-gray-300 mb-3">
+                        In Mamba&apos;s parameterization, the discretized state matrix is diagonal with entries{' '}
+                        <span className="font-mono text-xs text-indigo-600 dark:text-indigo-400">
+                          Ā{"_{t,ii}"} = exp(-Δ{"_{t,i}"}·softplus(A{"_{param,i}"}))
+                        </span>.
+                        Since both Δ_{"{t,i}"} &gt; 0 and softplus(·) &gt; 0, every entry satisfies{' '}
+                        <span className="font-mono text-xs text-indigo-600 dark:text-indigo-400">0 &lt; Ā_{"t,ii"} &lt; 1</span>,
+                        making the state recursion inherently contractive for all inputs.
+                      </p>
+                      <p className="text-sm leading-relaxed text-gray-700 dark:text-gray-300">
+                        Unlike feedforward stacking where quantization errors accumulate with depth,
+                        a contractive state recursion prevents perturbation amplification:
+                        the output deviation converges to a finite steady-state bound independent of sequence length.
+                      </p>
                     </div>
-
-                    {/* Interactive proof walkthrough */}
-                    <QuantRobustProofViz />
-                    <InfographicCaption>
-                      증명 단계별 전개 + 수치 계산기: ρ와 ‖Δθ‖를 조절하여 한계가 토큰 길이 t와 무관함을 확인하세요.
-                    </InfographicCaption>
                   </div>
 
                   {/* 3.6 Mamba 내부 메커니즘 */}
@@ -861,7 +780,7 @@ export default function MyResearchPage() {
                         <p className="mt-1 text-xs text-blue-600 dark:text-blue-400">경량, 저지연, O(N) 복잡도</p>
                         <div className="mt-3 space-y-1 text-[10px] text-blue-700 dark:text-blue-300">
                           <p>• 소프트 메모리: O(e^{'{−αL}'}/(1+L)) 테일</p>
-                          <p>• 양자화 내성: 출력 오차 균일 유계 (명제)</p>
+                          <p>• 양자화 내성: 출력 오차 균일 유계 (수축성 기반)</p>
                           <p>• 선택적 스캔: 지배 경로 집중 포착</p>
                         </div>
                       </div>
@@ -870,9 +789,9 @@ export default function MyResearchPage() {
                         <p className="text-sm font-semibold text-purple-900 dark:text-purple-100">Transformer (TransNet 계열)</p>
                         <p className="mt-1 text-xs text-purple-600 dark:text-purple-400">고용량, 전역 어텐션, O(N²) 허용</p>
                         <div className="mt-3 space-y-1 text-[10px] text-purple-700 dark:text-purple-300">
-                          <p>• 조건부 평균 E[X_a|Z] 근사 목표</p>
-                          <p>• 디코더 근사 오차 최소화 담당</p>
-                          <p>• 인코더 정보 하한에는 영향 없음</p>
+                          <p>• 고용량 복원으로 BS-side 정확도 담당</p>
+                          <p>• 충분한 연산 자원으로 복원 품질 최대화</p>
+                          <p>• 인코더 설계와 독립적으로 확장 가능</p>
                         </div>
                       </div>
                     </div>
@@ -894,7 +813,7 @@ export default function MyResearchPage() {
                             { label: '테일 잔여 감쇠', cnn: 'O(L⁻¹)', transformer: 'O(N⁻²)', mamba: 'O(e⁻ᵅᴸ/L)' },
                             { label: '복잡도', cnn: 'O(L)', transformer: 'O(N²)', mamba: 'O(N)' },
                             { label: '메모리 유형', cnn: '하드 절단', transformer: 'Attention 소프트', mamba: '지수 감쇠 소프트' },
-                            { label: '양자화 내성', cnn: '낮음', transformer: 'N/A (BS)', mamba: '균일 유계 (명제)' },
+                            { label: '양자화 내성', cnn: '낮음', transformer: 'N/A (BS)', mamba: '균일 유계 (수축성)' },
                           ].map((row) => (
                             <tr key={row.label} className="hover:bg-gray-50 dark:hover:bg-gray-800/50">
                               <td className="px-3 py-2 font-medium text-gray-700 dark:text-gray-300">{row.label}</td>

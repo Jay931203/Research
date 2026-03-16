@@ -38,6 +38,29 @@ export default function Section3Parameters({ onNavigate }: Section3Props) {
             차량 속도 <InlineMath math="v" />와 반송파 주파수 <InlineMath math="f_c" />에 비례하므로,
             고속 이동 + 고주파 환경에서 도플러 폭이 급격히 커집니다.
           </p>
+
+
+          <div className="mt-3 p-3 bg-emerald-50 border border-emerald-200 rounded-lg">
+            <p className="text-xs font-semibold text-emerald-800 mb-1">채널 탭의 세 가지 시간 스케일</p>
+            <p className="text-xs text-slate-600 mb-2">
+              이산 시간 채널 탭을 물리적 경로의 합으로 전개하면, 각 성분이 서로 다른 시간 스케일로 변합니다.
+            </p>
+            <BlockMath math={String.raw`h_\\ell[m] = \\sum_i \\underbrace{|a_i|\\!\\left(\\tfrac{m}{W}\\right)}_{\\text{seconds}} \\; \\underbrace{e^{-j2\\pi f_c \\tau_i(m/W)}}_{\\propto\\, f_c} \\; \\underbrace{\\operatorname{sinc}\\!\\bigl[\\ell - \\tau_i(m/W)W\\bigr]}_{\\propto\\, W}`} />
+            <div className="grid grid-cols-3 gap-2 mt-2 text-xs">
+              <div className="p-1.5 bg-white rounded border border-emerald-100">
+                <span className="font-semibold text-emerald-700">진폭 <InlineMath math="|a_i|" /></span>
+                <div className="text-slate-500">수 초~수 분 (shadowing)</div>
+              </div>
+              <div className="p-1.5 bg-white rounded border border-emerald-100">
+                <span className="font-semibold text-emerald-700">위상 <InlineMath math={String.raw`e^{-j2\\pi f_c\\tau_i}`} /></span>
+                <div className="text-slate-500"><InlineMath math="f_c" />에 비례하여 빠르게 변화</div>
+              </div>
+              <div className="p-1.5 bg-white rounded border border-emerald-100">
+                <span className="font-semibold text-emerald-700">sinc 커널</span>
+                <div className="text-slate-500">대역틭 <InlineMath math="W" />에 비례</div>
+              </div>
+            </div>
+          </div>
         </div>
 
         <div id="coherence-time" className="concept-card">
@@ -53,6 +76,23 @@ export default function Section3Parameters({ onNavigate }: Section3Props) {
             문헌에 따라 계수가 다를 수 있으나(예: <InlineMath math="1/D_s" />), 역비례 구조는 항상 성립합니다.
             파일럿 재전송 주기는 <InlineMath math="T_c" /> 이내여야 합니다.
           </p>
+
+
+          <div className="mt-3 p-3 bg-orange-50 border border-orange-200 rounded-lg">
+            <p className="text-xs font-semibold text-orange-800 mb-1">Fast vs Slow Fading의 운용적 의미</p>
+            <div className="space-y-1.5 text-xs text-slate-600">
+              <p>
+                <strong className="text-red-700">Fast fading</strong> (<InlineMath math={String.raw`T_c \\ll`} /> delay requirement):
+                코히런스 시간이 지연 요구사항보다 짧아서, 코딩된 심볼들이 <strong>여러 독립적인 fade를 경험</strong>합니다.
+                채널 코딩으로 시간 다이버시티를 자연스럽게 확보할 수 있습니다.
+              </p>
+              <p>
+                <strong className="text-emerald-700">Slow fading</strong> (<InlineMath math={String.raw`T_c \\gg`} /> delay requirement):
+                코히런스 시간이 지연 요구사항보다 훨씬 길어서, 코드워드 전체가 <strong>하나의 fade 안에 갇힙니다</strong>.
+                시간 다이버시티를 얻을 수 없으므로, 공간 다이버시티(MIMO)나 주파수 다이버시티(OFDM)에 의존해야 합니다.
+              </p>
+            </div>
+          </div>
         </div>
 
         <div id="delay-spread" className="concept-card">
@@ -67,6 +107,20 @@ export default function Section3Parameters({ onNavigate }: Section3Props) {
             실내: 수십 ns, 도시: 수 μs, 산악: 수십 μs까지 환경에 따라 크게 다릅니다.
             셀 크기가 작아질수록 경로 차이도 줄어들어 <InlineMath math="T_d" />도 감소합니다.
           </p>
+
+
+          <div className="mt-3 p-3 bg-blue-50 border border-blue-200 rounded-lg">
+            <p className="text-xs font-semibold text-blue-800 mb-1">주파수 응답과 선택적 페이딩의 원리</p>
+            <p className="text-xs text-slate-600 mb-2">
+              채널의 주파수 응답을 경로별로 전개하면, 경로 간 차별적 위상차(differential phase)가 선택적 페이딩을 일으키는 메커니즘이 드러납니다.
+            </p>
+            <BlockMath math={String.raw`H(f;\\,t) = \\sum_i a_i(t)\\, e^{-j2\\pi f \\tau_i(t)}`} />
+            <p className="text-xs text-slate-500 mt-1">
+              두 경로 <InlineMath math="i, k" /> 사이의 위상차 <InlineMath math={String.raw`2\\pi f(\\tau_i - \\tau_k)`} />가
+              주파수 <InlineMath math="f" />에 따라 달라지면서 보강/상쇄 간섭이 반복됩니다.
+              이 위상차가 <InlineMath math="\pi" />만큼 변하는 주파수 간격이 곧 코히런스 대역틭 <InlineMath math="W_c" />입니다.
+            </p>
+          </div>
         </div>
 
         <div id="coherence-bw" className="concept-card">
@@ -83,6 +137,50 @@ export default function Section3Parameters({ onNavigate }: Section3Props) {
             OFDM의 CP 길이 설계 시 <InlineMath math="T_d" />를 직접 사용합니다.
           </p>
         </div>
+      </div>
+
+            {/* KEY POINT: flat/selective is a relationship, not channel property */}
+      <div className="concept-card mb-8" id="bw-vs-coherence">
+        <h3 className="font-bold text-lg text-slate-800 mb-3">핵심: Flat vs Selective는 채널만의 성질이 아니다</h3>
+        <p className="text-sm text-slate-600 mb-3">
+          주파수 선택성은 <strong>채널 자체의 고유 성질이 아니라</strong>,
+          신호 대역틭 <InlineMath math="W" />와 코히런스 대역틭 <InlineMath math="W_c" />의 <strong>상대적 관계</strong>에 의해 결정됩니다.
+          동일한 채널(동일한 <InlineMath math="W_c" />)이라도 신호 대역틭이 달라지면 flat이 될 수도, selective가 될 수도 있습니다.
+        </p>
+
+        <div className="grid md:grid-cols-2 gap-4 mb-3">
+          <div className="p-3 bg-emerald-50 rounded-lg border border-emerald-200">
+            <div className="font-semibold text-sm text-emerald-800 mb-1">
+              같은 채널 + 좁은 대역틭 (예: 40 MHz)
+            </div>
+            <p className="text-xs text-slate-600">
+              <InlineMath math={String.raw`W = 40\\,\\text{MHz}`} />,{' '}
+              <InlineMath math={String.raw`W_c = 50\\,\\text{MHz}`} />{' '}
+              <InlineMath math={String.raw`\\;\\Rightarrow\\; W < W_c`} />
+            </p>
+            <p className="text-xs text-emerald-700 font-medium mt-1">
+              Flat fading — 단일 탭으로 모델링 가능, 간단한 등화
+            </p>
+          </div>
+          <div className="p-3 bg-red-50 rounded-lg border border-red-200">
+            <div className="font-semibold text-sm text-red-800 mb-1">
+              같은 채널 + 넓은 대역틭 (예: 200 MHz)
+            </div>
+            <p className="text-xs text-slate-600">
+              <InlineMath math={String.raw`W = 200\\,\\text{MHz}`} />,{' '}
+              <InlineMath math={String.raw`W_c = 50\\,\\text{MHz}`} />{' '}
+              <InlineMath math={String.raw`\\;\\Rightarrow\\; W \\gg W_c`} />
+            </p>
+            <p className="text-xs text-red-700 font-medium mt-1">
+              Frequency-selective — 다중 탭, OFDM이나 등화기 필수
+            </p>
+          </div>
+        </div>
+        <p className="text-xs text-slate-500">
+          따라서 &quot;이 채널은 flat이다/selective이다&quot;라고 단정할 수 없고,
+          항상 &quot;이 대역틭에서 이 채널은...&quot;이라고 표현해야 정확합니다.
+          5G NR에서 같은 셀이라도 sub-6 GHz (좁은 BW)와 mmWave (넓은 BW)에서 선택성이 달라지는 것이 이 원리의 직접적 예시입니다.
+        </p>
       </div>
 
       <div className="compare-grid mb-8">

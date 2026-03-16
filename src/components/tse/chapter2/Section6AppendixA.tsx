@@ -93,6 +93,22 @@ export default function Section6AppendixA({ onNavigate }: Section6AppendixAProps
           <BlockMath math={String.raw`\sum_{i=1}^{N} a_i Z_i \sim \mathcal{CN}\!\left(\sum_i a_i \mu_i,\; \sum_i |a_i|^2 \sigma_i^2\right)`} />
         </div>
 
+        <div className="formula-block mb-4">
+          <h4 className="font-semibold text-blue-800 mb-2">Q-function</h4>
+          <p className="text-sm text-slate-600 mb-2">
+            표준 가우시안의 꼬리 확률을 나타내는 함수로, 검출 오류 확률 계산의 핵심입니다.
+          </p>
+          <BlockMath math={String.raw`Q(a) := P\{w > a\} = \frac{1}{\sqrt{2\pi}} \int_a^{\infty} e^{-t^2/2}\,dt`} />
+          <p className="text-sm text-slate-600 mt-2 mb-2">
+            <strong>지수적 감쇠 bounds:</strong> Q-function은 다음과 같이 상한과 하한으로 제한됩니다.
+          </p>
+          <BlockMath math={String.raw`\frac{1}{\sqrt{2\pi}a}\left(1-\frac{1}{a^2}\right)e^{-a^2/2} < Q(a) < e^{-a^2/2}`} />
+          <p className="text-xs text-slate-500 mt-1">
+            <InlineMath math="a" />가 커질수록 <InlineMath math="Q(a)" />는 <strong>지수적으로</strong> 빠르게 감소합니다.
+            이것이 AWGN 채널에서 SNR 증가에 따른 BER 급감의 수학적 근거입니다.
+          </p>
+        </div>
+
         <div className="insight">
           <div className="insight-title">Section 2.4와의 연결</div>
           <p className="text-sm text-amber-900">
@@ -105,6 +121,161 @@ export default function Section6AppendixA({ onNavigate }: Section6AppendixAProps
             그 envelope는 자연스럽게 Rayleigh 분포를 따릅니다.
             LOS 성분이 추가되면 Rician 분포가 됩니다.
           </p>
+        </div>
+      </div>
+
+      {/* A.1.2 Real Gaussian Random Vectors */}
+      <div id="appendix-a1-vectors" className="concept-card mb-8">
+        <div className="text-xs font-semibold text-red-600 mb-1">Appendix A.1.2</div>
+        <h3 className="font-bold text-xl text-slate-800 mb-3">Real Gaussian Random Vectors</h3>
+        <p className="text-sm text-slate-600 mb-4">
+          스칼라에서 벡터로 확장합니다.
+          MIMO 채널, 빔포밍, 공분산 기반 추정 등 다차원 가우시안이 통신의 기본 도구입니다.
+        </p>
+
+        <div className="formula-block mb-4">
+          <h4 className="font-semibold text-blue-800 mb-2">Standard Gaussian Random Vector</h4>
+          <p className="text-sm text-slate-600 mb-2">
+            <InlineMath math="n" />개의 i.i.d. 표준 가우시안 변수로 구성된 벡터{' '}
+            <InlineMath math={String.raw`\mathbf{w} = (w_1, \ldots, w_n)^t`} />입니다.
+          </p>
+          <BlockMath math={String.raw`f(\mathbf{w}) = \frac{1}{(\sqrt{2\pi})^n} \exp\!\left(-\frac{\|\mathbf{w}\|^2}{2}\right), \quad \mathbf{w} \in \mathbb{R}^n`} />
+          <p className="text-xs text-slate-500 mt-1">
+            PDF가 <strong>크기(norm)</strong>에만 의존하고 방향에 무관합니다 -- 이것이 등방성(isotropic property)의 근거입니다.
+          </p>
+        </div>
+
+        <div className="grid md:grid-cols-2 gap-4 mb-4">
+          <div className="p-4 bg-blue-50 rounded-lg border border-blue-100">
+            <div className="font-bold text-blue-700 mb-1">Isotropic Property</div>
+            <p className="text-sm text-slate-600 mb-2">
+              직교 변환 <InlineMath math="\mathbf{O}" />에 대해,{' '}
+              <InlineMath math="\mathbf{w}" />가 표준 가우시안이면{' '}
+              <InlineMath math="\mathbf{Ow}" />도 표준 가우시안입니다.
+            </p>
+            <p className="text-xs text-slate-500">
+              어떤 직교 좌표계에서 보더라도 같은 분포 -- 방향 편향이 없는 완전한 대칭성입니다.
+            </p>
+          </div>
+          <div className="p-4 bg-indigo-50 rounded-lg border border-indigo-100">
+            <div className="font-bold text-indigo-700 mb-1">
+              <InlineMath math={String.raw`\|\mathbf{w}\|^2`} />: Chi-squared Distribution
+            </div>
+            <p className="text-sm text-slate-600 mb-2">
+              <InlineMath math={String.raw`\|\mathbf{w}\|^2 = \sum_{i=1}^n w_i^2`} />는{' '}
+              자유도 <InlineMath math="n" />인 <InlineMath math="\chi^2" />-분포를 따릅니다.
+            </p>
+            <BlockMath math={String.raw`n=2: \quad f(a) = \frac{1}{2}\exp\!\left(-\frac{a}{2}\right), \; a \ge 0`} />
+            <p className="text-xs text-slate-500">
+              <InlineMath math="n=2" />이면 지수분포 -- Rayleigh 전력이 지수분포를 따르는 것과 연결됩니다.
+            </p>
+          </div>
+        </div>
+
+        <div className="formula-block mb-4">
+          <h4 className="font-semibold text-blue-800 mb-2">
+            General Gaussian Vector: <InlineMath math={String.raw`\mathbf{x} = \mathbf{A}\mathbf{w} + \boldsymbol{\mu}`} />
+          </h4>
+          <p className="text-sm text-slate-600 mb-2">
+            표준 가우시안에 선형 변환과 평균 이동을 적용하면 일반 가우시안 벡터가 됩니다. A가 가역이면:
+          </p>
+          <BlockMath math={String.raw`f(\mathbf{x}) = \frac{1}{(\sqrt{2\pi})^n \sqrt{\det(\mathbf{A}\mathbf{A}^t)}} \exp\!\left(-\frac{1}{2}(\mathbf{x}-\boldsymbol{\mu})^t (\mathbf{A}\mathbf{A}^t)^{-1} (\mathbf{x}-\boldsymbol{\mu})\right)`} />
+        </div>
+
+        <div className="grid md:grid-cols-2 gap-4 mb-4">
+          <div className="p-4 bg-slate-50 rounded-lg border border-slate-200">
+            <div className="font-bold text-slate-700 mb-1">Covariance Matrix</div>
+            <BlockMath math={String.raw`\mathbf{K} := \mathbb{E}\!\left[(\mathbf{x}-\boldsymbol{\mu})(\mathbf{x}-\boldsymbol{\mu})^t\right] = \mathbf{A}\mathbf{A}^t`} />
+            <p className="text-xs text-slate-500 mt-1">
+              평균과 공분산이 가우시안 벡터의 분포를 완전히 결정합니다.
+            </p>
+          </div>
+          <div className="p-4 bg-slate-50 rounded-lg border border-slate-200">
+            <div className="font-bold text-slate-700 mb-1">Properties</div>
+            <ul className="text-xs text-slate-600 list-disc list-inside space-y-1">
+              <li>임의의 선형결합도 가우시안</li>
+              <li>등밀도 곡면이 타원체(ellipsoid)</li>
+              <li>K가 대각이면 White Gaussian</li>
+              <li>A가 비가역이면 저차원 부분공간에 국한</li>
+            </ul>
+          </div>
+        </div>
+      </div>
+
+      {/* A.1.3 Complex Gaussian Vectors (enriched) */}
+      <div id="appendix-a1-complex" className="concept-card mb-8">
+        <div className="text-xs font-semibold text-red-600 mb-1">Appendix A.1.3</div>
+        <h3 className="font-bold text-xl text-slate-800 mb-3">Complex Gaussian Random Vectors</h3>
+        <p className="text-sm text-slate-600 mb-4">
+          복소 가우시안 벡터 <InlineMath math={String.raw`\mathbf{x} = \mathbf{x}_R + j\mathbf{x}_I`} />는
+          실수부와 허수부가 각각 실수 가우시안 벡터인 경우입니다.
+        </p>
+
+        <div className="formula-block mb-4">
+          <h4 className="font-semibold text-blue-800 mb-2">Second-order Statistics</h4>
+          <p className="text-sm text-slate-600 mb-2">
+            복소 벡터는 공분산 행렬 <InlineMath math="\mathbf{K}" />와{' '}
+            <strong>pseudo-covariance 행렬 <InlineMath math="\mathbf{J}" /></strong>로 특성화됩니다.
+          </p>
+          <div className="grid md:grid-cols-2 gap-3">
+            <div className="p-3 bg-blue-50 rounded-lg border border-blue-100">
+              <div className="font-semibold text-sm text-blue-700 mb-1">Covariance K</div>
+              <BlockMath math={String.raw`\mathbf{K} := \mathbb{E}\!\left[(\mathbf{x}-\boldsymbol{\mu})(\mathbf{x}-\boldsymbol{\mu})^*\right]`} />
+              <p className="text-xs text-slate-500"><InlineMath math="n^2" /> real parameters</p>
+            </div>
+            <div className="p-3 bg-purple-50 rounded-lg border border-purple-100">
+              <div className="font-semibold text-sm text-purple-700 mb-1">Pseudo-covariance J</div>
+              <BlockMath math={String.raw`\mathbf{J} := \mathbb{E}\!\left[(\mathbf{x}-\boldsymbol{\mu})(\mathbf{x}-\boldsymbol{\mu})^T\right]`} />
+              <p className="text-xs text-slate-500"><InlineMath math="n^2 + n" /> real parameters</p>
+            </div>
+          </div>
+          <p className="text-xs text-slate-500 mt-2">
+            전체 2차 통계: <InlineMath math="n(2n+1)" /> real parameters.
+          </p>
+        </div>
+
+        <div className="p-4 bg-violet-50 border border-violet-200 rounded-lg mb-4">
+          <h4 className="font-semibold text-violet-800 mb-2">Circular Symmetry -- Definition A.17</h4>
+          <p className="text-sm text-slate-600 mb-2">
+            복소 벡터 <InlineMath math="\mathbf{x}" />가 <strong>circular symmetric</strong>이란,
+            임의의 <InlineMath math="\theta" />에 대해{' '}
+            <InlineMath math={String.raw`e^{j\theta}\mathbf{x}`} />가 같은 분포를 갖는 것입니다.
+          </p>
+          <div className="space-y-3 mt-3">
+            <div className="p-3 bg-white rounded-lg border border-violet-100">
+              <p className="text-xs font-semibold text-violet-700 mb-1">Zero Mean</p>
+              <BlockMath math={String.raw`\mathbb{E}[\mathbf{x}] = e^{j\theta}\mathbb{E}[\mathbf{x}] \;\;\Rightarrow\;\; \mathbb{E}[\mathbf{x}] = \mathbf{0}`} />
+            </div>
+            <div className="p-3 bg-white rounded-lg border border-violet-100">
+              <p className="text-xs font-semibold text-violet-700 mb-1">Zero Pseudo-covariance</p>
+              <BlockMath math={String.raw`\mathbb{E}[\mathbf{x}\mathbf{x}^t] = e^{j2\theta}\mathbb{E}[\mathbf{x}\mathbf{x}^t] \;\;\Rightarrow\;\; \mathbf{J} = \mathbf{0}`} />
+              <p className="text-xs text-slate-500">
+                원형대칭이면 K 하나만으로 분포가 완전히 결정됩니다.
+              </p>
+            </div>
+          </div>
+        </div>
+
+        <div className="formula-block mb-4">
+          <h4 className="font-semibold text-blue-800 mb-2">Circular Symmetric Complex Gaussian Scalar</h4>
+          <p className="text-sm text-slate-600 mb-2">
+            <InlineMath math={String.raw`w = w_r + jw_i`} />에서 i.i.d. 영평균 가우시안이면,
+            <InlineMath math={String.raw`\sigma^2 := \mathbb{E}[|w|^2]`} />로 완전히 지정됩니다.
+          </p>
+          <div className="grid md:grid-cols-3 gap-3 mt-2">
+            <div className="p-3 bg-slate-50 rounded-lg border border-slate-200 text-center">
+              <div className="text-xs font-semibold text-slate-700 mb-1">Phase</div>
+              <p className="text-xs text-slate-600">Uniform on <InlineMath math="[0, 2\pi]" /></p>
+            </div>
+            <div className="p-3 bg-slate-50 rounded-lg border border-slate-200 text-center">
+              <div className="text-xs font-semibold text-slate-700 mb-1">Magnitude</div>
+              <p className="text-xs text-slate-600">Rayleigh distributed</p>
+            </div>
+            <div className="p-3 bg-slate-50 rounded-lg border border-slate-200 text-center">
+              <div className="text-xs font-semibold text-slate-700 mb-1">Power</div>
+              <p className="text-xs text-slate-600">Exponentially distributed</p>
+            </div>
+          </div>
         </div>
       </div>
 
