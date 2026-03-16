@@ -206,15 +206,15 @@ export default function Section5Capacity({ onNavigate }: Section5Props) {
 
         <div className="grid md:grid-cols-3 gap-3 text-sm mb-4">
           <div className="p-3 rounded-lg bg-blue-50 border border-blue-100">
-            <div className="text-slate-500">Coherence bandwidth W_c</div>
+            <div className="text-slate-500">Coherence bandwidth <InlineMath math="W_c" /></div>
             <div className="text-lg font-bold text-blue-700">{formatFreq(summary.wc)}</div>
           </div>
           <div className="p-3 rounded-lg bg-emerald-50 border border-emerald-100">
-            <div className="text-slate-500">Coherence time T_c</div>
+            <div className="text-slate-500">Coherence time <InlineMath math="T_c" /></div>
             <div className="text-lg font-bold text-emerald-700">{formatTime(summary.tc)}</div>
           </div>
           <div className="p-3 rounded-lg bg-amber-50 border border-amber-100">
-            <div className="text-slate-500">Underspread ratio T_d/T_c</div>
+            <div className="text-slate-500">Underspread ratio <InlineMath math="T_d/T_c" /></div>
             <div className="text-lg font-bold text-amber-700">{summary.underspreadRatio.toExponential(2)}</div>
           </div>
         </div>

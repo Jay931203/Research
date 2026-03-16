@@ -114,7 +114,7 @@ export default function Section1Introduction({ onNavigate }: Section1Props) {
           <BlockMath math={String.raw`D_1 = -\frac{fv}{c}`} />
         </div>
         <BlockMath math={String.raw`f_D = \frac{v f_c}{c}\cos\theta`} />
-        <p className="text-xs text-slate-500 dark:text-slate-500 mt-2">
+        <p className="text-xs text-slate-500 dark:text-slate-400 mt-2">
           전파 방향으로 접근하면(<InlineMath math={String.raw`\theta=0`} />) 최대 양의 시프트,
           멀어지면(<InlineMath math={String.raw`\theta=\pi`} />) 최대 음의 시프트가 발생합니다.
           직교 방향(<InlineMath math={String.raw`\theta=\pi/2`} />)에서는 도플러가 0입니다.
@@ -218,7 +218,7 @@ export default function Section1Introduction({ onNavigate }: Section1Props) {
             전체 시스템 용량이 증가합니다.
           </p>
         </div>
-        <p className="text-xs text-slate-500 dark:text-slate-500 mt-2">
+        <p className="text-xs text-slate-500 dark:text-slate-400 mt-2">
           이 모델은 셀 커버리지 계획의 핵심 도구이며, <InlineMath math={String.raw`\sigma`} />는 보통 6~12 dB 범위입니다.
         </p>
       </div>

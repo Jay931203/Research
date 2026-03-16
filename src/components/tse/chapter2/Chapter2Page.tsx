@@ -64,9 +64,9 @@ export default function Chapter2Page() {
     const el = document.getElementById(id);
     if (el) {
       el.scrollIntoView({ behavior: 'smooth' });
-      el.classList.add('ring-2', 'ring-blue-400', 'ring-offset-4');
+      el.classList.add('ring-2', 'ring-blue-400', 'ring-offset-2');
       setTimeout(() => {
-        el.classList.remove('ring-2', 'ring-blue-400', 'ring-offset-4');
+        el.classList.remove('ring-2', 'ring-blue-400', 'ring-offset-2');
       }, 2000);
     }
   }, []);

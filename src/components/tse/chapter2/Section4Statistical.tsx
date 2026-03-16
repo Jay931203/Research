@@ -63,7 +63,7 @@ export default function Section4Statistical({ onNavigate }: Section4Props) {
           </div>
           <div className="formula-block !my-2 !p-3">
             <h4 className="font-semibold text-blue-700 text-xs mb-1">탭 전력: 지수분포</h4>
-            <BlockMath math={String.raw`|h_\\ell[m]|^2 \\sim \\text{Exp}(1/\\sigma_\\ell^2): \\quad f(x) = \\frac{1}{\\sigma_\\ell^2} e^{-x/\\sigma_\\ell^2}, \\quad x \\ge 0`} />
+            <BlockMath math={String.raw`|h_\ell[m]|^2 \sim \text{Exp}(1/\sigma_\ell^2): \quad f(x) = \frac{1}{\sigma_\ell^2} e^{-x/\sigma_\ell^2}, \quad x \ge 0`} />
             <p className="text-xs text-slate-500 mt-1">
               Rayleigh envelope의 제곱(전력)은 지수분포를 따릅니다. 이 덕분에 outage probability를 닫힌 형태(closed-form)로 계산할 수 있습니다.
             </p>
@@ -106,7 +106,7 @@ export default function Section4Statistical({ onNavigate }: Section4Props) {
           </div>
           <div className="formula-block !my-2 !p-3">
             <h4 className="font-semibold text-red-700 text-xs mb-1">κ-parameterization (탭 모델)</h4>
-            <BlockMath math={String.raw`h_\\ell[m] = \\sqrt{\\frac{\\kappa}{\\kappa+1}} \\sigma_\\ell , e^{j\\theta} + \\sqrt{\\frac{1}{\\kappa+1}} \\mathcal{CN}(0, \\sigma_\\ell^2)`} />
+            <BlockMath math={String.raw`h_\ell[m] = \sqrt{\frac{\kappa}{\kappa+1}} \sigma_\ell , e^{j\theta} + \sqrt{\frac{1}{\kappa+1}} \mathcal{CN}(0, \sigma_\ell^2)`} />
             <div className="grid md:grid-cols-2 gap-2 mt-2 text-xs">
               <div className="p-2 bg-white rounded border border-red-100">
                 <span className="font-semibold text-red-700">첫번째 항:</span> LOS 경로 (고정 위상 <InlineMath math="e^{j\theta}" />)
@@ -194,15 +194,15 @@ export default function Section4Statistical({ onNavigate }: Section4Props) {
           <p className="text-xs font-semibold text-slate-700 mb-2">탭 상관함수의 핵심 성질</p>
           <ul className="text-xs text-slate-600 list-disc list-inside space-y-1">
             <li><strong>WSS 가정:</strong> 상관함수 <InlineMath math="R_\ell[n]" />가 시간 <InlineMath math="m" />의 함수가 아닌 시간차 <InlineMath math="n" />만의 함수 (Wide-Sense Stationary)</li>
-            <li><strong>탭 간 독립:</strong> <InlineMath math={String.raw`h_\\ell[m]`} />과 <InlineMath math={String.raw`h_{\\ell'}[m']`} />는 <InlineMath math={String.raw`\\ell \\neq \\ell'`} />이면 독립 (Uncorrelated Scattering)</li>
-            <li><strong>에너지 프로파일:</strong> <InlineMath math={String.raw`R_\\ell[0] = \\sigma_\\ell^2`} />는 <InlineMath math="\ell" />-번째 탭의 평균 에너지에 비례</li>
+            <li><strong>탭 간 독립:</strong> <InlineMath math={String.raw`h_\ell[m]`} />과 <InlineMath math={String.raw`h_{\ell'}[m']`} />는 <InlineMath math={String.raw`\ell \neq \ell'`} />이면 독립 (Uncorrelated Scattering)</li>
+            <li><strong>에너지 프로파일:</strong> <InlineMath math={String.raw`R_\ell[0] = \sigma_\ell^2`} />는 <InlineMath math="\ell" />-번째 탭의 평균 에너지에 비례</li>
           </ul>
         </div>
         <div className="mt-3 p-3 bg-amber-50 border border-amber-200 rounded-lg">
-          <p className="text-xs font-semibold text-amber-800 mb-1">대역틭 증가의 효과</p>
+          <p className="text-xs font-semibold text-amber-800 mb-1">대역폭 증가의 효과</p>
           <p className="text-xs text-slate-600">
-            대역틭 <InlineMath math="W" />가 커지면: (1) 탭 간격 <InlineMath math="1/W" />가 좁아져 각 탭에 포함되는 경로 수가 줄어들고,
-            Rayleigh 근사가 덜 정확해집니다. (2) sinc 커널이 좁아져 에너지 프로파일 <InlineMath math={String.raw`R_\\ell[0]`} />이 더 세밀한(fine-grained) 정보를 담게 됩니다.
+            대역폭 <InlineMath math="W" />가 커지면: (1) 탭 간격 <InlineMath math="1/W" />가 좁아져 각 탭에 포함되는 경로 수가 줄어들고,
+            Rayleigh 근사가 덜 정확해집니다. (2) sinc 커널이 좁아져 에너지 프로파일 <InlineMath math={String.raw`R_\ell[0]`} />이 더 세밀한(fine-grained) 정보를 담게 됩니다.
           </p>
         </div>
         <div className="mt-3 text-sm text-slate-600 dark:text-slate-400 space-y-2">

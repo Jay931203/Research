@@ -82,7 +82,7 @@ export default function Section2IOModel({ onNavigate }: Section2IOModelProps) {
               </p>
             </div>
           </div>
-          <p className="text-xs text-slate-500 dark:text-slate-500 mt-3">
+          <p className="text-xs text-slate-500 dark:text-slate-400 mt-3">
             유선 채널은 <InlineMath math={String.raw`h(\tau)`} />로 충분합니다 — 케이블은 움직이지 않으니 <InlineMath math="t" /> 의존성이 없습니다.
             무선에서 <InlineMath math="t" />가 추가되는 것이 핵심 차이이며, 이것이 모든 무선 통신 문제의 시작점입니다.
           </p>
@@ -132,7 +132,7 @@ export default function Section2IOModel({ onNavigate }: Section2IOModelProps) {
               직관적으로, 신호 대역폭 <InlineMath math="W" />가 반송파 <InlineMath math="f_c" />에 비해 극히 좁으면
               대역 내 모든 주파수 성분이 거의 같은 경로 감쇠와 위상 회전을 경험합니다.
             </p>
-            <p className="text-xs text-slate-500 dark:text-slate-500 mt-1">
+            <p className="text-xs text-slate-500 dark:text-slate-400 mt-1">
               예: LTE는 <InlineMath math={String.raw`W = 20\,\text{MHz}`} />, <InlineMath math={String.raw`f_c = 2\,\text{GHz}`} />
               → <InlineMath math={String.raw`W/f_c = 0.01`} /> (1%). 이 조건은 대부분의 셀룰러/WiFi에서 만족됩니다.
             </p>
@@ -145,7 +145,7 @@ export default function Section2IOModel({ onNavigate }: Section2IOModelProps) {
               채널이 자신의 "메모리 길이" 동안은 거의 변하지 않습니다.
               이때 각 심볼 구간에서 <strong>quasi-LTI</strong>로 근사하여 기존의 등화/검출 알고리즘을 적용할 수 있습니다.
             </p>
-            <p className="text-xs text-slate-500 dark:text-slate-500 mt-1">
+            <p className="text-xs text-slate-500 dark:text-slate-400 mt-1">
               예: 도시 채널 <InlineMath math={String.raw`T_d \approx 1\,\mu\text{s}`} />,
               <InlineMath math={String.raw`T_c \approx 2.5\,\text{ms}`} />
               → 비율 = 0.0004. 실용 채널은 거의 항상 underspread입니다.
@@ -199,7 +199,7 @@ export default function Section2IOModel({ onNavigate }: Section2IOModelProps) {
               <InlineMath math="y_b(t)" />
             </div>
           </div>
-          <p className="text-xs text-slate-500 dark:text-slate-500 mt-3 text-center">
+          <p className="text-xs text-slate-500 dark:text-slate-400 mt-3 text-center">
             각 단계의 수학적 의미: upconversion = 스펙트럼을 <InlineMath math="f_c" />로 이동,
             downconversion = 스펙트럼을 원점으로 복원, LPF = 2배 주파수 성분 제거
           </p>
@@ -249,7 +249,7 @@ export default function Section2IOModel({ onNavigate }: Section2IOModelProps) {
             복소 baseband 신호에서 원래 passband 신호를 완벽히 복원할 수 있으므로,
             모든 신호 처리를 baseband에서 수행해도 동일한 결과를 얻습니다.
           </p>
-          <p className="text-xs text-slate-500 dark:text-slate-500">
+          <p className="text-xs text-slate-500 dark:text-slate-400">
             <strong>수학적 근거:</strong> 실수 passband 신호 <InlineMath math={String.raw`x_p(t)`} />는
             복소 baseband <InlineMath math={String.raw`x_b(t)`} />의 실수부를 취한 것이고,
             <InlineMath math={String.raw`x_b(t)`} />는 <InlineMath math={String.raw`x_p(t)`} />의 해석 신호(analytic signal)에서
@@ -352,7 +352,7 @@ export default function Section2IOModel({ onNavigate }: Section2IOModelProps) {
               <div className="text-slate-500">광대역 → 많은 탭, 높은 다이버시티</div>
             </div>
           </div>
-          <p className="text-xs text-slate-500 dark:text-slate-500 mt-3">
+          <p className="text-xs text-slate-500 dark:text-slate-400 mt-3">
             <strong>설계 관점:</strong> <InlineMath math="L = 1" />이면 채널이 단순 곱셈(<InlineMath math={String.raw`y = hx + w`} />),
             <InlineMath math="L > 1" />이면 ISI가 발생하여 OFDM이나 등화기가 필요합니다.
             한편, <InlineMath math="L" />이 클수록 독립적인 다이버시티 가지가 많아져 페이딩에 대한 내성이 높아집니다
@@ -446,7 +446,7 @@ export default function Section2IOModel({ onNavigate }: Section2IOModelProps) {
               </p>
             </div>
           </div>
-          <p className="text-xs text-slate-500 dark:text-slate-500 mt-2">
+          <p className="text-xs text-slate-500 dark:text-slate-400 mt-2">
             한정된 DoF를 다이버시티와 멀티플렉싱에 어떻게 배분하느냐가
             <strong> diversity-multiplexing tradeoff</strong> (Chapter 9)의 본질입니다.
           </p>

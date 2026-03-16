@@ -382,7 +382,7 @@ export default function Section6AppendixA({ onNavigate }: Section6AppendixAProps
           </div>
         </div>
 
-        <div className="concept-card !bg-rose-50 !border-rose-200 mb-4">
+        <div className="concept-card !bg-rose-50 dark:!bg-rose-900/30 !border-rose-200 dark:!border-rose-800 mb-4">
           <h4 className="font-semibold text-rose-800 mb-2">검출오차율과 링크 신뢰도의 직결</h4>
           <p className="text-sm text-slate-600">
             검출 오류 확률 <InlineMath math="P_e" />는 곧 링크의 BLER(Block Error Rate)과
@@ -451,7 +451,7 @@ export default function Section6AppendixA({ onNavigate }: Section6AppendixAProps
           </div>
         </div>
 
-        <div className="concept-card !bg-violet-50 !border-violet-200 mb-4">
+        <div className="concept-card !bg-violet-50 dark:!bg-violet-900/30 !border-violet-200 dark:!border-violet-800 mb-4">
           <h4 className="font-semibold text-violet-800 mb-2">Pilot-Error vs Data-Efficiency Tradeoff</h4>
           <p className="text-sm text-slate-600 mb-2">
             채널 추정 품질을 높이려면 파일럿 심볼을 많이 보내야 하지만, 파일럿이 늘어나면
@@ -476,7 +476,7 @@ export default function Section6AppendixA({ onNavigate }: Section6AppendixAProps
           </p>
         </div>
 
-        <div className="concept-card !bg-orange-50 !border-orange-200 mb-4">
+        <div className="concept-card !bg-orange-50 dark:!bg-orange-900/30 !border-orange-200 dark:!border-orange-800 mb-4">
           <h4 className="font-semibold text-orange-800 mb-2">Effective SNR Degradation</h4>
           <p className="text-sm text-slate-600 mb-2">
             채널 추정 오차는 실효 SNR(effective SNR)을 감소시킵니다.
@@ -513,7 +513,7 @@ export default function Section6AppendixA({ onNavigate }: Section6AppendixAProps
           검출과 추정은 수신기의 두 가지 핵심 과제이며, 실제 시스템에서는 순차적으로 결합됩니다.
         </p>
         <div className="compare-grid mb-4">
-          <div className="compare-item border-blue-200 bg-blue-50/40">
+          <div className="compare-item border-blue-200 bg-blue-50/40 dark:bg-blue-900/20 dark:border-blue-700">
             <h4 className="font-bold text-blue-800 mb-2">Detection 관점</h4>
             <ul className="text-sm text-slate-600 list-disc list-inside space-y-1">
               <li>이산 심볼 판정 문제</li>
@@ -522,7 +522,7 @@ export default function Section6AppendixA({ onNavigate }: Section6AppendixAProps
               <li>성능 지표: <InlineMath math="P_e" />, BER, BLER</li>
             </ul>
           </div>
-          <div className="compare-item border-indigo-200 bg-indigo-50/40">
+          <div className="compare-item border-indigo-200 bg-indigo-50/40 dark:bg-indigo-900/20 dark:border-indigo-700">
             <h4 className="font-bold text-indigo-800 mb-2">Estimation 관점</h4>
             <ul className="text-sm text-slate-600 list-disc list-inside space-y-1">
               <li>연속 파라미터 복원 문제</li>

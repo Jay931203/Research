@@ -387,6 +387,7 @@ samp {
 
 /* KaTeX overrides for Tse content */
 .tse-content .katex-display {
+  overflow-x: auto;
   @apply my-4;
 }
 
@@ -551,6 +552,7 @@ samp {
 .dark .tse-content [class~="text-slate-800"] { color: rgb(226 232 240); }
 .dark .tse-content [class~="text-slate-700"] { color: rgb(203 213 225); }
 .dark .tse-content [class~="text-slate-600"] { color: rgb(148 163 184); }
+.dark .tse-content [class~="text-slate-500"] { color: rgb(148 163 184); }
 .dark .tse-content [class~="text-blue-900"]  { color: rgb(191 219 254); }
 .dark .tse-content [class~="text-blue-800"]  { color: rgb(147 197 253); }
 .dark .tse-content [class~="text-blue-700"]  { color: rgb(147 197 253); }
@@ -579,6 +581,7 @@ samp {
 .dark .tse-content [class~="text-cyan-800"]  { color: rgb(103 232 249); }
 .dark .tse-content [class~="text-cyan-600"]  { color: rgb(34 211 238);  }
 .dark .tse-content [class~="text-purple-800"] { color: rgb(216 180 254); }
+.dark .tse-content [class~="text-purple-700"] { color: rgb(216 180 254); }
 .dark .tse-content [class~="text-purple-600"] { color: rgb(192 132 252); }
 .dark .tse-content [class~="text-violet-900"] { color: rgb(221 214 254); }
 .dark .tse-content [class~="text-violet-800"] { color: rgb(196 181 253); }
@@ -638,6 +641,7 @@ samp {
 .dark .tse-content [class~="border-green-100"] { border-color: rgb(21 128 61 / 0.3);    }
 .dark .tse-content [class~="border-green-200"] { border-color: rgb(21 128 61 / 0.35);   }
 .dark .tse-content [class~="border-purple-200"] { border-color: rgb(147 51 234 / 0.35); }
+.dark .tse-content [class~="border-purple-100"] { border-color: rgb(147 51 234 / 0.3); }
 .dark .tse-content [class~="border-cyan-200"]  { border-color: rgb(6 182 212 / 0.35);   }
 .dark .tse-content [class~="border-teal-100"]  { border-color: rgb(13 148 136 / 0.3);   }
 .dark .tse-content [class~="border-yellow-200"] { border-color: rgb(202 138 4 / 0.35);  }
