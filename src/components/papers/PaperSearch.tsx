@@ -23,6 +23,8 @@ const CATEGORIES = [
   { value: 'cnn', label: 'CNN' },
   { value: 'representation_learning', label: 'Representation Learning' },
   { value: 'wireless_communication', label: 'Wireless Communication' },
+  { value: '3gpp_spec', label: '3GPP Spec' },
+  { value: 'mas', label: 'Multi-Agent Systems' },
   { value: 'other', label: 'Other' },
 ];
 

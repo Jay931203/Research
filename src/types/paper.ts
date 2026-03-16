@@ -8,6 +8,8 @@ export type PaperCategory =
   | 'cnn'
   | 'representation_learning'
   | 'wireless_communication'
+  | '3gpp_spec'
+  | 'mas'
   | 'other';
 
 export interface Equation {

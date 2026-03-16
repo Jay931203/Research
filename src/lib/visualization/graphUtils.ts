@@ -22,6 +22,8 @@ export const CATEGORY_COLORS: Record<string, string> = {
   cnn: '#10b981',
   representation_learning: '#0f766e',
   wireless_communication: '#0284c7',
+  '3gpp_spec': '#0891b2',
+  mas: '#8b5cf6',
   other: '#6b7280',
 };
 
@@ -33,6 +35,8 @@ export const CATEGORY_LABELS: Record<string, string> = {
   cnn: 'CNN',
   representation_learning: 'Representation Learning',
   wireless_communication: 'Wireless Communication',
+  '3gpp_spec': '3GPP Spec',
+  mas: 'Multi-Agent Systems',
   other: 'Other',
 };
 
@@ -130,35 +134,43 @@ export type ResearchTopic =
   | 'general_quantization'
   | 'representation_learning'
   | 'state_space'
+  | '3gpp_spec'
+  | 'mas'
   | 'other';
 
 export const RESEARCH_TOPIC_ORDER: ResearchTopic[] = [
   'wireless_communication',
+  '3gpp_spec',
   'csi_architecture',
   'csi_quantization',
   'general_quantization',
   'representation_learning',
   'state_space',
+  'mas',
   'other',
 ];
 
 export const RESEARCH_TOPIC_LABELS: Record<ResearchTopic, string> = {
   wireless_communication: 'Wireless Communication',
+  '3gpp_spec': '3GPP Spec',
   csi_architecture: 'CSI Architecture',
   csi_quantization: 'CSI Quantization',
   general_quantization: 'General Quantization',
   representation_learning: 'Representation Learning',
   state_space: 'State-Space',
+  mas: 'Multi-Agent Systems',
   other: 'Other',
 };
 
 export const RESEARCH_TOPIC_COLORS: Record<ResearchTopic, string> = {
   wireless_communication: '#0284c7',
+  '3gpp_spec': '#0891b2',
   csi_architecture: '#2563eb',
   csi_quantization: '#059669',
   general_quantization: '#dc2626',
   representation_learning: '#0f766e',
   state_space: '#7c3aed',
+  mas: '#8b5cf6',
   other: '#6b7280',
 };
 
@@ -247,6 +259,8 @@ export function inferResearchTopic(input: ResearchTopicInput): ResearchTopic {
     REPRESENTATION_TOKENS.some((token) => tokenSet.has(token));
 
   if (category === 'wireless_communication') return 'wireless_communication';
+  if (category === '3gpp_spec') return '3gpp_spec';
+  if (category === 'mas') return 'mas';
   if (hasStateSpace) return 'state_space';
   if (hasCSI && hasQuantization) return 'csi_quantization';
   if (hasQuantization) return 'general_quantization';
@@ -270,6 +284,8 @@ export function inferResearchTopic(input: ResearchTopicInput): ResearchTopic {
 export function getPaperCategoryLabel(input: ResearchTopicInput): string {
   const category = (input.category ?? '').toLowerCase();
   if (category === 'representation_learning') return CATEGORY_LABELS.representation_learning;
+  if (category === '3gpp_spec') return CATEGORY_LABELS['3gpp_spec'];
+  if (category === 'mas') return CATEGORY_LABELS.mas;
 
   if (category === 'other') {
     const topic = inferResearchTopic(input);
