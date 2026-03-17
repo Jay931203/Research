@@ -158,6 +158,25 @@ const DirectionalRoutingStudyFull = dynamic(
   { ssr: false },
 );
 
+/* 3GPP study pages */
+const ThreeGPPOverviewStudyFull = dynamic(() => import('@/components/3gpp-study/3GPPOverviewStudyFull'), { ssr: false });
+const ThreeGPPAirInterfaceStudyFull = dynamic(() => import('@/components/3gpp-study/3GPPAirInterfaceStudyFull'), { ssr: false });
+const BeamManagementStudyFull = dynamic(() => import('@/components/3gpp-study/BeamManagementStudyFull'), { ssr: false });
+const CSIPredictionStudyFull = dynamic(() => import('@/components/3gpp-study/CSIPredictionStudyFull'), { ssr: false });
+const LargeSmallModelStudyFull = dynamic(() => import('@/components/3gpp-study/LargeSmallModelStudyFull'), { ssr: false });
+const RealWorldAI5GStudyFull = dynamic(() => import('@/components/3gpp-study/RealWorldAI5GStudyFull'), { ssr: false });
+const AI6GStudyFull = dynamic(() => import('@/components/3gpp-study/AI6GStudyFull'), { ssr: false });
+
+/* MAS study pages */
+const AgentFlowStudyFull = dynamic(() => import('@/components/mas-study/AgentFlowStudyFull'), { ssr: false });
+const SCMASStudyFull = dynamic(() => import('@/components/mas-study/SCMASStudyFull'), { ssr: false });
+const TalkStructurallyStudyFull = dynamic(() => import('@/components/mas-study/TalkStructurallyStudyFull'), { ssr: false });
+const MASCoordSurveyStudyFull = dynamic(() => import('@/components/mas-study/MASCoordSurveyStudyFull'), { ssr: false });
+const BeyondSelfTalkStudyFull = dynamic(() => import('@/components/mas-study/BeyondSelfTalkStudyFull'), { ssr: false });
+const MASCollabMechStudyFull = dynamic(() => import('@/components/mas-study/MASCollabMechStudyFull'), { ssr: false });
+const GoalOrientedMASStudyFull = dynamic(() => import('@/components/mas-study/GoalOrientedMASStudyFull'), { ssr: false });
+const LLMMASWorkflowStudyFull = dynamic(() => import('@/components/mas-study/LLMMASWorkflowStudyFull'), { ssr: false });
+
 // arxiv_id → full study content (replaces generic template for these papers)
 const FULL_STUDY_REGISTRY: Record<string, React.ComponentType> = {
   '2307.13304': QuIPStudyFull,          // QuIP
@@ -184,6 +203,23 @@ const FULL_STUDY_REGISTRY: Record<string, React.ComponentType> = {
   '2603.08391': AdaptiveLoopsStudyFull,        // Adaptive Loops & Memory (Frey et al. 2026)
   '2603.11535': ExpertThresholdStudyFull,      // Expert Threshold Routing (Sun et al. 2026)
   'taylor-2026-directional': DirectionalRoutingStudyFull, // Directional Routing (Taylor 2026)
+  // 3GPP study pages
+  '3gpp-overview': ThreeGPPOverviewStudyFull,
+  '3gpp-air-interface': ThreeGPPAirInterfaceStudyFull,
+  '3gpp-beam-mgmt': BeamManagementStudyFull,
+  '2504.12571': CSIPredictionStudyFull,
+  '2512.12170': LargeSmallModelStudyFull,
+  '2602.02787': RealWorldAI5GStudyFull,
+  '3gpp-6g-vision': AI6GStudyFull,
+  // MAS study pages
+  '2505.07603': AgentFlowStudyFull,
+  '2601.09434': SCMASStudyFull,
+  '2502.11098': TalkStructurallyStudyFull,
+  '2502.14743': MASCoordSurveyStudyFull,
+  '2502.14321': BeyondSelfTalkStudyFull,
+  '2501.06322': MASCollabMechStudyFull,
+  '2508.07720': GoalOrientedMASStudyFull,
+  'mas-llm-workflow': LLMMASWorkflowStudyFull,
 };
 
 /* ------------------------------------------------------------------ */
