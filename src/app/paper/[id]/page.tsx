@@ -132,6 +132,32 @@ const AdaRoundStudyFull = dynamic(
   { ssr: false },
 );
 
+/* Adaptive Depth / Dynamic Routing study pages (2025-2026) */
+const InnerThinkingStudyFull = dynamic(
+  () => import('@/components/adaptive-depth-study/InnerThinkingStudyFull'),
+  { ssr: false },
+);
+const MixtureRecursionsStudyFull = dynamic(
+  () => import('@/components/adaptive-depth-study/MixtureRecursionsStudyFull'),
+  { ssr: false },
+);
+const DrLLMStudyFull = dynamic(
+  () => import('@/components/adaptive-depth-study/DrLLMStudyFull'),
+  { ssr: false },
+);
+const AdaptiveLoopsStudyFull = dynamic(
+  () => import('@/components/adaptive-depth-study/AdaptiveLoopsStudyFull'),
+  { ssr: false },
+);
+const ExpertThresholdStudyFull = dynamic(
+  () => import('@/components/adaptive-depth-study/ExpertThresholdStudyFull'),
+  { ssr: false },
+);
+const DirectionalRoutingStudyFull = dynamic(
+  () => import('@/components/adaptive-depth-study/DirectionalRoutingStudyFull'),
+  { ssr: false },
+);
+
 // arxiv_id → full study content (replaces generic template for these papers)
 const FULL_STUDY_REGISTRY: Record<string, React.ComponentType> = {
   '2307.13304': QuIPStudyFull,          // QuIP
@@ -151,6 +177,13 @@ const FULL_STUDY_REGISTRY: Record<string, React.ComponentType> = {
   '2011.06099':  CsiFBNetStudyFull,    // CsiFBnet 2021 BF-gain CSI Feedback
   'love-heath-2008-survey': LimitedFeedbackSurveyStudyFull, // Love et al. 2008 Limited Feedback Survey
   '2004.10568': AdaRoundStudyFull,     // AdaRound (Nagel et al. 2020)
+  // Adaptive Depth / Dynamic Routing (2025-2026)
+  '2502.13842': InnerThinkingStudyFull,        // Inner Thinking Transformer (Chen et al. 2025)
+  '2507.10524': MixtureRecursionsStudyFull,    // Mixture-of-Recursions (Bae et al. 2025)
+  '2510.12773': DrLLMStudyFull,                // Dr.LLM (Heakl et al. 2025)
+  '2603.08391': AdaptiveLoopsStudyFull,        // Adaptive Loops & Memory (Frey et al. 2026)
+  '2603.11535': ExpertThresholdStudyFull,      // Expert Threshold Routing (Sun et al. 2026)
+  'taylor-2026-directional': DirectionalRoutingStudyFull, // Directional Routing (Taylor 2026)
 };
 
 /* ------------------------------------------------------------------ */
