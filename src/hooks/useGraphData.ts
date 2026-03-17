@@ -54,6 +54,8 @@ function toPaperNodes(
           | 'cnn'
           | 'representation_learning'
           | 'wireless_communication'
+          | '3gpp_spec'
+          | 'mas'
           | 'other',
       },
       familiarity_level: paper.familiarity_level,

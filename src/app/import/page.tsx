@@ -27,6 +27,8 @@ interface ImportPaper {
     | 'cnn'
     | 'representation_learning'
     | 'wireless_communication'
+    | '3gpp_spec'
+    | 'mas'
     | 'other';
   tags?: string[];
   pdf_url?: string | null;
