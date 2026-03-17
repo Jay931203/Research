@@ -16,10 +16,14 @@ interface TableOfContentsProps {
 export default function TableOfContents({ items, onNavigate }: TableOfContentsProps) {
   const [activeId, setActiveId] = useState('');
   const activeRef = useRef<HTMLButtonElement | null>(null);
+  const isNavigatingRef = useRef(false);
 
   useEffect(() => {
     const observer = new IntersectionObserver(
       (entries) => {
+        // Skip observer updates while user is clicking a TOC item
+        if (isNavigatingRef.current) return;
+
         const visible = entries
           .filter((entry) => entry.isIntersecting)
           .sort(
@@ -45,9 +49,9 @@ export default function TableOfContents({ items, onNavigate }: TableOfContentsPr
     return () => observer.disconnect();
   }, [items]);
 
-  // Auto-scroll TOC to keep active item visible
+  // Auto-scroll TOC to keep active item visible (only within TOC container)
   useEffect(() => {
-    if (activeRef.current) {
+    if (activeRef.current && !isNavigatingRef.current) {
       activeRef.current.scrollIntoView({
         behavior: 'smooth',
         block: 'nearest',
@@ -56,15 +60,23 @@ export default function TableOfContents({ items, onNavigate }: TableOfContentsPr
   }, [activeId]);
 
   const navigateTo = useCallback((id: string) => {
+    // Temporarily suppress observer to prevent scroll fighting
+    isNavigatingRef.current = true;
+    setActiveId(id);
+
     if (onNavigate) {
       onNavigate(id);
-      return;
+    } else {
+      const el = document.getElementById(id);
+      if (el) {
+        el.scrollIntoView({ behavior: 'smooth' });
+      }
     }
 
-    const el = document.getElementById(id);
-    if (el) {
-      el.scrollIntoView({ behavior: 'smooth' });
-    }
+    // Re-enable observer after scroll settles
+    setTimeout(() => {
+      isNavigatingRef.current = false;
+    }, 1000);
   }, [onNavigate]);
 
   // Check if a section's children include the active item

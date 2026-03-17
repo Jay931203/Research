@@ -69,9 +69,9 @@ export default function Chapter3Page() {
     const el = document.getElementById(id);
     if (el) {
       el.scrollIntoView({ behavior: 'smooth' });
-      el.classList.add('ring-2', 'ring-emerald-400', 'ring-offset-4');
+      el.classList.add('ring-2', 'ring-emerald-400', 'ring-offset-2');
       setTimeout(() => {
-        el.classList.remove('ring-2', 'ring-emerald-400', 'ring-offset-4');
+        el.classList.remove('ring-2', 'ring-emerald-400', 'ring-offset-2');
       }, 2000);
     }
   }, []);
@@ -90,26 +90,25 @@ export default function Chapter3Page() {
         />
       </div>
 
-      <div className="max-w-7xl mx-auto flex">
-        {/* Sticky TOC sidebar */}
-        {/* Open tab when sidebar is closed */}
-        {!sidebarOpen && (
-          <div className="hidden lg:block fixed left-0 top-1/2 -translate-y-1/2 z-40">
-            <button
-              onClick={() => setSidebarOpen(true)}
-              className="bg-white dark:bg-slate-800 border border-slate-200 dark:border-slate-700 border-l-0 rounded-r-lg px-1 py-4 shadow-md hover:bg-slate-50 dark:hover:bg-slate-700 text-slate-400 dark:text-slate-500 transition"
-              aria-label="사이드바 보기"
-              title="사이드바 보기"
-            >
-              <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 5l7 7-7 7" />
-              </svg>
-            </button>
-          </div>
-        )}
+      {/* Fixed TOC sidebar — completely independent from main content scroll */}
+      {!sidebarOpen && (
+        <div className="hidden lg:block fixed left-0 top-1/2 -translate-y-1/2 z-40">
+          <button
+            onClick={() => setSidebarOpen(true)}
+            className="bg-white dark:bg-slate-800 border border-slate-200 dark:border-slate-700 border-l-0 rounded-r-lg px-1 py-4 shadow-md hover:bg-slate-50 dark:hover:bg-slate-700 text-slate-400 dark:text-slate-500 transition"
+            aria-label="사이드바 보기"
+            title="사이드바 보기"
+          >
+            <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 5l7 7-7 7" />
+            </svg>
+          </button>
+        </div>
+      )}
 
-        <aside className={sidebarOpen ? 'hidden lg:block w-64 shrink-0' : 'hidden'}>
-          <div className="sticky top-16 pt-8 pb-8 pr-4 max-h-[calc(100vh-4rem)] overflow-y-auto">
+      {sidebarOpen && (
+        <aside className="hidden lg:block fixed left-0 top-[4rem] w-64 h-[calc(100vh-4rem)] z-30 bg-slate-50 dark:bg-slate-900 border-r border-slate-200 dark:border-slate-700 overflow-y-auto">
+          <div className="pt-6 pb-8 px-2">
             <div className="flex items-center justify-between px-3 mb-3">
               <div className="text-xs font-semibold text-slate-400 dark:text-slate-500 uppercase tracking-wider">
                 Contents
@@ -137,9 +136,11 @@ export default function Chapter3Page() {
             </div>
           </div>
         </aside>
+      )}
 
-        {/* Main content */}
-        <main className="tse-content flex-1 min-w-0 py-8 px-4 lg:px-8">
+      {/* Main content — offset by sidebar width, scrolls independently */}
+      <main className={`tse-content min-h-screen py-8 px-4 lg:px-8 ${sidebarOpen ? 'lg:ml-64' : ''}`}>
+        <div className="max-w-4xl mx-auto">
           {/* Chapter hero */}
           <div className="mb-8 p-8 bg-gradient-to-br from-emerald-600 to-teal-700 rounded-2xl text-white">
             <div className="text-emerald-200 text-sm font-medium mb-2">Chapter 3</div>
@@ -170,8 +171,8 @@ export default function Chapter3Page() {
             <Section7AppendixB onNavigate={handleNavigate} />
           </div>
 
-        </main>
-      </div>
+        </div>
+      </main>
 
       {/* Back to top button */}
       {showBackToTop && (
