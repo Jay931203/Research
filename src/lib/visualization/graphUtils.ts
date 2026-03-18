@@ -134,6 +134,7 @@ export type ResearchTopic =
   | 'general_quantization'
   | 'representation_learning'
   | 'state_space'
+  | 'adaptive_depth'
   | '3gpp_spec'
   | 'mas'
   | 'other';
@@ -146,6 +147,7 @@ export const RESEARCH_TOPIC_ORDER: ResearchTopic[] = [
   'general_quantization',
   'representation_learning',
   'state_space',
+  'adaptive_depth',
   'mas',
   'other',
 ];
@@ -158,6 +160,7 @@ export const RESEARCH_TOPIC_LABELS: Record<ResearchTopic, string> = {
   general_quantization: 'General Quantization',
   representation_learning: 'Representation Learning',
   state_space: 'State-Space',
+  adaptive_depth: 'Adaptive Depth / Routing',
   mas: 'Multi-Agent Systems',
   other: 'Other',
 };
@@ -170,6 +173,7 @@ export const RESEARCH_TOPIC_COLORS: Record<ResearchTopic, string> = {
   general_quantization: '#dc2626',
   representation_learning: '#0f766e',
   state_space: '#7c3aed',
+  adaptive_depth: '#e11d48',
   mas: '#8b5cf6',
   other: '#6b7280',
 };
@@ -258,9 +262,19 @@ export function inferResearchTopic(input: ResearchTopicInput): ResearchTopic {
     containsAny(haystack, REPRESENTATION_KEYWORDS) ||
     REPRESENTATION_TOKENS.some((token) => tokenSet.has(token));
 
+  // Adaptive depth / dynamic routing detection (before CSI check)
+  const ADAPTIVE_DEPTH_KEYWORDS = [
+    'adaptive depth', 'dynamic depth', 'inner thinking', 'mixture of recursion',
+    'dynamic routing', 'layer routing', 'adaptive loop', 'expert threshold',
+    'directional routing', 'dynamic computation', 'early exit', 'layer skip',
+    'adaptive-depth', 'dynamic-routing', 'adaptive_depth',
+  ];
+  const hasAdaptiveDepth = containsAny(haystack, ADAPTIVE_DEPTH_KEYWORDS);
+
   if (category === 'wireless_communication') return 'wireless_communication';
   if (category === '3gpp_spec') return '3gpp_spec';
   if (category === 'mas') return 'mas';
+  if (hasAdaptiveDepth) return 'adaptive_depth';
   if (hasStateSpace) return 'state_space';
   if (hasCSI && hasQuantization) return 'csi_quantization';
   if (hasQuantization) return 'general_quantization';
@@ -272,10 +286,14 @@ export function inferResearchTopic(input: ResearchTopicInput): ResearchTopic {
   if (
     category === 'autoencoder' ||
     category === 'cnn' ||
-    category === 'transformer' ||
     category === 'csi_compression'
   ) {
     return 'csi_architecture';
+  }
+  // transformer without CSI/adaptive keywords → keep as transformer (other)
+  if (category === 'transformer') {
+    if (hasCSI) return 'csi_architecture';
+    return 'other';
   }
 
   return 'other';
