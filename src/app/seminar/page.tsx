@@ -18,6 +18,16 @@ interface SeminarEntry {
 
 const labSeminars: SeminarEntry[] = [
   {
+    date: '260319',
+    displayDate: '2026. 03. 19',
+    slug: 'chain-of-thought',
+    title: 'Chain-of-Thought Reasoning',
+    papers: 5,
+    demos: 0,
+    tags: ['CoT Prompting', 'Optimal Length', 'DTR Metric', 'Early Stopping', 'Topology'],
+    color: 'from-amber-500 to-orange-600',
+  },
+  {
     date: '260310',
     displayDate: '2026. 03. 10',
     slug: 'kv-cache',
