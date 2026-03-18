@@ -425,7 +425,7 @@ export default function ExpertThresholdStudyFull() {
                 <p className="mb-1 text-xs font-bold text-red-700 dark:text-red-300">고정 연산량 문제</p>
                 <p className="text-xs text-red-600 dark:text-red-400">
                   모든 토큰이 정확히 k개의 expert를 사용.<br/>
-                  "the" 같은 기능어도, "quantum" 같은 전문용어도 동일한 연산량 소비.<br/>
+                  &ldquo;the&rdquo; 같은 기능어도, &ldquo;quantum&rdquo; 같은 전문용어도 동일한 연산량 소비.<br/>
                   간단한 토큰에는 낭비, 어려운 토큰에는 부족.
                 </p>
               </div>

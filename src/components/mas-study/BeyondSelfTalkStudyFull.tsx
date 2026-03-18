@@ -349,7 +349,7 @@ export default function BeyondSelfTalkStudyFull() {
               <p className="mt-1 text-xs leading-relaxed text-amber-600 dark:text-amber-400">
                 MAS를 설계할 때, 에이전트 능력(LLM 선택)보다 통신 프로토콜 설계가 더 큰 영향을 미칠 수 있습니다.
                 동일한 GPT-4 에이전트라도, 비구조화된 자유 토론 vs 구조화된 피드백 프로토콜은 성능 차이가 20-40%에 달합니다.
-                이 서베이는 "좋은 LLM을 쓰는 것"보다 "좋은 통신을 설계하는 것"이 우선임을 강조합니다.
+                이 서베이는 &ldquo;좋은 LLM을 쓰는 것&rdquo;보다 &ldquo;좋은 통신을 설계하는 것&rdquo;이 우선임을 강조합니다.
               </p>
             </div>
           </Card>
