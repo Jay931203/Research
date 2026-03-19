@@ -52,10 +52,13 @@ export default function TableOfContents({ items, onNavigate }: TableOfContentsPr
   // Auto-scroll TOC to keep active item visible (only within TOC container)
   useEffect(() => {
     if (activeRef.current && !isNavigatingRef.current) {
-      activeRef.current.scrollIntoView({
-        behavior: 'smooth',
-        block: 'nearest',
-      });
+      const container = activeRef.current.closest('[data-toc-scroll]');
+      if (container) {
+        const itemTop = activeRef.current.offsetTop;
+        const containerHeight = container.clientHeight;
+        const scrollTarget = itemTop - containerHeight / 3;
+        container.scrollTo({ top: scrollTarget, behavior: 'smooth' });
+      }
     }
   }, [activeId]);
 

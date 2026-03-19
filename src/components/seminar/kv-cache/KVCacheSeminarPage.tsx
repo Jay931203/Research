@@ -105,7 +105,7 @@ export default function KVCacheSeminarPage() {
 
         {/* TOC sidebar */}
         <aside className={sidebarOpen ? 'hidden lg:block w-64 shrink-0' : 'hidden'}>
-          <div className="sticky top-16 pt-8 pb-8 pr-4 max-h-[calc(100vh-4rem)] overflow-y-auto">
+          <div data-toc-scroll className="sticky top-16 pt-8 pb-8 pr-4 max-h-[calc(100vh-4rem)] overflow-y-auto">
             <div className="flex items-center justify-between px-3 mb-3">
               <div className="text-xs font-semibold text-slate-400 dark:text-slate-500 uppercase tracking-wider">
                 Contents
