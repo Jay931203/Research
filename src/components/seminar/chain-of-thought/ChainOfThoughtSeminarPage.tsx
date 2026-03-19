@@ -3,6 +3,9 @@
 import { useCallback, useState, useEffect } from 'react';
 import { BlockMath, InlineMath } from 'react-katex';
 import { TableOfContents, type TocItem } from '@/components/tse/navigation';
+import InvertedUCurveDemo from './InvertedUCurveDemo';
+import DeepThinkingTokenViz from './DeepThinkingTokenViz';
+import TopologyBondViz from './TopologyBondViz';
 
 /* ------------------------------------------------------------------ */
 /*  Table of Contents                                                  */
@@ -10,26 +13,37 @@ import { TableOfContents, type TocItem } from '@/components/tse/navigation';
 const tocItems: TocItem[] = [
   { id: 'intro', label: '1. Chain-of-Thought란?', level: 1 },
   { id: 'intro-definition', label: 'CoT 정의', level: 2 },
+  { id: 'intro-comparison', label: 'CoT vs Standard', level: 2 },
+  { id: 'intro-ttc', label: 'Test-Time Compute', level: 2 },
   { id: 'intro-observations', label: '핵심 관찰', level: 2 },
+  { id: 'intro-benchmarks', label: '벤치마크 카테고리', level: 2 },
 
   { id: 'length', label: '2. CoT 길이의 최적화', level: 1 },
   { id: 'length-inverted-u', label: 'Inverted U-Shaped Curve', level: 2 },
+  { id: 'length-error-accum', label: '오류 누적 모델', level: 2 },
   { id: 'length-factors', label: '난이도 vs 모델 능력', level: 2 },
   { id: 'length-rl', label: 'RL 관점', level: 2 },
+  { id: 'length-simplicity', label: 'Simplicity Bias', level: 2 },
 
   { id: 'effort', label: '3. 추론 노력 측정', level: 1 },
   { id: 'effort-deep-tokens', label: 'Deep-Thinking Tokens', level: 2 },
+  { id: 'effort-stabilization', label: '레이어별 안정화', level: 2 },
   { id: 'effort-dtr', label: 'DTR 메트릭', level: 2 },
+  { id: 'effort-self-certainty', label: 'Self-Certainty 기준선', level: 2 },
   { id: 'effort-scaling', label: 'Test-Time Scaling', level: 2 },
 
   { id: 'stop', label: '4. 언제 생각을 멈출까', level: 1 },
   { id: 'stop-redundancy', label: '중복 추론 문제', level: 2 },
+  { id: 'stop-example', label: '구체적 예시', level: 2 },
   { id: 'stop-scoring', label: 'Scoring Function', level: 2 },
   { id: 'stop-termination', label: 'Exploration Termination', level: 2 },
+  { id: 'stop-sage', label: 'SAGE + GRPO 통합', level: 2 },
 
   { id: 'topology', label: '5. Long CoT의 위상 구조', level: 1 },
   { id: 'topology-bonds', label: '세 가지 Bond 유형', level: 2 },
+  { id: 'topology-sft', label: 'SFT가 배우는 것', level: 2 },
   { id: 'topology-molesyn', label: 'Mole-Syn 방법', level: 2 },
+  { id: 'topology-comparison', label: 'Mole-Syn vs Distillation', level: 2 },
 
   { id: 'conclusion', label: '6. 종합 정리', level: 1 },
 ];
@@ -207,6 +221,71 @@ export default function ChainOfThoughtSeminarPage() {
                 </p>
               </div>
 
+              {/* CoT vs Standard Prompting comparison */}
+              <div id="intro-comparison" className="concept-card mb-6">
+                <div className="text-xs font-semibold text-orange-600 dark:text-orange-400 mb-1">Comparison</div>
+                <h3 className="font-bold text-slate-800 dark:text-slate-200 mb-3">CoT vs Standard Prompting</h3>
+                <div className="grid sm:grid-cols-2 gap-4 text-sm">
+                  <div className="p-4 bg-red-50 dark:bg-red-900/20 rounded-lg border border-red-200 dark:border-red-800">
+                    <strong className="text-red-800 dark:text-red-300">Standard Prompting</strong>
+                    <div className="mt-3 p-3 bg-white dark:bg-slate-800 rounded-lg font-mono text-xs text-slate-700 dark:text-slate-300 space-y-1">
+                      <div><span className="text-red-600 dark:text-red-400 font-bold">Q:</span> 8 + 5 * 3 = ?</div>
+                      <div><span className="text-red-600 dark:text-red-400 font-bold">A:</span> 23</div>
+                    </div>
+                    <p className="text-slate-600 dark:text-slate-400 mt-2">
+                      입력에서 출력으로 바로 점프합니다. 중간 과정 없이 최종 답만 생성하므로,
+                      모델이 내부적으로 어떤 순서로 연산했는지 알 수 없습니다.
+                      복잡한 문제에서 오류율이 높아집니다.
+                    </p>
+                  </div>
+                  <div className="p-4 bg-green-50 dark:bg-green-900/20 rounded-lg border border-green-200 dark:border-green-800">
+                    <strong className="text-green-800 dark:text-green-300">Chain-of-Thought Prompting</strong>
+                    <div className="mt-3 p-3 bg-white dark:bg-slate-800 rounded-lg font-mono text-xs text-slate-700 dark:text-slate-300 space-y-1">
+                      <div><span className="text-green-600 dark:text-green-400 font-bold">Q:</span> 8 + 5 * 3 = ?</div>
+                      <div className="text-slate-500 dark:text-slate-400 italic">Let&apos;s think step by step.</div>
+                      <div>First, 5 * 3 = 15</div>
+                      <div>Then, 8 + 15 = 23</div>
+                      <div><span className="text-green-600 dark:text-green-400 font-bold">A:</span> 23</div>
+                    </div>
+                    <p className="text-slate-600 dark:text-slate-400 mt-2">
+                      중간 추론 단계를 명시적으로 생성합니다. 연산 순서(곱셈 먼저)를
+                      올바르게 적용하며, 각 단계가 검증 가능합니다.
+                    </p>
+                  </div>
+                </div>
+              </div>
+
+              {/* Test-Time Compute concept */}
+              <div id="intro-ttc" className="concept-card mb-6">
+                <div className="text-xs font-semibold text-indigo-600 dark:text-indigo-400 mb-1">Core Mechanism</div>
+                <h3 className="font-bold text-slate-800 dark:text-slate-200 mb-2">Test-Time Compute</h3>
+                <p className="text-sm text-slate-600 dark:text-slate-400 mb-3">
+                  CoT의 근본적인 메커니즘은 <strong>test-time compute의 증가</strong>입니다.
+                  학습 시 파라미터를 더 투입하는 대신, 추론 시 더 많은 토큰을 생성하여
+                  모델이 &ldquo;생각하는 시간&rdquo;을 확보합니다.
+                </p>
+                <div className="grid sm:grid-cols-2 gap-4 text-sm">
+                  <div className="p-3 bg-indigo-50 dark:bg-indigo-900/20 rounded-lg border border-indigo-200 dark:border-indigo-800">
+                    <strong className="text-indigo-800 dark:text-indigo-300">Train-Time Scaling</strong>
+                    <p className="text-slate-600 dark:text-slate-400 mt-1">
+                      더 큰 모델, 더 많은 데이터로 학습 &rarr; 파라미터에 지식을 저장.
+                      비용: 학습 비용 <InlineMath math="O(N \cdot D)" /> (모델 크기 x 데이터).
+                    </p>
+                  </div>
+                  <div className="p-3 bg-violet-50 dark:bg-violet-900/20 rounded-lg border border-violet-200 dark:border-violet-800">
+                    <strong className="text-violet-800 dark:text-violet-300">Test-Time Scaling (CoT)</strong>
+                    <p className="text-slate-600 dark:text-slate-400 mt-1">
+                      추론 시 더 많은 토큰을 생성 &rarr; 더 많은 연산 수행.
+                      비용: 추론 비용 <InlineMath math="O(T)" /> (생성 토큰 수)에 비례.
+                    </p>
+                  </div>
+                </div>
+                <p className="text-sm text-slate-600 dark:text-slate-400 mt-3">
+                  이 관점에서 CoT는 &ldquo;모델의 크기를 키우지 않고도 추론 능력을 높이는 방법&rdquo;입니다.
+                  같은 7B 모델이라도 CoT를 활용하면 더 큰 모델의 direct answer에 비견되는 성능을 달성할 수 있습니다.
+                </p>
+              </div>
+
               <div id="intro-observations" className="concept-card mb-6">
                 <div className="text-xs font-semibold text-blue-600 dark:text-blue-400 mb-1">Key Observations</div>
                 <h3 className="font-bold text-slate-800 dark:text-slate-200 mb-2">핵심 관찰 결과</h3>
@@ -237,6 +316,44 @@ export default function ChainOfThoughtSeminarPage() {
                     <div>
                       <strong className="text-slate-800 dark:text-slate-200">구조가 핵심</strong>
                       <p className="text-slate-600 dark:text-slate-400 mt-0.5">단순히 긴 생성이 아니라, 구조화된 추론이 성능의 원인</p>
+                    </div>
+                  </div>
+                </div>
+              </div>
+
+              {/* Benchmark Categories */}
+              <div id="intro-benchmarks" className="concept-card mb-6">
+                <div className="text-xs font-semibold text-teal-600 dark:text-teal-400 mb-1">Benchmarks</div>
+                <h3 className="font-bold text-slate-800 dark:text-slate-200 mb-3">CoT가 효과적인 세 가지 벤치마크 카테고리</h3>
+                <div className="grid sm:grid-cols-3 gap-4 text-sm">
+                  <div className="p-4 bg-blue-50 dark:bg-blue-900/20 rounded-lg border border-blue-200 dark:border-blue-800">
+                    <strong className="text-blue-800 dark:text-blue-300">Arithmetic Reasoning</strong>
+                    <p className="text-slate-600 dark:text-slate-400 mt-2">
+                      GSM8K, SVAMP, MultiArith 등 수학 문제.
+                      다단계 산술 연산이 필요하며, CoT로 각 연산 단계를 분리하면 정확도가 크게 향상됩니다.
+                    </p>
+                    <div className="mt-2 p-2 bg-white dark:bg-slate-800 rounded text-xs font-mono text-center text-blue-700 dark:text-blue-300">
+                      GSM8K: 58% &rarr; 74% (PaLM 540B)
+                    </div>
+                  </div>
+                  <div className="p-4 bg-amber-50 dark:bg-amber-900/20 rounded-lg border border-amber-200 dark:border-amber-800">
+                    <strong className="text-amber-800 dark:text-amber-300">Commonsense Reasoning</strong>
+                    <p className="text-slate-600 dark:text-slate-400 mt-2">
+                      CommonsenseQA, StrategyQA 등.
+                      일상적 지식과 논리적 추론의 결합이 필요한 과제로, CoT가 추론 경로를 명시화합니다.
+                    </p>
+                    <div className="mt-2 p-2 bg-white dark:bg-slate-800 rounded text-xs font-mono text-center text-amber-700 dark:text-amber-300">
+                      CSQA: 79% &rarr; 85% (PaLM 540B)
+                    </div>
+                  </div>
+                  <div className="p-4 bg-purple-50 dark:bg-purple-900/20 rounded-lg border border-purple-200 dark:border-purple-800">
+                    <strong className="text-purple-800 dark:text-purple-300">Symbolic Manipulation</strong>
+                    <p className="text-slate-600 dark:text-slate-400 mt-2">
+                      Last Letter Concatenation, Coin Flip 등.
+                      규칙 기반의 기호 조작으로, CoT 없이는 길이가 늘어날수록 성능이 급격히 하락합니다.
+                    </p>
+                    <div className="mt-2 p-2 bg-white dark:bg-slate-800 rounded text-xs font-mono text-center text-purple-700 dark:text-purple-300">
+                      OOD에서도 일반화 가능
                     </div>
                   </div>
                 </div>
@@ -294,6 +411,73 @@ export default function ChainOfThoughtSeminarPage() {
                 <p className="text-sm text-slate-600 dark:text-slate-400">
                   CoT가 길어지면 각 중간 단계에서 오류가 발생할 확률이 누적됩니다.
                   일정 길이를 넘으면 오히려 정확도가 떨어집니다.
+                </p>
+              </div>
+
+              {/* Interactive Inverted U-Curve Demo */}
+              <InvertedUCurveDemo />
+
+              {/* Error Accumulation Model */}
+              <div id="length-error-accum" className="formula-block mb-6">
+                <h4 className="font-semibold text-blue-800 dark:text-blue-300 mb-3">오류 누적 모델 (Error Accumulation)</h4>
+                <p className="text-sm text-slate-600 dark:text-slate-400 mb-3">
+                  CoT 과정을 <InlineMath math="n" />개의 서브질문으로 분해한다고 합시다.
+                  각 서브질문의 정답 확률을 <InlineMath math="a" />라 하면,
+                  전체 CoT가 성공할 확률은 각 단계가 독립이라는 가정 하에:
+                </p>
+                <BlockMath math={String.raw`P(\text{CoT 성공}) = a^n`} />
+                <p className="text-sm text-slate-600 dark:text-slate-400 mt-3 mb-3">
+                  만약 각 단계에서 오류 확률을 <InlineMath math="\varepsilon = 1 - a" />라 하면,
+                  <InlineMath math="n" />-step chain의 성공률은:
+                </p>
+                <BlockMath math={String.raw`P(\text{성공}) = (1-\varepsilon)^n \approx e^{-n\varepsilon} \quad \text{(}\varepsilon \text{가 작을 때)}`} />
+                <div className="mt-4 p-4 bg-slate-50 dark:bg-slate-800 rounded-lg">
+                  <p className="text-sm font-semibold text-slate-700 dark:text-slate-300 mb-2">수치 예시</p>
+                  <div className="overflow-x-auto">
+                    <table className="w-full text-xs border-collapse">
+                      <thead>
+                        <tr className="border-b border-slate-200 dark:border-slate-700">
+                          <th className="text-left py-1.5 px-2 text-slate-600 dark:text-slate-400">단계별 정확도 <InlineMath math="a" /></th>
+                          <th className="text-center py-1.5 px-2 text-slate-600 dark:text-slate-400"><InlineMath math="n=3" /></th>
+                          <th className="text-center py-1.5 px-2 text-slate-600 dark:text-slate-400"><InlineMath math="n=5" /></th>
+                          <th className="text-center py-1.5 px-2 text-slate-600 dark:text-slate-400"><InlineMath math="n=10" /></th>
+                          <th className="text-center py-1.5 px-2 text-slate-600 dark:text-slate-400"><InlineMath math="n=20" /></th>
+                        </tr>
+                      </thead>
+                      <tbody className="text-slate-600 dark:text-slate-400">
+                        <tr className="border-b border-slate-100 dark:border-slate-800">
+                          <td className="py-1.5 px-2">0.95</td>
+                          <td className="py-1.5 px-2 text-center">85.7%</td>
+                          <td className="py-1.5 px-2 text-center">77.4%</td>
+                          <td className="py-1.5 px-2 text-center">59.9%</td>
+                          <td className="py-1.5 px-2 text-center text-red-500 dark:text-red-400">35.8%</td>
+                        </tr>
+                        <tr className="border-b border-slate-100 dark:border-slate-800">
+                          <td className="py-1.5 px-2">0.90</td>
+                          <td className="py-1.5 px-2 text-center">72.9%</td>
+                          <td className="py-1.5 px-2 text-center">59.0%</td>
+                          <td className="py-1.5 px-2 text-center text-red-500 dark:text-red-400">34.9%</td>
+                          <td className="py-1.5 px-2 text-center text-red-500 dark:text-red-400">12.2%</td>
+                        </tr>
+                        <tr>
+                          <td className="py-1.5 px-2">0.99</td>
+                          <td className="py-1.5 px-2 text-center">97.0%</td>
+                          <td className="py-1.5 px-2 text-center">95.1%</td>
+                          <td className="py-1.5 px-2 text-center">90.4%</td>
+                          <td className="py-1.5 px-2 text-center">81.8%</td>
+                        </tr>
+                      </tbody>
+                    </table>
+                  </div>
+                  <p className="text-xs text-slate-500 dark:text-slate-400 mt-2">
+                    단계별 정확도가 0.95여도 20단계면 성공률이 36%로 급락합니다.
+                    이것이 역 U자 곡선의 하강 구간을 설명합니다.
+                  </p>
+                </div>
+                <p className="text-sm text-slate-600 dark:text-slate-400 mt-3">
+                  정식으로, 총 연산자 수 <InlineMath math="D" />인 문제를 모델 능력 <InlineMath math="M" />으로 풀 때,
+                  최적 서브질문 수는 <InlineMath math={String.raw`n^* = D / M`} />이며,
+                  이보다 더 많이 분해하면 오류 누적이 정확도 이득을 초과합니다.
                 </p>
               </div>
 
@@ -367,6 +551,46 @@ export default function ChainOfThoughtSeminarPage() {
                 </div>
               </div>
 
+              {/* Simplicity Bias */}
+              <div id="length-simplicity" className="concept-card mb-6">
+                <div className="text-xs font-semibold text-fuchsia-600 dark:text-fuchsia-400 mb-1">RL Phenomenon</div>
+                <h3 className="font-bold text-slate-800 dark:text-slate-200 mb-3">Simplicity Bias in RL</h3>
+                <p className="text-sm text-slate-600 dark:text-slate-400 mb-4">
+                  RL로 학습한 모델은 자연스럽게 &ldquo;더 짧고 효율적인&rdquo; CoT를 생성하는 방향으로 수렴합니다.
+                  이는 보상 함수가 정확도만 최적화할 때, 불필요한 추론 단계가 비용으로 작용하기 때문입니다.
+                </p>
+                <div className="grid sm:grid-cols-2 gap-4 text-sm mb-4">
+                  <div className="p-4 bg-slate-100 dark:bg-slate-800 rounded-lg border border-slate-200 dark:border-slate-700">
+                    <strong className="text-slate-800 dark:text-slate-200">Before RL (SFT 모델)</strong>
+                    <div className="mt-2 p-3 bg-white dark:bg-slate-900 rounded font-mono text-xs text-slate-600 dark:text-slate-400 space-y-0.5">
+                      <div>Step 1: 문제 해석 <span className="text-green-500">&#10003;</span></div>
+                      <div>Step 2: 배경 지식 나열 <span className="text-yellow-500">~</span></div>
+                      <div>Step 3: 공식 도출 <span className="text-green-500">&#10003;</span></div>
+                      <div>Step 4: 반복 확인 <span className="text-red-500">&#10007; 불필요</span></div>
+                      <div>Step 5: 다시 정리 <span className="text-red-500">&#10007; 불필요</span></div>
+                      <div>Step 6: 최종 계산 <span className="text-green-500">&#10003;</span></div>
+                      <div>Step 7: 답변 <span className="text-green-500">&#10003;</span></div>
+                    </div>
+                    <p className="text-xs text-slate-500 dark:text-slate-400 mt-2">7 단계, 불필요한 반복 포함</p>
+                  </div>
+                  <div className="p-4 bg-fuchsia-50 dark:bg-fuchsia-900/20 rounded-lg border border-fuchsia-200 dark:border-fuchsia-800">
+                    <strong className="text-fuchsia-800 dark:text-fuchsia-300">After RL</strong>
+                    <div className="mt-2 p-3 bg-white dark:bg-slate-900 rounded font-mono text-xs text-slate-600 dark:text-slate-400 space-y-0.5">
+                      <div>Step 1: 문제 해석 <span className="text-green-500">&#10003;</span></div>
+                      <div>Step 2: 공식 적용 <span className="text-green-500">&#10003;</span></div>
+                      <div>Step 3: 계산 <span className="text-green-500">&#10003;</span></div>
+                      <div>Step 4: 답변 <span className="text-green-500">&#10003;</span></div>
+                    </div>
+                    <p className="text-xs text-fuchsia-600 dark:text-fuchsia-400 mt-2">4 단계, 핵심만 유지 &mdash; 정확도 동일 or 향상</p>
+                  </div>
+                </div>
+                <p className="text-sm text-slate-600 dark:text-slate-400">
+                  이 현상은 RL이 의도적으로 &ldquo;짧게 쓰라&rdquo;고 학습시킨 것이 아니라,
+                  정확도 보상을 최적화하는 과정에서 <strong>자연스럽게 불필요한 단계를 제거</strong>한 결과입니다.
+                  즉, RL은 암묵적으로 최적 CoT 길이를 학습합니다.
+                </p>
+              </div>
+
               <div className="insight">
                 <div className="insight-title">Key Insight</div>
                 <p className="text-sm text-slate-600 dark:text-slate-400">
@@ -427,6 +651,29 @@ export default function ChainOfThoughtSeminarPage() {
                 </div>
               </div>
 
+              {/* Interactive: Deep-Thinking Token Viz */}
+              <DeepThinkingTokenViz />
+
+              {/* Layer-by-layer stabilization detail */}
+              <div id="effort-stabilization" className="formula-block mb-6">
+                <h4 className="font-semibold text-blue-800 dark:text-blue-300 mb-3">레이어별 안정화 과정</h4>
+                <p className="text-sm text-slate-600 dark:text-slate-400 mb-3">
+                  Transformer의 각 레이어 <InlineMath math="l" />에서 중간 hidden state를 vocabulary에 projection하면
+                  해당 레이어에서의 &ldquo;예측 분포&rdquo; <InlineMath math="P_l" />을 얻을 수 있습니다.
+                  이를 최종 레이어 <InlineMath math="P_L" />과 비교합니다.
+                </p>
+                <BlockMath math={String.raw`P_l = \text{softmax}(W_{\text{head}} \cdot h_l), \quad l = 1, 2, \ldots, L`} />
+                <p className="text-sm text-slate-600 dark:text-slate-400 mt-3 mb-3">
+                  인접한 레이어 간의 JSD를 계산하여 &ldquo;안정화 지점&rdquo;을 찾습니다.
+                  JSD가 임계값 <InlineMath math="\tau" /> 이하로 떨어지는 가장 이른 레이어가 안정화 레이어 <InlineMath math="l^*" />입니다:
+                </p>
+                <BlockMath math={String.raw`l^* = \min\{l : \text{JSD}(P_l \| P_L) < \tau, \; \forall l' \geq l\}`} />
+                <p className="text-sm text-slate-600 dark:text-slate-400 mt-3">
+                  <InlineMath math="l^*" />가 큰 토큰(늦은 레이어까지 변화가 지속) = deep-thinking token.
+                  <InlineMath math="l^*" />가 작은 토큰(이른 레이어에서 이미 확정) = shallow token.
+                </p>
+              </div>
+
               <div id="effort-dtr" className="formula-block mb-6">
                 <h4 className="font-semibold text-blue-800 dark:text-blue-300 mb-3">DTR (Deep-Thinking Token Ratio)</h4>
                 <p className="text-sm text-slate-600 dark:text-slate-400 mb-3">
@@ -446,25 +693,71 @@ export default function ChainOfThoughtSeminarPage() {
                 </p>
               </div>
 
+              {/* Self-Certainty baseline */}
+              <div id="effort-self-certainty" className="concept-card mb-6">
+                <div className="text-xs font-semibold text-cyan-600 dark:text-cyan-400 mb-1">Baseline</div>
+                <h3 className="font-bold text-slate-800 dark:text-slate-200 mb-2">Self-Certainty 기준선</h3>
+                <p className="text-sm text-slate-600 dark:text-slate-400 mb-3">
+                  DTR과 비교되는 기존 기준선 중 하나로, 모델의 출력 분포가 uniform distribution에서
+                  얼마나 벗어났는지를 측정합니다. 확신이 높을수록(= 분포가 더 peaked할수록)
+                  Self-Certainty가 높습니다.
+                </p>
+                <BlockMath math={String.raw`\text{Self-Certainty} = D_{\text{KL}}(\mathcal{U} \| P_L) = \log |\mathcal{V}| + \sum_{v} P_L(v) \log P_L(v)`} />
+                <p className="text-sm text-slate-600 dark:text-slate-400 mt-3">
+                  여기서 <InlineMath math="\mathcal{U}" />는 vocabulary 크기 <InlineMath math="|\mathcal{V}|" /> 위의 uniform distribution입니다.
+                  이 메트릭은 최종 레이어의 확신도만 측정하므로, 모델이 &ldquo;쉽게 확신하는&rdquo; 경우와
+                  &ldquo;깊이 고민한 후 확신하는&rdquo; 경우를 구분하지 못합니다.
+                  <strong> DTR은 이 한계를 해결</strong>하여, 중간 레이어들의 변화까지 포착합니다.
+                </p>
+              </div>
+
               <div id="effort-scaling" className="concept-card mb-6">
                 <div className="text-xs font-semibold text-teal-600 dark:text-teal-400 mb-1">Application</div>
-                <h3 className="font-bold text-slate-800 dark:text-slate-200 mb-2">Efficient Test-Time Scaling</h3>
+                <h3 className="font-bold text-slate-800 dark:text-slate-200 mb-2">Efficient Test-Time Scaling Pipeline</h3>
                 <p className="text-sm text-slate-600 dark:text-slate-400 mb-3">
-                  DTR을 활용한 효율적 test-time scaling 전략:
+                  DTR을 활용한 효율적 test-time scaling 전략은 세 단계로 구성됩니다.
+                  핵심 아이디어는 &ldquo;깊이 생각하지 않은 응답은 정확할 가능성이 낮다&rdquo;는 것입니다.
                 </p>
                 <div className="space-y-2 text-sm">
                   <div className="flex items-start gap-3 p-3 bg-teal-50 dark:bg-teal-900/20 rounded-lg border border-teal-200 dark:border-teal-800">
                     <span className="text-teal-600 dark:text-teal-400 font-bold shrink-0">Step 1</span>
-                    <p className="text-slate-600 dark:text-slate-400">여러 후보 응답을 반복 샘플링 (repeated sampling)</p>
+                    <div className="text-slate-600 dark:text-slate-400">
+                      <strong>Repeated Sampling</strong>: 동일 질문에 대해 <InlineMath math="N" />개의 후보 응답을 생성합니다.
+                      각 응답에 대해 DTR을 계산합니다.
+                    </div>
+                  </div>
+                  <div className="flex items-center justify-center py-1">
+                    <svg className="w-5 h-5 text-teal-400" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}>
+                      <path strokeLinecap="round" strokeLinejoin="round" d="M19 14l-7 7m0 0l-7-7m7 7V3" />
+                    </svg>
                   </div>
                   <div className="flex items-start gap-3 p-3 bg-teal-50 dark:bg-teal-900/20 rounded-lg border border-teal-200 dark:border-teal-800">
                     <span className="text-teal-600 dark:text-teal-400 font-bold shrink-0">Step 2</span>
-                    <p className="text-slate-600 dark:text-slate-400">DTR이 낮은 응답은 조기 기각 (early rejection) &mdash; 얕은 사고로 생성된 답변 배제</p>
+                    <div className="text-slate-600 dark:text-slate-400">
+                      <strong>Early Rejection</strong>: DTR이 낮은 응답 (DTR &lt; threshold)을 필터링합니다.
+                      이는 모델이 &ldquo;대충 답한&rdquo; 응답을 제거하는 것과 같습니다.
+                      일반적으로 하위 30~50%를 필터링합니다.
+                    </div>
+                  </div>
+                  <div className="flex items-center justify-center py-1">
+                    <svg className="w-5 h-5 text-teal-400" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}>
+                      <path strokeLinecap="round" strokeLinejoin="round" d="M19 14l-7 7m0 0l-7-7m7 7V3" />
+                    </svg>
                   </div>
                   <div className="flex items-start gap-3 p-3 bg-teal-50 dark:bg-teal-900/20 rounded-lg border border-teal-200 dark:border-teal-800">
                     <span className="text-teal-600 dark:text-teal-400 font-bold shrink-0">Step 3</span>
-                    <p className="text-slate-600 dark:text-slate-400">DTR이 높은 응답 중에서 최종 선택 (sample selection)</p>
+                    <div className="text-slate-600 dark:text-slate-400">
+                      <strong>Sample Selection</strong>: 남은 후보 중에서 majority voting 또는
+                      best-of-N 선택을 수행합니다. DTR 가중치를 적용한 weighted voting이 더 효과적입니다.
+                    </div>
                   </div>
+                </div>
+                <div className="mt-4 p-3 bg-emerald-50 dark:bg-emerald-900/20 rounded-lg border border-emerald-200 dark:border-emerald-800 text-sm">
+                  <strong className="text-emerald-800 dark:text-emerald-300">결과:</strong>
+                  <span className="text-slate-600 dark:text-slate-400">
+                    {' '}MATH benchmark에서 동일 토큰 예산 대비 기존 majority voting보다 높은 정확도 달성.
+                    DTR 기반 필터링으로 무의미한 샘플에 소비되는 연산을 절약합니다.
+                  </span>
                 </div>
               </div>
 
@@ -538,6 +831,9 @@ export default function ChainOfThoughtSeminarPage() {
                 <div className="text-xs font-semibold text-purple-600 dark:text-purple-400 mb-1">Problem</div>
                 <h3 className="font-bold text-slate-800 dark:text-slate-200 mb-3">중복 추론 문제</h3>
                 <p className="text-sm text-slate-600 dark:text-slate-400 mb-3">
+                  Long CoT 모델(예: DeepSeek-R1, QwQ)은 종종 정답을 이미 찾은 후에도
+                  계속 추론을 이어갑니다. 이는 학습 과정에서 &ldquo;길게 생각하면 보상을 받는다&rdquo;는
+                  잘못된 패턴을 학습한 결과일 수 있습니다.
                   정답이 처음 등장한 이후의 추론 단계는 대부분 불필요합니다.
                 </p>
                 <div className="p-4 bg-purple-50 dark:bg-purple-900/20 rounded-lg border border-purple-200 dark:border-purple-800">
@@ -552,16 +848,83 @@ export default function ChainOfThoughtSeminarPage() {
                 </div>
               </div>
 
-              <div id="stop-scoring" className="formula-block mb-6">
-                <h4 className="font-semibold text-blue-800 dark:text-blue-300 mb-3">Scoring Function</h4>
-                <p className="text-sm text-slate-600 dark:text-slate-400 mb-3">
-                  토큰별 추론 경로를 평가하는 scoring function을 정의하여,
-                  높은 확신도의 경로를 빠르게 식별합니다.
+              {/* Concrete Example */}
+              <div id="stop-example" className="concept-card mb-6">
+                <div className="text-xs font-semibold text-orange-600 dark:text-orange-400 mb-1">Concrete Example</div>
+                <h3 className="font-bold text-slate-800 dark:text-slate-200 mb-3">구체적 예시: 20단계 중 5단계에서 정답 발견</h3>
+                <div className="p-4 bg-slate-50 dark:bg-slate-800 rounded-lg border border-slate-200 dark:border-slate-700">
+                  <div className="space-y-1 font-mono text-xs">
+                    {[
+                      { step: 1, text: '문제 분석', status: 'active' },
+                      { step: 2, text: '핵심 공식 도출', status: 'active' },
+                      { step: 3, text: '변수 대입', status: 'active' },
+                      { step: 4, text: '계산 수행', status: 'active' },
+                      { step: 5, text: '정답: 42 ← 여기서 정답 등장', status: 'correct' },
+                      { step: 6, text: '다른 방법으로 검증...', status: 'redundant' },
+                      { step: 7, text: '다시 처음부터 확인...', status: 'redundant' },
+                      { step: 8, text: '추가 사례 고려...', status: 'redundant' },
+                    ].map((item) => (
+                      <div
+                        key={item.step}
+                        className={`flex items-center gap-3 p-2 rounded ${
+                          item.status === 'correct'
+                            ? 'bg-green-100 dark:bg-green-900/30 text-green-800 dark:text-green-300 font-bold'
+                            : item.status === 'redundant'
+                            ? 'bg-red-50 dark:bg-red-900/20 text-red-400 dark:text-red-500 line-through'
+                            : 'text-slate-600 dark:text-slate-400'
+                        }`}
+                      >
+                        <span className={`shrink-0 w-14 ${item.status === 'correct' ? 'text-green-600 dark:text-green-400' : ''}`}>
+                          Step {item.step}
+                        </span>
+                        <span>{item.text}</span>
+                      </div>
+                    ))}
+                    <div className="p-2 text-slate-400 dark:text-slate-500 italic">
+                      ... Step 9~20: 추가 불필요한 추론 (생략)
+                    </div>
+                  </div>
+                </div>
+                <div className="mt-3 grid grid-cols-3 gap-3 text-center text-sm">
+                  <div className="p-2 bg-green-50 dark:bg-green-900/20 rounded border border-green-200 dark:border-green-800">
+                    <div className="text-lg font-bold text-green-700 dark:text-green-300">5</div>
+                    <div className="text-xs text-green-600 dark:text-green-400">정답까지 단계</div>
+                  </div>
+                  <div className="p-2 bg-red-50 dark:bg-red-900/20 rounded border border-red-200 dark:border-red-800">
+                    <div className="text-lg font-bold text-red-700 dark:text-red-300">15</div>
+                    <div className="text-xs text-red-600 dark:text-red-400">불필요한 단계</div>
+                  </div>
+                  <div className="p-2 bg-amber-50 dark:bg-amber-900/20 rounded border border-amber-200 dark:border-amber-800">
+                    <div className="text-lg font-bold text-amber-700 dark:text-amber-300">25%</div>
+                    <div className="text-xs text-amber-600 dark:text-amber-400"><InlineMath math="r_{\text{first}}" /></div>
+                  </div>
+                </div>
+                <p className="text-sm text-slate-600 dark:text-slate-400 mt-3">
+                  이 예시에서 <InlineMath math="r_{\text{first}} = 5/20 = 25\%" />로,
+                  생성된 토큰의 75%가 낭비되었습니다.
+                  조기 종료로 이 낭비를 대폭 줄일 수 있습니다.
                 </p>
-                <BlockMath math={String.raw`\Phi(y) = \sum_{i} \phi(y_i; y_{<i})`} />
+              </div>
+
+              <div id="stop-scoring" className="formula-block mb-6">
+                <h4 className="font-semibold text-blue-800 dark:text-blue-300 mb-3">Scoring Function <InlineMath math="\Phi" /></h4>
+                <p className="text-sm text-slate-600 dark:text-slate-400 mb-3">
+                  SAGE는 토큰별 추론 경로를 평가하는 scoring function <InlineMath math="\Phi" />를 정의하여,
+                  높은 확신도의 경로를 빠르게 식별합니다.
+                  각 토큰 <InlineMath math="y_i" />에 대한 per-token score는 해당 시점의 조건부 log-probability입니다:
+                </p>
+                <BlockMath math={String.raw`\phi(y_i; y_{<i}) = \log p_\theta(y_i \mid y_{<i})`} />
+                <p className="text-sm text-slate-600 dark:text-slate-400 mt-3 mb-3">
+                  전체 시퀀스의 score는 per-token score의 합입니다:
+                </p>
+                <BlockMath math={String.raw`\Phi(y) = \sum_{i=1}^{|y|} \phi(y_i; y_{<i}) = \sum_{i=1}^{|y|} \log p_\theta(y_i \mid y_{<i})`} />
                 <p className="text-sm text-slate-600 dark:text-slate-400 mt-3">
                   상위 <InlineMath math="m" />개의 후보 시퀀스를 유지하면서
-                  토큰 단위로 탐색합니다. 높은 확신도의 분기는 더 짧고 효과적입니다.
+                  토큰 단위로 탐색합니다 (beam search와 유사).
+                  높은 <InlineMath math="\Phi" /> 값을 가진 시퀀스는 모델이 더 &ldquo;확신&rdquo;하는 추론 경로이며,
+                  이들은 일반적으로 더 짧고 정확합니다.
+                  핵심은 <code className="px-1.5 py-0.5 bg-slate-100 dark:bg-slate-800 rounded text-xs">&lt;/think&gt;</code> 토큰이
+                  높은 확률로 등장하는 시점을 모니터링하는 것입니다.
                 </p>
               </div>
 
@@ -602,6 +965,51 @@ export default function ChainOfThoughtSeminarPage() {
                   나머지 <InlineMath math="G - r" />개의 응답은 기존 random sampling으로 생성하여
                   RL 학습에 활용합니다. 이를 통해 효율적 탐색과 다양성을 동시에 확보합니다.
                 </p>
+              </div>
+
+              {/* SAGE + GRPO Integration */}
+              <div id="stop-sage" className="concept-card mb-6">
+                <div className="text-xs font-semibold text-rose-600 dark:text-rose-400 mb-1">SAGE Framework</div>
+                <h3 className="font-bold text-slate-800 dark:text-slate-200 mb-3">SAGE + GRPO 통합</h3>
+                <p className="text-sm text-slate-600 dark:text-slate-400 mb-4">
+                  SAGE(Scoring-based Adaptive Generation and Exploration)는
+                  GRPO(Group Relative Policy Optimization) 학습과 결합하여
+                  추론 효율성과 정확도를 동시에 최적화합니다.
+                </p>
+                <div className="space-y-3 text-sm">
+                  <div className="p-3 bg-rose-50 dark:bg-rose-900/20 rounded-lg border border-rose-200 dark:border-rose-800">
+                    <strong className="text-rose-800 dark:text-rose-300">1단계: SAGE로 데이터 생성</strong>
+                    <p className="text-slate-600 dark:text-slate-400 mt-1">
+                      각 질문에 대해 <InlineMath math="G" />개의 응답을 생성합니다.
+                      이 중 <InlineMath math="r" />개는 SAGE의 조기 종료 전략으로 효율적으로 생성하고,
+                      <InlineMath math="G - r" />개는 standard sampling으로 다양성을 확보합니다.
+                    </p>
+                  </div>
+                  <div className="p-3 bg-rose-50 dark:bg-rose-900/20 rounded-lg border border-rose-200 dark:border-rose-800">
+                    <strong className="text-rose-800 dark:text-rose-300">2단계: GRPO 학습</strong>
+                    <p className="text-slate-600 dark:text-slate-400 mt-1">
+                      생성된 <InlineMath math="G" />개의 응답을 correctness reward로 평가한 후,
+                      그룹 내 상대적 보상을 기반으로 policy를 업데이트합니다.
+                      SAGE로 생성된 짧고 정확한 응답이 높은 보상을 받으면서,
+                      모델이 점차 효율적인 추론 패턴을 학습합니다.
+                    </p>
+                  </div>
+                  <div className="p-3 bg-rose-50 dark:bg-rose-900/20 rounded-lg border border-rose-200 dark:border-rose-800">
+                    <strong className="text-rose-800 dark:text-rose-300">3단계: 반복</strong>
+                    <p className="text-slate-600 dark:text-slate-400 mt-1">
+                      SAGE의 조기 종료 임계값은 학습이 진행됨에 따라 자동으로 조정됩니다.
+                      모델이 강해질수록 더 일찍 <code className="px-1 py-0.5 bg-slate-100 dark:bg-slate-800 rounded text-xs">&lt;/think&gt;</code>를
+                      생성하게 되어 자연스럽게 효율이 높아집니다.
+                    </p>
+                  </div>
+                </div>
+                <div className="mt-4 p-3 bg-green-50 dark:bg-green-900/20 rounded-lg border border-green-200 dark:border-green-800 text-sm">
+                  <strong className="text-green-800 dark:text-green-300">결과:</strong>
+                  <span className="text-slate-600 dark:text-slate-400">
+                    {' '}AIME 2024에서 기존 방법 대비 50~90% 토큰 절약하면서 동등한 정확도를 유지.
+                    MATH-500에서는 토큰 수를 40% 줄이면서 정확도는 오히려 2% 향상.
+                  </span>
+                </div>
               </div>
 
               <div className="insight">
@@ -681,6 +1089,9 @@ export default function ChainOfThoughtSeminarPage() {
                 </div>
               </div>
 
+              {/* Interactive: Topology Bond Viz */}
+              <TopologyBondViz />
+
               <div className="concept-card mb-6">
                 <div className="text-xs font-semibold text-violet-600 dark:text-violet-400 mb-1">Key Finding</div>
                 <h3 className="font-bold text-slate-800 dark:text-slate-200 mb-2">구조가 성패를 결정한다</h3>
@@ -706,33 +1117,140 @@ export default function ChainOfThoughtSeminarPage() {
                 </p>
               </div>
 
+              {/* SFT learns structure, not keywords */}
+              <div id="topology-sft" className="concept-card mb-6">
+                <div className="text-xs font-semibold text-pink-600 dark:text-pink-400 mb-1">SFT Analysis</div>
+                <h3 className="font-bold text-slate-800 dark:text-slate-200 mb-3">SFT는 구조를 학습한다 (키워드가 아님)</h3>
+                <p className="text-sm text-slate-600 dark:text-slate-400 mb-4">
+                  SFT(Supervised Fine-Tuning)로 Long CoT 데이터를 학습시키면,
+                  모델은 &ldquo;Wait&rdquo;, &ldquo;Let me reconsider&rdquo; 같은 <strong>표면적 키워드가 아니라
+                  underlying topology(bond 구조)</strong>를 학습합니다.
+                </p>
+                <div className="grid sm:grid-cols-2 gap-4 text-sm mb-4">
+                  <div className="p-4 bg-red-50 dark:bg-red-900/20 rounded-lg border border-red-200 dark:border-red-800">
+                    <strong className="text-red-800 dark:text-red-300">키워드만 학습한 경우</strong>
+                    <div className="mt-2 p-3 bg-white dark:bg-slate-900 rounded font-mono text-xs text-slate-600 dark:text-slate-400 space-y-0.5">
+                      <div>&ldquo;Let me think again...&rdquo;</div>
+                      <div>&ldquo;Wait, I should reconsider...&rdquo;</div>
+                      <div>&ldquo;Actually, let me try another way...&rdquo;</div>
+                      <div className="text-red-500 dark:text-red-400 italic mt-1">&rarr; 표면적으로 CoT처럼 보이지만 실질적 추론 없음</div>
+                    </div>
+                  </div>
+                  <div className="p-4 bg-green-50 dark:bg-green-900/20 rounded-lg border border-green-200 dark:border-green-800">
+                    <strong className="text-green-800 dark:text-green-300">구조를 학습한 경우</strong>
+                    <div className="mt-2 p-3 bg-white dark:bg-slate-900 rounded font-mono text-xs text-slate-600 dark:text-slate-400 space-y-0.5">
+                      <div><span className="text-blue-500">[Deep]</span> 방정식 세우기</div>
+                      <div><span className="text-blue-500">[Deep]</span> 1차 풀이</div>
+                      <div><span className="text-amber-500">[Reflect]</span> 부호 확인</div>
+                      <div><span className="text-blue-500">[Deep]</span> 수정 후 최종 계산</div>
+                      <div className="text-green-500 dark:text-green-400 italic mt-1">&rarr; bond 구조가 유지되어 실질적 추론 수행</div>
+                    </div>
+                  </div>
+                </div>
+                <p className="text-sm text-slate-600 dark:text-slate-400">
+                  실험에서 SFT 후 모델의 추론 trace를 분석하면, 학습 데이터와 동일한 bond 분포를 보입니다.
+                  &ldquo;Wait&rdquo; 키워드의 빈도는 줄어들 수 있지만, Self-Reflection bond의 비율은 유지됩니다.
+                  이는 <strong>SFT가 표면이 아닌 추론의 구조적 패턴을 전이</strong>한다는 증거입니다.
+                </p>
+              </div>
+
               <div id="topology-molesyn" className="concept-card mb-6">
                 <div className="text-xs font-semibold text-indigo-600 dark:text-indigo-400 mb-1">Mole-Syn</div>
                 <h3 className="font-bold text-slate-800 dark:text-slate-200 mb-2">Mole-Syn: 합성 데이터 생성</h3>
                 <p className="text-sm text-slate-600 dark:text-slate-400 mb-3">
                   강한 추론 LLM의 <strong>transition probability graph</strong>에서
                   random walk를 수행하여 추론 토폴로지를 합성합니다.
+                  DeepSeek-R1 같은 모델의 추론 능력을 저비용으로 전이할 수 있는 핵심 방법입니다.
                 </p>
                 <div className="space-y-2 text-sm">
                   <div className="flex items-start gap-3 p-3 bg-indigo-50 dark:bg-indigo-900/20 rounded-lg">
                     <span className="flex h-6 w-6 shrink-0 items-center justify-center rounded-full bg-indigo-200 dark:bg-indigo-800 text-xs font-bold text-indigo-700 dark:text-indigo-300">1</span>
-                    <p className="text-slate-600 dark:text-slate-400">
-                      강한 LLM의 추론 trace에서 behavior transition graph 구축
-                    </p>
+                    <div className="text-slate-600 dark:text-slate-400">
+                      <strong>Behavior Annotation</strong>: 강한 LLM의 추론 trace를 세그먼트 단위로 분할하고,
+                      각 세그먼트에 behavior label을 부여합니다 (Deep Reasoning / Self-Reflection / Self-Exploration).
+                    </div>
                   </div>
                   <div className="flex items-start gap-3 p-3 bg-indigo-50 dark:bg-indigo-900/20 rounded-lg">
                     <span className="flex h-6 w-6 shrink-0 items-center justify-center rounded-full bg-indigo-200 dark:bg-indigo-800 text-xs font-bold text-indigo-700 dark:text-indigo-300">2</span>
-                    <p className="text-slate-600 dark:text-slate-400">
-                      Random walk로 behavior sequence 샘플링 (behavior-specific prompts 활용)
-                    </p>
+                    <div className="text-slate-600 dark:text-slate-400">
+                      <strong>Transition Graph 구축</strong>: 수백 개의 trace에서 behavior 간 전이 확률을 집계하여
+                      Markov chain 형태의 transition probability graph를 구축합니다.
+                      예: <InlineMath math="P(\text{Reflect} \mid \text{Deep}) = 0.3" />,
+                      <InlineMath math="P(\text{Deep} \mid \text{Deep}) = 0.5" /> 등.
+                    </div>
                   </div>
                   <div className="flex items-start gap-3 p-3 bg-indigo-50 dark:bg-indigo-900/20 rounded-lg">
                     <span className="flex h-6 w-6 shrink-0 items-center justify-center rounded-full bg-indigo-200 dark:bg-indigo-800 text-xs font-bold text-indigo-700 dark:text-indigo-300">3</span>
-                    <p className="text-slate-600 dark:text-slate-400">
-                      Distillation에 근접한 성능을 낮은 비용으로 달성
-                    </p>
+                    <div className="text-slate-600 dark:text-slate-400">
+                      <strong>Random Walk Sampling</strong>: Transition graph에서 random walk를 수행하여
+                      새로운 behavior sequence를 생성합니다.
+                      예: Deep &rarr; Deep &rarr; Reflect &rarr; Deep &rarr; Explore &rarr; Deep &rarr; 종료.
+                    </div>
+                  </div>
+                  <div className="flex items-start gap-3 p-3 bg-indigo-50 dark:bg-indigo-900/20 rounded-lg">
+                    <span className="flex h-6 w-6 shrink-0 items-center justify-center rounded-full bg-indigo-200 dark:bg-indigo-800 text-xs font-bold text-indigo-700 dark:text-indigo-300">4</span>
+                    <div className="text-slate-600 dark:text-slate-400">
+                      <strong>Content Generation</strong>: 생성된 behavior sequence를 behavior-specific prompt로 변환하여
+                      약한 LLM에게 해당 구조를 따르는 추론 trace를 생성하게 합니다.
+                    </div>
+                  </div>
+                  <div className="flex items-start gap-3 p-3 bg-indigo-50 dark:bg-indigo-900/20 rounded-lg">
+                    <span className="flex h-6 w-6 shrink-0 items-center justify-center rounded-full bg-indigo-200 dark:bg-indigo-800 text-xs font-bold text-indigo-700 dark:text-indigo-300">5</span>
+                    <div className="text-slate-600 dark:text-slate-400">
+                      <strong>SFT Training</strong>: 합성된 데이터로 SFT하여
+                      distillation에 근접한 성능을 낮은 비용으로 달성합니다.
+                    </div>
                   </div>
                 </div>
+              </div>
+
+              {/* Mole-Syn vs Distillation */}
+              <div id="topology-comparison" className="concept-card mb-6">
+                <div className="text-xs font-semibold text-sky-600 dark:text-sky-400 mb-1">Comparison</div>
+                <h3 className="font-bold text-slate-800 dark:text-slate-200 mb-3">Mole-Syn vs Direct Distillation</h3>
+                <div className="overflow-x-auto">
+                  <table className="w-full text-sm border-collapse">
+                    <thead>
+                      <tr className="border-b-2 border-slate-300 dark:border-slate-600">
+                        <th className="text-left py-2 px-3 text-slate-700 dark:text-slate-300 font-bold"></th>
+                        <th className="text-left py-2 px-3 text-slate-700 dark:text-slate-300 font-bold">Direct Distillation</th>
+                        <th className="text-left py-2 px-3 text-slate-700 dark:text-slate-300 font-bold">Mole-Syn</th>
+                      </tr>
+                    </thead>
+                    <tbody className="text-slate-600 dark:text-slate-400">
+                      <tr className="border-b border-slate-200 dark:border-slate-700">
+                        <td className="py-2 px-3 font-medium">Teacher 필요</td>
+                        <td className="py-2 px-3">강한 LLM API 대량 호출</td>
+                        <td className="py-2 px-3 text-green-600 dark:text-green-400">소량 trace만 필요 (구조 추출)</td>
+                      </tr>
+                      <tr className="border-b border-slate-200 dark:border-slate-700">
+                        <td className="py-2 px-3 font-medium">비용</td>
+                        <td className="py-2 px-3 text-red-500 dark:text-red-400">높음 (수만 건 생성)</td>
+                        <td className="py-2 px-3 text-green-600 dark:text-green-400">낮음 (구조 전이 후 자체 생성)</td>
+                      </tr>
+                      <tr className="border-b border-slate-200 dark:border-slate-700">
+                        <td className="py-2 px-3 font-medium">데이터 다양성</td>
+                        <td className="py-2 px-3">Teacher의 출력에 제한</td>
+                        <td className="py-2 px-3 text-green-600 dark:text-green-400">Random walk로 다양한 topology 생성</td>
+                      </tr>
+                      <tr className="border-b border-slate-200 dark:border-slate-700">
+                        <td className="py-2 px-3 font-medium">품질</td>
+                        <td className="py-2 px-3 text-green-600 dark:text-green-400">최고 (Teacher 직접 출력)</td>
+                        <td className="py-2 px-3">약간 낮음 (자체 생성의 한계)</td>
+                      </tr>
+                      <tr>
+                        <td className="py-2 px-3 font-medium">성능 (MATH)</td>
+                        <td className="py-2 px-3 font-semibold">baseline</td>
+                        <td className="py-2 px-3 font-semibold">baseline의 ~90-95%</td>
+                      </tr>
+                    </tbody>
+                  </table>
+                </div>
+                <p className="text-sm text-slate-600 dark:text-slate-400 mt-3">
+                  Mole-Syn은 distillation 대비 5~10% 낮은 성능이지만, 비용은 수십 분의 1 수준입니다.
+                  <strong> 구조(topology)만 전이하고 내용은 자체 생성</strong>하는 전략이
+                  비용 대비 성능 면에서 매우 효율적입니다.
+                </p>
               </div>
 
               <div className="insight">
