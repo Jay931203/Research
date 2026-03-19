@@ -5,6 +5,13 @@ import Header from '@/components/layout/Header';
 import CommandPalette from '@/components/common/CommandPalette';
 import { useKeyboardShortcuts } from '@/hooks/useKeyboardShortcuts';
 
+interface PaperRef {
+  authors: string;
+  title: string;
+  venue: string;
+  year: number;
+}
+
 interface SeminarEntry {
   date: string;        // YYMMDD
   displayDate: string; // 표시용
@@ -14,6 +21,7 @@ interface SeminarEntry {
   demos: number;
   tags: string[];
   color: string;       // gradient
+  references: PaperRef[];
 }
 
 const labSeminars: SeminarEntry[] = [
@@ -26,6 +34,13 @@ const labSeminars: SeminarEntry[] = [
     demos: 0,
     tags: ['CoT Prompting', 'Optimal Length', 'DTR Metric', 'Early Stopping', 'Topology'],
     color: 'from-amber-500 to-orange-600',
+    references: [
+      { authors: 'Wei et al.', title: 'Chain-of-Thought Prompting Elicits Reasoning in Large Language Models', venue: 'NeurIPS', year: 2022 },
+      { authors: 'Wu et al.', title: 'When More is Less: Understanding Chain-of-Thought Length in LLMs', venue: 'arXiv:2502.07266', year: 2025 },
+      { authors: 'Chen, W.-L. et al.', title: 'Think Deep, Not Just Long: Measuring LLM Reasoning Effort via Deep-Thinking Tokens', venue: 'arXiv:2602.13517', year: 2026 },
+      { authors: 'Huang et al.', title: 'Does Your Reasoning Model Implicitly Know When to Stop Thinking?', venue: 'arXiv:2602.08354', year: 2026 },
+      { authors: 'Chen, Q. et al.', title: 'The Molecular Structure of Thought: Mapping the Topology of Long CoT Reasoning', venue: 'arXiv:2601.06002', year: 2026 },
+    ],
   },
   {
     date: '260310',
@@ -36,6 +51,12 @@ const labSeminars: SeminarEntry[] = [
     demos: 3,
     tags: ['Latent MAS', 'KVComm', 'Cache-2-Cache', 'SnapKV'],
     color: 'from-teal-500 to-cyan-600',
+    references: [
+      { authors: 'Zou et al.', title: 'Latent Collaboration in Multi-Agent Systems', venue: 'arXiv:2511.20639', year: 2025 },
+      { authors: 'Shi et al.', title: 'KVComm: Enabling Efficient LLM Communication through Selective KV Sharing', venue: 'ICLR', year: 2026 },
+      { authors: 'Fu et al.', title: 'Cache-to-Cache: Direct Semantic Communication Between Large Language Models', venue: 'ICLR', year: 2026 },
+      { authors: 'Li et al.', title: 'SnapKV: LLM Knows What You Are Looking For Before Generation', venue: 'NeurIPS', year: 2024 },
+    ],
   },
 ];
 
@@ -130,6 +151,16 @@ export default function SeminarListPage() {
                           <path strokeLinecap="round" strokeLinejoin="round" d="M7 8h10M7 12h4m1 8l-4-4H5a2 2 0 01-2-2V6a2 2 0 012-2h14a2 2 0 012 2v8a2 2 0 01-2 2h-3l-4 4z" />
                         </svg>
                       </span>
+                    </div>
+
+                    {/* References */}
+                    <div className="mb-4 space-y-1.5">
+                      {sem.references.map((ref, ri) => (
+                        <p key={ri} className="text-xs text-slate-500 dark:text-slate-400 leading-relaxed">
+                          <span className="font-medium text-slate-600 dark:text-slate-300">[{ri + 1}]</span>{' '}
+                          {ref.authors}, &ldquo;{ref.title},&rdquo; <span className="italic">{ref.venue}</span>, {ref.year}.
+                        </p>
+                      ))}
                     </div>
 
                     {/* Paper tags */}

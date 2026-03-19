@@ -160,7 +160,10 @@ export default function ChainOfThoughtSeminarPage() {
                 <span className="text-sm text-slate-400">Section 1</span>
               </div>
 
-              <h2 className="text-3xl font-bold text-slate-900 dark:text-slate-100 mb-4">1. Chain-of-Thought란?</h2>
+              <h2 className="text-3xl font-bold text-slate-900 dark:text-slate-100 mb-2">1. Chain-of-Thought란?</h2>
+              <p className="text-xs text-slate-500 dark:text-slate-400 mb-4 italic">
+                Wei et al., &ldquo;Chain-of-Thought Prompting Elicits Reasoning in Large Language Models,&rdquo; NeurIPS, 2022.
+              </p>
               <p className="text-lg text-slate-600 dark:text-slate-300 leading-relaxed mb-6">
                 Chain-of-Thought(CoT)는 LLM이 최종 답변에 도달하기 전에
                 <strong> 중간 추론 단계를 자연어로 생성</strong>하는 기법입니다.
@@ -234,7 +237,10 @@ export default function ChainOfThoughtSeminarPage() {
                 <span className="text-sm text-slate-400">Section 2</span>
               </div>
 
-              <h2 className="text-3xl font-bold text-slate-900 dark:text-slate-100 mb-4">2. CoT 길이의 최적화</h2>
+              <h2 className="text-3xl font-bold text-slate-900 dark:text-slate-100 mb-2">2. CoT 길이의 최적화</h2>
+              <p className="text-xs text-slate-500 dark:text-slate-400 mb-4 italic">
+                Wu et al., &ldquo;When More is Less: Understanding Chain-of-Thought Length in LLMs,&rdquo; arXiv:2502.07266, 2025.
+              </p>
               <p className="text-lg text-slate-600 dark:text-slate-300 leading-relaxed mb-6">
                 &ldquo;길게 생각하면 더 잘 풀까?&rdquo; &mdash; 답은 <strong>항상 그렇지는 않다</strong>입니다.
                 CoT 길이와 정확도의 관계는 역 U자 곡선을 따릅니다.
@@ -356,7 +362,10 @@ export default function ChainOfThoughtSeminarPage() {
                 <span className="text-sm text-slate-400">Section 3</span>
               </div>
 
-              <h2 className="text-3xl font-bold text-slate-900 dark:text-slate-100 mb-4">3. 추론 노력 측정</h2>
+              <h2 className="text-3xl font-bold text-slate-900 dark:text-slate-100 mb-2">3. 추론 노력 측정</h2>
+              <p className="text-xs text-slate-500 dark:text-slate-400 mb-4 italic">
+                Chen, W.-L. et al., &ldquo;Think Deep, Not Just Long: Measuring LLM Reasoning Effort via Deep-Thinking Tokens,&rdquo; arXiv:2602.13517, 2026.
+              </p>
               <p className="text-lg text-slate-600 dark:text-slate-300 leading-relaxed mb-6">
                 토큰 수로 추론 노력을 측정하는 것은 부정확합니다.
                 진정한 &ldquo;깊은 사고&rdquo;를 정량화하기 위해
@@ -492,7 +501,10 @@ export default function ChainOfThoughtSeminarPage() {
                 <span className="text-sm text-slate-400">Section 4</span>
               </div>
 
-              <h2 className="text-3xl font-bold text-slate-900 dark:text-slate-100 mb-4">4. 언제 생각을 멈출까</h2>
+              <h2 className="text-3xl font-bold text-slate-900 dark:text-slate-100 mb-2">4. 언제 생각을 멈출까</h2>
+              <p className="text-xs text-slate-500 dark:text-slate-400 mb-4 italic">
+                Huang et al., &ldquo;Does Your Reasoning Model Implicitly Know When to Stop Thinking?,&rdquo; arXiv:2602.08354, 2026.
+              </p>
               <p className="text-lg text-slate-600 dark:text-slate-300 leading-relaxed mb-6">
                 정답이 이미 나왔는데도 계속 추론하는 것은 낭비입니다.
                 <strong> 조기 종료(early stopping)</strong> 전략으로 추론 효율을 높이는 방법을 다룹니다.
@@ -587,7 +599,10 @@ export default function ChainOfThoughtSeminarPage() {
                 <span className="text-sm text-slate-400">Section 5</span>
               </div>
 
-              <h2 className="text-3xl font-bold text-slate-900 dark:text-slate-100 mb-4">5. Long CoT의 위상 구조</h2>
+              <h2 className="text-3xl font-bold text-slate-900 dark:text-slate-100 mb-2">5. Long CoT의 위상 구조</h2>
+              <p className="text-xs text-slate-500 dark:text-slate-400 mb-4 italic">
+                Chen, Q. et al., &ldquo;The Molecular Structure of Thought: Mapping the Topology of Long CoT Reasoning,&rdquo; arXiv:2601.06002, 2026.
+              </p>
               <p className="text-lg text-slate-600 dark:text-slate-300 leading-relaxed mb-6">
                 Long CoT는 단순한 선형 체인이 아닙니다. 성공적인 추론에는
                 <strong> 세 가지 유형의 구조적 결합(bond)</strong>이 존재하며,
