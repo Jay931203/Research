@@ -145,9 +145,33 @@ export default function ChainOfThoughtSeminarPage() {
               <span className="px-3 py-1 bg-white/20 rounded-full text-sm">Early Stopping</span>
               <span className="px-3 py-1 bg-white/20 rounded-full text-sm">Topology</span>
             </div>
-            <div className="mt-4 text-sm text-amber-200/80">
-              발표자: Jiyoung Yun
-            </div>
+          </div>
+
+          {/* References */}
+          <div className="mb-8 rounded-xl border border-slate-200 bg-white p-6 dark:border-slate-700 dark:bg-slate-800">
+            <h2 className="text-sm font-bold text-slate-700 dark:text-slate-300 mb-3">References</h2>
+            <ol className="space-y-1.5 list-none">
+              <li className="text-xs text-slate-600 dark:text-slate-400 leading-relaxed">
+                <span className="font-semibold text-slate-700 dark:text-slate-300">[1]</span>{' '}
+                Wei et al., &ldquo;Chain-of-Thought Prompting Elicits Reasoning in Large Language Models,&rdquo; <span className="italic">NeurIPS</span>, 2022.
+              </li>
+              <li className="text-xs text-slate-600 dark:text-slate-400 leading-relaxed">
+                <span className="font-semibold text-slate-700 dark:text-slate-300">[2]</span>{' '}
+                Wu et al., &ldquo;When More is Less: Understanding Chain-of-Thought Length in LLMs,&rdquo; <span className="italic">arXiv:2502.07266</span>, 2025.
+              </li>
+              <li className="text-xs text-slate-600 dark:text-slate-400 leading-relaxed">
+                <span className="font-semibold text-slate-700 dark:text-slate-300">[3]</span>{' '}
+                Chen, W.-L. et al., &ldquo;Think Deep, Not Just Long: Measuring LLM Reasoning Effort via Deep-Thinking Tokens,&rdquo; <span className="italic">arXiv:2602.13517</span>, 2026.
+              </li>
+              <li className="text-xs text-slate-600 dark:text-slate-400 leading-relaxed">
+                <span className="font-semibold text-slate-700 dark:text-slate-300">[4]</span>{' '}
+                Huang et al., &ldquo;Does Your Reasoning Model Implicitly Know When to Stop Thinking?,&rdquo; <span className="italic">arXiv:2602.08354</span>, 2026.
+              </li>
+              <li className="text-xs text-slate-600 dark:text-slate-400 leading-relaxed">
+                <span className="font-semibold text-slate-700 dark:text-slate-300">[5]</span>{' '}
+                Chen, Q. et al., &ldquo;The Molecular Structure of Thought: Mapping the Topology of Long CoT Reasoning,&rdquo; <span className="italic">arXiv:2601.06002</span>, 2026.
+              </li>
+            </ol>
           </div>
 
           <div className="space-y-8">

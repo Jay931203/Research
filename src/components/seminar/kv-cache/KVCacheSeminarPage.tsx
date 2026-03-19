@@ -138,7 +138,7 @@ export default function KVCacheSeminarPage() {
       <main className={`tse-content min-h-screen py-8 px-4 lg:px-8 ${sidebarOpen ? 'lg:ml-64' : ''}`}>
           {/* Hero */}
           <div className="mb-8 p-8 bg-gradient-to-br from-teal-600 to-cyan-700 rounded-2xl text-white">
-            <div className="text-teal-200 text-sm font-medium mb-2">Paper Seminar</div>
+            <div className="text-teal-200 text-sm font-medium mb-2">Paper Seminar &middot; 2026.03.10</div>
             <h1 className="text-3xl sm:text-4xl font-bold mb-3">
               KV-Cache Communication for Multi-Agent Systems
             </h1>
@@ -153,6 +153,29 @@ export default function KVCacheSeminarPage() {
               <span className="px-3 py-1 bg-white/20 rounded-full text-sm">Cache-2-Cache</span>
               <span className="px-3 py-1 bg-white/20 rounded-full text-sm">SnapKV</span>
             </div>
+          </div>
+
+          {/* References */}
+          <div className="mb-8 rounded-xl border border-slate-200 bg-white p-6 dark:border-slate-700 dark:bg-slate-800">
+            <h2 className="text-sm font-bold text-slate-700 dark:text-slate-300 mb-3">References</h2>
+            <ol className="space-y-1.5 list-none">
+              <li className="text-xs text-slate-600 dark:text-slate-400 leading-relaxed">
+                <span className="font-semibold text-slate-700 dark:text-slate-300">[1]</span>{' '}
+                Zou et al., &ldquo;Latent Collaboration in Multi-Agent Systems,&rdquo; <span className="italic">arXiv:2511.20639</span>, 2025.
+              </li>
+              <li className="text-xs text-slate-600 dark:text-slate-400 leading-relaxed">
+                <span className="font-semibold text-slate-700 dark:text-slate-300">[2]</span>{' '}
+                Shi et al., &ldquo;KVComm: Enabling Efficient LLM Communication through Selective KV Sharing,&rdquo; <span className="italic">ICLR</span>, 2026.
+              </li>
+              <li className="text-xs text-slate-600 dark:text-slate-400 leading-relaxed">
+                <span className="font-semibold text-slate-700 dark:text-slate-300">[3]</span>{' '}
+                Fu et al., &ldquo;Cache-to-Cache: Direct Semantic Communication Between Large Language Models,&rdquo; <span className="italic">ICLR</span>, 2026.
+              </li>
+              <li className="text-xs text-slate-600 dark:text-slate-400 leading-relaxed">
+                <span className="font-semibold text-slate-700 dark:text-slate-300">[4]</span>{' '}
+                Li et al., &ldquo;SnapKV: LLM Knows What You Are Looking For Before Generation,&rdquo; <span className="italic">NeurIPS</span>, 2024.
+              </li>
+            </ol>
           </div>
 
           <div className="space-y-8">

@@ -185,26 +185,6 @@ export default function SeminarListPage() {
                 </div>
               ))}
 
-              {/* Next seminar placeholder */}
-              <div className="pt-8">
-                <div className="absolute -left-[9px]">
-                  <span className="h-4 w-4 rounded-full border-2 border-dashed border-slate-300 bg-white dark:border-slate-600 dark:bg-slate-950" />
-                </div>
-                <div className="mb-3 flex items-center gap-3">
-                  <span className="inline-flex rounded-md bg-slate-100 px-2.5 py-1 font-mono text-xs text-slate-400 dark:bg-slate-800 dark:text-slate-500">
-                    ??????
-                  </span>
-                  <span className="text-sm text-slate-400 dark:text-slate-500">다음 세미나</span>
-                </div>
-                <div className="flex items-center gap-3 rounded-xl border-2 border-dashed border-slate-200 bg-slate-50/50 px-6 py-4 dark:border-slate-700 dark:bg-slate-800/30">
-                  <svg className="h-5 w-5 text-slate-300 dark:text-slate-600" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}>
-                    <path strokeLinecap="round" strokeLinejoin="round" d="M12 4v16m8-8H4" />
-                  </svg>
-                  <p className="text-sm text-slate-400 dark:text-slate-500">
-                    준비 중...
-                  </p>
-                </div>
-              </div>
             </div>
           </section>
         </div>
