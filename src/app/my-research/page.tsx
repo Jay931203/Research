@@ -26,10 +26,7 @@ const CnnVsSsmViz = dynamic(
   () => import('@/components/my-research/infographics/CnnVsSsmViz'),
   { ssr: false },
 );
-const ReliabilityViz = dynamic(
-  () => import('@/components/my-research/infographics/ReliabilityViz'),
-  { ssr: false },
-);
+// ReliabilityViz removed -- visualized old V_i(π;γ) shortfall concept not in current paper
 // TwoLevelDistortionViz removed -- no longer used after paper revision
 const BudgetOutageViz = dynamic(
   () => import('@/components/my-research/infographics/BudgetOutageViz'),
@@ -123,12 +120,6 @@ const EQUATIONS = [
     latex: String.raw`\zeta(\mathbf{X}_a) = 1 - \lambda_d\,c_d - \lambda_a\,c_a`,
     description:
       '현재 CSI가 얼마나 compact한지 혹은 diffuse한지를 요약하는 구조 상태입니다. c_d, c_a는 각각 지연축·각도축 per-axis compactness 점수이며, 작을수록 encoder-friendly한 국소 구조, 클수록 leakage tail이 강한 확산 구조를 의미합니다.',
-  },
-  {
-    name: '정규화된 신뢰성 shortfall',
-    latex: String.raw`V_i(\pi;\gamma) = \frac{[\gamma\, r_i^{\mathrm{ref}} - r_i(\pi)]_+}{\gamma\, r_i^{\mathrm{ref}} + \eta_r}`,
-    description:
-      '앵커 정책 대비 현재 정책이 rate reliability 목표를 얼마나 못 맞췄는지 정규화하여 측정합니다. NMSE가 아니라 전송률 기반 reliability shortfall을 직접 제어합니다.',
   },
   {
     name: '세그먼트 importance',
@@ -978,19 +969,12 @@ export default function MyResearchPage() {
                         <EquationRenderer latex={String.raw`\zeta(\mathbf{X}_a) = 1 - \lambda_d\,c_d - \lambda_a\,c_a`} />
                       </div>
                     </div>
-                    <div className="overflow-x-auto rounded-lg bg-rose-50 p-3 dark:bg-rose-900/20">
-                      <p className="mb-1 text-xs font-semibold text-rose-700 dark:text-rose-300">정규화 shortfall</p>
-                      <div className="text-gray-900 dark:text-gray-100">
-                        <EquationRenderer latex={String.raw`V_i(\pi;\gamma) = \frac{[\gamma\, r_i^{\mathrm{ref}} - r_i(\pi)]_+}{\gamma\, r_i^{\mathrm{ref}} + \eta_r}`} />
-                      </div>
-                    </div>
                   </div>
 
-                  <div className="mb-6 grid grid-cols-1 gap-3 sm:grid-cols-3">
+                  <div className="mb-6 grid grid-cols-1 gap-3 sm:grid-cols-2">
                     {[
-                      ['ρ', '수신 SNR이 높을수록 같은 quantization error가 rate degradation으로 더 직접 연결됩니다.'],
-                      ['ζ', '작으면 compact한 CSI, 크면 diffuse multipath / off-grid leakage가 강한 CSI입니다.'],
-                      ['γ', 'reference rate 대비 어느 수준까지 보존할지를 정하는 reliability target입니다.'],
+                      ['ρ', '수신 SNR. 높을수록 같은 quantization error가 NMSE degradation으로 더 직접 연결됩니다.'],
+                      ['ζ', '구조 불일치 지표. 작으면 compact한 CSI (encoder-friendly), 크면 diffuse multipath / off-grid leakage가 강한 CSI입니다.'],
                     ].map(([label, body]) => (
                       <div
                         key={label}
@@ -1189,15 +1173,6 @@ export default function MyResearchPage() {
                     같은 평균 UE-side BOP 예산에서도, Joint DP의 state-conditioned budget allocation이 equal-budget Segment DP보다 outage cliff를 더 높은 절약 구간으로 이동시킵니다.
                   </InfographicCaption>
 
-                  <SubSectionHeading number="5.3" title="동일 평균 예산에서의 reliability 개선" />
-                  <p className="mb-3 text-sm leading-relaxed text-gray-700 dark:text-gray-300">
-                    정적인 uniform precision이나 static mixed precision과 비교하면, Segment DP + Joint DP는 sample마다 다른 state를 반영하므로
-                    같은 average cost에서도 reliability target을 더 자주 만족시킵니다. Joint DP는 outage cliff를 더 높은 BOP 절약 구간으로 이동시킵니다.
-                  </p>
-                  <ReliabilityViz />
-                  <InfographicCaption>
-                    동일한 평균 연산 예산 하에서 Segment DP + Joint DP 온라인 선택이 rate-based outage를 가장 크게 줄입니다.
-                  </InfographicCaption>
                 </Card>
               </div>
             </section>
