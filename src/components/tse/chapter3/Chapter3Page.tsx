@@ -2,6 +2,7 @@
 
 import { useCallback, useState, useEffect } from 'react';
 import { TableOfContents, type TocItem } from '@/components/tse/navigation';
+import Section0AppendixA from './Section0AppendixA';
 import Section1Detection from './Section1Detection';
 import Section2TimeDiversity from './Section2TimeDiversity';
 import Section3AntennaDiversity from './Section3AntennaDiversity';
@@ -11,10 +12,22 @@ import Section6MainPlot from './Section6MainPlot';
 import Section7AppendixB from './Section7AppendixB';
 
 const tocItems: TocItem[] = [
+  { id: 'appendix-a', label: 'Appendix A.2~A.3', level: 1 },
+  { id: 'appendix-a2', label: 'A.2 Detection (Gaussian)', level: 2 },
+  { id: 'appendix-a2-1', label: 'A.2.1 Scalar Detection', level: 2 },
+  { id: 'appendix-a2-2', label: 'A.2.2 Vector Detection', level: 2 },
+  { id: 'appendix-a2-3', label: 'A.2.3 Complex Vector', level: 2 },
+  { id: 'appendix-a3', label: 'A.3 Estimation (Gaussian)', level: 2 },
+  { id: 'appendix-a3-1', label: 'A.3.1 Scalar Estimation', level: 2 },
+  { id: 'appendix-a3-2', label: 'A.3.2 Vector Estimation', level: 2 },
+  { id: 'appendix-a3-3', label: 'A.3.3 Complex Estimation', level: 2 },
   { id: 'detection', label: '3.1 Detection in Fading', level: 1 },
-  { id: 'coherent-ml', label: 'Coherent ML', level: 2 },
-  { id: 'bpsk-qpsk', label: 'BPSK → QPSK', level: 2 },
-  { id: 'diversity-motivation', label: 'Diversity Motivation', level: 2 },
+  { id: 'noncoherent-detection', label: '3.1.1 Noncoherent', level: 2 },
+  { id: 'coherent-ml', label: '3.1.2 Coherent Detection', level: 2 },
+  { id: 'bpsk-qpsk', label: '3.1.3 BPSK → QPSK', level: 2 },
+  { id: 'diversity-motivation', label: '3.1.4 Diversity Motivation', level: 2 },
+  { id: 'awgn-fading-pe-chart', label: 'Pe Comparison (Interactive)', level: 2 },
+  { id: 'deep-fade-calculator', label: 'Deep Fade Calculator', level: 2 },
   { id: 'rayleigh-pe-formulas', label: 'Pe Formulas & Chart', level: 2 },
   { id: 'diversity-order-calculator', label: 'Diversity Order Calculator', level: 2 },
   { id: 'time-diversity', label: '3.2 Time Diversity', level: 1 },
@@ -156,12 +169,14 @@ export default function Chapter3Page() {
               <span className="px-3 py-1 bg-white/20 rounded-full text-sm">Antenna Diversity</span>
               <span className="px-3 py-1 bg-white/20 rounded-full text-sm">Frequency Diversity</span>
               <span className="px-3 py-1 bg-white/20 rounded-full text-sm">Channel Uncertainty</span>
+              <span className="px-3 py-1 bg-white/20 rounded-full text-sm">Appendix A Detection & Estimation</span>
               <span className="px-3 py-1 bg-white/20 rounded-full text-sm">Appendix B Info Theory</span>
             </div>
           </div>
 
           {/* Sections */}
           <div className="space-y-8">
+            <Section0AppendixA onNavigate={handleNavigate} />
             <Section1Detection onNavigate={handleNavigate} />
             <Section2TimeDiversity onNavigate={handleNavigate} />
             <Section3AntennaDiversity onNavigate={handleNavigate} />

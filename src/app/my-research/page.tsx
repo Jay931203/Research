@@ -57,9 +57,9 @@ const TOC_SECTIONS = [
   { id: 'section-overview', label: '연구 개요', icon: BookOpen },
   { id: 'section-concepts', label: '배경 개념 사전', icon: Hash },
   { id: 'section-system-model', label: '시스템 모델', icon: Cpu },
-  { id: 'section-architecture', label: '비대칭 아키텍처', icon: Layers },
-  { id: 'section-offline', label: 'RP-MPQ 오프라인', icon: HardDrive },
-  { id: 'section-online', label: 'RP-MPQ 온라인', icon: Zap },
+  { id: 'section-architecture', label: 'MT-AE 아키텍처', icon: Layers },
+  { id: 'section-offline', label: 'Segment DP 오프라인', icon: HardDrive },
+  { id: 'section-online', label: '온라인 배포', icon: Zap },
   { id: 'section-experiments', label: '실험 결과', icon: BarChart2 },
   { id: 'section-equations', label: '핵심 수식', icon: FileText },
   { id: 'section-notes', label: '연구 메모', icon: FileText },
@@ -83,6 +83,24 @@ const EQUATIONS = [
       '지연 도메인 채널을 각도 도메인으로 사상합니다. off-grid 경로가 있을 때 에너지가 여러 각도 빈으로 퍼지며, 이것이 롱테일 구조와 soft locality 논의의 출발점입니다.',
   },
   {
+    name: '절단 지연-각도 CSI',
+    latex: String.raw`\mathbf{X}_a = [\mathbf{X}[0],\ldots,\mathbf{X}[N_a-1]]`,
+    description:
+      '지연 도메인에서 처음 N_a개의 유효 탭만 취하여 입력 차원을 줄입니다. 대부분의 채널 에너지가 앞쪽 탭에 집중되므로, 이 절단은 최소한의 정보 손실로 차원을 크게 줄여줍니다.',
+  },
+  {
+    name: '압축비 (Compression Ratio)',
+    latex: String.raw`\mathrm{CR} = \frac{D}{2\,N_a\,N_r\,N_t}`,
+    description:
+      'Autoencoder latent 차원 D를 원본 실수 차원 2·N_a·N_r·N_t으로 나눈 비율입니다. CR이 작을수록 더 공격적인 압축을 의미합니다.',
+  },
+  {
+    name: 'SSM 재귀식',
+    latex: String.raw`\mathbf{s}_{k+1} = \mathbf{A}\,\mathbf{s}_k + \mathbf{B}\,\mathbf{u}_k,\qquad \mathbf{y}_k = \mathbf{C}\,\mathbf{s}_k`,
+    description:
+      '선형 상태 공간 모델의 이산 시간 재귀식입니다. 상태 벡터 s가 입력 u를 순차적으로 집약하며, 안정적인 A에 대해 과거 입력의 기여가 지수적으로 감쇠합니다.',
+  },
+  {
     name: '하드 국소성 절단 손실',
     latex: String.raw`E_{\mathrm{hard}}(L) \lesssim c_0^2\sum_{d=L+1}^{\infty}\frac{1}{(1+d)^2} \le \frac{c_0^2}{1+L} = \mathcal{O}(L^{-1})`,
     description:
@@ -95,10 +113,16 @@ const EQUATIONS = [
       '안정적인 SSM이 먼 계수를 hard cutoff 없이 지수적으로 감쇠된 가중치로 집약하는 효과를 나타냅니다. 하드 절단보다 tail 기여가 훨씬 빠르게 감소합니다.',
   },
   {
-    name: '무선 상태의 구조 지표',
-    latex: String.raw`\zeta(\mathbf{X}_a) = 1 - \operatorname{tr}\!\left(P^\top K_d\, P\, K_a\right)`,
+    name: '에너지 맵',
+    latex: String.raw`P_{ij} = \frac{|X_{ij}|^2}{\sum_{u,v}|X_{uv}|^2}`,
     description:
-      '현재 CSI가 얼마나 compact한지 혹은 diffuse한지를 요약하는 구조 상태입니다. 작을수록 encoder-friendly한 국소 구조, 클수록 leakage tail이 강한 확산 구조를 의미합니다.',
+      '지연-각도 도메인 CSI의 정규화된 에너지 분포입니다. 이 맵을 기반으로 구조 기술자 ζ를 계산하여 현재 CSI가 compact한지 diffuse한지를 판별합니다.',
+  },
+  {
+    name: '구조 기술자 (Structural Mismatch Index)',
+    latex: String.raw`\zeta(\mathbf{X}_a) = 1 - \lambda_d\,c_d - \lambda_a\,c_a`,
+    description:
+      '현재 CSI가 얼마나 compact한지 혹은 diffuse한지를 요약하는 구조 상태입니다. c_d, c_a는 각각 지연축·각도축 per-axis compactness 점수이며, 작을수록 encoder-friendly한 국소 구조, 클수록 leakage tail이 강한 확산 구조를 의미합니다.',
   },
   {
     name: '정규화된 신뢰성 shortfall',
@@ -107,16 +131,22 @@ const EQUATIONS = [
       '앵커 정책 대비 현재 정책이 rate reliability 목표를 얼마나 못 맞췄는지 정규화하여 측정합니다. NMSE가 아니라 전송률 기반 reliability shortfall을 직접 제어합니다.',
   },
   {
-    name: '상태-조건부 importance surface',
-    latex: String.raw`\Omega_{m,b}(\boldsymbol{\xi}) \triangleq \mathbb{E}\!\left[\Delta V_i(m,b;\gamma)\,\middle|\,\boldsymbol{\xi}_i=\boldsymbol{\xi}\right]`,
+    name: '세그먼트 importance',
+    latex: String.raw`\Omega_S(\boldsymbol{\xi};\,b) = \mathbb{E}\!\left[\Delta\ell_S(b)\,\middle|\,\boldsymbol{\xi}\right]`,
     description:
-      'block m을 bit-width b로 둘 때 생기는 기대 reliability 손실 증가를 상태 ξ=(ρ,ζ)에 조건부로 평균낸 표면입니다. 이것이 RP-MPQ 오프라인 정책 구성의 핵심입니다.',
+      '연속 세그먼트 S를 bit-width b로 설정했을 때의 기대 distortion 증가를 상태 ξ에 조건부로 평균낸 값입니다. Segment DP의 비용 함수를 구성하는 핵심 요소입니다.',
   },
   {
-    name: '상태별 정책 최적화',
-    latex: String.raw`\pi^*(\boldsymbol{\xi}) = \arg\min_{\pi\in\Pi}\left[\sum_{m=1}^{M}\widehat{\Omega}_{m,\pi_m}(\boldsymbol{\xi}) + \lambda\,\kappa_\pi\right]`,
+    name: 'Segment DP 재귀식',
+    latex: String.raw`F(m,\,c) = \min_{l}\!\left[F(l,\,c-\kappa) + \Omega_{[l:m)}(\boldsymbol{\xi};\,b)\right]`,
     description:
-      '각 상태 cell마다 importance surface와 compute cost를 함께 최소화하는 mixed-precision 정책을 구합니다. λ는 long-term UE budget을 만족하도록 오프라인에서 조정됩니다.',
+      'm번째 파라미터까지 총 비용 c를 사용하여 최적 연속 세그먼트 분할을 찾는 동적 프로그래밍 재귀식입니다. 각 세그먼트는 동일 bit-width를 공유하므로 하드웨어 연속성이 보장됩니다.',
+  },
+  {
+    name: 'Shrinkage 추정자',
+    latex: String.raw`\hat{\Omega}^{(j,k)}(b) = \alpha\,\hat{\Omega}^{\mathrm{raw}} + (1-\alpha)\,\bar{\Omega}`,
+    description:
+      'Sample이 적은 state cell의 importance 추정치를 global mean으로 부분 수축시켜 과적합과 noisy estimate를 방지합니다. α는 cell 내 sample 수에 따라 결정됩니다.',
   },
   {
     name: '온라인 정책 조회',
@@ -398,7 +428,7 @@ export default function MyResearchPage() {
                     </span>
                   </div>
                   <h1 className="text-xl font-bold leading-snug text-white sm:text-2xl">
-                    Reliability-Preserving Mixed-Precision Quantization Scheduling for Asymmetric CSI Feedback Autoencoders
+                    Contiguous-Segment Mixed-Precision Quantization for Asymmetric CSI Feedback Autoencoders
                   </h1>
                   <p className="mt-3 text-sm text-indigo-200">
                     박현재, 최완 (서울대학교 전기정보공학부)
@@ -411,24 +441,28 @@ export default function MyResearchPage() {
                   <p className="leading-relaxed text-gray-700 dark:text-gray-300">
                     이 연구는 FDD massive MIMO에서{' '}
                     <span className="font-semibold text-indigo-700 dark:text-indigo-300">UE latency·energy·compute 제약</span> 아래
-                    CSI feedback을 어떻게 신뢰성 있게 유지할지를 다룹니다. 핵심은 UE에는 경량 Mamba-style SSM encoder,
+                    CSI feedback을 어떻게 신뢰성 있게 유지할지를 다룹니다. 핵심은 UE에는 경량 Mamba SSM encoder,
                     BS에는 고용량 Transformer decoder를 두는{' '}
-                    <span className="font-semibold text-indigo-700 dark:text-indigo-300">asymmetric CSI feedback autoencoder</span>와,
+                    <span className="font-semibold text-indigo-700 dark:text-indigo-300">MT-AE (Mamba-Transformer Autoencoder)</span>와,
                     그 위에서 동작하는{' '}
-                    <span className="font-semibold text-emerald-700 dark:text-emerald-300">Reliability-Preserving Mixed-Precision Quantization Scheduling (RP-MPQ)</span>
-                    입니다. RP-MPQ는 reconstruction NMSE만 보지 않고 실제 downlink rate shortfall과 outage risk를 기준으로
-                    precision policy를 설계하며, 오프라인에서는 상태별 정책을 미리 구성하고 온라인에서는 단 한 번의 lookup만 수행합니다.
+                    <span className="font-semibold text-emerald-700 dark:text-emerald-300">Contiguous-Segment Mixed-Precision Quantization</span>
+                    입니다. 오프라인 Segment DP는 2차원 무선 상태 ξ=(ρ, ζ) 위에서 importance surface와 연속 세그먼트 분할을
+                    동적 프로그래밍으로 최적화하고, Joint DP는 상태별 예산 배분을 추가하여 outage cliff를 더 높은 BOP 절약 구간으로 밀어냅니다.
+                    온라인에서는 단 한 번의 O(1) table lookup만 수행합니다.
                   </p>
 
                   <div className="mt-4 flex flex-wrap gap-2">
                     <span className="rounded-full bg-blue-100 px-3 py-1 text-xs font-semibold text-blue-700 dark:bg-blue-900/30 dark:text-blue-300">
-                      Rate / Outage reliability
+                      Segment DP + Joint DP
                     </span>
                     <span className="rounded-full bg-purple-100 px-3 py-1 text-xs font-semibold text-purple-700 dark:bg-purple-900/30 dark:text-purple-300">
-                      Asymmetric SSM–Transformer AE
+                      MT-AE (Mamba–Transformer)
                     </span>
                     <span className="rounded-full bg-green-100 px-3 py-1 text-xs font-semibold text-green-700 dark:bg-green-900/30 dark:text-green-300">
                       Offline LUT + Online O(1)
+                    </span>
+                    <span className="rounded-full bg-amber-100 px-3 py-1 text-xs font-semibold text-amber-700 dark:bg-amber-900/30 dark:text-amber-300">
+                      ξ = (ρ, ζ) 2D 무선 상태
                     </span>
                     <span className="rounded-full border border-dashed border-gray-300 px-3 py-1 text-xs font-medium text-gray-500 dark:border-gray-600 dark:text-gray-400">
                       제출 준비 중
@@ -438,16 +472,16 @@ export default function MyResearchPage() {
                   <div className="mt-5 grid grid-cols-1 gap-3 sm:grid-cols-3">
                     {[
                       {
-                        title: 'Architecture',
-                        body: 'UE는 quantization-robust Mamba encoder, BS는 expressive Transformer decoder로 역할을 분리합니다.',
+                        title: 'MT-AE Architecture',
+                        body: 'UE는 수축적 상태 역학 기반의 경량 Mamba SSM encoder, BS는 고용량 Transformer decoder로 역할을 분리합니다.',
                       },
                       {
-                        title: 'Offline RP-MPQ',
-                        body: '상태 ξ=(ρ, ζ)별 importance surface를 추정하고, long-term UE budget 아래 정책 map μ(ξ)를 구축합니다.',
+                        title: 'Segment DP (Offline)',
+                        body: '2D 상태 ξ=(ρ, ζ) 위에서 contiguous-segment importance surface를 추정하고, DP 재귀로 최적 세그먼트 분할과 bit-width를 결정합니다. Joint DP는 상태별 예산 배분을 추가합니다.',
                       },
                       {
-                        title: 'Online RP-MPQ',
-                        body: '현재 CSI에서 ζ를 계산하고 μ(ξ_t)를 조회해 곧바로 mixed-precision policy를 적용합니다.',
+                        title: 'Online Deployment',
+                        body: '현재 CSI에서 ζ를 O(1)로 계산하고 μ(ξ_t) table lookup으로 곧바로 mixed-precision policy를 적용합니다.',
                       },
                     ].map((item) => (
                       <div
@@ -570,9 +604,35 @@ export default function MyResearchPage() {
                   </div>
 
 
-                  {/* 2.3 */}
+                  {/* 2.3 Truncated CSI & CR */}
                   <div className="mt-6">
-                    <SubSectionHeading number="2.3" title="UE Constraints and Design Perspective" />
+                    <SubSectionHeading number="2.3" title="절단 지연-각도 CSI와 압축비" />
+                    <p className="mb-3 text-sm leading-relaxed text-gray-700 dark:text-gray-300">
+                      지연 도메인에서 에너지가 집중된 처음 N_a개의 유효 탭만 취하여 입력 차원을 줄입니다.
+                      Autoencoder는 이 절단 CSI를 D차원 잠재 벡터로 압축하며, 압축비(CR)는 다음과 같이 정의됩니다.
+                    </p>
+                    <div className="mb-4 space-y-3">
+                      <div className="rounded-lg bg-indigo-50 p-3 dark:bg-indigo-900/20">
+                        <p className="mb-1 text-xs font-semibold text-indigo-700 dark:text-indigo-300">절단 CSI:</p>
+                        <div className="overflow-x-auto text-gray-900 dark:text-gray-100">
+                          <EquationRenderer latex={String.raw`\mathbf{X}_a = [\mathbf{X}[0],\,\ldots,\,\mathbf{X}[N_a-1]]`} />
+                        </div>
+                      </div>
+                      <div className="rounded-lg bg-indigo-50 p-3 dark:bg-indigo-900/20">
+                        <p className="mb-1 text-xs font-semibold text-indigo-700 dark:text-indigo-300">압축비 정의:</p>
+                        <div className="overflow-x-auto text-gray-900 dark:text-gray-100">
+                          <EquationRenderer latex={String.raw`\mathrm{CR} = \frac{D}{2\,N_a\,N_r\,N_t}`} />
+                        </div>
+                      </div>
+                    </div>
+                    <p className="mb-4 text-sm leading-relaxed text-gray-600 dark:text-gray-400">
+                      본 연구에서는 N_a = 32, N_r = 1, N_t = 32를 사용하며, CR = 1/4일 때 D = 512입니다.
+                    </p>
+                  </div>
+
+                  {/* 2.4 */}
+                  <div className="mt-6">
+                    <SubSectionHeading number="2.4" title="UE Constraints and Design Perspective" />
                     <p className="mb-3 text-sm leading-relaxed text-gray-700 dark:text-gray-300">
                       CSI feedback is constrained by UE-side latency, energy, and compute limits.
                       This motivates architectures with a lightweight UE-side encoder and a higher-capacity BS-side decoder.
@@ -594,7 +654,7 @@ export default function MyResearchPage() {
             <section id="section-architecture" className="scroll-mt-20">
               <SectionHeading
                 icon={<Layers className="h-5 w-5" />}
-                title="비대칭 아키텍처 (§3)"
+                title="MT-AE 비대칭 아키텍처 (§3)"
                 collapsed={!!collapsed['section-architecture']}
                 onToggle={() => toggleSection('section-architecture')}
               />
@@ -603,12 +663,14 @@ export default function MyResearchPage() {
               >
                 <Card>
                   {/* 3.1 UE-BS 비대칭성 */}
-                  <SubSectionHeading number="3.1" title="UE-BS 비대칭 구조와 롱테일 국소성" />
+                  <SubSectionHeading number="3.1" title="MT-AE: Mamba-Transformer Autoencoder" />
                   <p className="mb-3 text-sm leading-relaxed text-gray-700 dark:text-gray-300">
+                    <span className="font-semibold text-indigo-700 dark:text-indigo-300">MT-AE</span>는
+                    UE encoder로 Mamba SSM, BS decoder로 Transformer를 사용하는 비대칭 오토인코더입니다.
                     UE 측 인코더는 경량이어야 하지만, 지연-각도 도메인 CSI는 off-grid 경로로 인한
-                    롱테일 구조를 가집니다. 인코더 설계에서 이 롱테일을 어떻게 다루느냐가
-                    아키텍처 선택의 핵심 기준이 됩니다. 아래에서 하드 국소성(CNN)과 소프트 국소성(SSM)의
-                    테일 처리 방식을 비교합니다.
+                    롱테일 구조를 가집니다. Mamba의 수축적 상태 역학(contractive state dynamics)이
+                    양자화 내성을 보장하여, INT8에서도 거의 손실 없는 NMSE (-15.19 dB)를 달성합니다.
+                    CNN 기반 인코더는 INT8에서 붕괴하는 것과 대조적입니다.
                   </p>
 
                   {/* 3.2 롱테일 특성 */}
@@ -700,10 +762,17 @@ export default function MyResearchPage() {
                   <div className="mt-7">
                     <SubSectionHeading number="3.4" title="상태 공간 집약에 의한 소프트 국소성" />
                     <p className="mb-3 text-sm leading-relaxed text-gray-700 dark:text-gray-300">
-                      선형 SSM은 합성곱 형태로 표현할 수 있으며, 안정적인 A에 대해 지수 감쇠 가중치를 가집니다:
+                      선형 SSM의 이산 시간 재귀식과 합성곱 표현을 보면, 안정적인 A에 대해 지수 감쇠 가중치를 가집니다:
                     </p>
                     <div className="mb-3 space-y-2">
                       <div className="overflow-x-auto rounded-lg bg-slate-50 p-3 dark:bg-slate-800">
+                        <p className="mb-1 text-xs font-semibold text-slate-700 dark:text-slate-300">SSM 재귀식:</p>
+                        <div className="text-gray-900 dark:text-gray-100">
+                          <EquationRenderer latex={String.raw`\mathbf{s}_{k+1} = \mathbf{A}\,\mathbf{s}_k + \mathbf{B}\,\mathbf{u}_k,\qquad \mathbf{y}_k = \mathbf{C}\,\mathbf{s}_k`} />
+                        </div>
+                      </div>
+                      <div className="overflow-x-auto rounded-lg bg-slate-50 p-3 dark:bg-slate-800">
+                        <p className="mb-1 text-xs font-semibold text-slate-700 dark:text-slate-300">합성곱 표현 및 지수 감쇠:</p>
                         <div className="text-gray-900 dark:text-gray-100">
                           <EquationRenderer latex={String.raw`\mathbf{y}_k = \mathbf{C}\sum_{d\ge 0}\mathbf{A}^{d}\mathbf{B}\,\mathbf{u}_{k-d}, \quad \|\mathbf{A}^d\| \le c_1 e^{-\alpha d}`} />
                         </div>
@@ -830,11 +899,11 @@ export default function MyResearchPage() {
               </div>
             </section>
 
-            {/* ===== Section 4: RP-MPQ Offline ===== */}
+            {/* ===== Section 4: Segment DP Offline ===== */}
             <section id="section-offline" className="scroll-mt-20">
               <SectionHeading
                 icon={<HardDrive className="h-5 w-5" />}
-                title="RP-MPQ 오프라인"
+                title="Segment DP 오프라인"
                 collapsed={!!collapsed['section-offline']}
                 onToggle={() => toggleSection('section-offline')}
               />
@@ -844,12 +913,13 @@ export default function MyResearchPage() {
                 <Card>
                   <div className="mb-5 rounded-xl border border-emerald-200 bg-emerald-50 px-4 py-3 dark:border-emerald-900/40 dark:bg-emerald-900/10">
                     <p className="text-sm leading-relaxed text-emerald-800 dark:text-emerald-200">
-                      RP-MPQ의 오프라인 단계는{' '}
+                      Segment DP의 오프라인 단계는{' '}
                       <span className="font-semibold">UE encoder weights에만 mixed precision</span>을 적용하고,
                       activations는 INT16, feedback latent quantization은 고정한 채 진행됩니다.
                       핵심은 Hessian-based block saliency가 아니라{' '}
-                      <span className="font-semibold">상태 ξ=(ρ, ζ)에 조건부인 reliability importance surface</span>를
-                      먼저 만들고, 그 surface로 상태별 정책 map μ(ξ)를 미리 구축하는 데 있습니다.
+                      <span className="font-semibold">2D 무선 상태 ξ=(ρ, ζ)에 조건부인 contiguous-segment importance surface</span>를
+                      먼저 만들고, 동적 프로그래밍(DP) 재귀로 최적 세그먼트 분할과 bit-width를 결정합니다.
+                      Joint DP 확장은 상태별 예산 배분을 outer DP로 추가 최적화하여 outage cliff를 더 높은 BOP 절약 구간으로 밀어냅니다.
                     </p>
                   </div>
 
@@ -888,18 +958,24 @@ export default function MyResearchPage() {
                     </div>
                   </div>
 
-                  <SubSectionHeading number="4.2" title="무선 상태와 reliability shortfall" />
+                  <SubSectionHeading number="4.2" title="무선 상태와 구조 기술자" />
                   <p className="mb-3 text-sm leading-relaxed text-gray-700 dark:text-gray-300">
-                    RP-MPQ는 현재 무선 환경을 단순한 SNR 하나가 아니라{' '}
-                    <span className="font-semibold">수신 SNR ρ와 CSI 구조 지표 ζ</span>의 2차원 상태로 요약합니다.
-                    ζ는 delay--angular energy map이 얼마나 compact한지 혹은 leakage tail이 강한지를 나타냅니다.
-                    policy의 품질은 NMSE가 아니라, anchor policy 대비 목표 rate를 얼마나 못 맞췄는지로 측정합니다.
+                    Segment DP는 현재 무선 환경을 단순한 SNR 하나가 아니라{' '}
+                    <span className="font-semibold">수신 SNR ρ와 구조 불일치 지표(structural mismatch index) ζ</span>의 2차원 상태 ξ=(ρ, ζ)로 요약합니다.
+                    ζ는 에너지 맵 P로부터 지연축·각도축 per-axis compactness 점수 c_d, c_a를 계산하여 도출됩니다.
+                    작은 ζ는 compact/easy CSI, 큰 ζ는 diffuse/hard CSI를 의미합니다. 온라인에서 O(1)로 계산됩니다.
                   </p>
                   <div className="mb-4 grid grid-cols-1 gap-3 lg:grid-cols-2">
                     <div className="overflow-x-auto rounded-lg bg-amber-50 p-3 dark:bg-amber-900/20">
-                      <p className="mb-1 text-xs font-semibold text-amber-700 dark:text-amber-300">구조 상태 ζ</p>
+                      <p className="mb-1 text-xs font-semibold text-amber-700 dark:text-amber-300">에너지 맵 P</p>
                       <div className="text-gray-900 dark:text-gray-100">
-                        <EquationRenderer latex={String.raw`\zeta(\mathbf{X}_a) = 1 - \operatorname{tr}\!\left(P^\top K_d\, P\, K_a\right)`} />
+                        <EquationRenderer latex={String.raw`P_{ij} = \frac{|X_{ij}|^2}{\sum_{u,v}|X_{uv}|^2}`} />
+                      </div>
+                    </div>
+                    <div className="overflow-x-auto rounded-lg bg-amber-50 p-3 dark:bg-amber-900/20">
+                      <p className="mb-1 text-xs font-semibold text-amber-700 dark:text-amber-300">구조 불일치 지표 ζ</p>
+                      <div className="text-gray-900 dark:text-gray-100">
+                        <EquationRenderer latex={String.raw`\zeta(\mathbf{X}_a) = 1 - \lambda_d\,c_d - \lambda_a\,c_a`} />
                       </div>
                     </div>
                     <div className="overflow-x-auto rounded-lg bg-rose-50 p-3 dark:bg-rose-900/20">
@@ -926,15 +1002,15 @@ export default function MyResearchPage() {
                     ))}
                   </div>
 
-                  <SubSectionHeading number="4.3" title="State-conditioned importance surface 추정" />
+                  <SubSectionHeading number="4.3" title="Contiguous-segment importance surface 추정" />
                   <p className="mb-3 text-sm leading-relaxed text-gray-700 dark:text-gray-300">
-                    이제 각 block m을 bit-width b로 바꿨을 때 reliability shortfall이 얼마나 늘어나는지를 상태 ξ에 조건부로 평균내어 surface를 만듭니다.
-                    이 surface는 “어떤 block이 중요하냐”를 고정된 saliency가 아니라{' '}
-                    <span className="font-semibold">현재 무선 상태에 따라 달라지는 reliability sensitivity</span>로 해석하게 해 줍니다.
+                    연속 세그먼트 S를 bit-width b로 설정했을 때 distortion이 얼마나 늘어나는지를 상태 ξ에 조건부로 평균내어 importance surface를 만듭니다.
+                    block 단위가 아닌 contiguous segment 단위로 perturbation을 측정하여 하드웨어 연속성을 보장합니다.
                   </p>
                   <div className="mb-4 overflow-x-auto rounded-lg bg-emerald-50 p-3 dark:bg-emerald-900/20">
+                    <p className="mb-1 text-xs font-semibold text-emerald-700 dark:text-emerald-300">세그먼트 importance:</p>
                     <div className="text-gray-900 dark:text-gray-100">
-                      <EquationRenderer latex={String.raw`\Omega_{m,b}(\boldsymbol{\xi}) \triangleq \mathbb{E}\!\left[\Delta V_i(m,b;\gamma)\,\middle|\,\boldsymbol{\xi}_i=\boldsymbol{\xi}\right]`} />
+                      <EquationRenderer latex={String.raw`\Omega_S(\boldsymbol{\xi};\,b) = \mathbb{E}\!\left[\Delta\ell_S(b)\,\middle|\,\boldsymbol{\xi}\right]`} />
                     </div>
                   </div>
 
@@ -942,13 +1018,13 @@ export default function MyResearchPage() {
                     <div className="rounded-lg border border-teal-200 bg-teal-50 p-4 dark:border-teal-900/40 dark:bg-teal-900/10">
                       <p className="mb-1 text-xs font-bold text-teal-700 dark:text-teal-300">Raw cell average</p>
                       <p className="text-xs leading-relaxed text-teal-600 dark:text-teal-400">
-                        상태 공간 (ρ, ζ)을 quantile grid로 나눈 뒤, 각 cell에서 block-bit marginal shortfall을 평균냅니다.
+                        상태 공간 (ρ, ζ)을 quantile grid로 나눈 뒤, 각 cell에서 segment-bit marginal distortion을 평균냅니다.
                       </p>
                     </div>
                     <div className="rounded-lg border border-violet-200 bg-violet-50 p-4 dark:border-violet-900/40 dark:bg-violet-900/10">
-                      <p className="mb-1 text-xs font-bold text-violet-700 dark:text-violet-300">Shrinkage stabilization</p>
+                      <p className="mb-1 text-xs font-bold text-violet-700 dark:text-violet-300">Shrinkage 추정</p>
                       <p className="text-xs leading-relaxed text-violet-600 dark:text-violet-400">
-                        sample이 적은 cell은 global block-bit mean으로 부분 수축시켜 과적합과 noisy estimate를 막습니다.
+                        sample이 적은 cell은 global mean으로 부분 수축: <span className="font-mono text-[10px]">Ω̂ = α·Ω̂_raw + (1-α)·Ω̄</span>
                       </p>
                     </div>
                     <div className="rounded-lg border border-orange-200 bg-orange-50 p-4 dark:border-orange-900/40 dark:bg-orange-900/10">
@@ -959,22 +1035,57 @@ export default function MyResearchPage() {
                     </div>
                   </div>
 
-                  <SubSectionHeading number="4.4" title="상태별 정책 최적화와 policy map μ(ξ)" />
-                  <p className="mb-3 text-sm leading-relaxed text-gray-700 dark:text-gray-300">
-                    importance surface가 준비되면 각 state cell마다 reliability loss surrogate와 compute cost의 합을 최소화하는 policy를 고릅니다.
-                    λ는 long-term average UE budget을 만족하도록 오프라인에서만 조정되고, 결과는 state-to-policy map으로 저장됩니다.
-                  </p>
-                  <div className="mb-4 overflow-x-auto rounded-lg bg-sky-50 p-3 dark:bg-sky-900/20">
+                  <div className="mb-4 overflow-x-auto rounded-lg bg-violet-50 p-3 dark:bg-violet-900/20">
+                    <p className="mb-1 text-xs font-semibold text-violet-700 dark:text-violet-300">Shrinkage 추정자:</p>
                     <div className="text-gray-900 dark:text-gray-100">
-                      <EquationRenderer latex={String.raw`\pi^*(\boldsymbol{\xi}) = \arg\min_{\pi\in\Pi}\left[\sum_{m=1}^{M}\widehat{\Omega}_{m,\pi_m}(\boldsymbol{\xi}) + \lambda\,\kappa_\pi\right],\qquad \mu(\boldsymbol{\xi})=\pi^*(\boldsymbol{\xi})`} />
+                      <EquationRenderer latex={String.raw`\hat{\Omega}^{(j,k)}(b) = \alpha\,\hat{\Omega}^{\mathrm{raw}} + (1-\alpha)\,\bar{\Omega}`} />
                     </div>
                   </div>
 
-                  <div className="grid grid-cols-1 gap-3 lg:grid-cols-[1fr_auto_1fr_auto_1fr]">
+                  <SubSectionHeading number="4.4" title="Segment DP: 최적 연속 세그먼트 분할" />
+                  <p className="mb-3 text-sm leading-relaxed text-gray-700 dark:text-gray-300">
+                    importance surface가 준비되면, 동적 프로그래밍(DP) 재귀로 파라미터를 연속 세그먼트로 분할하고
+                    각 세그먼트에 최적 bit-width를 할당합니다. 같은 세그먼트 내 파라미터는 동일한 bit-width를 공유하므로
+                    하드웨어 구현에서의 연속성이 자동으로 보장됩니다.
+                  </p>
+                  <div className="mb-4 overflow-x-auto rounded-lg bg-sky-50 p-3 dark:bg-sky-900/20">
+                    <p className="mb-1 text-xs font-semibold text-sky-700 dark:text-sky-300">Segment DP 재귀식:</p>
+                    <div className="text-gray-900 dark:text-gray-100">
+                      <EquationRenderer latex={String.raw`F(m,\,c) = \min_{l}\!\left[F(l,\,c-\kappa) + \Omega_{[l:m)}(\boldsymbol{\xi};\,b)\right]`} />
+                    </div>
+                  </div>
+                  <p className="mb-4 text-sm leading-relaxed text-gray-600 dark:text-gray-400">
+                    F(m, c)는 m번째 파라미터까지 총 비용 c를 사용한 최소 distortion이며, traceback으로 최적 세그먼트 경계와 bit-width가 복원됩니다.
+                  </p>
+
+                  <SubSectionHeading number="4.5" title="Joint DP: 상태별 예산 배분" />
+                  <p className="mb-3 text-sm leading-relaxed text-gray-700 dark:text-gray-300">
+                    Joint DP는 Segment DP 위에 <span className="font-semibold">outer DP</span>를 추가합니다.
+                    각 상태 cell (ρ, ζ)마다 독립적으로 동일한 예산을 쓰는 대신, outer DP가
+                    채널 조건별 예산 배분을 최적화하여 어려운 상태(높은 ζ)에 더 많은 bit budget을 할당합니다.
+                  </p>
+                  <div className="mb-4 grid grid-cols-1 gap-3 sm:grid-cols-2">
+                    <div className="rounded-lg border border-indigo-200 bg-indigo-50 p-4 dark:border-indigo-900/40 dark:bg-indigo-900/10">
+                      <p className="mb-1 text-xs font-bold text-indigo-700 dark:text-indigo-300">Segment DP (inner)</p>
+                      <p className="text-xs leading-relaxed text-indigo-600 dark:text-indigo-400">
+                        주어진 예산 c 하에서 연속 세그먼트 분할과 bit-width를 최적화합니다.
+                      </p>
+                    </div>
+                    <div className="rounded-lg border border-purple-200 bg-purple-50 p-4 dark:border-purple-900/40 dark:bg-purple-900/10">
+                      <p className="mb-1 text-xs font-bold text-purple-700 dark:text-purple-300">Joint DP (outer)</p>
+                      <p className="text-xs leading-relaxed text-purple-600 dark:text-purple-400">
+                        상태별 예산 배분을 최적화하여 outage cliff를 더 높은 BOP 절약 구간으로 이동시킵니다.
+                        NMSE 비용 없이 outage probability를 개선합니다.
+                      </p>
+                    </div>
+                  </div>
+
+                  <div className="grid grid-cols-1 gap-3 lg:grid-cols-[1fr_auto_1fr_auto_1fr_auto_1fr]">
                     {[
                       ['Step 1', 'State binning', '(ρ, ζ) grid를 만들고 sample들을 상태별로 나눕니다.'],
-                      ['Step 2', 'Importance estimation', '각 cell에서 block-bit reliability shortfall을 평균·보정합니다.'],
-                      ['Step 3', 'State-wise optimization', '각 cell마다 budget-aware mixed-precision policy를 선택합니다.'],
+                      ['Step 2', 'Importance estimation', '각 cell에서 contiguous-segment importance를 추정·shrinkage 보정합니다.'],
+                      ['Step 3', 'Segment DP', '각 cell마다 DP 재귀로 최적 세그먼트 분할과 bit-width를 결정합니다.'],
+                      ['Step 4', 'Joint DP', 'Outer DP로 상태별 예산 배분을 최적화합니다.'],
                     ].map((item, index) => (
                       <div key={item[0]} className="contents">
                         <div className="rounded-xl border border-gray-200 bg-gray-50 p-4 dark:border-gray-800 dark:bg-gray-800/70">
@@ -982,7 +1093,7 @@ export default function MyResearchPage() {
                           <p className="mt-2 text-sm font-semibold text-gray-800 dark:text-gray-200">{item[1]}</p>
                           <p className="mt-2 text-xs leading-relaxed text-gray-600 dark:text-gray-400">{item[2]}</p>
                         </div>
-                        {index < 2 && (
+                        {index < 3 && (
                           <div className="hidden items-center justify-center lg:flex">
                             <ChevronRight className="h-5 w-5 text-gray-400" />
                           </div>
@@ -992,17 +1103,17 @@ export default function MyResearchPage() {
                   </div>
 
                   <InfographicCaption>
-                    새 RP-MPQ 오프라인 단계의 핵심은 고정 saliency ranking이 아니라, 상태 ξ마다 달라지는 reliability importance surface로 policy map μ(ξ)를 구축하는 것입니다.
+                    Segment DP 오프라인 단계: 상태 ξ마다 달라지는 contiguous-segment importance surface 위에서 DP 재귀로 최적 분할을 구하고, Joint DP가 상태별 예산 배분을 추가 최적화합니다.
                   </InfographicCaption>
                 </Card>
               </div>
             </section>
 
-            {/* ===== Section 5: RP-MPQ Online ===== */}
+            {/* ===== Section 5: Online Deployment ===== */}
             <section id="section-online" className="scroll-mt-20">
               <SectionHeading
                 icon={<Zap className="h-5 w-5" />}
-                title="RP-MPQ 온라인"
+                title="온라인 배포"
                 collapsed={!!collapsed['section-online']}
                 onToggle={() => toggleSection('section-online')}
               />
@@ -1012,9 +1123,10 @@ export default function MyResearchPage() {
                 <Card>
                   <div className="mb-5 rounded-xl border border-blue-200 bg-blue-50 px-4 py-3 dark:border-blue-900/40 dark:bg-blue-900/10">
                     <p className="text-sm leading-relaxed text-blue-800 dark:text-blue-200">
-                      온라인 RP-MPQ의 핵심은{' '}
-                      <span className="font-semibold">runtime optimization을 없애는 것</span>입니다.
-                      오프라인에서 이미 μ(ξ)를 완성했기 때문에, 실제 UE는 현재 CSI에서 상태만 계산하고 즉시 policy를 조회합니다.
+                      온라인 배포의 핵심은{' '}
+                      <span className="font-semibold">runtime optimization을 완전히 없애는 것</span>입니다.
+                      오프라인 Segment DP (+ Joint DP)에서 이미 μ(ξ)를 완성했기 때문에,
+                      실제 UE는 현재 CSI에서 ξ=(ρ, ζ)를 O(1)로 계산하고 즉시 table lookup으로 policy를 조회합니다 (Algorithm 1).
                     </p>
                   </div>
 
@@ -1051,10 +1163,11 @@ export default function MyResearchPage() {
                     ))}
                   </div>
 
-                  <SubSectionHeading number="5.2" title="온라인 복잡도와 practical overhead" />
+                  <SubSectionHeading number="5.2" title="O(1) 온라인 복잡도" />
                   <p className="mb-4 text-sm leading-relaxed text-gray-700 dark:text-gray-300">
-                    온라인 비용은 구조 상태 ζ 계산과 table lookup뿐입니다. 따라서 실제 overhead는 encoder inference에 비해 미미하고,
-                    reliability-aware adaptation을 넣어도 runtime optimization latency가 붙지 않습니다.
+                    온라인 비용은 구조 상태 ζ 계산(에너지 맵에서 compactness 점수 도출)과 table lookup뿐입니다.
+                    두 연산 모두 O(1) 복잡도이므로 실제 overhead는 encoder inference에 비해 미미하고,
+                    상태-적응형 mixed-precision을 적용하면서도 runtime optimization latency가 전혀 붙지 않습니다.
                   </p>
                   <div className="mb-6 grid grid-cols-1 gap-3 sm:grid-cols-2">
                     <div className="rounded-lg border border-slate-200 bg-slate-50 p-4 dark:border-slate-800 dark:bg-slate-800/80">
@@ -1073,17 +1186,17 @@ export default function MyResearchPage() {
 
                   <BudgetOutageViz />
                   <InfographicCaption>
-                    같은 평균 UE-side BOP 예산에서도, state-conditioned online selection이 static policy보다 outage cliff를 더 늦게 만듭니다.
+                    같은 평균 UE-side BOP 예산에서도, Joint DP의 state-conditioned budget allocation이 equal-budget Segment DP보다 outage cliff를 더 높은 절약 구간으로 이동시킵니다.
                   </InfographicCaption>
 
                   <SubSectionHeading number="5.3" title="동일 평균 예산에서의 reliability 개선" />
                   <p className="mb-3 text-sm leading-relaxed text-gray-700 dark:text-gray-300">
-                    정적인 uniform precision이나 static mixed precision과 비교하면, RP-MPQ는 sample마다 다른 state를 반영하므로
-                    같은 average cost에서도 reliability target을 더 자주 만족시킵니다. 효과는 특히 high-saving 구간에서 더 크게 나타납니다.
+                    정적인 uniform precision이나 static mixed precision과 비교하면, Segment DP + Joint DP는 sample마다 다른 state를 반영하므로
+                    같은 average cost에서도 reliability target을 더 자주 만족시킵니다. Joint DP는 outage cliff를 더 높은 BOP 절약 구간으로 이동시킵니다.
                   </p>
                   <ReliabilityViz />
                   <InfographicCaption>
-                    동일한 평균 연산 예산 하에서 RP-MPQ 온라인 선택이 rate-based outage를 가장 크게 줄입니다.
+                    동일한 평균 연산 예산 하에서 Segment DP + Joint DP 온라인 선택이 rate-based outage를 가장 크게 줄입니다.
                   </InfographicCaption>
                 </Card>
               </div>
@@ -1174,13 +1287,13 @@ export default function MyResearchPage() {
                           { model: 'CsiNet', prec: 'INT4', nmse: '19.40†', bop: '93.75%', highlight: false, bad: true },
                           { model: 'CRNet', prec: 'INT16', nmse: '-12.71', bop: '75%', highlight: false, bad: false },
                           { model: 'CRNet', prec: 'INT8', nmse: '-3.57', bop: '87.5%', highlight: false, bad: true },
-                          { model: 'CRNet', prec: 'INT4', nmse: '10.36†', bop: '93.75%', highlight: false, bad: true },
+                          { model: 'CRNet', prec: 'INT4', nmse: '-6.79', bop: '93.75%', highlight: false, bad: true },
                           { model: 'CLNet', prec: 'INT16', nmse: '-12.82', bop: '75%', highlight: false, bad: false },
                           { model: 'CLNet', prec: 'INT8', nmse: '0.15†', bop: '87.5%', highlight: false, bad: true },
                           { model: 'CLNet', prec: 'INT4', nmse: '23.36†', bop: '93.75%', highlight: false, bad: true },
                           { model: 'MT-AE (Ours)', prec: 'INT16', nmse: '-15.37', bop: '75%', highlight: true, bad: false },
                           { model: 'MT-AE (Ours)', prec: 'INT8', nmse: '-15.19', bop: '87.5%', highlight: true, bad: false },
-                          { model: 'MT-AE (Ours)', prec: 'INT4', nmse: '0.03†', bop: '93.75%', highlight: true, bad: false },
+                          { model: 'MT-AE (Ours)', prec: 'INT4', nmse: '-12.69', bop: '93.75%', highlight: true, bad: false },
                         ].map((row, i) => (
                           <tr
                             key={i}
@@ -1202,15 +1315,51 @@ export default function MyResearchPage() {
 
                   <div className="rounded-lg border border-indigo-200 bg-indigo-50 px-4 py-3 dark:border-indigo-800 dark:bg-indigo-900/20 mb-6">
                     <p className="text-xs leading-relaxed text-indigo-700 dark:text-indigo-300">
-                      <span className="font-bold">핵심 관찰:</span> 제안한 MT-AE는 INT8에서도 거의 손실 없이 NMSE를 유지하지만,
-                      CNN baselines는 INT16 이후 급격히 무너집니다. 이 구조적 quantization robustness가 바로 이후 RP-MPQ를
-                      aggressive saving 구간까지 밀어붙일 수 있게 해 주는 기반입니다.
+                      <span className="font-bold">핵심 관찰:</span> MT-AE는 INT8 (87.5% BOP 절약)에서 -15.19 dB로 거의 무손실이지만,
+                      CNN baselines는 INT8에서 붕괴합니다. INT4 (93% 절약)에서 MT-AE는 -12.69 dB이지만 CRNet은 -6.79 dB로
+                      5.9 dB 격차가 발생합니다. 이 구조적 양자화 내성이 Segment DP를 aggressive saving 구간까지 밀어붙일 수 있게 해 주는 기반입니다.
                     </p>
+                  </div>
+
+                  {/* Segment DP vs HAWQ-ILP comparison */}
+                  <p className="mb-2 text-sm font-bold text-gray-800 dark:text-gray-200">
+                    Segment DP vs HAWQ-ILP 비교
+                  </p>
+                  <p className="mb-3 text-sm leading-relaxed text-gray-700 dark:text-gray-300">
+                    Segment DP는 contiguous-segment 제약을 자연스럽게 만족하면서도
+                    block-wise independent optimization (HAWQ-ILP) 대비 동일하거나 더 나은 NMSE를 달성합니다.
+                    하드웨어 연속성을 보장하면서 성능 손실이 없는 것이 핵심입니다.
+                  </p>
+
+                  {/* Joint DP outage improvement */}
+                  <p className="mb-2 text-sm font-bold text-gray-800 dark:text-gray-200">
+                    Joint DP: Outage 개선
+                  </p>
+                  <p className="mb-3 text-sm leading-relaxed text-gray-700 dark:text-gray-300">
+                    Joint DP는 equal-budget Segment DP 대비 outage cliff를 더 높은 BOP 절약 구간으로 이동시킵니다.
+                    NMSE 비용 없이 outage probability를 개선하며, 어려운 채널 조건(높은 ζ)에 더 많은 bit budget을 할당합니다.
+                  </p>
+
+                  <div className="mb-6 grid grid-cols-1 gap-3 sm:grid-cols-2">
+                    <div className="rounded-lg border border-emerald-200 bg-emerald-50 p-4 dark:border-emerald-900/40 dark:bg-emerald-900/10">
+                      <p className="mb-1 text-xs font-bold text-emerald-700 dark:text-emerald-300">Cross-Architecture Pareto Frontier</p>
+                      <p className="text-xs leading-relaxed text-emerald-600 dark:text-emerald-400">
+                        MT-AE + Segment DP 조합이 모든 BOP 절약 구간에서 CNN baseline + 균일 양자화 조합을 Pareto-dominate합니다.
+                        아키텍처 내재적 양자화 내성과 상태 적응형 mixed-precision이 시너지를 형성합니다.
+                      </p>
+                    </div>
+                    <div className="rounded-lg border border-amber-200 bg-amber-50 p-4 dark:border-amber-900/40 dark:bg-amber-900/10">
+                      <p className="mb-1 text-xs font-bold text-amber-700 dark:text-amber-300">Joint DP 효과</p>
+                      <p className="text-xs leading-relaxed text-amber-600 dark:text-amber-400">
+                        Outer DP가 상태별 예산 배분을 최적화하여 outage cliff를 더 높은 BOP 절약 구간으로 밀어냅니다.
+                        Equal-budget 대비 동일 NMSE에서 outage probability가 개선됩니다.
+                      </p>
+                    </div>
                   </div>
 
                   <NmseVsBopScatterViz />
                   <InfographicCaption>
-                    효율 프론티어: 오른쪽 아래가 최적 (高 BOP 절약 + 低 NMSE). RP-MPQ는 균일 양자화 대비 동일 예산에서 일관되게 우위.
+                    효율 프론티어: 오른쪽 아래가 최적 (高 BOP 절약 + 低 NMSE). Segment DP + Joint DP는 균일 양자화 대비 동일 예산에서 일관되게 우위.
                   </InfographicCaption>
                 </Card>
               </div>
