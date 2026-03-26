@@ -26,6 +26,21 @@ interface SeminarEntry {
 
 const labSeminars: SeminarEntry[] = [
   {
+    date: '260326',
+    displayDate: '2026. 03. 26',
+    slug: 'atomic-norm',
+    title: 'Atomic Norm Minimization for Super-resolution',
+    papers: 3,
+    demos: 1,
+    tags: ['Atomic Norm', 'Super-resolution', 'SDP', 'Passive Radar', 'ISAC', 'LANM'],
+    color: 'from-indigo-500 to-violet-600',
+    references: [
+      { authors: 'Tang et al.', title: 'Compressed Sensing off the Grid', venue: 'IEEE Trans. Info. Theory', year: 2013 },
+      { authors: 'Sedighi et al.', title: 'OFDM Passive Radar via ANM', venue: 'IEEE Trans. Signal Processing', year: 2021 },
+      { authors: 'Kim et al.', title: 'Super-resolution ISAC Receiver via LANM', venue: 'IEEE Trans. Wireless Comm.', year: 2024 },
+    ],
+  },
+  {
     date: '260319',
     displayDate: '2026. 03. 19',
     slug: 'chain-of-thought',
