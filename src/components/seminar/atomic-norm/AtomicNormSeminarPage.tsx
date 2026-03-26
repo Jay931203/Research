@@ -4,34 +4,52 @@ import { useCallback, useState, useEffect } from 'react';
 import { BlockMath, InlineMath } from 'react-katex';
 import { TableOfContents, type TocItem } from '@/components/tse/navigation';
 import AtomicNormGeometryViz from './AtomicNormGeometryViz';
+import NormBallComparison from './NormBallComparison';
+import MinSeparationCalculator from './MinSeparationCalculator';
+import DimensionExtensionDiagram from './DimensionExtensionDiagram';
 
 /* ------------------------------------------------------------------ */
 /*  Table of Contents                                                  */
 /* ------------------------------------------------------------------ */
 const tocItems: TocItem[] = [
   { id: 'intro', label: '1. Introduction', level: 1 },
+  { id: 'intro-why-superres', label: '왜 초해상도가 필요한가?', level: 2 },
   { id: 'intro-super-resolution', label: 'Super-resolution & Rayleigh Limit', level: 2 },
+  { id: 'intro-cs-background', label: 'Compressed Sensing 배경', level: 2 },
+  { id: 'intro-what-is-norm', label: 'Norm이란?', level: 2 },
   { id: 'intro-other-methods', label: 'Other Methods & Limitations', level: 2 },
   { id: 'intro-atomic-norm', label: 'Atomic Norm Concept', level: 2 },
 
   { id: 'theory', label: '2. Atomic Norm Theory', level: 1 },
   { id: 'theory-atomic-set', label: 'Atomic Set & Norm Definition', level: 2 },
+  { id: 'theory-atomic-decomp', label: 'Atomic Decomposition 직관', level: 2 },
+  { id: 'theory-norm-geometry', label: 'Norm Ball Geometry 비교', level: 2 },
   { id: 'theory-line-spectrum', label: 'Line Spectrum Model', level: 2 },
   { id: 'theory-toeplitz', label: 'Toeplitz Lifting & SDP', level: 2 },
+  { id: 'theory-what-is-sdp', label: 'SDP란?', level: 2 },
   { id: 'theory-duality', label: 'Duality & Dual Polynomial', level: 2 },
+  { id: 'theory-dual-intuition', label: 'Dual Polynomial 직관', level: 2 },
   { id: 'theory-recovery', label: 'Exact Recovery Guarantees', level: 2 },
+  { id: 'theory-recovery-calc', label: 'Minimum Separation 계산기', level: 2 },
 
   { id: 'ofdm-radar', label: '3. OFDM Passive Radar', level: 1 },
+  { id: 'ofdm-passive-radar', label: '패시브 레이더란?', level: 2 },
   { id: 'ofdm-signal', label: 'Signal Model', level: 2 },
   { id: 'ofdm-2d-anm', label: '2D ANM & Block Toeplitz', level: 2 },
+  { id: 'ofdm-1d-to-2d', label: '1D → 2D 확장 직관', level: 2 },
   { id: 'ofdm-estimation', label: 'Delay-Doppler Estimation', level: 2 },
 
   { id: 'isac', label: '4. ISAC Super-resolution', level: 1 },
+  { id: 'isac-what-is', label: 'ISAC이란?', level: 2 },
   { id: 'isac-signal', label: 'ISAC Signal Model', level: 2 },
   { id: 'isac-lifting', label: 'Lifting Technique', level: 2 },
+  { id: 'isac-lifting-intuition', label: 'Lifting 직관', level: 2 },
   { id: 'isac-lanm', label: 'LANM Formulation', level: 2 },
+  { id: 'isac-dim-extension', label: '1D → 2D → 4D 확장', level: 2 },
 
   { id: 'conclusion', label: '5. Conclusion', level: 1 },
+  { id: 'conclusion-limitations', label: 'ANM의 한계', level: 2 },
+  { id: 'conclusion-further', label: '더 공부하기', level: 2 },
 ];
 
 /* ------------------------------------------------------------------ */
@@ -185,7 +203,57 @@ export default function AtomicNormSeminarPage() {
                 볼록 최적화 프레임워크를 통해 이 문제를 연속 영역에서 푸는 방법을 다룹니다.
               </p>
 
-              {/* Super-resolution & Rayleigh Limit */}
+              {/* NEW: 왜 초해상도가 필요한가? */}
+              <div id="intro-why-superres" className="concept-card mb-6">
+                <div className="text-xs font-semibold text-rose-600 dark:text-rose-400 mb-1">Background</div>
+                <h3 className="font-bold text-slate-800 dark:text-slate-200 mb-3">왜 초해상도(Super-resolution)가 필요한가?</h3>
+                <p className="text-sm text-slate-600 dark:text-slate-400 mb-4">
+                  측정 장비에는 물리적 한계가 있어서, 가까이 있는 두 개의 신호원을 구분하지 못하는 경우가 많습니다.
+                  초해상도는 <strong>이 물리적 한계를 수학으로 극복</strong>하는 기술입니다.
+                </p>
+                <div className="grid sm:grid-cols-2 gap-4 text-sm">
+                  <div className="p-4 bg-rose-50 dark:bg-rose-900/20 rounded-lg border border-rose-200 dark:border-rose-800">
+                    <strong className="text-rose-800 dark:text-rose-300">레이더/항공</strong>
+                    <p className="text-slate-600 dark:text-slate-400 mt-2">
+                      두 대의 비행기가 가까이 비행할 때, 일반 해상도의 레이더로는 하나의 반사체로 보입니다.
+                      초해상도 기술이 없으면 항공 관제에서 두 항공기를 구분할 수 없어 위험합니다.
+                    </p>
+                  </div>
+                  <div className="p-4 bg-blue-50 dark:bg-blue-900/20 rounded-lg border border-blue-200 dark:border-blue-800">
+                    <strong className="text-blue-800 dark:text-blue-300">통신 (OFDM 채널)</strong>
+                    <p className="text-slate-600 dark:text-slate-400 mt-2">
+                      OFDM 채널에서 다중경로(multipath) 성분들의 지연(delay)이 매우 가까우면,
+                      일반 DFT로는 각 경로를 분리할 수 없습니다.
+                      채널을 정확히 추정하려면 초해상도가 필요합니다.
+                    </p>
+                  </div>
+                  <div className="p-4 bg-emerald-50 dark:bg-emerald-900/20 rounded-lg border border-emerald-200 dark:border-emerald-800">
+                    <strong className="text-emerald-800 dark:text-emerald-300">의료 영상 (MRI/CT)</strong>
+                    <p className="text-slate-600 dark:text-slate-400 mt-2">
+                      MRI나 CT 영상에서 미세한 구조(혈관, 종양 경계 등)를 식별하려면
+                      장비의 물리적 해상도 이상의 정밀도가 필요합니다.
+                      초해상도 기법으로 진단 정확도를 높입니다.
+                    </p>
+                  </div>
+                  <div className="p-4 bg-violet-50 dark:bg-violet-900/20 rounded-lg border border-violet-200 dark:border-violet-800">
+                    <strong className="text-violet-800 dark:text-violet-300">천문학/현미경</strong>
+                    <p className="text-slate-600 dark:text-slate-400 mt-2">
+                      천체 관측에서 가까이 있는 별들, 형광 현미경에서 나노 스케일 구조 등,
+                      빛의 회절 한계를 넘어야 하는 상황이 많습니다.
+                      2014년 노벨 화학상이 초해상도 현미경에 수여되었습니다.
+                    </p>
+                  </div>
+                </div>
+                <div className="mt-4 p-3 bg-indigo-50 dark:bg-indigo-900/20 rounded-lg border border-indigo-200 dark:border-indigo-800 text-sm">
+                  <strong className="text-indigo-800 dark:text-indigo-300">핵심 아이디어:</strong>
+                  <p className="text-slate-600 dark:text-slate-400 mt-1">
+                    측정 장비의 물리적 한계(bandwidth, aperture 등)를 수학적 최적화로 극복합니다.
+                    &ldquo;더 좋은 장비&rdquo;가 아니라 &ldquo;더 좋은 알고리즘&rdquo;으로 해상도를 높이는 것이 초해상도의 본질입니다.
+                  </p>
+                </div>
+              </div>
+
+              {/* Super-resolution & Rayleigh Limit — ENHANCED */}
               <div id="intro-super-resolution" className="concept-card mb-6">
                 <div className="text-xs font-semibold text-indigo-600 dark:text-indigo-400 mb-1">Foundation</div>
                 <h3 className="font-bold text-slate-800 dark:text-slate-200 mb-2">Super-resolution과 Rayleigh Limit</h3>
@@ -194,13 +262,152 @@ export default function AtomicNormSeminarPage() {
                   경험적 기준입니다. 관측 대역폭(bandwidth)이나 배열 크기(aperture)에 의해 결정되며,
                   이 한계 이하에서는 두 신호원의 패턴이 사실상 구분 불가능합니다.
                 </p>
-                <div className="p-4 bg-indigo-50 dark:bg-indigo-900/20 rounded-lg border border-indigo-200 dark:border-indigo-800 text-sm">
+                <div className="p-4 bg-indigo-50 dark:bg-indigo-900/20 rounded-lg border border-indigo-200 dark:border-indigo-800 text-sm mb-4">
                   <strong className="text-indigo-800 dark:text-indigo-300">Rayleigh Limit</strong>
                   <p className="text-slate-600 dark:text-slate-400 mt-1">
                     <InlineMath math="n" />개의 관측 샘플로 주파수를 추정할 때,
                     Rayleigh limit은 약 <InlineMath math="\Delta f \approx 1/n" />입니다.
                     즉 두 주파수의 간격이 <InlineMath math="1/n" /> 이하이면
                     DFT(이산 푸리에 변환)만으로는 구분이 불가능합니다.
+                  </p>
+                </div>
+
+                {/* NEW: Rayleigh Limit 직관적 보강 */}
+                <div className="p-4 bg-slate-100 dark:bg-slate-700/50 rounded-lg text-sm mb-3">
+                  <strong className="text-slate-700 dark:text-slate-300">직관적 이해:</strong>
+                  <p className="text-slate-600 dark:text-slate-400 mt-1">
+                    시력이 나쁜 사람이 멀리 있는 두 점을 하나로 보는 것과 같습니다.
+                    DFT의 &ldquo;시력&rdquo;은 샘플 수 <InlineMath math="n" />에 의해 결정됩니다.
+                    샘플이 많을수록 더 세밀하게 볼 수 있지만, 그 한계가 <InlineMath math="1/n" />입니다.
+                  </p>
+                </div>
+                <div className="p-4 bg-amber-50 dark:bg-amber-900/20 rounded-lg border border-amber-200 dark:border-amber-800 text-sm">
+                  <strong className="text-amber-800 dark:text-amber-300">수치 예시</strong>
+                  <p className="text-slate-600 dark:text-slate-400 mt-1">
+                    <InlineMath math="n = 64" /> DFT bins이면, Rayleigh limit{' '}
+                    <InlineMath math="\approx 1/64 \approx 0.0156" />입니다.
+                    두 주파수가 0.01 간격으로 있다면 (<InlineMath math="0.01 < 0.0156" />),
+                    DFT만으로는 두 주파수를 분해할 수 없습니다.
+                    초해상도 기법이 필요한 상황입니다.
+                  </p>
+                </div>
+              </div>
+
+              {/* NEW: Compressed Sensing 배경지식 */}
+              <div id="intro-cs-background" className="concept-card mb-6">
+                <div className="text-xs font-semibold text-blue-600 dark:text-blue-400 mb-1">Background</div>
+                <h3 className="font-bold text-slate-800 dark:text-slate-200 mb-3">Compressed Sensing 배경지식</h3>
+                <p className="text-sm text-slate-600 dark:text-slate-400 mb-4">
+                  Atomic Norm을 이해하려면, 먼저 Compressed Sensing(CS)의 핵심 아이디어를 알아야 합니다.
+                  ANM은 CS의 한계를 극복하기 위해 탄생했기 때문입니다.
+                </p>
+
+                <div className="space-y-3 text-sm">
+                  <div className="p-4 bg-blue-50 dark:bg-blue-900/20 rounded-lg border border-blue-200 dark:border-blue-800">
+                    <strong className="text-blue-800 dark:text-blue-300">Step 1: Sparsity와 L0 Norm</strong>
+                    <p className="text-slate-600 dark:text-slate-400 mt-2">
+                      많은 실제 신호는 적절한 basis(기저)에서 <strong>sparse</strong>(0이 아닌 성분이 적음)합니다.
+                      가장 직접적으로 sparsity를 측정하는 것은{' '}
+                      <InlineMath math="\ell_0" /> norm (0이 아닌 원소의 개수)이지만,
+                      이를 최소화하는 문제는 <strong>NP-hard</strong>입니다. 모든 가능한 조합을 시도해야 합니다.
+                    </p>
+                  </div>
+
+                  <div className="p-4 bg-indigo-50 dark:bg-indigo-900/20 rounded-lg border border-indigo-200 dark:border-indigo-800">
+                    <strong className="text-indigo-800 dark:text-indigo-300">Step 2: L0 &rarr; L1 Relaxation</strong>
+                    <p className="text-slate-600 dark:text-slate-400 mt-2">
+                      핵심 발견: <InlineMath math="\ell_0" />를 <InlineMath math="\ell_1" /> norm(절대값의 합)으로
+                      <strong>완화(relaxation)</strong>하면, 볼록(convex) 최적화가 되어 효율적으로 풀 수 있습니다.
+                      그런데 놀랍게도, 특정 조건(RIP 등) 하에서{' '}
+                      <InlineMath math="\ell_1" /> 최소화와 <InlineMath math="\ell_0" /> 최소화의 해가 동일합니다.
+                    </p>
+                    <div className="mt-2">
+                      <BlockMath math={String.raw`\underbrace{\min \|x\|_0}_{\text{NP-hard}} \;\;\xrightarrow{\text{relaxation}}\;\; \underbrace{\min \|x\|_1}_{\text{convex, 풀 수 있음!}}`} />
+                    </div>
+                  </div>
+
+                  <div className="p-4 bg-rose-50 dark:bg-rose-900/20 rounded-lg border border-rose-200 dark:border-rose-800">
+                    <strong className="text-rose-800 dark:text-rose-300">Step 3: Basis Mismatch 문제</strong>
+                    <p className="text-slate-600 dark:text-slate-400 mt-2">
+                      CS는 파라미터 공간을 이산 그리드로 나누고 그 위에서 sparse recovery를 수행합니다.
+                      그런데 <strong>실제 파라미터가 그리드 점 위에 정확히 있지 않으면?</strong>
+                    </p>
+                    <p className="text-slate-600 dark:text-slate-400 mt-2">
+                      예를 들어, 주파수를 0.00, 0.01, 0.02, ... 그리드로 나눴는데
+                      실제 주파수가 0.015라면? 가장 가까운 0.01 또는 0.02로 추정되어 <strong>off-grid 오차</strong>가 발생합니다.
+                      그리드를 세밀하게 잡으면 행렬이 커지고 조건수(condition number)가 나빠집니다.
+                    </p>
+                  </div>
+
+                  <div className="p-4 bg-emerald-50 dark:bg-emerald-900/20 rounded-lg border border-emerald-200 dark:border-emerald-800">
+                    <strong className="text-emerald-800 dark:text-emerald-300">Step 4: ANM의 동기</strong>
+                    <p className="text-slate-600 dark:text-slate-400 mt-2">
+                      이 basis mismatch 문제가 바로 ANM의 출발점입니다.
+                      &ldquo;그리드를 아예 없애고, <strong>연속 영역에서 직접</strong> sparse recovery를 할 수 없을까?&rdquo;
+                      이것이 Atomic Norm Minimization의 핵심 질문이며,
+                      답은 <strong>&ldquo;atom 집합을 연속으로 정의하고, 그 위에서 norm을 최소화&rdquo;</strong>하는 것입니다.
+                    </p>
+                  </div>
+                </div>
+              </div>
+
+              {/* NEW: Norm이란? 사전 지식 */}
+              <div id="intro-what-is-norm" className="concept-card mb-6">
+                <div className="text-xs font-semibold text-purple-600 dark:text-purple-400 mb-1">Background</div>
+                <h3 className="font-bold text-slate-800 dark:text-slate-200 mb-3">Norm이란?</h3>
+                <p className="text-sm text-slate-600 dark:text-slate-400 mb-4">
+                  Norm은 벡터의 &ldquo;크기를 재는 자(ruler)&rdquo;입니다.
+                  어떤 norm을 쓰느냐에 따라 &ldquo;크다/작다&rdquo;의 기준이 달라지며,
+                  최적화 문제에서 전혀 다른 해를 유도합니다.
+                </p>
+                <div className="grid sm:grid-cols-3 gap-4 text-sm mb-4">
+                  <div className="p-4 bg-indigo-50 dark:bg-indigo-900/20 rounded-lg border border-indigo-200 dark:border-indigo-800 text-center">
+                    <div className="text-3xl mb-2" style={{ lineHeight: 1 }}>&#9670;</div>
+                    <strong className="text-indigo-800 dark:text-indigo-300">
+                      <InlineMath math="\ell_1" /> Norm
+                    </strong>
+                    <p className="text-slate-600 dark:text-slate-400 mt-2">
+                      <InlineMath math="\|x\|_1 = \sum_i |x_i|" />
+                    </p>
+                    <p className="text-xs text-slate-500 dark:text-slate-400 mt-1">
+                      절대값의 합. Unit ball은 다이아몬드.
+                      <strong> Sparsity를 유도</strong>합니다.
+                    </p>
+                  </div>
+                  <div className="p-4 bg-emerald-50 dark:bg-emerald-900/20 rounded-lg border border-emerald-200 dark:border-emerald-800 text-center">
+                    <div className="text-3xl mb-2" style={{ lineHeight: 1 }}>&#9679;</div>
+                    <strong className="text-emerald-800 dark:text-emerald-300">
+                      <InlineMath math="\ell_2" /> Norm
+                    </strong>
+                    <p className="text-slate-600 dark:text-slate-400 mt-2">
+                      <InlineMath math="\|x\|_2 = \sqrt{\sum_i x_i^2}" />
+                    </p>
+                    <p className="text-xs text-slate-500 dark:text-slate-400 mt-1">
+                      유클리드 거리. Unit ball은 원(구).
+                      에너지를 고르게 분배합니다.
+                    </p>
+                  </div>
+                  <div className="p-4 bg-amber-50 dark:bg-amber-900/20 rounded-lg border border-amber-200 dark:border-amber-800 text-center">
+                    <div className="text-3xl mb-2" style={{ lineHeight: 1 }}>&#9632;</div>
+                    <strong className="text-amber-800 dark:text-amber-300">
+                      <InlineMath math="\ell_\infty" /> Norm
+                    </strong>
+                    <p className="text-slate-600 dark:text-slate-400 mt-2">
+                      <InlineMath math="\|x\|_\infty = \max_i |x_i|" />
+                    </p>
+                    <p className="text-xs text-slate-500 dark:text-slate-400 mt-1">
+                      최대 절대값. Unit ball은 정사각형(정육면체).
+                      최대값을 제한합니다.
+                    </p>
+                  </div>
+                </div>
+                <div className="p-3 bg-violet-50 dark:bg-violet-900/20 rounded-lg border border-violet-200 dark:border-violet-800 text-sm">
+                  <strong className="text-violet-800 dark:text-violet-300">Atomic Norm:</strong>
+                  <p className="text-slate-600 dark:text-slate-400 mt-1">
+                    Atomic norm은 &ldquo;원자(atom)들로 분해했을 때의 최소 비용&rdquo;입니다.
+                    <InlineMath math="\ell_1" /> norm이 표준 기저에 대한 sparse decomposition의 비용이라면,
+                    atomic norm은 <strong>임의의 atom 집합</strong>에 대한 sparse decomposition의 비용입니다.
+                    Atom 집합을 연속 주파수로 정의하면, 그리드 없이 연속 영역에서 sparsity를 추구할 수 있습니다.
                   </p>
                 </div>
               </div>
@@ -339,8 +546,88 @@ export default function AtomicNormSeminarPage() {
                 </div>
               </div>
 
+              {/* NEW: Atomic Decomposition 직관 */}
+              <div id="theory-atomic-decomp" className="concept-card mb-6">
+                <div className="text-xs font-semibold text-emerald-600 dark:text-emerald-400 mb-1">Intuition</div>
+                <h3 className="font-bold text-slate-800 dark:text-slate-200 mb-3">Atomic Decomposition 직관</h3>
+                <p className="text-sm text-slate-600 dark:text-slate-400 mb-4">
+                  Atomic decomposition을 직관적으로 이해해 봅시다.
+                </p>
+
+                {/* Signal = c1*atom1 + c2*atom2 + c3*atom3 diagram */}
+                <div className="overflow-x-auto mb-4">
+                  <svg viewBox="0 0 700 120" className="w-full min-w-[500px] h-auto">
+                    {/* Signal */}
+                    <rect x={10} y={30} width={90} height={60} rx={8} fill="#6366f1" fillOpacity={0.15}
+                      stroke="#6366f1" strokeWidth={1.5} />
+                    <text x={55} y={55} textAnchor="middle" className="text-[13px] font-bold" fill="#6366f1">signal</text>
+                    <text x={55} y={72} textAnchor="middle" className="text-[11px]" fill="#6366f1">x</text>
+
+                    {/* = */}
+                    <text x={120} y={65} textAnchor="middle" className="text-[18px] font-bold" fill="#64748b">=</text>
+
+                    {/* c1 * atom1 */}
+                    <text x={148} y={65} textAnchor="middle" className="text-[12px] font-bold" fill="#ef4444">c1</text>
+                    <text x={165} y={65} textAnchor="middle" className="text-[12px]" fill="#64748b">&middot;</text>
+                    <rect x={175} y={35} width={70} height={50} rx={6} fill="#ef4444" fillOpacity={0.12}
+                      stroke="#ef4444" strokeWidth={1.5} />
+                    <text x={210} y={55} textAnchor="middle" className="text-[11px] font-bold" fill="#ef4444">atom1</text>
+                    <text x={210} y={72} textAnchor="middle" className="text-[10px]" fill="#ef4444">a(τ1)</text>
+
+                    {/* + */}
+                    <text x={265} y={65} textAnchor="middle" className="text-[16px] font-bold" fill="#64748b">+</text>
+
+                    {/* c2 * atom2 */}
+                    <text x={293} y={65} textAnchor="middle" className="text-[12px] font-bold" fill="#10b981">c2</text>
+                    <text x={310} y={65} textAnchor="middle" className="text-[12px]" fill="#64748b">&middot;</text>
+                    <rect x={320} y={35} width={70} height={50} rx={6} fill="#10b981" fillOpacity={0.12}
+                      stroke="#10b981" strokeWidth={1.5} />
+                    <text x={355} y={55} textAnchor="middle" className="text-[11px] font-bold" fill="#10b981">atom2</text>
+                    <text x={355} y={72} textAnchor="middle" className="text-[10px]" fill="#10b981">a(τ2)</text>
+
+                    {/* + */}
+                    <text x={410} y={65} textAnchor="middle" className="text-[16px] font-bold" fill="#64748b">+</text>
+
+                    {/* c3 * atom3 */}
+                    <text x={438} y={65} textAnchor="middle" className="text-[12px] font-bold" fill="#f59e0b">c3</text>
+                    <text x={455} y={65} textAnchor="middle" className="text-[12px]" fill="#64748b">&middot;</text>
+                    <rect x={465} y={35} width={70} height={50} rx={6} fill="#f59e0b" fillOpacity={0.12}
+                      stroke="#f59e0b" strokeWidth={1.5} />
+                    <text x={500} y={55} textAnchor="middle" className="text-[11px] font-bold" fill="#f59e0b">atom3</text>
+                    <text x={500} y={72} textAnchor="middle" className="text-[10px]" fill="#f59e0b">a(τ3)</text>
+
+                    {/* Atomic Norm label */}
+                    <text x={590} y={50} textAnchor="start" className="text-[11px]" fill="#64748b">Atomic Norm</text>
+                    <text x={590} y={70} textAnchor="start" className="text-[12px] font-mono font-bold" fill="#6366f1">
+                      = c1 + c2 + c3
+                    </text>
+                    <text x={590} y={88} textAnchor="start" className="text-[10px]" fill="#94a3b8">(최소화 목표)</text>
+                  </svg>
+                </div>
+
+                <p className="text-sm text-slate-600 dark:text-slate-400 mb-3">
+                  신호 <InlineMath math="x" />를 atom들의 가중합으로 표현합니다.
+                  각 atom <InlineMath math="a(\tau_k)" />는 특정 주파수 <InlineMath math="\tau_k" />에 대응하는 steering vector이며,
+                  <InlineMath math="c_k" />는 그 atom의 가중치(진폭)입니다.
+                  Atomic norm은 이 가중치들의 합 <InlineMath math="\sum c_k" />을 최소화합니다.
+                </p>
+
+                <div className="p-3 bg-emerald-50 dark:bg-emerald-900/20 rounded-lg border border-emerald-200 dark:border-emerald-800 text-sm">
+                  <strong className="text-emerald-800 dark:text-emerald-300">핵심:</strong>
+                  <p className="text-slate-600 dark:text-slate-400 mt-1">
+                    Atomic norm 최소화는 &ldquo;가장 적은 수의 atom으로, 가장 작은 총 비용으로 신호를 표현&rdquo;하는 것입니다.
+                    이것이 연속 영역에서의 sparsity입니다 -- 적은 수의 주파수 성분만으로 신호를 설명합니다.
+                  </p>
+                </div>
+              </div>
+
               {/* Interactive: Atomic Norm Geometry */}
               <AtomicNormGeometryViz />
+
+              {/* NEW: Norm Ball Comparison Interactive */}
+              <div id="theory-norm-geometry">
+                <NormBallComparison />
+              </div>
 
               {/* Line Spectrum Model */}
               <div id="theory-line-spectrum" className="concept-card mb-6">
@@ -392,6 +679,25 @@ export default function AtomicNormSeminarPage() {
                     atom들의 외적(outer product) 합으로 분해됩니다.
                   </p>
                 </div>
+
+                {/* NEW: 왜 Toeplitz인가 직관 */}
+                <div className="p-4 bg-slate-100 dark:bg-slate-700/50 rounded-lg text-sm mt-4 mb-4">
+                  <strong className="text-slate-700 dark:text-slate-300">왜 Toeplitz 행렬이 나오는가?</strong>
+                  <p className="text-slate-600 dark:text-slate-400 mt-2">
+                    <InlineMath math="a(\tau)a(\tau)^H" />의{' '}
+                    <InlineMath math="(i,j)" /> 원소를 계산하면{' '}
+                    <InlineMath math="e^{j2\pi(i-j)\tau}" />가 됩니다.
+                    이 값은 <InlineMath math="i-j" />(행과 열의 차이)에만 의존하고,{' '}
+                    <InlineMath math="i" />, <InlineMath math="j" /> 개별 값에는 의존하지 않습니다.
+                    이것이 바로 <strong>Toeplitz 구조</strong>의 정의입니다:
+                    대각선 방향으로 같은 값을 가집니다.
+                  </p>
+                  <p className="text-slate-600 dark:text-slate-400 mt-2">
+                    직관적으로, 복소 사인파(complex sinusoid)의 자기상관(autocorrelation)이 Toeplitz 구조를 가집니다.
+                    이 구조 덕분에 무한 차원 문제를 유한 차원 SDP로 변환할 수 있습니다.
+                  </p>
+                </div>
+
                 <div className="formula-block mt-4">
                   <h4 className="font-semibold text-blue-800 dark:text-blue-300 mb-3">SDP Formulation</h4>
                   <BlockMath math={String.raw`\|x\|_{\mathcal{A}} = \inf_{u, t}\left\{\frac{1}{2n}\operatorname{Tr}(\text{toep}(u)) + \frac{t}{2} \;:\; \begin{bmatrix} \text{toep}(u) & x \\ x^H & t \end{bmatrix} \succeq 0 \right\}`} />
@@ -399,6 +705,42 @@ export default function AtomicNormSeminarPage() {
                     이 SDP는 표준 SDP solver (예: CVX, SDPT3)로 다항 시간 내에 풀 수 있습니다.
                     무한 차원 문제가 <InlineMath math="O(n)" /> 크기의 행렬 변수를 가진 SDP로 축소됩니다.
                   </p>
+                </div>
+              </div>
+
+              {/* NEW: SDP란? concept card */}
+              <div id="theory-what-is-sdp" className="concept-card mb-6">
+                <div className="text-xs font-semibold text-blue-600 dark:text-blue-400 mb-1">Background</div>
+                <h3 className="font-bold text-slate-800 dark:text-slate-200 mb-3">SDP(Semidefinite Programming)란?</h3>
+                <p className="text-sm text-slate-600 dark:text-slate-400 mb-3">
+                  SDP는 <strong>행렬이 양정치(positive semidefinite, PSD)인 조건</strong> 하에서
+                  선형 목적함수를 최적화하는 볼록 최적화 문제입니다.
+                </p>
+                <div className="formula-block mb-4">
+                  <h4 className="font-semibold text-blue-800 dark:text-blue-300 mb-3">SDP 일반 형태</h4>
+                  <BlockMath math={String.raw`\min_{X} \; \langle C, X \rangle \quad \text{s.t.} \;\; \langle A_i, X \rangle = b_i, \quad X \succeq 0`} />
+                  <p className="text-sm text-slate-600 dark:text-slate-400 mt-3">
+                    <InlineMath math="X \succeq 0" />는 행렬 <InlineMath math="X" />가 양의 준정부호임을 뜻합니다.
+                    LP(Linear Programming)의 &ldquo;변수 &ge; 0&rdquo; 조건을 행렬 영역으로 일반화한 것입니다.
+                  </p>
+                </div>
+                <div className="grid sm:grid-cols-2 gap-3 text-sm">
+                  <div className="p-3 bg-blue-50 dark:bg-blue-900/20 rounded-lg border border-blue-200 dark:border-blue-800">
+                    <strong className="text-blue-800 dark:text-blue-300">왜 중요한가?</strong>
+                    <p className="text-slate-600 dark:text-slate-400 mt-1">
+                      Atomic norm을 직접 계산하는 것은 무한 차원 문제입니다.
+                      하지만 Toeplitz lifting을 통해 SDP로 변환하면, CVX, MOSEK, SDPT3 같은
+                      효율적인 solver로 풀 수 있습니다.
+                    </p>
+                  </div>
+                  <div className="p-3 bg-indigo-50 dark:bg-indigo-900/20 rounded-lg border border-indigo-200 dark:border-indigo-800">
+                    <strong className="text-indigo-800 dark:text-indigo-300">LP vs SDP</strong>
+                    <p className="text-slate-600 dark:text-slate-400 mt-1">
+                      LP: 변수가 스칼라, 제약이 부등식 &rarr; SDP: 변수가 행렬, 제약이 PSD.
+                      SDP는 LP보다 표현력이 강하지만 계산 비용도 더 큽니다.
+                      LP는 SDP의 특수 경우(대각 행렬)입니다.
+                    </p>
+                  </div>
                 </div>
               </div>
 
@@ -429,6 +771,59 @@ export default function AtomicNormSeminarPage() {
                   <p className="text-sm text-slate-600 dark:text-slate-400 mt-3">
                     이 다항식은 삼각 다항식(trigonometric polynomial)으로,
                     그 값이 atom 위치에서의 최적성 조건과 직결됩니다.
+                  </p>
+                </div>
+              </div>
+
+              {/* NEW: Dual Polynomial 직관 */}
+              <div id="theory-dual-intuition" className="concept-card mb-6">
+                <div className="text-xs font-semibold text-violet-600 dark:text-violet-400 mb-1">Intuition</div>
+                <h3 className="font-bold text-slate-800 dark:text-slate-200 mb-3">Dual Polynomial 직관</h3>
+                <p className="text-sm text-slate-600 dark:text-slate-400 mb-4">
+                  Primal과 dual 문제를 직관적으로 비교해 봅시다.
+                </p>
+                <div className="grid sm:grid-cols-2 gap-4 text-sm mb-4">
+                  <div className="p-4 bg-indigo-50 dark:bg-indigo-900/20 rounded-lg border border-indigo-200 dark:border-indigo-800">
+                    <strong className="text-indigo-800 dark:text-indigo-300">Primal 문제</strong>
+                    <p className="text-slate-600 dark:text-slate-400 mt-2">
+                      &ldquo;신호 <InlineMath math="x" />를 가장 적은 수의 atom으로 표현하라.&rdquo;
+                    </p>
+                    <p className="text-slate-600 dark:text-slate-400 mt-1">
+                      이 관점에서는 신호를 분해(decompose)하는 것이 목표입니다.
+                    </p>
+                  </div>
+                  <div className="p-4 bg-violet-50 dark:bg-violet-900/20 rounded-lg border border-violet-200 dark:border-violet-800">
+                    <strong className="text-violet-800 dark:text-violet-300">Dual 문제</strong>
+                    <p className="text-slate-600 dark:text-slate-400 mt-2">
+                      &ldquo;spike 위치에서 정확히 1에 도달하고, 나머지 곳에서는 1 미만인 다항식을 찾아라.&rdquo;
+                    </p>
+                    <p className="text-slate-600 dark:text-slate-400 mt-1">
+                      이 다항식이 일종의 &ldquo;탐지기&rdquo;가 됩니다.
+                    </p>
+                  </div>
+                </div>
+
+                <div className="p-4 bg-amber-50 dark:bg-amber-900/20 rounded-lg border border-amber-200 dark:border-amber-800 text-sm mb-4">
+                  <strong className="text-amber-800 dark:text-amber-300">Dual certificate의 조건:</strong>
+                  <div className="mt-2 space-y-2">
+                    <p className="text-slate-600 dark:text-slate-400">
+                      <InlineMath math="P(\tau_k) = \text{sgn}(c_k)" />: spike 위치에서 dual polynomial이 크기 1에 도달합니다.
+                      부호는 원래 신호 계수의 부호와 일치해야 합니다.
+                    </p>
+                    <p className="text-slate-600 dark:text-slate-400">
+                      <InlineMath math="|P(\tau)| < 1" /> for <InlineMath math="\tau \neq \tau_k" />: spike가 없는 곳에서는 엄격하게 1보다 작습니다.
+                      이것은 &ldquo;거짓 양성(false positive)이 없다&rdquo;는 보장입니다.
+                    </p>
+                  </div>
+                </div>
+
+                <div className="p-3 bg-emerald-50 dark:bg-emerald-900/20 rounded-lg border border-emerald-200 dark:border-emerald-800 text-sm">
+                  <strong className="text-emerald-800 dark:text-emerald-300">직관:</strong>
+                  <p className="text-slate-600 dark:text-slate-400 mt-1">
+                    Dual polynomial은 &ldquo;보물 지도&rdquo;와 같습니다.
+                    보물(=신호의 spike)이 있는 위치에서만 반응(크기 1)하고,
+                    보물이 없는 곳에서는 조용합니다(크기 &lt; 1).
+                    이런 다항식이 존재하면, primal 문제의 해가 유일하게 원래 신호가 됨이 보장됩니다.
                   </p>
                 </div>
               </div>
@@ -465,6 +860,28 @@ export default function AtomicNormSeminarPage() {
                     Rayleigh limit에 가까운 수준까지 복원이 보장됩니다.
                   </p>
                 </div>
+
+                {/* NEW: Recovery guarantee 직관 */}
+                <div className="p-4 bg-slate-100 dark:bg-slate-700/50 rounded-lg text-sm mt-4">
+                  <strong className="text-slate-700 dark:text-slate-300">직관적 이해:</strong>
+                  <p className="text-slate-600 dark:text-slate-400 mt-2">
+                    최소 간격 조건은 &ldquo;측정 수가 많을수록 해상도가 좋아진다&rdquo;를 수학적으로 표현합니다.
+                  </p>
+                  <p className="text-slate-600 dark:text-slate-400 mt-2">
+                    <strong>수치 예시:</strong> <InlineMath math="n = 128" />이면{' '}
+                    <InlineMath math="\Delta T > 2.52/127 \approx 0.020" />입니다.
+                    즉 주파수 간격이 0.02보다 크면 exact recovery가 보장됩니다.
+                    반면 <InlineMath math="n = 32" />이면{' '}
+                    <InlineMath math="\Delta T > 2.52/31 \approx 0.081" />로,
+                    훨씬 큰 간격이 필요합니다.
+                    <InlineMath math="n" />이 4배 늘면 분해 가능한 최소 간격이 약 4배 줄어듭니다.
+                  </p>
+                </div>
+              </div>
+
+              {/* NEW: Minimum Separation Calculator */}
+              <div id="theory-recovery-calc">
+                <MinSeparationCalculator />
               </div>
 
               <div className="insight">
@@ -496,6 +913,40 @@ export default function AtomicNormSeminarPage() {
                 OFDM 기반 passive radar에서 target의 지연(delay)과 도플러(Doppler)를
                 동시에 초해상도로 추정하는 프레임워크입니다.
               </p>
+
+              {/* NEW: 패시브 레이더란? */}
+              <div id="ofdm-passive-radar" className="concept-card mb-6">
+                <div className="text-xs font-semibold text-emerald-600 dark:text-emerald-400 mb-1">Background</div>
+                <h3 className="font-bold text-slate-800 dark:text-slate-200 mb-3">패시브 레이더(Passive Radar)란?</h3>
+                <p className="text-sm text-slate-600 dark:text-slate-400 mb-4">
+                  레이더는 전파를 보내고 반사파를 분석하여 물체의 위치와 속도를 추정하는 시스템입니다.
+                </p>
+                <div className="grid sm:grid-cols-2 gap-4 text-sm mb-4">
+                  <div className="p-4 bg-blue-50 dark:bg-blue-900/20 rounded-lg border border-blue-200 dark:border-blue-800">
+                    <strong className="text-blue-800 dark:text-blue-300">능동 레이더 (Active Radar)</strong>
+                    <p className="text-slate-600 dark:text-slate-400 mt-2">
+                      자체 송신기에서 전파를 발사하고, 물체에서 반사된 echo를 수신합니다.
+                      정밀하지만 비용이 높고, 송신 신호로 인해 탐지될 수 있습니다.
+                    </p>
+                  </div>
+                  <div className="p-4 bg-emerald-50 dark:bg-emerald-900/20 rounded-lg border border-emerald-200 dark:border-emerald-800">
+                    <strong className="text-emerald-800 dark:text-emerald-300">패시브 레이더 (Passive Radar)</strong>
+                    <p className="text-slate-600 dark:text-slate-400 mt-2">
+                      자체 송신기 없이, 기존에 존재하는 방송/통신 신호(FM, DVB-T, <strong>OFDM</strong> 등)를 이용합니다.
+                      <strong>은밀성</strong>이 높고, <strong>저비용</strong>이며, 기존 인프라를 활용합니다.
+                    </p>
+                  </div>
+                </div>
+                <div className="p-4 bg-indigo-50 dark:bg-indigo-900/20 rounded-lg border border-indigo-200 dark:border-indigo-800 text-sm">
+                  <strong className="text-indigo-800 dark:text-indigo-300">왜 OFDM 신호가 좋은가?</strong>
+                  <ul className="text-slate-600 dark:text-slate-400 mt-2 space-y-1 list-disc list-inside">
+                    <li><strong>넓은 대역폭</strong> &rarr; 높은 거리(delay) 분해능</li>
+                    <li><strong>많은 OFDM 심볼</strong> &rarr; 높은 속도(Doppler) 분해능</li>
+                    <li>5G/LTE 등 상용 통신 신호가 이미 OFDM을 사용 &rarr; 추가 인프라 불필요</li>
+                    <li>디지털 신호이므로 reference signal(송신 신호)을 정확히 재구성 가능</li>
+                  </ul>
+                </div>
+              </div>
 
               {/* Signal Model */}
               <div id="ofdm-signal" className="concept-card mb-6">
@@ -560,6 +1011,47 @@ export default function AtomicNormSeminarPage() {
                 </div>
               </div>
 
+              {/* NEW: 1D→2D 확장 직관 */}
+              <div id="ofdm-1d-to-2d" className="concept-card mb-6">
+                <div className="text-xs font-semibold text-indigo-600 dark:text-indigo-400 mb-1">Intuition</div>
+                <h3 className="font-bold text-slate-800 dark:text-slate-200 mb-3">1D &rarr; 2D 확장의 직관</h3>
+                <div className="grid sm:grid-cols-2 gap-4 text-sm mb-4">
+                  <div className="p-4 bg-indigo-50 dark:bg-indigo-900/20 rounded-lg border border-indigo-200 dark:border-indigo-800">
+                    <strong className="text-indigo-800 dark:text-indigo-300">1D ANM</strong>
+                    <p className="text-slate-600 dark:text-slate-400 mt-2">
+                      주파수(delay) 하나만 추정합니다.
+                      Atom: <InlineMath math="a(\tau)" /> (steering vector).
+                      구조: Toeplitz 행렬.
+                    </p>
+                  </div>
+                  <div className="p-4 bg-emerald-50 dark:bg-emerald-900/20 rounded-lg border border-emerald-200 dark:border-emerald-800">
+                    <strong className="text-emerald-800 dark:text-emerald-300">2D ANM</strong>
+                    <p className="text-slate-600 dark:text-slate-400 mt-2">
+                      delay + Doppler를 동시에 추정합니다.
+                      Atom: <InlineMath math="g(\psi)^* \otimes b(\varphi)" /> (Kronecker product).
+                      구조: Block Toeplitz 행렬.
+                    </p>
+                  </div>
+                </div>
+                <div className="p-4 bg-slate-100 dark:bg-slate-700/50 rounded-lg text-sm mb-3">
+                  <strong className="text-slate-700 dark:text-slate-300">Block Toeplitz이란?</strong>
+                  <p className="text-slate-600 dark:text-slate-400 mt-2">
+                    1D에서 Toeplitz 행렬의 각 원소가 스칼라였다면,
+                    2D에서는 각 원소가 <strong>또 다른 Toeplitz 행렬</strong>이 됩니다.
+                    이것이 Block Toeplitz 구조입니다.
+                    첫 번째 차원(delay)의 Toeplitz 안에 두 번째 차원(Doppler)의 Toeplitz가 중첩되는 형태입니다.
+                  </p>
+                </div>
+                <div className="p-3 bg-emerald-50 dark:bg-emerald-900/20 rounded-lg border border-emerald-200 dark:border-emerald-800 text-sm">
+                  <strong className="text-emerald-800 dark:text-emerald-300">ANM의 강점:</strong>
+                  <p className="text-slate-600 dark:text-slate-400 mt-1">
+                    1D 해법을 2D로 자연스럽게 확장할 수 있는 것이 ANM 프레임워크의 큰 장점입니다.
+                    Toeplitz &rarr; Block Toeplitz, SDP 구조는 동일하게 유지되고,
+                    atom과 행렬의 크기만 달라집니다. 동일한 이론적 보장이 2D에서도 성립합니다.
+                  </p>
+                </div>
+              </div>
+
               {/* Delay-Doppler Estimation */}
               <div id="ofdm-estimation" className="concept-card mb-6">
                 <div className="text-xs font-semibold text-violet-600 dark:text-violet-400 mb-1">Estimation</div>
@@ -607,6 +1099,53 @@ export default function AtomicNormSeminarPage() {
                 &mdash; delay, Doppler, AoD(Angle of Departure), AoA(Angle of Arrival) &mdash;를
                 동시에 추정하는 문제에 ANM을 확장합니다.
               </p>
+
+              {/* NEW: ISAC이란? */}
+              <div id="isac-what-is" className="concept-card mb-6">
+                <div className="text-xs font-semibold text-amber-600 dark:text-amber-400 mb-1">Background</div>
+                <h3 className="font-bold text-slate-800 dark:text-slate-200 mb-3">ISAC(Integrated Sensing and Communication)이란?</h3>
+                <p className="text-sm text-slate-600 dark:text-slate-400 mb-4">
+                  ISAC은 <strong>하나의 신호로 통신과 센싱(레이더)을 동시에</strong> 수행하는 기술입니다.
+                  6G의 핵심 기술 중 하나로 주목받고 있습니다.
+                </p>
+                <div className="grid sm:grid-cols-2 gap-4 text-sm mb-4">
+                  <div className="p-4 bg-blue-50 dark:bg-blue-900/20 rounded-lg border border-blue-200 dark:border-blue-800">
+                    <strong className="text-blue-800 dark:text-blue-300">기존 방식</strong>
+                    <p className="text-slate-600 dark:text-slate-400 mt-2">
+                      통신 시스템과 레이더 시스템이 별도로 운영됩니다.
+                      각각 다른 주파수 대역, 다른 하드웨어, 다른 파형을 사용합니다.
+                      스펙트럼 자원과 하드웨어가 낭비됩니다.
+                    </p>
+                  </div>
+                  <div className="p-4 bg-amber-50 dark:bg-amber-900/20 rounded-lg border border-amber-200 dark:border-amber-800">
+                    <strong className="text-amber-800 dark:text-amber-300">ISAC 방식</strong>
+                    <p className="text-slate-600 dark:text-slate-400 mt-2">
+                      하나의 파형(waveform)이 데이터 전송과 환경 감지를 동시에 수행합니다.
+                      스펙트럼 효율성이 높고, 하드웨어를 공유할 수 있습니다.
+                    </p>
+                  </div>
+                </div>
+                <div className="p-4 bg-violet-50 dark:bg-violet-900/20 rounded-lg border border-violet-200 dark:border-violet-800 text-sm">
+                  <strong className="text-violet-800 dark:text-violet-300">ISAC에서 추정하는 4D 파라미터:</strong>
+                  <div className="grid grid-cols-2 gap-2 mt-2">
+                    <div className="p-2 bg-white/60 dark:bg-slate-800/40 rounded text-xs">
+                      <strong>Delay</strong> (<InlineMath math="\tau" />): 거리 = <InlineMath math="c \cdot \tau / 2" />
+                    </div>
+                    <div className="p-2 bg-white/60 dark:bg-slate-800/40 rounded text-xs">
+                      <strong>Doppler</strong> (<InlineMath math="v" />): 상대 속도
+                    </div>
+                    <div className="p-2 bg-white/60 dark:bg-slate-800/40 rounded text-xs">
+                      <strong>AoD</strong> (<InlineMath math="\theta" />): 송신 출발 각도
+                    </div>
+                    <div className="p-2 bg-white/60 dark:bg-slate-800/40 rounded text-xs">
+                      <strong>AoA</strong> (<InlineMath math="\phi" />): 수신 도착 각도
+                    </div>
+                  </div>
+                  <p className="text-slate-600 dark:text-slate-400 mt-2">
+                    이 4개의 파라미터를 동시에 추정하면 target의 위치, 속도, 방향을 3D 공간에서 파악할 수 있습니다.
+                  </p>
+                </div>
+              </div>
 
               {/* ISAC Signal Model */}
               <div id="isac-signal" className="concept-card mb-6">
@@ -669,6 +1208,42 @@ export default function AtomicNormSeminarPage() {
                 </div>
               </div>
 
+              {/* NEW: Lifting 직관 */}
+              <div id="isac-lifting-intuition" className="concept-card mb-6">
+                <div className="text-xs font-semibold text-violet-600 dark:text-violet-400 mb-1">Intuition</div>
+                <h3 className="font-bold text-slate-800 dark:text-slate-200 mb-3">Lifting의 직관</h3>
+                <p className="text-sm text-slate-600 dark:text-slate-400 mb-4">
+                  Lifting의 핵심 아이디어를 직관적으로 이해해 봅시다.
+                </p>
+                <div className="p-4 bg-violet-50 dark:bg-violet-900/20 rounded-lg border border-violet-200 dark:border-violet-800 text-sm mb-4">
+                  <strong className="text-violet-800 dark:text-violet-300">핵심 직관: &ldquo;차원을 올리면 꼬인 것이 풀린다&rdquo;</strong>
+                  <p className="text-slate-600 dark:text-slate-400 mt-2">
+                    2차원 평면에서 두 곡선이 교차(겹침)하더라도,
+                    3차원으로 올리면 서로 다른 높이에서 지나가며 분리될 수 있습니다.
+                    마찬가지로, 원래 공간에서 비선형적으로 엉킨 파라미터들이
+                    더 높은 차원(행렬 공간)에서는 선형적으로 분리됩니다.
+                  </p>
+                </div>
+                <div className="space-y-3 text-sm">
+                  <div className="p-3 bg-blue-50 dark:bg-blue-900/20 rounded-lg border border-blue-200 dark:border-blue-800">
+                    <strong className="text-blue-800 dark:text-blue-300">벡터 &rarr; 행렬</strong>
+                    <p className="text-slate-600 dark:text-slate-400 mt-1">
+                      <InlineMath math="U = h_k \cdot a(\tau_k)^H" />는 &ldquo;각 타겟의 채널 벡터와 steering vector의 외적&rdquo;입니다.
+                      벡터 변수를 행렬 변수로 올림으로써, 원래 비선형이었던 관측 모델이{' '}
+                      <InlineMath math="U" />에 대해 선형이 됩니다.
+                    </p>
+                  </div>
+                  <div className="p-3 bg-amber-50 dark:bg-amber-900/20 rounded-lg border border-amber-200 dark:border-amber-800">
+                    <strong className="text-amber-800 dark:text-amber-300">Trade-off</strong>
+                    <p className="text-slate-600 dark:text-slate-400 mt-1">
+                      차원이 증가하면 변수의 수가 많아지고 계산 비용이 커집니다.
+                      그러나 볼록 최적화가 가능해진다는 결정적인 이점을 얻습니다.
+                      미지수가 관측보다 많아도, lifting + atomic norm 조합으로 풀 수 있습니다.
+                    </p>
+                  </div>
+                </div>
+              </div>
+
               {/* LANM Formulation */}
               <div id="isac-lanm" className="concept-card mb-6">
                 <div className="text-xs font-semibold text-violet-600 dark:text-violet-400 mb-1">LANM</div>
@@ -700,6 +1275,11 @@ export default function AtomicNormSeminarPage() {
                     차원이 증가하는 대가를 치르지만, 볼록 최적화가 가능해진다는 이점을 얻습니다.
                   </p>
                 </div>
+              </div>
+
+              {/* NEW: 1D→2D→4D Extension Diagram */}
+              <div id="isac-dim-extension">
+                <DimensionExtensionDiagram />
               </div>
 
               <div className="insight">
@@ -803,6 +1383,50 @@ export default function AtomicNormSeminarPage() {
                 </div>
               </div>
 
+              {/* NEW: ANM의 한계 */}
+              <div id="conclusion-limitations" className="concept-card mb-6">
+                <div className="text-xs font-semibold text-rose-600 dark:text-rose-400 mb-1">Limitations</div>
+                <h3 className="font-bold text-slate-800 dark:text-slate-200 mb-3">ANM의 한계는?</h3>
+                <p className="text-sm text-slate-600 dark:text-slate-400 mb-4">
+                  ANM은 강력한 프레임워크이지만, 실용화에는 여러 한계가 있습니다.
+                </p>
+                <div className="grid sm:grid-cols-2 gap-4 text-sm">
+                  <div className="p-4 bg-rose-50 dark:bg-rose-900/20 rounded-lg border border-rose-200 dark:border-rose-800">
+                    <strong className="text-rose-800 dark:text-rose-300">계산 복잡도</strong>
+                    <p className="text-slate-600 dark:text-slate-400 mt-2">
+                      SDP solver의 복잡도는{' '}
+                      <InlineMath math="O(n^3)" /> ~ <InlineMath math="O(n^6)" /> 수준입니다.
+                      <InlineMath math="n" />이 수백 이상이면 계산 시간이 급증합니다.
+                      2D, 4D로 확장하면 SDP 크기가 더 빠르게 증가합니다.
+                    </p>
+                  </div>
+                  <div className="p-4 bg-amber-50 dark:bg-amber-900/20 rounded-lg border border-amber-200 dark:border-amber-800">
+                    <strong className="text-amber-800 dark:text-amber-300">잡음 민감성</strong>
+                    <p className="text-slate-600 dark:text-slate-400 mt-2">
+                      정확한 recovery(exact recovery)는 noiseless 환경에서만 보장됩니다.
+                      잡음이 있을 때는 denoised ANM을 사용하지만,
+                      낮은 SNR에서는 성능 저하가 불가피합니다.
+                    </p>
+                  </div>
+                  <div className="p-4 bg-blue-50 dark:bg-blue-900/20 rounded-lg border border-blue-200 dark:border-blue-800">
+                    <strong className="text-blue-800 dark:text-blue-300">고차원 확장의 어려움</strong>
+                    <p className="text-slate-600 dark:text-slate-400 mt-2">
+                      2D(delay-Doppler)에서 4D(+ AoD, AoA)로 갈수록
+                      SDP의 변수 수가 기하급수적으로 증가합니다.
+                      현재의 SDP solver로는 대규모 문제를 푸는 것이 어렵습니다.
+                    </p>
+                  </div>
+                  <div className="p-4 bg-violet-50 dark:bg-violet-900/20 rounded-lg border border-violet-200 dark:border-violet-800">
+                    <strong className="text-violet-800 dark:text-violet-300">실시간 처리의 한계</strong>
+                    <p className="text-slate-600 dark:text-slate-400 mt-2">
+                      SDP의 높은 계산 비용으로 인해 실시간 처리가 어렵습니다.
+                      오프라인이나 반오프라인(semi-offline) 처리가 필요하며,
+                      ADMM, low-rank 근사 등의 경량화 연구가 진행 중입니다.
+                    </p>
+                  </div>
+                </div>
+              </div>
+
               {/* Future Directions */}
               <div className="concept-card mb-6">
                 <div className="text-xs font-semibold text-violet-600 dark:text-violet-400 mb-1">Future Directions</div>
@@ -827,6 +1451,43 @@ export default function AtomicNormSeminarPage() {
                     <p className="text-slate-600 dark:text-slate-400 mt-1">
                       SDP의 높은 계산 복잡도를 줄이기 위한
                       ADMM 기반 알고리즘, low-rank 근사 등의 연구
+                    </p>
+                  </div>
+                </div>
+              </div>
+
+              {/* NEW: 더 공부하기 */}
+              <div id="conclusion-further" className="concept-card mb-6">
+                <div className="text-xs font-semibold text-indigo-600 dark:text-indigo-400 mb-1">Further Reading</div>
+                <h3 className="font-bold text-slate-800 dark:text-slate-200 mb-3">이 세미나 이후 읽으면 좋은 자료</h3>
+                <div className="space-y-3 text-sm">
+                  <div className="p-4 bg-indigo-50 dark:bg-indigo-900/20 rounded-lg border border-indigo-200 dark:border-indigo-800">
+                    <strong className="text-indigo-800 dark:text-indigo-300">[원조 논문]</strong>
+                    <p className="text-slate-600 dark:text-slate-400 mt-1">
+                      Cand&egrave;s &amp; Fernandez-Granda, &ldquo;Towards a Mathematical Theory of Super-resolution,&rdquo;{' '}
+                      <span className="italic">Comm. Pure and Applied Math.</span>, 2014.
+                    </p>
+                    <p className="text-xs text-slate-500 dark:text-slate-400 mt-1">
+                      Super-resolution 문제의 수학적 기초를 정립한 논문. Dual certificate 개념을 최초로 도입했습니다.
+                    </p>
+                  </div>
+                  <div className="p-4 bg-emerald-50 dark:bg-emerald-900/20 rounded-lg border border-emerald-200 dark:border-emerald-800">
+                    <strong className="text-emerald-800 dark:text-emerald-300">[서베이]</strong>
+                    <p className="text-slate-600 dark:text-slate-400 mt-1">
+                      Chi et al., &ldquo;Harnessing Sparsity over the Continuum: Atomic Norm Minimization for Superresolution,&rdquo;{' '}
+                      <span className="italic">IEEE Signal Processing Magazine</span>, 2020.
+                    </p>
+                    <p className="text-xs text-slate-500 dark:text-slate-400 mt-1">
+                      ANM의 전반적인 이론과 응용을 정리한 종합 서베이. 입문자에게 추천합니다.
+                    </p>
+                  </div>
+                  <div className="p-4 bg-violet-50 dark:bg-violet-900/20 rounded-lg border border-violet-200 dark:border-violet-800">
+                    <strong className="text-violet-800 dark:text-violet-300">[연구 연결]</strong>
+                    <p className="text-slate-600 dark:text-slate-400 mt-1">
+                      CSI feedback 연구와의 연결: delay-angular domain에서의 sparse recovery 문제에서
+                      ANM 프레임워크를 적용할 수 있습니다.
+                      채널의 multipath 성분이 연속적인 delay와 angle을 가지므로,
+                      grid-based CS보다 ANM이 더 정확한 채널 추정을 가능하게 합니다.
                     </p>
                   </div>
                 </div>
