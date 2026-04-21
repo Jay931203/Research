@@ -10,6 +10,7 @@ interface Section2Props {
 
 export default function Section2TimeDiversity({ onNavigate }: Section2Props) {
   const [codingMode, setCodingMode] = useState<'repetition' | 'optimal'>('repetition');
+  const [rotationView, setRotationView] = useState<'structure' | 'error' | 'comparison'>('structure');
 
   return (
     <section id="time-diversity" className="section-card transition-all duration-300">
@@ -26,34 +27,90 @@ export default function Section2TimeDiversity({ onNavigate }: Section2Props) {
         가장 단순한 반복 전송에서 시작해 코딩과 인터리빙까지 확장합니다.
       </p>
 
-      <div className="concept-card mb-6" id="repetition-coding">
-        <h4 className="font-semibold text-slate-800 mb-2">3.2.1 반복 전송 기준선</h4>
+      {/* Interleaving concept */}
+      <div className="concept-card mb-6" id="interleaving-concept">
+        <h4 className="font-semibold text-slate-800 mb-2">인터리빙을 통한 시간 다이버시티</h4>
         <p className="text-sm text-slate-600 mb-3">
-          같은 심볼 <InlineMath math="x" />를 <InlineMath math="L" />번 반복하면,
+          채널은 연속된 심볼 사이에서 높은 상관을 가집니다. 인터리빙은 코드워드의 심볼들을
+          시간적으로 충분히 떨어뜨려 각 심볼이 <strong>독립적인 페이딩</strong>을 경험하도록 합니다.
+        </p>
+        <BlockMath math={String.raw`y_l = h_l x_l + w_l, \quad l = 1, \dots, L`} />
+        <p className="text-sm text-slate-600 mb-2">
+          이상적 인터리빙(ideal interleaving) 하에서 <InlineMath math="h_l" />들은 독립으로 가정할 수 있으며,
+          코드워드 <InlineMath math={String.raw`\mathbf{x} = [x_1, \dots, x_L]^t`} />를 전송할 때
+          <InlineMath math="L" />은 <strong>다이버시티 가지 수(diversity branches)</strong>가 됩니다.
+        </p>
+      </div>
+
+      <div className="concept-card mb-6" id="repetition-coding">
+        <h4 className="font-semibold text-slate-800 mb-2">3.2.1 반복 전송 (Repetition Coding)</h4>
+        <p className="text-sm text-slate-600 mb-3">
+          같은 심볼 <InlineMath math="x_1" />을 <InlineMath math="L" />번 반복하면,
           각 전송이 독립 페이드를 겪을 때 MRC(Maximal Ratio Combining)로 결합합니다.
         </p>
-        <BlockMath math={String.raw`y_\ell = h_\ell x + w_\ell, \quad \ell = 1, \dots, L`} />
+        <BlockMath math={String.raw`\mathbf{y} = \mathbf{h} x_1 + \mathbf{w}, \quad \mathbf{h} = [h_1, \dots, h_L]^t, \; \mathbf{w} = [w_1, \dots, w_L]^t`} />
+
         <div className="formula-block !my-4 !p-4">
-          <h4 className="font-semibold text-blue-800 mb-2">MRC 결합 SNR</h4>
-          <BlockMath math={String.raw`z = \sum_{\ell=1}^{L} h_\ell^* y_\ell, \quad \text{SNR}_{\text{out}} = \left(\sum_{\ell=1}^{L} |h_\ell|^2\right) \text{SNR}`} />
+          <h4 className="font-semibold text-blue-800 mb-2">MRC Sufficient Statistic (Coherent Detection)</h4>
+          <BlockMath math={String.raw`\frac{\mathbf{h}^*}{\|\mathbf{h}\|} \mathbf{y} = \|\mathbf{h}\| x_1 + \frac{\mathbf{h}^*}{\|\mathbf{h}\|} \mathbf{w}`} />
           <p className="text-sm text-slate-600 mt-2">
-            MRC는 채널 이득이 강한 가지에 더 큰 가중치를 부여하는 최적 결합기입니다.
-            결합 후 SNR은 각 가지 SNR의 합이 됩니다.
+            MRC는 각 가지의 신호 강도에 비례하여 가중치를 부여하고 위상을 정렬합니다.
+            결합 후 등가 노이즈는 <InlineMath math={String.raw`\frac{\mathbf{h}^*}{\|\mathbf{h}\|}\mathbf{w} \sim \mathcal{CN}(0, N_0)`} />로
+            스칼라 검출 문제와 동일해집니다.
           </p>
         </div>
+
+        <div className="formula-block !my-4 !p-4">
+          <h4 className="font-semibold text-blue-800 mb-2">BPSK 오류 확률 (Exact)</h4>
+          <p className="text-sm text-slate-600 mb-2">
+            <InlineMath math={String.raw`\|\mathbf{h}\|^2 = \sum_{l=1}^{L} |h_l|^2`} />이고,
+            <InlineMath math={String.raw`h_l \sim_{\text{i.i.d.}} \mathcal{CN}(0,1)`} />이면
+            <InlineMath math={String.raw`\|\mathbf{h}\|^2`} />은 자유도 2L인 카이제곱 분포를 따릅니다.
+          </p>
+          <BlockMath math={String.raw`f(x) = \frac{1}{(L-1)!} x^{L-1} e^{-x}, \quad x \ge 0`} />
+          <BlockMath math={String.raw`p_e = \int_0^\infty Q\!\left(\sqrt{2x \cdot \text{SNR}}\right) f(x)\,dx = \left(\frac{1-\mu}{2}\right)^L \sum_{l=0}^{L-1} \binom{L-1+l}{l} \left(\frac{1+\mu}{2}\right)^l`} />
+          <p className="text-sm text-slate-600 mt-1">
+            여기서 <InlineMath math={String.raw`\mu := \sqrt{\frac{\text{SNR}}{1+\text{SNR}}}`} /> 입니다.
+          </p>
+        </div>
+
+        <div className="formula-block !my-4 !p-4">
+          <h4 className="font-semibold text-blue-800 mb-2">High SNR 근사와 Diversity Gain</h4>
+          <p className="text-sm text-slate-600 mb-2">
+            High SNR에서 <InlineMath math={String.raw`\frac{1+\mu}{2} \approx 1`} />,{' '}
+            <InlineMath math={String.raw`\left(\frac{1-\mu}{2}\right)^L \approx \frac{1}{(4\text{SNR})^L}`} />{' '}
+            (Taylor series)이므로:
+          </p>
+          <BlockMath math={String.raw`p_e \approx \binom{2L-1}{L} \frac{1}{(4\text{SNR})^L}`} />
+          <p className="text-sm text-slate-600 mt-2">
+            오류 확률이 SNR의 <InlineMath math="L" />승에 반비례하여 감소합니다.
+            이 <InlineMath math="L" />이 곧 <strong className="text-red-600">다이버시티 이득(diversity gain)</strong>입니다.
+          </p>
+        </div>
+
+        <div className="p-4 bg-purple-50 rounded-lg border border-purple-200 mb-3">
+          <h4 className="font-semibold text-purple-800 mb-2 text-sm">Deep Fade 확률</h4>
+          <p className="text-sm text-purple-900">
+            High SNR에서 deep fade event의 확률:
+          </p>
+          <BlockMath math={String.raw`\mathbb{P}\!\left\{\|\mathbf{h}\|^2 < \frac{1}{\text{SNR}}\right\} \approx \frac{1}{L!} \cdot \frac{1}{\text{SNR}^L}`} />
+          <p className="text-xs text-purple-700 mt-1">
+            다이버시티 가지가 늘어날수록 전체 채널 이득이 동시에 작아질 확률이 지수적으로 감소합니다.
+          </p>
+        </div>
+
         <p className="text-xs text-slate-500">
           반복은 다이버시티를 쉽게 확보하지만,
-          rate이 <InlineMath math="1/L" />로 줄어들어 자유도 효율이 낮습니다.
+          rate이 <InlineMath math="1/L" />로 줄어들어 자유도(degrees of freedom)를 활용하지 못합니다.
         </p>
       </div>
 
       <div className="concept-card mb-6" id="coding-beyond-repetition">
-        <h4 className="font-semibold text-slate-800 mb-2">3.2.2 반복을 넘는 코딩</h4>
+        <h4 className="font-semibold text-slate-800 mb-2">3.2.2 반복을 넘는 코딩 (Beyond Repetition Coding)</h4>
         <p className="text-sm text-slate-600 mb-3">
-          시간 코딩의 목표는 다이버시티 차수를 유지하면서 코딩 이득을 추가하는 것입니다.
-          반복은 가장 보수적인 전략이고, 잘 설계된 코드는 같은 다이버시티를 더 높은 rate에서 달성합니다.
+          반복 코드는 같은 심볼을 L번 반복하므로 자유도를 활용하지 못합니다.
+          목표는 다이버시티 차수를 유지하면서 <strong>더 높은 rate</strong>와 <strong>코딩 이득</strong>을 추가하는 것입니다.
         </p>
-        <BlockMath math={String.raw`P_e \approx c \cdot \text{SNR}^{-d}, \quad d = \text{diversity order}`} />
 
         {/* Inline toggle: Repetition vs Optimal Coding */}
         <div className="mt-4 mb-3">
@@ -99,41 +156,120 @@ export default function Section2TimeDiversity({ onNavigate }: Section2Props) {
             </div>
           )}
         </div>
-
-        <p className="text-xs text-slate-500 mt-2">
-          설계 질문은 단순합니다. <InlineMath math="d" />를 크게 유지하면서 rate를 얼마나 올릴 수 있는가입니다.
-        </p>
       </div>
 
       <div className="concept-card mb-6" id="rotation-code">
         <h4 className="font-semibold text-slate-800 mb-2">3.2.2+ Rotation Code: 다이버시티 2를 rate 1로 달성</h4>
         <p className="text-sm text-slate-600 mb-3">
-          반복보다 효율적인 코드의 구체적 예시로 TSE 교재의 <strong>rotation code</strong>가 있습니다.
-          2개의 독립 BPSK 심볼 <InlineMath math={String.raw`(x_1, x_2)`} />를 2개 코히어런스 블록에 다음과 같이 매핑합니다.
+          L=2, BPSK인 경우: 2개의 BPSK 심볼을 2개 타임슬롯에 걸쳐 전송하면서 diversity gain을 확보합니다.
+          회전 행렬 <InlineMath math={String.raw`\mathbf{R}`} />을 적용하여 코드워드를 구성합니다.
         </p>
-        <BlockMath math={String.raw`(u_1, u_2) = \frac{1}{\sqrt{2}}\bigl(x_1 + jx_2,\; x_1 - jx_2\bigr)`} />
-        <p className="text-sm text-slate-600 mb-2">
-          핵심 구조는, 두 코드워드 쌍의 성분 차이 벡터에서 <strong>모든 성분이 0이 아닌 것</strong>이 보장된다는 점입니다.
-          한 코히어런스 블록이 깊은 페이드에 빠져도 다른 블록이 복호를 보완하여 diversity order 2를 달성합니다.
-        </p>
-        <div className="grid md:grid-cols-2 gap-3 mt-3">
-          <div className="p-3 bg-red-50 rounded-lg border border-red-100 text-sm">
-            <div className="font-bold text-red-700 mb-1">반복 코딩 (rate 1/2)</div>
-            <div className="text-slate-600">
-              <InlineMath math="(x, x)" /> — diversity 2 확보, 전송률 절반 손실
-            </div>
-          </div>
-          <div className="p-3 bg-emerald-50 rounded-lg border border-emerald-100 text-sm">
-            <div className="font-bold text-emerald-700 mb-1">Rotation code (rate 1)</div>
-            <div className="text-slate-600">
-              2개 독립 심볼을 2블록에 분산 — diversity 2를 rate 손실 없이 달성
-            </div>
-          </div>
+
+        <div className="flex gap-2 mb-3 flex-wrap">
+          <button
+            onClick={() => setRotationView('structure')}
+            className={`px-3 py-1.5 rounded-lg text-sm border ${rotationView === 'structure' ? 'bg-indigo-600 text-white border-indigo-600' : 'bg-white text-slate-600 border-slate-300'}`}
+          >
+            코드 구조
+          </button>
+          <button
+            onClick={() => setRotationView('error')}
+            className={`px-3 py-1.5 rounded-lg text-sm border ${rotationView === 'error' ? 'bg-indigo-600 text-white border-indigo-600' : 'bg-white text-slate-600 border-slate-300'}`}
+          >
+            오류 분석
+          </button>
+          <button
+            onClick={() => setRotationView('comparison')}
+            className={`px-3 py-1.5 rounded-lg text-sm border ${rotationView === 'comparison' ? 'bg-indigo-600 text-white border-indigo-600' : 'bg-white text-slate-600 border-slate-300'}`}
+          >
+            반복 코딩 비교
+          </button>
         </div>
-        <p className="text-xs text-slate-500 mt-2">
-          코딩 이득: 동일한 diversity order에서 반복 대비 3 dB 이상의 SNR 이득이 발생합니다.
-          이것이 "잘 설계된 코드가 반복보다 우월하다"의 구체적 근거입니다.
-        </p>
+
+        {rotationView === 'structure' && (
+          <div className="p-4 bg-indigo-50 rounded-lg border border-indigo-200">
+            <h5 className="font-semibold text-indigo-800 mb-2">코드 구조</h5>
+            <p className="text-sm text-slate-600 mb-2">
+              전송 벡터 <InlineMath math={String.raw`\mathbf{x} = \mathbf{R} \begin{bmatrix} u_1 \\ u_2 \end{bmatrix}`} />,{' '}
+              <InlineMath math={String.raw`\mathbf{R} = \begin{bmatrix} \cos\theta & -\sin\theta \\ \sin\theta & \cos\theta \end{bmatrix}`} />,{' '}
+              <InlineMath math={String.raw`\theta \in (0, 2\pi)`} />,{' '}
+              <InlineMath math={String.raw`u_i = \pm a,\; i=1,2`} />
+            </p>
+            <p className="text-sm text-slate-600 mb-2">4개의 코드워드:</p>
+            <BlockMath math={String.raw`\mathbf{x}_A = \mathbf{R}\begin{bmatrix}a\\a\end{bmatrix}, \; \mathbf{x}_B = \mathbf{R}\begin{bmatrix}-a\\a\end{bmatrix}, \; \mathbf{x}_C = \mathbf{R}\begin{bmatrix}-a\\-a\end{bmatrix}, \; \mathbf{x}_D = \mathbf{R}\begin{bmatrix}a\\-a\end{bmatrix}`} />
+            <p className="text-sm text-slate-600">
+              수신: <InlineMath math={String.raw`y_l = h_l x_l + w_l,\; (l=1,2)`} />.
+              회전 덕분에 각 코드워드 차이의 모든 성분이 0이 아니므로 diversity 2를 달성합니다.
+            </p>
+          </div>
+        )}
+
+        {rotationView === 'error' && (
+          <div className="p-4 bg-indigo-50 rounded-lg border border-indigo-200">
+            <h5 className="font-semibold text-indigo-800 mb-2">Pairwise Error & Product Distance</h5>
+            <p className="text-sm text-slate-600 mb-2">
+              Union bound: <InlineMath math={String.raw`p_e \le \mathbb{P}\{\mathbf{x}_A \to \mathbf{x}_B\} + \mathbb{P}\{\mathbf{x}_A \to \mathbf{x}_C\} + \mathbb{P}\{\mathbf{x}_A \to \mathbf{x}_D\}`} />
+            </p>
+            <p className="text-sm text-slate-600 mb-2">
+              정규화 차이 벡터 <InlineMath math={String.raw`\mathbf{d} := \frac{1}{a}(\mathbf{x}_A - \mathbf{x}_B) = \frac{1}{a}\mathbf{R}(\mathbf{u}_A - \mathbf{u}_B) = \begin{bmatrix}2\cos\theta \\ 2\sin\theta\end{bmatrix} = \begin{bmatrix}d_1 \\ d_2\end{bmatrix}`} />
+            </p>
+            <p className="text-sm text-slate-600 mb-2">
+              독립 Rayleigh에서 평균:
+            </p>
+            <BlockMath math={String.raw`\mathbb{P}\{\mathbf{x}_A \to \mathbf{x}_B\} \le \frac{1}{\left(1 + \text{SNR}|d_1|^2/4\right)\left(1 + \text{SNR}|d_2|^2/4\right)}`} />
+            <p className="text-sm text-slate-600 mb-2">
+              <InlineMath math={String.raw`d_1 \ne 0`} />이고 <InlineMath math={String.raw`d_2 \ne 0`} />이면 diversity gain = 2.
+              High SNR에서 <InlineMath math={String.raw`\mathbb{P}\{\mathbf{x}_A \to \mathbf{x}_B\} \le \frac{16}{|d_1 d_2|^2} \text{SNR}^{-2}`} />.
+            </p>
+            <div className="mt-3 p-3 bg-white rounded-lg text-sm">
+              <strong className="text-indigo-700">Squared Product Distance:</strong>{' '}
+              <InlineMath math={String.raw`\delta_{AB} := |d_1 d_2|^2`} />.
+              코딩 이득은 <InlineMath math={String.raw`\min_{j=B,C,D} \delta_{Aj}`} />로 결정되며, <InlineMath math="\theta" />에 대해 최적화할 수 있습니다.
+            </div>
+            <div className="mt-3 p-3 bg-yellow-50 rounded-lg border border-yellow-200 text-sm">
+              <strong className="text-yellow-800">최적 θ:</strong>{' '}
+              <InlineMath math={String.raw`\delta_{AB} = \delta_{AD} = 4\sin^2 2\theta`} />,{' '}
+              <InlineMath math={String.raw`\delta_{AC} = 16\cos^2 2\theta`} />.{' '}
+              <InlineMath math={String.raw`4\sin^2 2\theta = 16\cos^2 2\theta`} />일 때 최적:{' '}
+              <InlineMath math={String.raw`\theta = \frac{1}{2}\tan^{-1} 2`} />,{' '}
+              <InlineMath math={String.raw`\min \delta_{Aj} = 16/5`} />.
+            </div>
+          </div>
+        )}
+
+        {rotationView === 'comparison' && (
+          <div className="p-4 bg-indigo-50 rounded-lg border border-indigo-200">
+            <h5 className="font-semibold text-indigo-800 mb-2">Rotation Code vs 반복 코딩 (같은 bit rate)</h5>
+            <p className="text-sm text-slate-600 mb-2">
+              반복 코딩이 같은 bit rate를 유지하려면 4-PAM{' '}
+              <InlineMath math={String.raw`\{-3b, -b, b, 3b\}`} />을 사용해야 합니다.
+              평균 SNR = <InlineMath math={String.raw`5b^2/N_0`} />.
+            </p>
+            <div className="grid md:grid-cols-2 gap-3 mt-3">
+              <div className="p-3 bg-red-50 rounded-lg border border-red-100">
+                <div className="font-bold text-red-700 mb-1">반복 + 4-PAM</div>
+                <div className="text-sm text-slate-600 mb-1">
+                  <InlineMath math={String.raw`d_1 = d_2 = 2b(1/\sqrt{5b^2}) = 2/\sqrt{5}`} />
+                </div>
+                <div className="text-sm text-slate-600">
+                  <InlineMath math={String.raw`\min_{i \ne j} \delta_{ij} = |d_1|^2 |d_2|^2 = \mathbf{16/25}`} />
+                </div>
+              </div>
+              <div className="p-3 bg-emerald-50 rounded-lg border border-emerald-100">
+                <div className="font-bold text-emerald-700 mb-1">Rotation + BPSK</div>
+                <div className="text-sm text-slate-600">
+                  <InlineMath math={String.raw`\min_{j} \delta_{Aj} = \mathbf{16/5}`} />
+                </div>
+              </div>
+            </div>
+            <p className="text-sm text-slate-600 mt-3">
+              Product distance 비교: <InlineMath math={String.raw`16/5 \div 16/25 = 5`} />.{' '}
+              <strong>Rotation code는 반복 대비 약 5배(7 dB)의 product distance 이득</strong>을 가집니다.
+              같은 diversity order에서 반복이 자유도를 낭비하기 때문입니다.
+            </p>
+            <BlockMath math={String.raw`p_e \le \frac{48}{\min_{j} \delta_{Aj}} \text{SNR}^{-2} = 15 \cdot \text{SNR}^{-2} \quad \text{(rotation code)}`} />
+          </div>
+        )}
       </div>
 
       <div className="concept-card mb-6" id="interleaving">

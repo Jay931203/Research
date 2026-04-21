@@ -38,6 +38,7 @@ next-env.d.ts
 
 # local agent/workspace artifacts
 .claude/
+.omx/
 nul
 .bkit/
 
