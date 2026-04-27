@@ -1,6 +1,6 @@
 'use client';
 
-import { useCallback, useState, useEffect } from 'react';
+import { useCallback, useEffect, useState } from 'react';
 import { TableOfContents, type TocItem } from '@/components/tse/navigation';
 import Section0AppendixA from './Section0AppendixA';
 import Section1Detection from './Section1Detection';
@@ -24,7 +24,7 @@ const tocItems: TocItem[] = [
   { id: 'detection', label: '3.1 Detection in Fading', level: 1 },
   { id: 'noncoherent-detection', label: '3.1.1 Noncoherent', level: 2 },
   { id: 'coherent-ml', label: '3.1.2 Coherent Detection', level: 2 },
-  { id: 'bpsk-qpsk', label: '3.1.3 BPSK → QPSK', level: 2 },
+  { id: 'bpsk-qpsk', label: '3.1.3 BPSK ↔ QPSK', level: 2 },
   { id: 'diversity-motivation', label: '3.1.4 Diversity Motivation', level: 2 },
   { id: 'awgn-fading-pe-chart', label: 'Pe Comparison (Interactive)', level: 2 },
   { id: 'deep-fade-calculator', label: 'Deep Fade Calculator', level: 2 },
@@ -45,8 +45,9 @@ const tocItems: TocItem[] = [
   { id: 'rake-receiver', label: 'Rake Receiver', level: 2 },
   { id: 'ofdm-diversity', label: 'OFDM', level: 2 },
   { id: 'channel-uncertainty', label: '3.5 Channel Uncertainty', level: 1 },
-  { id: 'pilot-estimation', label: 'Pilot Estimation', level: 2 },
-  { id: 'effective-snr', label: 'Effective SNR', level: 2 },
+  { id: 'noncoherent-ds', label: '3.5.1 DS Noncoherent', level: 2 },
+  { id: 'pilot-estimation', label: '3.5.2 Channel Estimation', level: 2 },
+  { id: 'diversity-scenarios', label: '3.5.3 Diversity Scenarios', level: 2 },
   { id: 'coherent-vs-noncoherent', label: 'Coherent vs Noncoherent', level: 2 },
   { id: 'ch3-main-plot', label: '3.6 Chapter 3 Main Plot', level: 1 },
   { id: 'five-step-chain', label: '5-Step Design Chain', level: 2 },
@@ -58,6 +59,7 @@ const tocItems: TocItem[] = [
   { id: 'appendix-b3', label: 'B.3 Coding Theorem', level: 2 },
   { id: 'appendix-b4', label: 'B.4 AWGN Capacity', level: 2 },
   { id: 'appendix-b5', label: 'B.5 Sphere Packing', level: 2 },
+  { id: 'appendix-b-check', label: 'Appendix B Checklist', level: 2 },
 ];
 
 export default function Chapter3Page() {
@@ -95,7 +97,6 @@ export default function Chapter3Page() {
 
   return (
     <div className="min-h-screen bg-slate-50 dark:bg-slate-900">
-      {/* Scroll progress bar */}
       <div className="fixed top-0 left-0 right-0 z-[60] h-1 bg-slate-200/50 dark:bg-slate-700/50">
         <div
           className="h-full bg-gradient-to-r from-emerald-500 to-teal-500 transition-[width] duration-150"
@@ -103,14 +104,13 @@ export default function Chapter3Page() {
         />
       </div>
 
-      {/* Fixed TOC sidebar — completely independent from main content scroll */}
       {!sidebarOpen && (
         <div className="hidden lg:block fixed left-0 top-1/2 -translate-y-1/2 z-40">
           <button
             onClick={() => setSidebarOpen(true)}
             className="bg-white dark:bg-slate-800 border border-slate-200 dark:border-slate-700 border-l-0 rounded-r-lg px-1 py-4 shadow-md hover:bg-slate-50 dark:hover:bg-slate-700 text-slate-400 dark:text-slate-500 transition"
-            aria-label="사이드바 보기"
-            title="사이드바 보기"
+            aria-label="목차 열기"
+            title="목차 열기"
           >
             <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
               <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 5l7 7-7 7" />
@@ -129,8 +129,8 @@ export default function Chapter3Page() {
               <button
                 onClick={() => setSidebarOpen(false)}
                 className="p-1 rounded hover:bg-slate-100 dark:hover:bg-slate-700 text-slate-400 dark:text-slate-500 transition"
-                aria-label="사이드바 숨기기"
-                title="사이드바 숨기기"
+                aria-label="목차 닫기"
+                title="목차 닫기"
               >
                 <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                   <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M15 19l-7-7 7-7" />
@@ -151,17 +151,15 @@ export default function Chapter3Page() {
         </aside>
       )}
 
-      {/* Main content — offset by sidebar width, scrolls independently */}
       <main className={`tse-content min-h-screen py-8 px-4 lg:px-8 ${sidebarOpen ? 'lg:ml-64' : ''}`}>
         <div className="max-w-4xl mx-auto">
-          {/* Chapter hero */}
           <div className="mb-8 p-8 bg-gradient-to-br from-emerald-600 to-teal-700 rounded-2xl text-white">
             <div className="text-emerald-200 text-sm font-medium mb-2">Chapter 3</div>
             <h1 className="text-4xl font-bold mb-3">Point-to-Point Communication</h1>
             <p className="text-emerald-100 text-lg leading-relaxed max-w-2xl">
-              페이딩 채널에서 어떻게 신뢰할 수 있는 통신을 만드는지 다룹니다.
-              검출 기초에서 출발해 시간/공간/주파수 다이버시티를 설계하고,
-              채널 불확실성까지 고려한 실전 체크리스트를 완성합니다.
+              페이딩 채널에서 어떻게 신뢰도 높은 통신을 만드는지 정리합니다.
+              검출 기초에서 출발해 시간, 안테나, 주파수 다이버시티를 설계하고,
+              채널 불확실성과 정보이론적 한계까지 하나의 흐름으로 연결합니다.
             </p>
             <div className="flex flex-wrap gap-3 mt-5">
               <span className="px-3 py-1 bg-white/20 rounded-full text-sm">Detection</span>
@@ -174,7 +172,6 @@ export default function Chapter3Page() {
             </div>
           </div>
 
-          {/* Sections */}
           <div className="space-y-8">
             <Section0AppendixA onNavigate={handleNavigate} />
             <Section1Detection onNavigate={handleNavigate} />
@@ -185,16 +182,14 @@ export default function Chapter3Page() {
             <Section6MainPlot onNavigate={handleNavigate} />
             <Section7AppendixB onNavigate={handleNavigate} />
           </div>
-
         </div>
       </main>
 
-      {/* Back to top button */}
       {showBackToTop && (
         <button
           onClick={scrollToTop}
           className="fixed bottom-6 right-6 z-50 w-12 h-12 bg-emerald-600 hover:bg-emerald-700 text-white rounded-full shadow-lg hover:shadow-xl transition-all flex items-center justify-center"
-          aria-label="Back to top"
+          aria-label="맨 위로 이동"
         >
           <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
             <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2.5} d="M5 15l7-7 7 7" />
