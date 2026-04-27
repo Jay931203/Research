@@ -310,6 +310,9 @@ export function getPaperCategoryLabel(input: ResearchTopicInput): string {
     if (topic === 'representation_learning') {
       return CATEGORY_LABELS.representation_learning;
     }
+    if (topic !== 'other') {
+      return RESEARCH_TOPIC_LABELS[topic] ?? CATEGORY_LABELS.other;
+    }
   }
 
   return CATEGORY_LABELS[category] ?? input.category ?? CATEGORY_LABELS.other;

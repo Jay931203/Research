@@ -3679,6 +3679,771 @@
         "이 논문의 한계를 보완한 후속 논문은 무엇인가?",
         "실제 재현 시 가장 먼저 점검할 디버깅 포인트는 무엇인가?"
       ]
+    },
+    {
+      "venue": "arXiv preprint",
+      "doi": null,
+      "pdf_url": "https://arxiv.org/pdf/2502.13842",
+      "code_url": null,
+      "key_equations": [],
+      "difficulty_level": "advanced",
+      "prerequisites": [
+        "Transformer residual blocks",
+        "dynamic computation",
+        "routing policies",
+        "language model inference"
+      ],
+      "learning_objectives": [
+        "Explain why dynamic depth can improve inference efficiency.",
+        "Compare fixed-depth Transformers with adaptive computation."
+      ],
+      "self_check_questions": [
+        "When should a model spend more internal depth?",
+        "What cost does dynamic depth routing add?"
+      ],
+      "title": "Inner Thinking Transformer: Adaptive Internal Thinking with Dynamic Depth Scaling",
+      "authors": [
+        "Yilong Chen",
+        "Junyuan Shang",
+        "Zhenyu Zhang",
+        "et al."
+      ],
+      "year": 2025,
+      "arxiv_id": "2502.13842",
+      "abstract": "This paper studies adaptive internal thinking for Transformers by allowing the model to spend different amounts of depth on inputs with different difficulty.",
+      "key_contributions": [
+        "Frames fixed-depth inference as an inefficient allocation of computation.",
+        "Introduces dynamic depth scaling for easier and harder inputs.",
+        "Connects internal thinking depth with the accuracy-cost trade-off in LLM inference."
+      ],
+      "algorithms": [
+        "Dynamic depth scaling",
+        "Inner thinking step routing",
+        "Halting-style adaptive computation"
+      ],
+      "architecture_detail": "A routing or halting mechanism is placed around Transformer blocks so depth becomes an input-conditioned compute budget instead of a fixed constant.",
+      "category": "other",
+      "tags": [
+        "adaptive_depth",
+        "inner-thinking",
+        "dynamic-depth",
+        "transformer",
+        "llm",
+        "adaptive-computation"
+      ],
+      "color_hex": "#7c3aed"
+    },
+    {
+      "venue": "arXiv preprint",
+      "doi": null,
+      "pdf_url": "https://arxiv.org/pdf/2507.10524",
+      "code_url": null,
+      "key_equations": [],
+      "difficulty_level": "advanced",
+      "prerequisites": [
+        "Transformer residual blocks",
+        "dynamic computation",
+        "routing policies",
+        "language model inference"
+      ],
+      "learning_objectives": [
+        "Explain how MoR differs from MoE.",
+        "Analyze how token-level recursion changes FLOPs and quality."
+      ],
+      "self_check_questions": [
+        "Is MoR adapting width or depth?",
+        "What changes when the recursion count increases?"
+      ],
+      "title": "Mixture-of-Recursions: Learning Dynamic Recursive Depths for Adaptive Token-Level Computation",
+      "authors": [
+        "Bae et al."
+      ],
+      "year": 2025,
+      "arxiv_id": "2507.10524",
+      "abstract": "MoR allocates computation along the depth dimension by selecting token-level recursive depth, making recursion count a dynamic compute resource.",
+      "key_contributions": [
+        "Introduces depth-wise dynamic computation through learned recursion choices.",
+        "Allocates more recursive processing to tokens that need more computation.",
+        "Provides a depth-direction counterpart to width-direction MoE routing."
+      ],
+      "algorithms": [
+        "Mixture-of-Recursions",
+        "Token-level recursion routing",
+        "Depth-wise expert selection"
+      ],
+      "architecture_detail": "Transformer blocks are reused recursively, and a router chooses how much recursive depth each token should receive.",
+      "category": "other",
+      "tags": [
+        "adaptive_depth",
+        "mor",
+        "mixture of recursion",
+        "mixture-of-recursions",
+        "dynamic-depth",
+        "recursive-transformer",
+        "llm"
+      ],
+      "color_hex": "#9333ea"
+    },
+    {
+      "venue": "arXiv preprint",
+      "doi": null,
+      "pdf_url": "https://arxiv.org/pdf/2510.12773",
+      "code_url": null,
+      "key_equations": [],
+      "difficulty_level": "advanced",
+      "prerequisites": [
+        "Transformer residual blocks",
+        "dynamic computation",
+        "routing policies",
+        "language model inference"
+      ],
+      "learning_objectives": [
+        "Explain Skip/Execute/Repeat routing.",
+        "Understand why search can supervise router training."
+      ],
+      "self_check_questions": [
+        "How does Dr.LLM control inference budget?",
+        "Why is freezing the base model useful?"
+      ],
+      "title": "Dr.LLM: Dynamic Layer Routing in Large Language Models",
+      "authors": [
+        "Heakl",
+        "Gubri",
+        "Khan",
+        "Yun",
+        "Oh"
+      ],
+      "year": 2025,
+      "arxiv_id": "2510.12773",
+      "abstract": "Dr.LLM routes each layer through Skip, Execute, or Repeat decisions so an LLM can adapt its layer path to the input and compute budget.",
+      "key_contributions": [
+        "Adds lightweight routing without fully retraining the base LLM.",
+        "Uses search-derived supervision for layer-level routing decisions.",
+        "Supports budget-aware inference through dynamic layer actions."
+      ],
+      "algorithms": [
+        "Dynamic layer routing",
+        "Skip/Execute/Repeat action policy",
+        "MCTS-guided router training"
+      ],
+      "architecture_detail": "A lightweight router predicts layer actions from hidden states and budget constraints while the base model weights can remain frozen.",
+      "category": "other",
+      "tags": [
+        "adaptive_depth",
+        "dynamic-routing",
+        "layer-routing",
+        "mcts",
+        "llm",
+        "budget-aware-inference"
+      ],
+      "color_hex": "#0f766e"
+    },
+    {
+      "venue": "arXiv preprint",
+      "doi": null,
+      "pdf_url": "https://arxiv.org/pdf/2603.08391",
+      "code_url": null,
+      "key_equations": [],
+      "difficulty_level": "advanced",
+      "prerequisites": [
+        "Transformer residual blocks",
+        "dynamic computation",
+        "routing policies",
+        "language model inference"
+      ],
+      "learning_objectives": [
+        "Explain the loop-memory trade-off.",
+        "Compare adaptive loops with recursive-depth methods such as MoR."
+      ],
+      "self_check_questions": [
+        "When is more looping different from more memory?",
+        "What does a loop halting probability control?"
+      ],
+      "title": "Adaptive Loops and Memory in Transformers: Think Harder or Know More?",
+      "authors": [
+        "Frey",
+        "Shomali",
+        "Bashir",
+        "Berghaus",
+        "Koehler",
+        "Ali"
+      ],
+      "year": 2026,
+      "arxiv_id": "2603.08391",
+      "abstract": "This work studies whether a Transformer should spend compute by looping more or by using memory, framing loop depth and memory access as a shared resource-allocation problem.",
+      "key_contributions": [
+        "Links repeated computation and memory usage under one trade-off.",
+        "Introduces adaptive loop mechanisms for input-conditioned computation.",
+        "Compares when a model should think harder versus know more."
+      ],
+      "algorithms": [
+        "Adaptive loops",
+        "Memory bank integration",
+        "Halting probability aggregation"
+      ],
+      "architecture_detail": "The model combines repeated Transformer computation with memory-bank access, then controls how much each path is used for a given input.",
+      "category": "other",
+      "tags": [
+        "adaptive_depth",
+        "adaptive-loops",
+        "memory-bank",
+        "dynamic-depth",
+        "llm",
+        "implicit-thinking"
+      ],
+      "color_hex": "#a855f7"
+    },
+    {
+      "venue": "arXiv preprint",
+      "doi": null,
+      "pdf_url": "https://arxiv.org/pdf/2603.11535",
+      "code_url": null,
+      "key_equations": [],
+      "difficulty_level": "advanced",
+      "prerequisites": [
+        "Transformer residual blocks",
+        "dynamic computation",
+        "routing policies",
+        "language model inference"
+      ],
+      "learning_objectives": [
+        "Compare Top-k routing with threshold routing.",
+        "Explain why dynamic load balancing matters in MoE."
+      ],
+      "self_check_questions": [
+        "What happens when an expert threshold rises?",
+        "How can thresholds regulate load without an auxiliary loss?"
+      ],
+      "title": "Expert Threshold Routing for Autoregressive Language Modeling with Dynamic Computation Allocation and Load Balancing",
+      "authors": [
+        "Sun",
+        "Liu",
+        "Wu",
+        "Sun"
+      ],
+      "year": 2026,
+      "arxiv_id": "2603.11535",
+      "abstract": "Expert Threshold Routing replaces fixed Top-k MoE selection with expert-specific dynamic thresholds to control compute allocation and load balance.",
+      "key_contributions": [
+        "Uses expert-level thresholds as adaptive entry barriers.",
+        "Updates thresholds from running score statistics.",
+        "Reduces reliance on auxiliary load-balancing losses."
+      ],
+      "algorithms": [
+        "Expert threshold routing",
+        "EMA threshold update",
+        "Dynamic computation allocation"
+      ],
+      "architecture_detail": "Each expert tracks its score distribution. Tokens route to experts only when their score passes the expert threshold, reducing overload on popular experts.",
+      "category": "other",
+      "tags": [
+        "adaptive_depth",
+        "moe",
+        "expert-threshold",
+        "dynamic-routing",
+        "load-balancing",
+        "llm"
+      ],
+      "color_hex": "#0891b2"
+    },
+    {
+      "venue": "arXiv preprint",
+      "doi": null,
+      "pdf_url": null,
+      "code_url": null,
+      "key_equations": [],
+      "difficulty_level": "advanced",
+      "prerequisites": [
+        "Transformer residual blocks",
+        "dynamic computation",
+        "routing policies",
+        "language model inference"
+      ],
+      "learning_objectives": [
+        "Explain magnitude bias in routing.",
+        "Understand how directional centroids guide expert selection."
+      ],
+      "self_check_questions": [
+        "What does activation direction represent?",
+        "How does directional routing combine with Top-k MoE?"
+      ],
+      "title": "Directional Routing in Transformers",
+      "authors": [
+        "Taylor"
+      ],
+      "year": 2026,
+      "arxiv_id": "taylor-2026-directional",
+      "abstract": "Directional Routing selects experts from activation direction rather than activation magnitude, aiming to reduce magnitude bias in MoE-style routing.",
+      "key_contributions": [
+        "Separates semantic direction from activation magnitude.",
+        "Uses angular or cosine scores against expert centroids.",
+        "Improves expert selection by emphasizing directional similarity."
+      ],
+      "algorithms": [
+        "Directional routing",
+        "Angular expert scoring",
+        "Directional centroid routing"
+      ],
+      "architecture_detail": "Hidden states are normalized into direction vectors, then compared with expert centroids to choose the most semantically aligned expert path.",
+      "category": "other",
+      "tags": [
+        "adaptive_depth",
+        "dynamic-routing",
+        "directional-routing",
+        "moe",
+        "expert-routing",
+        "llm"
+      ],
+      "color_hex": "#14b8a6"
+    },
+    {
+      "venue": "arXiv preprint",
+      "doi": null,
+      "pdf_url": null,
+      "code_url": null,
+      "key_equations": [],
+      "difficulty_level": "advanced",
+      "prerequisites": [
+        "LLM agent architecture",
+        "communication protocols",
+        "multi-agent coordination",
+        "graph-based system modeling"
+      ],
+      "learning_objectives": [
+        "Identify the core components of LLM-MAS.",
+        "Explain infrastructure constraints in multi-agent workflows."
+      ],
+      "self_check_questions": [
+        "How are communication and coordination different?",
+        "Why is evaluation difficult for LLM-MAS?"
+      ],
+      "title": "A Survey on LLM-based Multi-Agent Systems: Workflow, Infrastructure, and Challenges",
+      "authors": [
+        "Survey authors"
+      ],
+      "year": 2025,
+      "arxiv_id": "mas-llm-workflow",
+      "abstract": "A broad survey that organizes LLM-based Multi-Agent Systems by workflow, infrastructure, communication, memory, and evaluation challenges.",
+      "key_contributions": [
+        "Provides a workflow-level taxonomy for LLM-MAS.",
+        "Compares infrastructure and framework choices.",
+        "Summarizes open issues in cost, latency, evaluation, and safety."
+      ],
+      "algorithms": [
+        "LLM-MAS workflow taxonomy",
+        "Agent communication pattern analysis",
+        "Infrastructure comparison"
+      ],
+      "architecture_detail": "The survey models LLM-MAS as a workflow over role assignment, message exchange, tool use, memory, and evaluation loops.",
+      "category": "mas",
+      "tags": [
+        "mas",
+        "llm-mas",
+        "workflow",
+        "infrastructure",
+        "multi-agent-systems",
+        "survey"
+      ],
+      "color_hex": "#8b5cf6"
+    },
+    {
+      "venue": "arXiv preprint",
+      "doi": null,
+      "pdf_url": "https://arxiv.org/pdf/2501.06322",
+      "code_url": null,
+      "key_equations": [],
+      "difficulty_level": "advanced",
+      "prerequisites": [
+        "LLM agent architecture",
+        "communication protocols",
+        "multi-agent coordination",
+        "graph-based system modeling"
+      ],
+      "learning_objectives": [
+        "Understand the main classes of LLM-MAS collaboration.",
+        "Explain how role assignment changes system behavior."
+      ],
+      "self_check_questions": [
+        "How are cooperation and competition different in MAS?",
+        "What are the trade-offs of role-based agents?"
+      ],
+      "title": "Multi-Agent Collaboration Mechanisms: A Survey of LLMs",
+      "authors": [
+        "Survey authors"
+      ],
+      "year": 2025,
+      "arxiv_id": "2501.06322",
+      "abstract": "A survey of collaboration mechanisms in LLM-based Multi-Agent Systems, including role assignment, negotiation, debate, voting, and critic-generator patterns.",
+      "key_contributions": [
+        "Classifies collaboration mechanisms across multiple dimensions.",
+        "Compares cooperative, competitive, and mixed interaction patterns.",
+        "Analyzes role specialization and decision protocols."
+      ],
+      "algorithms": [
+        "Collaboration mechanism taxonomy",
+        "Negotiation and voting protocols",
+        "Role-based agent decomposition"
+      ],
+      "architecture_detail": "Multiple LLM agents are represented as role-specialized nodes whose interaction protocol determines information flow and final decision making.",
+      "category": "mas",
+      "tags": [
+        "mas",
+        "llm-mas",
+        "collaboration",
+        "survey",
+        "role-assignment",
+        "negotiation"
+      ],
+      "color_hex": "#f97316"
+    },
+    {
+      "venue": "arXiv preprint",
+      "doi": null,
+      "pdf_url": "https://arxiv.org/pdf/2502.14321",
+      "code_url": null,
+      "key_equations": [],
+      "difficulty_level": "advanced",
+      "prerequisites": [
+        "LLM agent architecture",
+        "communication protocols",
+        "multi-agent coordination",
+        "graph-based system modeling"
+      ],
+      "learning_objectives": [
+        "Explain communication-centric MAS analysis.",
+        "Understand how protocols affect cost and quality."
+      ],
+      "self_check_questions": [
+        "Where does most LLM-MAS cost come from?",
+        "What communication security risks matter?"
+      ],
+      "title": "Beyond Self-Talk: A Communication-Centric Survey of LLM-Based Multi-Agent Systems",
+      "authors": [
+        "Survey authors"
+      ],
+      "year": 2025,
+      "arxiv_id": "2502.14321",
+      "abstract": "This survey treats communication as the central bottleneck in LLM-MAS, analyzing message structure, communication cost, convergence, and safety.",
+      "key_contributions": [
+        "Reframes LLM-MAS performance around inter-agent communication.",
+        "Analyzes cost-quality trade-offs in message protocols.",
+        "Surveys communication-related risks such as prompt injection and information leakage."
+      ],
+      "algorithms": [
+        "Communication-centric MAS taxonomy",
+        "Message protocol analysis",
+        "Security and cost analysis"
+      ],
+      "architecture_detail": "The system is modeled through message paths and message representations, where the number and length of messages dominate cost and latency.",
+      "category": "mas",
+      "tags": [
+        "mas",
+        "llm-mas",
+        "communication",
+        "self-talk",
+        "protocol",
+        "survey"
+      ],
+      "color_hex": "#e11d48"
+    },
+    {
+      "venue": "arXiv preprint",
+      "doi": null,
+      "pdf_url": "https://arxiv.org/pdf/2502.14743",
+      "code_url": null,
+      "key_equations": [],
+      "difficulty_level": "advanced",
+      "prerequisites": [
+        "LLM agent architecture",
+        "communication protocols",
+        "multi-agent coordination",
+        "graph-based system modeling"
+      ],
+      "learning_objectives": [
+        "Compare coordination challenges across MAS domains.",
+        "Explain why heterogeneous agents complicate planning."
+      ],
+      "self_check_questions": [
+        "What do MAPF and LLM-MAS coordination share?",
+        "What limits large-scale MAS deployment?"
+      ],
+      "title": "Multi-Agent Coordination across Diverse Applications: A Survey",
+      "authors": [
+        "Survey authors"
+      ],
+      "year": 2025,
+      "arxiv_id": "2502.14743",
+      "abstract": "A survey of coordination problems across logistics, robotics, LLM agents, wireless systems, and other multi-agent domains.",
+      "key_contributions": [
+        "Compares coordination requirements across application domains.",
+        "Highlights heterogeneous agents, partial observability, and scalability.",
+        "Connects planning, routing, and real-time optimization perspectives."
+      ],
+      "algorithms": [
+        "Coordination taxonomy",
+        "Multi-agent path finding overview",
+        "Heterogeneous agent coordination"
+      ],
+      "architecture_detail": "Agents and interactions are modeled as a coordination graph with task objectives, constraints, and domain-specific communication limits.",
+      "category": "mas",
+      "tags": [
+        "mas",
+        "coordination",
+        "multi-agent-systems",
+        "survey",
+        "heterogeneous-agents",
+        "planning"
+      ],
+      "color_hex": "#0ea5e9"
+    },
+    {
+      "venue": "arXiv preprint",
+      "doi": null,
+      "pdf_url": "https://arxiv.org/pdf/2502.11098",
+      "code_url": null,
+      "key_equations": [],
+      "difficulty_level": "advanced",
+      "prerequisites": [
+        "LLM agent architecture",
+        "communication protocols",
+        "multi-agent coordination",
+        "graph-based system modeling"
+      ],
+      "learning_objectives": [
+        "Model LLM-MAS as a graph.",
+        "Explain hierarchical agent design."
+      ],
+      "self_check_questions": [
+        "What do V and E mean in a MAS graph?",
+        "How is structured communication different from self-talk?"
+      ],
+      "title": "Talk Structurally, Act Hierarchically: A Collaborative Framework for LLM Multi-Agent Systems",
+      "authors": [
+        "Research authors"
+      ],
+      "year": 2025,
+      "arxiv_id": "2502.11098",
+      "abstract": "A collaborative LLM-MAS framework that structures agent communication as a graph and organizes execution through hierarchical roles.",
+      "key_contributions": [
+        "Represents MAS as a graph of agents and communication edges.",
+        "Uses hierarchical role decomposition for complex tasks.",
+        "Shows why structured dialogue can improve stability over unstructured self-talk."
+      ],
+      "algorithms": [
+        "Graph-structured MAS",
+        "Hierarchical agent planning",
+        "Structured communication protocol"
+      ],
+      "architecture_detail": "Agents are graph nodes, communication channels are edges, and planner-executor hierarchy controls how subtasks are assigned and solved.",
+      "category": "mas",
+      "tags": [
+        "mas",
+        "llm-mas",
+        "graph-structured",
+        "hierarchical-agents",
+        "communication-protocol"
+      ],
+      "color_hex": "#7c3aed"
+    },
+    {
+      "venue": "arXiv preprint",
+      "doi": null,
+      "pdf_url": "https://arxiv.org/pdf/2601.09434",
+      "code_url": null,
+      "key_equations": [],
+      "difficulty_level": "advanced",
+      "prerequisites": [
+        "LLM agent architecture",
+        "communication protocols",
+        "multi-agent coordination",
+        "graph-based system modeling"
+      ],
+      "learning_objectives": [
+        "Explain edge-level collaboration strategies.",
+        "Understand why heterogeneous collaboration can reduce cost."
+      ],
+      "self_check_questions": [
+        "What information does an SC-MAS edge carry?",
+        "How is heterogeneous MAS different from homogeneous MAS?"
+      ],
+      "title": "SC-MAS: Cost-Efficient Multi-Agent Systems with Edge-Level Heterogeneous Collaboration",
+      "authors": [
+        "Research authors"
+      ],
+      "year": 2026,
+      "arxiv_id": "2601.09434",
+      "abstract": "SC-MAS improves cost efficiency by assigning different collaboration strategies to different edges in a multi-agent graph.",
+      "key_contributions": [
+        "Treats edges as strategy-bearing collaboration units.",
+        "Maps social capital concepts onto MAS graph design.",
+        "Combines accuracy improvement with communication-cost reduction."
+      ],
+      "algorithms": [
+        "Edge-level heterogeneous collaboration",
+        "Social-capital-inspired MAS graph",
+        "Cost-aware collaboration selection"
+      ],
+      "architecture_detail": "Each directed edge in the MAS graph can use a different collaboration strategy, allowing pair-specific communication and reasoning behavior.",
+      "category": "mas",
+      "tags": [
+        "mas",
+        "sc-mas",
+        "edge-heterogeneous",
+        "social-capital-theory",
+        "cost-optimization",
+        "llm-routing"
+      ],
+      "color_hex": "#059669"
+    },
+    {
+      "venue": "arXiv preprint",
+      "doi": null,
+      "pdf_url": "https://arxiv.org/pdf/2505.07603",
+      "code_url": null,
+      "key_equations": [],
+      "difficulty_level": "advanced",
+      "prerequisites": [
+        "LLM agent architecture",
+        "communication protocols",
+        "multi-agent coordination",
+        "graph-based system modeling"
+      ],
+      "learning_objectives": [
+        "Explain holonic MAS architecture.",
+        "Understand fault tolerance in cloud-edge coordination."
+      ],
+      "self_check_questions": [
+        "Why use publish-subscribe messaging?",
+        "What bottlenecks appear in cloud-edge MAS?"
+      ],
+      "title": "AgentFlow: Resilient Adaptive Cloud-Edge Framework for Multi-Agent Coordination",
+      "authors": [
+        "Research authors"
+      ],
+      "year": 2025,
+      "arxiv_id": "2505.07603",
+      "abstract": "AgentFlow is a cloud-edge MAS framework that uses hierarchical organization and resilient messaging for adaptive multi-agent coordination.",
+      "key_contributions": [
+        "Uses holonic hierarchy for cloud-edge MAS.",
+        "Adds publish-subscribe messaging and service election for resilience.",
+        "Targets programmable coordination in distributed environments."
+      ],
+      "algorithms": [
+        "Holonic MAS architecture",
+        "Publish-subscribe coordination",
+        "Fault-tolerant service election"
+      ],
+      "architecture_detail": "Agents are organized into cloud, edge, and device layers with a message bus and election mechanisms for fault-tolerant coordination.",
+      "category": "mas",
+      "tags": [
+        "mas",
+        "agentflow",
+        "cloud-edge",
+        "holonic-mas",
+        "fault-tolerance",
+        "pub-sub"
+      ],
+      "color_hex": "#0d9488"
+    },
+    {
+      "venue": "arXiv preprint",
+      "doi": null,
+      "pdf_url": "https://arxiv.org/pdf/2508.07720",
+      "code_url": null,
+      "key_equations": [],
+      "difficulty_level": "advanced",
+      "prerequisites": [
+        "LLM agent architecture",
+        "communication protocols",
+        "multi-agent coordination",
+        "graph-based system modeling"
+      ],
+      "learning_objectives": [
+        "Explain goal-oriented communication.",
+        "Understand task-utility-aware messaging."
+      ],
+      "self_check_questions": [
+        "What is optimized in goal-oriented communication?",
+        "Where do LLM-MAS and communication theory meet?"
+      ],
+      "title": "Toward Goal-Oriented Communication in Multi-Agent Systems: An Overview",
+      "authors": [
+        "Survey authors"
+      ],
+      "year": 2025,
+      "arxiv_id": "2508.07720",
+      "abstract": "An overview of goal-oriented communication for MAS, emphasizing task utility rather than raw message transmission.",
+      "key_contributions": [
+        "Reframes communication around task-goal achievement.",
+        "Explains why resource-limited MAS need selective messaging.",
+        "Connects communication theory with LLM-MAS design questions."
+      ],
+      "algorithms": [
+        "Goal-oriented communication",
+        "Task-utility-aware messaging",
+        "Resource-constrained MAS communication"
+      ],
+      "architecture_detail": "Messages are evaluated by task utility, so agents exchange information that helps the goal rather than all available intermediate text.",
+      "category": "mas",
+      "tags": [
+        "mas",
+        "goal-oriented-communication",
+        "semantic-communication",
+        "resource-constrained",
+        "llm-mas"
+      ],
+      "color_hex": "#2563eb"
+    },
+    {
+      "venue": "arXiv preprint",
+      "doi": null,
+      "pdf_url": "https://arxiv.org/pdf/2511.20639",
+      "code_url": null,
+      "key_equations": [],
+      "difficulty_level": "advanced",
+      "prerequisites": [
+        "Transformer KV cache",
+        "LLM agent architecture",
+        "communication protocols",
+        "multi-agent coordination",
+        "graph-based system modeling"
+      ],
+      "learning_objectives": [
+        "Explain why Latent MAS can reduce TextMAS cost.",
+        "Understand the role of KV-cache communication."
+      ],
+      "self_check_questions": [
+        "What information can KV cache preserve?",
+        "What interoperability risks does latent communication introduce?"
+      ],
+      "title": "Latent Collaboration in Multi-Agent Systems",
+      "authors": [
+        "Zou et al."
+      ],
+      "year": 2025,
+      "arxiv_id": "2511.20639",
+      "abstract": "Latent Collaboration proposes communication through latent representations such as KV cache, reducing the cost and loss of text-only agent messages.",
+      "key_contributions": [
+        "Replaces text-only MAS communication with latent representation exchange.",
+        "Uses KV-cache sharing as a cache-to-cache collaboration channel.",
+        "Makes the communication representation itself a design target."
+      ],
+      "algorithms": [
+        "Latent MAS",
+        "KV-cache communication",
+        "Cache-to-cache collaboration"
+      ],
+      "architecture_detail": "Agents align and share KV-cache representations so downstream agents can use intermediate model states without converting everything to natural language.",
+      "category": "mas",
+      "tags": [
+        "mas",
+        "latent-mas",
+        "kv-cache",
+        "latent-collaboration",
+        "cache-to-cache",
+        "llm-mas"
+      ],
+      "color_hex": "#06b6d4"
     }
   ],
   "relationships": [
@@ -4465,6 +5230,160 @@
       "relationship_type": "builds_on",
       "description": "representation learning 계열 핵심 연결",
       "strength": 9
+    },
+    {
+      "strength": 8,
+      "from_title": "Inner Thinking Transformer: Adaptive Internal Thinking with Dynamic Depth Scaling",
+      "to_title": "Attention Is All You Need",
+      "relationship_type": "builds_on",
+      "description": "Adds dynamic depth scaling on top of the standard Transformer computation graph."
+    },
+    {
+      "strength": 9,
+      "from_title": "Mixture-of-Recursions: Learning Dynamic Recursive Depths for Adaptive Token-Level Computation",
+      "to_title": "Inner Thinking Transformer: Adaptive Internal Thinking with Dynamic Depth Scaling",
+      "relationship_type": "extends",
+      "description": "Extends adaptive internal thinking into token-level recursive-depth selection."
+    },
+    {
+      "strength": 8,
+      "from_title": "Dr.LLM: Dynamic Layer Routing in Large Language Models",
+      "to_title": "Inner Thinking Transformer: Adaptive Internal Thinking with Dynamic Depth Scaling",
+      "relationship_type": "related",
+      "description": "Both adapt computation depth, while Dr.LLM focuses on layer-level actions."
+    },
+    {
+      "strength": 8,
+      "from_title": "Dr.LLM: Dynamic Layer Routing in Large Language Models",
+      "to_title": "Mixture-of-Recursions: Learning Dynamic Recursive Depths for Adaptive Token-Level Computation",
+      "relationship_type": "compares_with",
+      "description": "Compares recursive-depth selection with Skip/Execute/Repeat layer routing."
+    },
+    {
+      "strength": 8,
+      "from_title": "Adaptive Loops and Memory in Transformers: Think Harder or Know More?",
+      "to_title": "Mixture-of-Recursions: Learning Dynamic Recursive Depths for Adaptive Token-Level Computation",
+      "relationship_type": "compares_with",
+      "description": "Both study repeated computation, but Adaptive Loops also models memory use."
+    },
+    {
+      "strength": 7,
+      "from_title": "Adaptive Loops and Memory in Transformers: Think Harder or Know More?",
+      "to_title": "Inner Thinking Transformer: Adaptive Internal Thinking with Dynamic Depth Scaling",
+      "relationship_type": "extends",
+      "description": "Extends adaptive internal thinking into a loop-versus-memory allocation problem."
+    },
+    {
+      "strength": 7,
+      "from_title": "Expert Threshold Routing for Autoregressive Language Modeling with Dynamic Computation Allocation and Load Balancing",
+      "to_title": "Mixture-of-Recursions: Learning Dynamic Recursive Depths for Adaptive Token-Level Computation",
+      "relationship_type": "related",
+      "description": "Relates depth adaptation to dynamic expert routing and load balancing."
+    },
+    {
+      "strength": 8,
+      "from_title": "Directional Routing in Transformers",
+      "to_title": "Expert Threshold Routing for Autoregressive Language Modeling with Dynamic Computation Allocation and Load Balancing",
+      "relationship_type": "compares_with",
+      "description": "Compares directional scoring with threshold-based expert admission."
+    },
+    {
+      "strength": 7,
+      "from_title": "Directional Routing in Transformers",
+      "to_title": "Attention Is All You Need",
+      "relationship_type": "builds_on",
+      "description": "Uses Transformer hidden-state direction as an expert-routing signal."
+    },
+    {
+      "strength": 8,
+      "from_title": "Multi-Agent Collaboration Mechanisms: A Survey of LLMs",
+      "to_title": "A Survey on LLM-based Multi-Agent Systems: Workflow, Infrastructure, and Challenges",
+      "relationship_type": "extends",
+      "description": "Deepens the workflow survey around collaboration mechanisms."
+    },
+    {
+      "strength": 9,
+      "from_title": "Beyond Self-Talk: A Communication-Centric Survey of LLM-Based Multi-Agent Systems",
+      "to_title": "A Survey on LLM-based Multi-Agent Systems: Workflow, Infrastructure, and Challenges",
+      "relationship_type": "extends",
+      "description": "Narrows the broader LLM-MAS workflow view to communication as the central bottleneck."
+    },
+    {
+      "strength": 7,
+      "from_title": "Multi-Agent Coordination across Diverse Applications: A Survey",
+      "to_title": "A Survey on LLM-based Multi-Agent Systems: Workflow, Infrastructure, and Challenges",
+      "relationship_type": "related",
+      "description": "Connects general MAS coordination with LLM-MAS workflow design."
+    },
+    {
+      "strength": 8,
+      "from_title": "Talk Structurally, Act Hierarchically: A Collaborative Framework for LLM Multi-Agent Systems",
+      "to_title": "Beyond Self-Talk: A Communication-Centric Survey of LLM-Based Multi-Agent Systems",
+      "relationship_type": "applies",
+      "description": "Applies structured graph communication to problems raised by communication-centric MAS analysis."
+    },
+    {
+      "strength": 8,
+      "from_title": "Talk Structurally, Act Hierarchically: A Collaborative Framework for LLM Multi-Agent Systems",
+      "to_title": "Multi-Agent Collaboration Mechanisms: A Survey of LLMs",
+      "relationship_type": "applies",
+      "description": "Turns collaboration mechanisms into structured dialogue and hierarchical execution."
+    },
+    {
+      "strength": 9,
+      "from_title": "SC-MAS: Cost-Efficient Multi-Agent Systems with Edge-Level Heterogeneous Collaboration",
+      "to_title": "Talk Structurally, Act Hierarchically: A Collaborative Framework for LLM Multi-Agent Systems",
+      "relationship_type": "extends",
+      "description": "Extends structured MAS graphs with edge-level heterogeneous collaboration."
+    },
+    {
+      "strength": 8,
+      "from_title": "SC-MAS: Cost-Efficient Multi-Agent Systems with Edge-Level Heterogeneous Collaboration",
+      "to_title": "Multi-Agent Collaboration Mechanisms: A Survey of LLMs",
+      "relationship_type": "applies",
+      "description": "Places collaboration strategies on individual agent-pair edges."
+    },
+    {
+      "strength": 8,
+      "from_title": "AgentFlow: Resilient Adaptive Cloud-Edge Framework for Multi-Agent Coordination",
+      "to_title": "Multi-Agent Coordination across Diverse Applications: A Survey",
+      "relationship_type": "applies",
+      "description": "Implements MAS coordination ideas in a resilient cloud-edge framework."
+    },
+    {
+      "strength": 7,
+      "from_title": "AgentFlow: Resilient Adaptive Cloud-Edge Framework for Multi-Agent Coordination",
+      "to_title": "Toward Goal-Oriented Communication in Multi-Agent Systems: An Overview",
+      "relationship_type": "related",
+      "description": "Both study resource-aware coordination and communication in constrained MAS settings."
+    },
+    {
+      "strength": 8,
+      "from_title": "Toward Goal-Oriented Communication in Multi-Agent Systems: An Overview",
+      "to_title": "Beyond Self-Talk: A Communication-Centric Survey of LLM-Based Multi-Agent Systems",
+      "relationship_type": "extends",
+      "description": "Adds task utility and goal achievement criteria to communication-centric MAS."
+    },
+    {
+      "strength": 9,
+      "from_title": "Latent Collaboration in Multi-Agent Systems",
+      "to_title": "Beyond Self-Talk: A Communication-Centric Survey of LLM-Based Multi-Agent Systems",
+      "relationship_type": "extends",
+      "description": "Extends text-message communication into KV-cache and latent-representation communication."
+    },
+    {
+      "strength": 8,
+      "from_title": "Latent Collaboration in Multi-Agent Systems",
+      "to_title": "A Survey on LLM-based Multi-Agent Systems: Workflow, Infrastructure, and Challenges",
+      "relationship_type": "applies",
+      "description": "Replaces the communication layer of LLM-MAS workflows with latent representation exchange."
+    },
+    {
+      "strength": 6,
+      "from_title": "Latent Collaboration in Multi-Agent Systems",
+      "to_title": "BERT: Pre-training of Deep Bidirectional Transformers for Language Understanding",
+      "relationship_type": "builds_on",
+      "description": "Builds on Transformer intermediate representations and cache-style state sharing."
     }
   ]
 }
