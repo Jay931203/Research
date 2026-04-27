@@ -1,28 +1,39 @@
 import { createClient } from '@supabase/supabase-js';
 
-// Supabase 환경 변수 확인
 const supabaseUrl = process.env.NEXT_PUBLIC_SUPABASE_URL;
 const supabaseAnonKey = process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY;
 
-if (!supabaseUrl || !supabaseAnonKey) {
-  throw new Error(
-    '❌ Supabase 환경 변수가 설정되지 않았습니다!\n' +
-    '.env.local 파일을 확인하세요.\n' +
-    'NEXT_PUBLIC_SUPABASE_URL and NEXT_PUBLIC_SUPABASE_ANON_KEY are required.'
-  );
+function hasUsableSupabaseEnv(url?: string, anonKey?: string): boolean {
+  if (!url || !anonKey) return false;
+  if (url.includes('example.supabase.co')) return false;
+  if (url.includes('your_supabase_project_url')) return false;
+  if (anonKey.includes('your_supabase_anon_key')) return false;
+  if (anonKey === 'dummy-anon-key') return false;
+  return true;
 }
 
-// Supabase 클라이언트 생성
-export const supabase = createClient(supabaseUrl, supabaseAnonKey, {
+export const isSupabaseConfigured = hasUsableSupabaseEnv(
+  supabaseUrl,
+  supabaseAnonKey
+);
+
+const resolvedSupabaseUrl = isSupabaseConfigured
+  ? supabaseUrl!
+  : 'https://example.supabase.co';
+const resolvedSupabaseAnonKey = isSupabaseConfigured
+  ? supabaseAnonKey!
+  : 'local-development-anon-key';
+
+export const supabase = createClient(resolvedSupabaseUrl, resolvedSupabaseAnonKey, {
   auth: {
-    // 개인용 앱이므로 인증 비활성화 (선택적)
     persistSession: false,
     autoRefreshToken: false,
   },
 });
 
-// 연결 테스트 함수
 export async function testConnection() {
+  if (!isSupabaseConfigured) return false;
+
   try {
     const { data, error } = await supabase.from('papers').select('count');
     if (error) throw error;

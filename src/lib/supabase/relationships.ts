@@ -1,4 +1,9 @@
-import { supabase } from './client';
+import {
+  getLocalRelationshipGraph,
+  getLocalRelationships,
+  getLocalRelationshipsByPaperId,
+} from '@/lib/localSeedData';
+import { isSupabaseConfigured, supabase } from './client';
 import type {
   PaperRelationship,
   RelationshipInsert,
@@ -10,6 +15,8 @@ import type {
  * 모든 관계 조회
  */
 export async function getAllRelationships(): Promise<PaperRelationship[]> {
+  if (!isSupabaseConfigured) return getLocalRelationships();
+
   const { data, error } = await supabase
     .from('paper_relationships')
     .select('*')
@@ -17,8 +24,8 @@ export async function getAllRelationships(): Promise<PaperRelationship[]> {
     .order('created_at', { ascending: false });
 
   if (error) {
-    console.error('Error fetching relationships:', error);
-    throw error;
+    console.warn('Error fetching relationships; using local seed data:', error);
+    return getLocalRelationships();
   }
 
   return data || [];
@@ -30,6 +37,8 @@ export async function getAllRelationships(): Promise<PaperRelationship[]> {
 export async function getRelationshipsByPaperId(
   paperId: string
 ): Promise<PaperRelationship[]> {
+  if (!isSupabaseConfigured) return getLocalRelationshipsByPaperId(paperId);
+
   const { data, error } = await supabase
     .from('paper_relationships')
     .select('*')
@@ -37,8 +46,11 @@ export async function getRelationshipsByPaperId(
     .order('strength', { ascending: false });
 
   if (error) {
-    console.error(`Error fetching relationships for paper ${paperId}:`, error);
-    throw error;
+    console.warn(
+      `Error fetching relationships for paper ${paperId}; using local seed data:`,
+      error
+    );
+    return getLocalRelationshipsByPaperId(paperId);
   }
 
   return data || [];
@@ -48,11 +60,13 @@ export async function getRelationshipsByPaperId(
  * 그래프 뷰 조회 (논문 정보 포함)
  */
 export async function getRelationshipGraph(): Promise<RelationshipWithPapers[]> {
+  if (!isSupabaseConfigured) return getLocalRelationshipGraph();
+
   const { data, error } = await supabase.from('relationship_graph').select('*');
 
   if (error) {
-    console.error('Error fetching relationship graph:', error);
-    throw error;
+    console.warn('Error fetching relationship graph; using local seed data:', error);
+    return getLocalRelationshipGraph();
   }
 
   return data || [];
@@ -64,6 +78,10 @@ export async function getRelationshipGraph(): Promise<RelationshipWithPapers[]> 
 export async function createRelationship(
   relationship: RelationshipInsert
 ): Promise<PaperRelationship | null> {
+  if (!isSupabaseConfigured) {
+    throw new Error('Supabase is not configured; relationship writes are disabled.');
+  }
+
   const { data, error } = await supabase
     .from('paper_relationships')
     .insert(relationship)
@@ -85,6 +103,10 @@ export async function updateRelationship(
   id: string,
   updates: RelationshipUpdate
 ): Promise<PaperRelationship | null> {
+  if (!isSupabaseConfigured) {
+    throw new Error('Supabase is not configured; relationship writes are disabled.');
+  }
+
   const { data, error } = await supabase
     .from('paper_relationships')
     .update(updates)
@@ -104,6 +126,8 @@ export async function updateRelationship(
  * 관계 삭제
  */
 export async function deleteRelationship(id: string): Promise<boolean> {
+  if (!isSupabaseConfigured) return false;
+
   const { error } = await supabase
     .from('paper_relationships')
     .delete()

@@ -1,4 +1,9 @@
-import { supabase } from './client';
+import {
+  getLocalPaperById,
+  getLocalPapers,
+  searchLocalPapers,
+} from '@/lib/localSeedData';
+import { isSupabaseConfigured, supabase } from './client';
 import type { Paper, PaperInsert, PaperUpdate } from '@/types';
 
 function normalizePaperCategoryForDb<
@@ -21,14 +26,16 @@ function normalizePaperCategoryForDb<
  * 모든 논문 조회
  */
 export async function getAllPapers(): Promise<Paper[]> {
+  if (!isSupabaseConfigured) return getLocalPapers();
+
   const { data, error } = await supabase
     .from('papers')
     .select('*')
     .order('year', { ascending: false });
 
   if (error) {
-    console.error('Error fetching papers:', error);
-    throw error;
+    console.warn('Error fetching papers; using local seed data:', error);
+    return getLocalPapers();
   }
 
   return data || [];
@@ -38,6 +45,8 @@ export async function getAllPapers(): Promise<Paper[]> {
  * ID로 논문 조회
  */
 export async function getPaperById(id: string): Promise<Paper | null> {
+  if (!isSupabaseConfigured) return getLocalPaperById(id);
+
   const { data, error } = await supabase
     .from('papers')
     .select('*')
@@ -45,8 +54,8 @@ export async function getPaperById(id: string): Promise<Paper | null> {
     .single();
 
   if (error) {
-    console.error(`Error fetching paper ${id}:`, error);
-    return null;
+    console.warn(`Error fetching paper ${id}; using local seed data:`, error);
+    return getLocalPaperById(id);
   }
 
   return data;
@@ -56,6 +65,10 @@ export async function getPaperById(id: string): Promise<Paper | null> {
  * 논문 생성
  */
 export async function createPaper(paper: PaperInsert): Promise<Paper | null> {
+  if (!isSupabaseConfigured) {
+    throw new Error('Supabase is not configured; paper writes are disabled.');
+  }
+
   const normalizedPaper = normalizePaperCategoryForDb(paper);
   const { data, error } = await supabase
     .from('papers')
@@ -78,6 +91,10 @@ export async function updatePaper(
   id: string,
   updates: PaperUpdate
 ): Promise<Paper | null> {
+  if (!isSupabaseConfigured) {
+    throw new Error('Supabase is not configured; paper writes are disabled.');
+  }
+
   const normalizedUpdates = normalizePaperCategoryForDb(updates);
   const { data, error } = await supabase
     .from('papers')
@@ -98,6 +115,8 @@ export async function updatePaper(
  * 논문 삭제
  */
 export async function deletePaper(id: string): Promise<boolean> {
+  if (!isSupabaseConfigured) return false;
+
   const { error } = await supabase.from('papers').delete().eq('id', id);
 
   if (error) {
@@ -119,6 +138,8 @@ export interface PaperFilters {
 }
 
 export async function searchPapers(filters: PaperFilters): Promise<Paper[]> {
+  if (!isSupabaseConfigured) return searchLocalPapers(filters);
+
   let query = supabase.from('papers').select('*');
 
   // 검색 텍스트 (제목, 저자)
@@ -149,8 +170,8 @@ export async function searchPapers(filters: PaperFilters): Promise<Paper[]> {
   const { data, error } = await query.order('year', { ascending: false });
 
   if (error) {
-    console.error('Error searching papers:', error);
-    throw error;
+    console.warn('Error searching papers; using local seed data:', error);
+    return searchLocalPapers(filters);
   }
 
   return data || [];

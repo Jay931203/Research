@@ -1,4 +1,12 @@
-﻿import { supabase } from './client';
+import {
+  deleteLocalNote,
+  getLocalFavoritePapers,
+  getLocalNoteByPaperId,
+  getLocalPapersWithNotes,
+  upsertLocalNote,
+  upsertLocalPaperPersonalTags,
+} from '@/lib/localSeedData';
+import { isSupabaseConfigured, supabase } from './client';
 import type { UserNote, NoteUpsert, PaperWithNote } from '@/types';
 
 // Default session id for anonymous/local usage
@@ -34,6 +42,8 @@ export async function getNoteByPaperId(
   paperId: string,
   sessionId: string = DEFAULT_SESSION_ID
 ): Promise<UserNote | null> {
+  if (!isSupabaseConfigured) return getLocalNoteByPaperId(paperId, sessionId);
+
   const { data, error } = await supabase
     .from('user_notes')
     .select('*')
@@ -42,8 +52,8 @@ export async function getNoteByPaperId(
     .maybeSingle();
 
   if (error) {
-    console.error(`Error fetching note for paper ${paperId}:`, error);
-    return null;
+    console.warn(`Error fetching note for paper ${paperId}; using local note:`, error);
+    return getLocalNoteByPaperId(paperId, sessionId);
   }
 
   return data ?? null;
@@ -57,6 +67,8 @@ export async function upsertNote(
   noteData: Partial<NoteUpsert>,
   sessionId: string = DEFAULT_SESSION_ID
 ): Promise<UserNote | null> {
+  if (!isSupabaseConfigured) return upsertLocalNote(paperId, noteData, sessionId);
+
   const upsertData: Partial<NoteUpsert> &
     Pick<NoteUpsert, 'paper_id' | 'session_id'> = {
     paper_id: paperId,
@@ -118,6 +130,8 @@ export async function deleteNote(
   paperId: string,
   sessionId: string = DEFAULT_SESSION_ID
 ): Promise<boolean> {
+  if (!isSupabaseConfigured) return deleteLocalNote(paperId, sessionId);
+
   const { error } = await supabase
     .from('user_notes')
     .delete()
@@ -136,14 +150,16 @@ export async function deleteNote(
  * Fetch integrated papers + notes (using papers_with_notes view)
  */
 export async function getPapersWithNotes(): Promise<PaperWithNote[]> {
+  if (!isSupabaseConfigured) return getLocalPapersWithNotes(DEFAULT_SESSION_ID);
+
   const { data, error } = await supabase
     .from('papers_with_notes')
     .select('*')
     .order('year', { ascending: false });
 
   if (error) {
-    console.error('Error fetching papers with notes:', error);
-    throw error;
+    console.warn('Error fetching papers with notes; using local seed data:', error);
+    return getLocalPapersWithNotes(DEFAULT_SESSION_ID);
   }
 
   return data || [];
@@ -155,6 +171,8 @@ export async function getPapersWithNotes(): Promise<PaperWithNote[]> {
 export async function getFavoritePapers(
   sessionId: string = DEFAULT_SESSION_ID
 ): Promise<UserNote[]> {
+  if (!isSupabaseConfigured) return getLocalFavoritePapers(sessionId);
+
   const { data, error } = await supabase
     .from('user_notes')
     .select('*')
@@ -162,8 +180,8 @@ export async function getFavoritePapers(
     .eq('is_favorite', true);
 
   if (error) {
-    console.error('Error fetching favorite papers:', error);
-    throw error;
+    console.warn('Error fetching favorite papers; using local notes:', error);
+    return getLocalFavoritePapers(sessionId);
   }
 
   return data || [];
@@ -177,6 +195,11 @@ export async function upsertPaperPersonalTags(
   sessionId: string = DEFAULT_SESSION_ID
 ): Promise<void> {
   if (!updates.length) return;
+
+  if (!isSupabaseConfigured) {
+    upsertLocalPaperPersonalTags(updates, sessionId);
+    return;
+  }
 
   const payload = updates
     .filter((update) => !!update.paperId)
