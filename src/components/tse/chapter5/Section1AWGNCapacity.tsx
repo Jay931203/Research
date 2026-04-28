@@ -35,7 +35,7 @@ export default function Section1AWGNCapacity({ onNavigate }: Section1Props) {
       </p>
 
       <div className="grid md:grid-cols-2 gap-4 mb-7">
-        <div className="concept-card">
+        <div className="concept-card" id="repetition-coding-cap">
           <div className="text-xs font-semibold text-purple-600 mb-1">5.1.1 Repetition Coding</div>
           <h3 className="font-bold text-slate-800 mb-2">반복 부호화 (Repetition Coding)</h3>
           <p className="text-sm text-slate-600 mb-2">
@@ -54,18 +54,97 @@ export default function Section1AWGNCapacity({ onNavigate }: Section1Props) {
             핵심 아이디어는 잡음 구가 차지하는 공간 대비 전체 신호 공간의 크기로부터
             구별 가능한 코드워드 수를 결정하는 것입니다.
           </p>
-          <BlockMath math={String.raw`2^{NR} \leq \frac{V_N(\sqrt{P + N_0})}{V_N(\sqrt{N_0})}`} />
+          <BlockMath math={String.raw`2^{NR} \lesssim \frac{\left(\sqrt{N(P+\sigma^2)}\right)^N}{\left(\sqrt{N\sigma^2}\right)^N}`} />
         </div>
       </div>
 
+      <div className="concept-card mb-6">
+        <div className="text-xs font-semibold text-purple-600 mb-1">5.1.1 Detail</div>
+        <h4 className="font-semibold text-slate-800 mb-3">BPSK, repetition, and M-PAM comparison</h4>
+        <p className="text-sm text-slate-600 mb-3">
+          원고의 출발점은 두 신호점 <InlineMath math={String.raw`x_A`} />,{' '}
+          <InlineMath math={String.raw`x_B`} />를 AWGN 속에서 얼마나 멀리 떨어뜨릴 수 있는가입니다.
+          반복 부호는 거리를 <InlineMath math={String.raw`\sqrt{N}`} />배 키우지만,
+          그 대가로 한 비트를 <InlineMath math="N" />번의 channel use에 씁니다.
+        </p>
+        <div className="grid md:grid-cols-3 gap-3">
+          <div className="p-3 bg-white rounded-lg border border-slate-200">
+            <div className="font-semibold text-slate-700 text-sm mb-2">Uncoded BPSK</div>
+            <BlockMath math={String.raw`P_e = Q\!\left(\sqrt{\frac{P}{\sigma^2}}\right), \quad R=1`} />
+          </div>
+          <div className="p-3 bg-white rounded-lg border border-purple-200">
+            <div className="font-semibold text-purple-700 text-sm mb-2">Repetition code</div>
+            <BlockMath math={String.raw`P_e = Q\!\left(\frac{\|x_A-x_B\|}{2\sigma}\right)=Q\!\left(\sqrt{\frac{NP}{\sigma^2}}\right), \quad R=\frac{1}{N}`} />
+          </div>
+          <div className="p-3 bg-white rounded-lg border border-violet-200">
+            <div className="font-semibold text-violet-700 text-sm mb-2">M-PAM extension</div>
+            <BlockMath math={String.raw`P_e \approx Q\!\left(\frac{\sqrt{NP}}{(M-1)\sigma}\right), \quad R=\frac{\log_2 M}{N}`} />
+          </div>
+        </div>
+        <p className="text-sm text-slate-600 mt-3">
+          <InlineMath math="M" />을 키워 더 많은 메시지를 넣으려 해도 오류를 작게 유지하려면
+          <InlineMath math={String.raw`M`} />의 증가가 제한됩니다. 반복 구조에서는
+          <InlineMath math={String.raw`R < \log_2\sqrt{N}/N \to 0`} />가 되어,
+          신뢰성은 얻지만 양의 rate를 유지하지 못합니다.
+        </p>
+      </div>
+
       <div className="formula-block mb-6" id="sphere-packing-cap">
-        <h4 className="font-semibold text-blue-800 mb-3">Shannon Capacity 유도</h4>
+        <h4 className="font-semibold text-blue-800 mb-3">Sphere packing에서 Shannon Capacity로</h4>
+        <BlockMath math={String.raw`\frac{1}{N}\log_2 \frac{\left(\sqrt{N(P+\sigma^2)}\right)^N}{\left(\sqrt{N\sigma^2}\right)^N}
+= \frac{1}{2}\log_2\!\left(1+\frac{P}{\sigma^2}\right)`} />
+        <div className="text-sm text-slate-600 mt-2 mb-4">
+          잡음 벡터는 법칙의 큰수에 의해 반지름 <InlineMath math={String.raw`\sqrt{N\sigma^2}`} /> 근처의
+          전형적 구에 놓입니다. 전체 수신 공간은 반지름{' '}
+          <InlineMath math={String.raw`\sqrt{N(P+\sigma^2)}`} />의 구로 볼 수 있으므로,
+          그 부피 비가 구별 가능한 코드워드 수의 지수 성장을 결정합니다.
+        </div>
         <BlockMath math={String.raw`C = W \log_2\!\left(1 + \frac{P}{N_0 W}\right)`} />
         <div className="text-sm text-slate-600 mt-2">
           <InlineMath math="W" />는 대역폭(Hz), <InlineMath math="P" />는 신호 전력(W),{' '}
           <InlineMath math="N_0" />는 잡음 전력 스펙트럼 밀도입니다.
           이 공식은 AWGN 채널에서의 이론적 최대 전송률을 나타내며,
           구 패킹 논증과 랜덤 코딩 논증 모두에서 동일한 결과로 도달합니다.
+        </div>
+      </div>
+
+      <div className="concept-card mb-6" id="capacity-achieving-codes">
+        <div className="text-xs font-semibold text-purple-600 mb-1">Discussion 5.1</div>
+        <h4 className="font-semibold text-slate-800 mb-3">Capacity-achieving code가 말해주는 것</h4>
+        <p className="text-sm text-slate-600 mb-3">
+          구 패킹 논증은 많은 코드워드를 넣을 수 있음을 보여주지만, 실제로 어떤 코드북을 어떻게 만들고
+          디코딩할지는 알려주지 않습니다. Shannon의 랜덤 코딩도 존재성 증명에 가깝기 때문에,
+          실용 시스템에는 encoding/decoding 복잡도까지 고려한 별도의 설계가 필요합니다.
+        </p>
+        <div className="grid md:grid-cols-2 gap-3">
+          <div className="p-3 bg-purple-50 rounded-lg border border-purple-100 text-sm">
+            <div className="font-bold text-purple-700 mb-1">Geometric principle</div>
+            <p className="text-slate-600">
+              ML decoding은 수신 벡터에서 가장 가까운 코드워드를 고르는 nearest-neighbor 문제입니다.
+              따라서 코드워드는 고차원 공간에서 서로 멀리 떨어져야 합니다.
+            </p>
+          </div>
+          <div className="p-3 bg-violet-50 rounded-lg border border-violet-100 text-sm">
+            <div className="font-bold text-violet-700 mb-1">Practical breakthrough</div>
+            <p className="text-slate-600">
+              Turbo code와 LDPC code는 완전한 ML 디코딩 대신 반복 디코딩을 사용해
+              Shannon 한계에 가까운 성능과 구현 가능성을 동시에 확보합니다.
+            </p>
+          </div>
+        </div>
+      </div>
+
+      <div className="concept-card mb-6" id="reliable-rate-summary">
+        <div className="text-xs font-semibold text-violet-600 mb-1">Summary 5.1</div>
+        <h4 className="font-semibold text-slate-800 mb-3">Reliable rate and capacity</h4>
+        <p className="text-sm text-slate-600 mb-3">
+          Rate <InlineMath math="R" />이 reliable하다는 말은 충분히 긴 block length에서 오류확률을
+          임의로 작게 만들 수 있는 코드열이 존재한다는 뜻입니다. 반복 부호는 잡음을 평균화하지만
+          rate가 0으로 가고, 좋은 고차원 코드는 같은 averaging 효과를 유지하면서 자유도를 효율적으로 씁니다.
+        </p>
+        <div className="formula-block !my-0 !p-4">
+          <BlockMath math={String.raw`C = \sup\{R:\; R \text{ is reliable}\}, \qquad
+C_{\text{real AWGN}}=\frac{1}{2}\log_2\!\left(1+\frac{P}{\sigma^2}\right)`} />
         </div>
       </div>
 

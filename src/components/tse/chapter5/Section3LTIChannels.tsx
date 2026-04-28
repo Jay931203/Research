@@ -49,6 +49,26 @@ export default function Section3LTIChannels({ onNavigate }: Section3Props) {
         </p>
       </div>
 
+      <div className="concept-card mb-6" id="simo-sufficient-statistics">
+        <div className="text-xs font-semibold text-purple-600 mb-1">5.3.1 Detail</div>
+        <h4 className="font-semibold text-slate-800 mb-3">Sufficient statistics and receive beamforming</h4>
+        <p className="text-sm text-slate-600 mb-3">
+          SIMO에서 각 수신 안테나의 관측값은 같은 심볼을 서로 다른 channel gain으로 본 것입니다.
+          따라서 matched filtering으로 충분통계량을 만들면 벡터 채널이 하나의 scalar AWGN 채널로 환원됩니다.
+        </p>
+        <div className="formula-block !my-4 !p-4">
+          <BlockMath math={String.raw`y_l=h_lx+w_l,\quad l=1,\dots,L`} />
+          <BlockMath math={String.raw`\tilde y=\frac{\mathbf{h}^{\dagger}}{\|\mathbf{h}\|}\mathbf{y}
+=\|\mathbf{h}\|x+\tilde w,\qquad \tilde w\sim\mathcal{CN}(0,N_0)`} />
+          <BlockMath math={String.raw`\text{SNR}_{\text{eff}}=\|\mathbf{h}\|^2\text{SNR},\qquad
+C=W\log_2\!\left(1+\|\mathbf{h}\|^2\text{SNR}\right)`} />
+        </div>
+        <p className="text-sm text-slate-600">
+          이 결합은 output SNR을 최대화하는 선형 결합이며, receive beamforming 또는
+          maximal-ratio combining으로 부릅니다.
+        </p>
+      </div>
+
       {/* 5.3.2 MISO Channel */}
       <div className="concept-card mb-6" id="miso-capacity">
         <div className="text-xs font-semibold text-purple-600 mb-1">MISO: Multiple Input Single Output</div>
@@ -65,7 +85,11 @@ export default function Section3LTIChannels({ onNavigate }: Section3Props) {
             <div className="text-slate-600 mb-2">
               채널 방향으로 빔을 집중하여 array gain 확보
             </div>
-            <BlockMath math={String.raw`C = W \log_2(1 + M \cdot \text{SNR})`} />
+            <BlockMath math={String.raw`C = W \log_2\!\left(1+\|\mathbf{h}\|^2\text{SNR}\right)`} />
+            <p className="text-xs text-slate-500">
+              동일 이득 <InlineMath math={String.raw`\|\mathbf{h}\|^2=M`} />일 때
+              <InlineMath math={String.raw`M\cdot\text{SNR}`} /> 형태가 됩니다.
+            </p>
           </div>
           <div className="p-3 bg-violet-50 rounded-lg border border-violet-100 text-sm">
             <div className="font-bold text-violet-700 mb-1">Without CSI</div>
@@ -75,6 +99,28 @@ export default function Section3LTIChannels({ onNavigate }: Section3Props) {
             <BlockMath math={String.raw`C = W \log_2(1 + \text{SNR})`} />
           </div>
         </div>
+      </div>
+
+      <div className="concept-card mb-6" id="miso-scalar-reduction">
+        <div className="text-xs font-semibold text-purple-600 mb-1">5.3.2 Detail</div>
+        <h4 className="font-semibold text-slate-800 mb-3">MISO scalar reduction and transmit beamforming</h4>
+        <p className="text-sm text-slate-600 mb-3">
+          MISO에서는 송신 벡터 중 channel vector 방향의 성분만 수신기에 도달하는 유효 신호가 됩니다.
+          channel에 직교하는 성분은 수신 SNR을 키우지 못하므로 최적 전송은
+          <InlineMath math={String.raw`\mathbf{h}`} /> 방향으로 모든 전력을 정렬하는 것입니다.
+        </p>
+        <div className="formula-block !my-4 !p-4">
+          <BlockMath math={String.raw`y=\mathbf{h}^{T}\mathbf{x}+w,\qquad
+\mathbf{x}=\mathbf{u}s+\mathbf{x}_{\perp}`} />
+          <BlockMath math={String.raw`\mathbf{u}=\frac{\mathbf{h}^{*}}{\|\mathbf{h}\|},\qquad
+\mathbf{h}^{T}\mathbf{x}_{\perp}=0`} />
+          <BlockMath math={String.raw`y=\|\mathbf{h}\|s+w,\qquad
+C=W\log_2\!\left(1+\frac{\|\mathbf{h}\|^2P}{N_0W}\right)`} />
+        </div>
+        <p className="text-sm text-slate-600">
+          원고의 요지는 모든 MISO 검출 문제가 이 scalar detection 문제로 줄어든다는 것입니다.
+          송신기가 CSI를 알 때 이 상한을 달성하고, CSI가 없으면 coherent beamforming gain은 얻을 수 없습니다.
+        </p>
       </div>
 
       {/* Inline Interactive: SIMO/MISO/MIMO Toggle */}
@@ -142,7 +188,7 @@ export default function Section3LTIChannels({ onNavigate }: Section3Props) {
               CSI가 없으면 공간-시간 코드(예: Alamouti)로 diversity만 확보합니다.
             </p>
             <div className="formula-block !my-3 !p-3">
-              <BlockMath math={String.raw`C = W \log_2\!\left(1 + M \cdot \text{SNR}\right) \quad \text{(with CSI)}`} />
+              <BlockMath math={String.raw`C = W \log_2\!\left(1+\|\mathbf{h}\|^2\text{SNR}\right) \quad \text{(with CSI)}`} />
             </div>
             <div className="p-2 bg-purple-50 rounded text-xs text-purple-800">
               핵심 이점: Beamforming gain (CSI 필요)

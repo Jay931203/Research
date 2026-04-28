@@ -47,6 +47,24 @@ export default function Section2Resources({ onNavigate }: Section2Props) {
         </p>
       </div>
 
+      <div className="formula-block mb-6">
+        <h4 className="font-semibold text-blue-800 mb-3">Continuous-time capacity normalization</h4>
+        <p className="text-sm text-slate-600 mb-3">
+          원고에서는 passband 채널을 complex baseband로 바꾸어 한 complex symbol이 두 개의
+          real dimension을 담는다고 정리합니다. 대역폭 <InlineMath math="W" /> Hz와 평균 전력{' '}
+          <InlineMath math={String.raw`\bar P`} />가 주어지면 다음 식이 초당 bit rate가 됩니다.
+        </p>
+        <BlockMath math={String.raw`y[m]=x[m]+w[m], \qquad w[m]\sim \mathcal{CN}(0,N_0)`} />
+        <BlockMath math={String.raw`C_{\text{real}}=\frac{1}{2}\log_2\!\left(1+\frac{\bar P}{N_0W}\right),
+\quad
+C_{\text{complex}}=\log_2\!\left(1+\frac{\bar P}{N_0W}\right)`} />
+        <BlockMath math={String.raw`C_{\text{awgn}}(\bar P,W)=W\log_2\!\left(1+\frac{\bar P}{N_0W}\right)\;\text{bits/s}`} />
+        <div className="text-sm text-slate-600 mt-2">
+          따라서 <InlineMath math={String.raw`\text{SNR}:=\bar P/(N_0W)`} />이고,
+          spectral efficiency는 <InlineMath math={String.raw`C/W=\log_2(1+\text{SNR})`} />입니다.
+        </div>
+      </div>
+
       {/* 5.2.2 전력과 대역폭 트레이드오프 */}
       <div className="concept-card mb-6" id="power-bandwidth">
         <h4 className="font-semibold text-slate-800 mb-2">5.2.2 전력과 대역폭 트레이드오프</h4>
@@ -54,6 +72,26 @@ export default function Section2Resources({ onNavigate }: Section2Props) {
           채널 용량은 전력 <InlineMath math="P" />와 대역폭 <InlineMath math="W" />의
           함수로, 두 자원의 상대적 크기에 따라 서로 다른 극한 regime이 나타납니다.
           SNR이 낮으면 전력이 병목이고, SNR이 높으면 대역폭이 병목입니다.
+        </p>
+      </div>
+
+      <div className="concept-card mb-6">
+        <h4 className="font-semibold text-slate-800 mb-3">Energy per bit 관점</h4>
+        <p className="text-sm text-slate-600 mb-3">
+          전력을 키우면 capacity는 증가하지만 로그 함수라 한계효용이 줄어듭니다.
+          대역폭을 키우면 자유도는 늘지만 각 자유도당 SNR은 낮아집니다.
+          그래서 5.2.2의 핵심 평가지표는 단순한 peak rate가 아니라 필요한
+          <InlineMath math={String.raw`E_b/N_0`} />입니다.
+        </p>
+        <div className="formula-block !my-0 !p-4">
+          <BlockMath math={String.raw`\frac{E_b}{N_0}
+=\frac{\text{SNR}}{C/W}
+=\frac{\text{SNR}}{\log_2(1+\text{SNR})}
+\;\longrightarrow\; \ln 2 \;(-1.59\text{ dB})`} />
+        </div>
+        <p className="text-sm text-slate-600 mt-3">
+          이 최소값은 <InlineMath math={String.raw`\text{SNR}\to 0`} />에서 접근하지만,
+          그때 rate도 0에 가까워집니다. 즉 에너지 효율을 얻으려면 긴 지연과 넓은 자유도 사용을 감수해야 합니다.
         </p>
       </div>
 
@@ -147,8 +185,47 @@ export default function Section2Resources({ onNavigate }: Section2Props) {
         )}
       </div>
 
+      <div className="concept-card mb-6" id="bandwidth-reuse">
+        <div className="text-xs font-semibold text-purple-600 mb-1">Example 5.2</div>
+        <h4 className="font-semibold text-slate-800 mb-3">Bandwidth reuse in cellular systems</h4>
+        <p className="text-sm text-slate-600 mb-3">
+          셀룰러 시스템에서는 각 셀이 전체 대역폭 <InlineMath math="W" /> 중
+          <InlineMath math={String.raw`\rho W`} />만 쓰게 해서 같은 주파수 셀 간 간섭을 줄일 수 있습니다.
+          원고의 tradeoff는 bandwidth를 줄여 간섭을 낮출지, bandwidth를 크게 써서 자유도를 늘릴지입니다.
+        </p>
+        <div className="formula-block !my-4 !p-4">
+          <BlockMath math={String.raw`R_{\text{edge}}(\rho)
+= \rho W \log_2\!\left(1+\frac{\text{SNR}}{1+f_\rho\text{SNR}}\right)`} />
+          <BlockMath math={String.raw`f_\rho \approx \rho^\alpha\;\text{(linear array)}, \qquad
+f_\rho \approx \rho^{\alpha/2}\;\text{(hexagonal array)}`} />
+        </div>
+        <div className="grid md:grid-cols-3 gap-3 text-sm">
+          <div className="p-3 bg-white rounded-lg border border-slate-200">
+            <div className="font-semibold text-slate-700 mb-1">Low SNR</div>
+            <p className="text-slate-600">
+              Noise-limited라서 간섭 억제 효과가 작고, 작은 <InlineMath math={String.raw`\rho`} />의
+              대역폭 손실이 더 크게 보입니다.
+            </p>
+          </div>
+          <div className="p-3 bg-white rounded-lg border border-purple-200">
+            <div className="font-semibold text-purple-700 mb-1">High SNR</div>
+            <p className="text-slate-600">
+              Interference-limited가 되며 SINR은 대략 <InlineMath math={String.raw`1/f_\rho`} />에서
+              포화됩니다.
+            </p>
+          </div>
+          <div className="p-3 bg-white rounded-lg border border-violet-200">
+            <div className="font-semibold text-violet-700 mb-1">Design lesson</div>
+            <p className="text-slate-600">
+              너무 작은 reuse ratio는 간섭은 줄여도 자유도를 잃습니다. 셀 geometry와 path-loss exponent가
+              최적 reuse를 결정합니다.
+            </p>
+          </div>
+        </div>
+      </div>
+
       {/* Compare grid: Cellular bandwidth reuse */}
-      <div className="compare-grid">
+      <div className="compare-grid mb-6">
         <div className="compare-item border-purple-200 bg-purple-50">
           <h4 className="font-bold text-purple-700 mb-2">좁은 대역 x 많은 셀</h4>
           <p className="text-sm text-slate-600">
