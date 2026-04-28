@@ -153,6 +153,15 @@ const FAMILY = {
       eq('Block', 'z_l^\\prime=MSA(LN(z_{l-1}))+z_{l-1},\\ z_l=MLP(LN(z_l^\\prime))+z_l^\\prime', '표준 블록'),
     ],
   },
+  swin: {
+    motivation: '고해상도 비전 입력에서 Transformer의 전역 attention 비용을 줄이면서 다중 스케일 표현을 학습.',
+    contributions: ['shifted-window attention 제안', '계층형 patch merging 백본', 'dense prediction에 적합한 범용 비전 Transformer'],
+    steps: ['patch partition', 'linear embedding', 'W-MSA/SW-MSA 교대 블록', 'patch merging', 'classification/detection/segmentation head'],
+    equations: [
+      eq('Window Attention', 'Attention(Q,K,V)=SoftMax(QK^T/\\sqrt{d}+B)V', '상대 위치 bias를 포함한 window 내부 attention'),
+      eq('Window Complexity', '\\Omega(W\\text{-}MSA)=4hwC^2+2M^2hwC', 'window 크기 M을 고정해 이미지 크기에 선형적인 attention 비용 확보'),
+    ],
+  },
 };
 
 const entries = [
@@ -174,6 +183,7 @@ const entries = [
   ['BERT: Pre-training of Deep Bidirectional Transformers for Language Understanding', 2019, 'NAACL 2019', ['Jacob Devlin', 'Ming-Wei Chang', 'Kenton Lee', 'Kristina Toutanova'], 'https://arxiv.org/pdf/1810.04805.pdf', 'https://github.com/google-research/bert', 'bert', ['bert', 'mlm']],
   ['Masked Autoencoders Are Scalable Vision Learners', 2022, 'CVPR 2022', ['Kaiming He', 'Xinlei Chen', 'Saining Xie', 'Yanghao Li', 'Piotr Dollár', 'Ross Girshick'], 'https://arxiv.org/pdf/2111.06377.pdf', 'https://github.com/facebookresearch/mae', 'mae', ['mae']],
   ['An Image is Worth 16x16 Words: Transformers for Image Recognition at Scale', 2021, 'ICLR 2021', ['Alexey Dosovitskiy', 'et al.'], 'https://arxiv.org/pdf/2010.11929.pdf', 'https://github.com/google-research/vision_transformer', 'vit', ['vit']],
+  ['Swin Transformer: Hierarchical Vision Transformer using Shifted Windows', 2021, 'ICCV 2021', ['Ze Liu', 'Yutong Lin', 'Yue Cao', 'Han Hu', 'Yixuan Wei', 'Zheng Zhang', 'Stephen Lin', 'Baining Guo'], 'https://arxiv.org/pdf/2103.14030.pdf', 'https://github.com/microsoft/Swin-Transformer', 'swin', ['swin-transformer', 'shifted-window-attention', 'hierarchical-vision-transformer', 'vision-transformer']],
 ];
 
 function buildPaper(entry) {
@@ -225,6 +235,9 @@ const linkRows = [
   ['Improving Language Understanding by Generative Pre-Training', 'Attention Is All You Need', 'builds_on', 10],
   ['BERT: Pre-training of Deep Bidirectional Transformers for Language Understanding', 'Attention Is All You Need', 'builds_on', 10],
   ['An Image is Worth 16x16 Words: Transformers for Image Recognition at Scale', 'Attention Is All You Need', 'builds_on', 10],
+  ['Swin Transformer: Hierarchical Vision Transformer using Shifted Windows', 'An Image is Worth 16x16 Words: Transformers for Image Recognition at Scale', 'builds_on', 10],
+  ['Swin Transformer: Hierarchical Vision Transformer using Shifted Windows', 'Attention Is All You Need', 'builds_on', 8],
+  ['SLATE: SwinLSTM Autoencoder for Temporal-Spatial-Frequency CSI Compression', 'Swin Transformer: Hierarchical Vision Transformer using Shifted Windows', 'builds_on', 9],
   ['Masked Autoencoders Are Scalable Vision Learners', 'An Image is Worth 16x16 Words: Transformers for Image Recognition at Scale', 'builds_on', 10],
   ['Masked Autoencoders Are Scalable Vision Learners', 'BERT: Pre-training of Deep Bidirectional Transformers for Language Understanding', 'inspired_by', 9],
   ['Emerging Properties in Self-Supervised Vision Transformers', 'An Image is Worth 16x16 Words: Transformers for Image Recognition at Scale', 'builds_on', 9],
@@ -242,7 +255,9 @@ const glossaryAdds = [
   ['masked-language-modeling', 'Masked Language Modeling', ['MLM'], 'training', 'reconstruction_ssl', '일부 토큰을 가리고 복원하도록 학습하는 자기지도 목표.', ['Representation Learning', 'Reconstruction SSL'], ['BERT: Pre-training of Deep Bidirectional Transformers for Language Understanding']],
   ['masked-autoencoding', 'Masked Autoencoding', ['MAE pretraining'], 'training', 'reconstruction_ssl', '입력 패치를 마스킹하고 복원하는 비전 자기지도 기법.', ['Representation Learning', 'Reconstruction SSL'], ['Masked Autoencoders Are Scalable Vision Learners']],
   ['autoregressive-pretraining', 'Autoregressive Pretraining', ['causal LM'], 'training', 'transformer_pretraining', '이전 토큰만 보고 다음 토큰을 예측하는 생성형 사전학습.', ['Representation Learning', 'Transformer Pretraining'], ['Improving Language Understanding by Generative Pre-Training']],
-  ['vision-transformer', 'Vision Transformer', ['ViT'], 'architecture', 'transformer_pretraining', '이미지를 패치 토큰으로 변환해 Transformer encoder로 처리하는 구조.', ['Architecture', 'Transformer Family'], ['An Image is Worth 16x16 Words: Transformers for Image Recognition at Scale', 'Masked Autoencoders Are Scalable Vision Learners', 'Emerging Properties in Self-Supervised Vision Transformers']],
+  ['vision-transformer', 'Vision Transformer', ['ViT'], 'architecture', 'transformer_pretraining', '이미지를 패치 토큰으로 변환해 Transformer encoder로 처리하는 구조.', ['Architecture', 'Transformer Family'], ['An Image is Worth 16x16 Words: Transformers for Image Recognition at Scale', 'Swin Transformer: Hierarchical Vision Transformer using Shifted Windows', 'Masked Autoencoders Are Scalable Vision Learners', 'Emerging Properties in Self-Supervised Vision Transformers']],
+  ['swin-transformer', 'Swin Transformer', ['Swin', 'Hierarchical Vision Transformer'], 'architecture', 'transformer_pretraining', 'shifted window attention과 patch merging으로 계층적 비전 표현을 만드는 Transformer 백본.', ['Architecture', 'Transformer Family', 'Vision Backbone'], ['Swin Transformer: Hierarchical Vision Transformer using Shifted Windows', 'SLATE: SwinLSTM Autoencoder for Temporal-Spatial-Frequency CSI Compression']],
+  ['shifted-window-attention', 'Shifted Window Attention', ['SW-MSA', 'shifted windows'], 'technique', 'transformer_pretraining', '인접 window를 교대로 이동시켜 window attention의 낮은 비용을 유지하면서 window 간 정보 교환을 가능하게 하는 기법.', ['Attention', 'Efficient Vision Transformer'], ['Swin Transformer: Hierarchical Vision Transformer using Shifted Windows']],
 ];
 
 function ensureTermSet(term) {

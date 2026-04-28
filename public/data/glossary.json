@@ -1512,7 +1512,8 @@
     "related_paper_titles": [
       "An Image is Worth 16x16 Words: Transformers for Image Recognition at Scale",
       "Masked Autoencoders Are Scalable Vision Learners",
-      "Emerging Properties in Self-Supervised Vision Transformers"
+      "Emerging Properties in Self-Supervised Vision Transformers",
+      "Swin Transformer: Hierarchical Vision Transformer using Shifted Windows"
     ],
     "hierarchy": [
       "Architecture",
@@ -2208,5 +2209,47 @@
     },
     "term_set": "llm_quantization",
     "details_markdown": "### 정의\n- 레이어 독립 PTQ 후 전체 네트워크 코드북을 소량 데이터로 공동 미세조정한다.\n\n### 핵심 수식\n**전역 목적함수:**\n$$\\min_{\\{C_m^{(\\ell)}\\}} \\sum_{\\ell=1}^{L} \\left\\| W^{(\\ell)} X^{(\\ell)} - \\hat{W}^{(\\ell)} X^{(\\ell)} \\right\\|_F^2$$\n\n**코드북 기울기 (STE 적용):**\n$$\\frac{\\partial \\mathcal{L}}{\\partial C_m[k]} = \\sum_{j:\\, b_{jm}=k} \\frac{\\partial \\mathcal{L}}{\\partial \\hat{w}_j}$$\n\n### AQLM 프로토콜\n| 항목 | 값 |\n|------|-----|\n| 데이터셋 | C4 (2048 시퀀스) |\n| 최적화기 | AdamW |\n| 학습률 | $10^{-4}$ |\n| 업데이트 대상 | 코드북 $C$ (인덱스 $B$ 고정) |\n| 스텝 수 | ~5000 |\n\n### 레이어별 vs 전역 비교\n| 방식 | 오차 전파 처리 | 복잡도 |\n|------|--------------|--------|\n| 레이어별 독립 (GPTQ) | ✗ | 낮음 |\n| 전역 미세조정 (AQLM) | ✓ | 높음 |\n\n### 실무 체크\n- 전역 보정 후 PPL < FP16: 양자화가 암시적 드롭아웃 효과로 작용\n- 코드 인덱스 B는 학습 중 고정, STE로만 gradient 통과"
+  },
+  {
+    "id": "swin-transformer",
+    "name": "Swin Transformer",
+    "aliases": [
+      "Swin",
+      "Hierarchical Vision Transformer"
+    ],
+    "category": "architecture",
+    "term_set": "transformer_pretraining",
+    "description": "Swin Transformer는 local window attention, shifted window, patch merging을 결합해 고해상도 비전 입력에서 효율적인 계층 표현을 만드는 Transformer 백본이다. CNN식 feature pyramid를 제공하므로 classification뿐 아니라 detection, segmentation 같은 dense prediction에 바로 쓰기 쉽다.",
+    "related_paper_titles": [
+      "Swin Transformer: Hierarchical Vision Transformer using Shifted Windows",
+      "SLATE: SwinLSTM Autoencoder for Temporal-Spatial-Frequency CSI Compression"
+    ],
+    "hierarchy": [
+      "Architecture",
+      "Transformer Family",
+      "Vision Backbone"
+    ],
+    "study_classification": {},
+    "details_markdown": "### 정의\n- 고정 크기 window 내부에서 self-attention을 계산하고, 다음 블록에서 window partition을 이동시켜 multi-scale visual feature를 만든다.\n\n### 핵심 수식\n$$Attention(Q,K,V)=SoftMax(QK^T/\\sqrt{d}+B)V$$\n$$\\Omega(W\\text{-}MSA)=4hwC^2+2M^2hwC$$\n\n### 실무 체크\n- window size와 입력 해상도 호환성을 확인한다.\n- cyclic shift 이후 attention mask가 잘 적용되는지 점검한다.\n- patch merging 단계의 해상도/채널 변화가 downstream head와 맞아야 한다.\n- 상대 위치 bias는 window size 변경 시 보간 정책이 필요하다."
+  },
+  {
+    "id": "shifted-window-attention",
+    "name": "Shifted Window Attention",
+    "aliases": [
+      "SW-MSA",
+      "shifted windows"
+    ],
+    "category": "technique",
+    "term_set": "transformer_pretraining",
+    "description": "Shifted Window Attention은 일반 window attention과 이동된 window attention을 교대로 사용해 낮은 지역 attention 비용을 유지하면서 인접 window 사이의 정보 교환을 가능하게 하는 기법이다.",
+    "related_paper_titles": [
+      "Swin Transformer: Hierarchical Vision Transformer using Shifted Windows"
+    ],
+    "hierarchy": [
+      "Attention",
+      "Efficient Vision Transformer"
+    ],
+    "study_classification": {},
+    "details_markdown": "### 정의\n- W-MSA는 각 local window 내부에서 attention을 계산한다.\n- SW-MSA는 다음 블록에서 window partition을 이동시켜 이전 window 경계 근처 토큰들이 서로 상호작용하게 만든다.\n\n### 구현 메모\n- cyclic shift는 잘못된 wrap-around 상호작용을 막기 위해 attention mask와 함께 적용해야 한다.\n- window size를 고정하면 attention 비용이 이미지 크기에 거의 선형으로 증가한다."
   }
 ]

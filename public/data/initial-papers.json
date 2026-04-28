@@ -4444,6 +4444,88 @@
         "llm-mas"
       ],
       "color_hex": "#06b6d4"
+    },
+    {
+      "title": "Swin Transformer: Hierarchical Vision Transformer using Shifted Windows",
+      "authors": [
+        "Ze Liu",
+        "Yutong Lin",
+        "Yue Cao",
+        "Han Hu",
+        "Yixuan Wei",
+        "Zheng Zhang",
+        "Stephen Lin",
+        "Baining Guo"
+      ],
+      "year": 2021,
+      "venue": "ICCV 2021",
+      "doi": null,
+      "arxiv_id": "2103.14030",
+      "abstract": "shifted window attention과 계층형 patch merging으로 고해상도 비전 입력에서 효율적인 다중 스케일 Transformer 표현을 학습한다. 이 논문은 특히 \"Swin Transformer: Hierarchical Vision Transformer using Shifted Windows\" 맥락에서 해당 방법의 설계 선택과 학습 안정화 포인트를 실험적으로 보여준다.",
+      "key_contributions": [
+        "window 기반 self-attention으로 고해상도 계산량 절감",
+        "shifted window로 window 간 정보 교환 문제 해결",
+        "patch merging을 통한 CNN식 계층형 feature pyramid 구성",
+        "classification/detection/segmentation 공통 백본 성능 검증",
+        "상대 위치 bias와 cyclic shift 구현 패턴 정립",
+        "SwinLSTM, Swin-UNet 등 후속 응용 백본 제공"
+      ],
+      "algorithms": [
+        "이미지를 patch partition으로 토큰화",
+        "linear embedding으로 초기 feature map 구성",
+        "W-MSA와 SW-MSA 블록을 교대로 적용",
+        "patch merging으로 해상도 감소 및 채널 증가",
+        "stage별 계층 표현을 task head로 전달",
+        "classification/detection/segmentation으로 전이 평가"
+      ],
+      "key_equations": [
+        {
+          "name": "Window Attention",
+          "latex": "Attention(Q,K,V)=SoftMax(QK^T/\\sqrt{d}+B)V",
+          "description": "상대 위치 bias B를 더해 window 내부 self-attention을 계산한다."
+        },
+        {
+          "name": "W-MSA Complexity",
+          "latex": "\\Omega(W\\text{-}MSA)=4hwC^2+2M^2hwC",
+          "description": "window 크기 M을 고정하면 attention 항이 이미지 크기 hw에 선형으로 증가한다."
+        },
+        {
+          "name": "Shifted Window Block",
+          "latex": "\\hat z^l=W\\text{-}MSA(LN(z^{l-1}))+z^{l-1},\\quad \\hat z^{l+1}=SW\\text{-}MSA(LN(z^l))+z^l",
+          "description": "일반 window와 shifted window 블록을 번갈아 배치해 지역 효율과 cross-window 연결을 동시에 확보한다."
+        }
+      ],
+      "category": "representation_learning",
+      "tags": [
+        "representation_learning",
+        "swin-transformer",
+        "shifted-window-attention",
+        "hierarchical-vision-transformer",
+        "vision-transformer"
+      ],
+      "pdf_url": "https://arxiv.org/pdf/2103.14030.pdf",
+      "code_url": "https://github.com/microsoft/Swin-Transformer",
+      "color_hex": "#0f766e",
+      "difficulty_level": "intermediate",
+      "architecture_detail": "## 1) 문제 설정\n표준 ViT의 전역 attention은 토큰 수에 대해 제곱 비용을 가지며, 고해상도 dense prediction에서는 CNN처럼 계층적 feature map이 필요하다.\n\n## 2) 핵심 아이디어\nattention을 고정 크기 window 안에서 계산하고 다음 블록에서 window를 이동시켜 낮은 비용으로 인접 window 간 문맥을 섞는다.\n\n## 3) 방법 흐름\n1. 이미지를 patch partition으로 토큰화\n2. linear embedding으로 초기 feature map 구성\n3. W-MSA와 SW-MSA 블록을 교대로 적용\n4. patch merging으로 해상도 감소 및 채널 증가\n5. stage별 계층 표현을 task head로 전달\n6. classification/detection/segmentation으로 전이 평가\n\n## 4) 수식 해석 흐름\n- Window Attention 식은 전역 attention을 지역 window 단위로 제한하면서 상대 위치 정보를 보존한다.\n- 복잡도 식은 표준 MSA의 quadratic image-size 비용을 window-size 고정 선형 비용으로 바꾼다.\n- shifted block 식은 두 연속 블록이 서로 다른 window partition을 보게 해 cross-window 연결을 만든다.\n\n## 5) 핵심 수식 (원문 기준)\n- **Window Attention**\n$$\nAttention(Q,K,V)=SoftMax(QK^T/\\sqrt{d}+B)V\n$$\n상대 위치 bias B를 더해 window 내부 self-attention을 계산한다.\n\n- **W-MSA Complexity**\n$$\n\\Omega(W\\text{-}MSA)=4hwC^2+2M^2hwC\n$$\nwindow 크기 M을 고정하면 attention 항이 이미지 크기 hw에 선형으로 증가한다.\n\n- **Shifted Window Block**\n$$\n\\hat z^l=W\\text{-}MSA(LN(z^{l-1}))+z^{l-1},\\quad \\hat z^{l+1}=SW\\text{-}MSA(LN(z^l))+z^l\n$$\n일반 window와 shifted window 블록을 번갈아 배치해 지역 효율과 cross-window 연결을 동시에 확보한다.\n\n\n## 6) 구현 체크리스트\n- window size와 입력 해상도 호환성을 먼저 점검한다.\n- cyclic shift 이후 attention mask가 올바르게 적용되는지 확인한다.\n- patch merging 단계의 해상도/채널 변화가 downstream head와 맞아야 한다.\n- 상대 위치 bias table은 window size 변경 시 보간 또는 재초기화 정책이 필요하다.\n\n## 7) 한계와 후속\nwindow 내부 attention은 전역 상호작용을 직접 계산하지 않으므로 장거리 문맥은 stage 깊이와 shifted window 연결에 의존한다. 이후 SwinV2, window-free/global-token 혼합 계열이 이 한계를 보완했다.",
+      "prerequisites": [
+        "기본 선형대수/확률",
+        "딥러닝 최적화",
+        "자기지도학습 기초",
+        "Transformer 또는 Metric learning 기초"
+      ],
+      "learning_objectives": [
+        "핵심 목적함수와 변수 의미를 수식으로 설명할 수 있다.",
+        "학습 안정화 장치(정규화/EMA/마스킹)의 역할을 설명할 수 있다.",
+        "후속 연구가 개선한 병목을 연결 그래프로 설명할 수 있다.",
+        "재현 시 필요한 구현 체크리스트를 말할 수 있다."
+      ],
+      "self_check_questions": [
+        "핵심 손실이 줄어들 때 어떤 표현 특성이 강화되는가?",
+        "하이퍼파라미터 중 성능 민감도가 높은 항목은 무엇인가?",
+        "이 논문의 한계를 보완한 후속 논문은 무엇인가?",
+        "실제 재현 시 가장 먼저 점검할 디버깅 포인트는 무엇인가?"
+      ]
     }
   ],
   "relationships": [
@@ -5384,6 +5466,27 @@
       "to_title": "BERT: Pre-training of Deep Bidirectional Transformers for Language Understanding",
       "relationship_type": "builds_on",
       "description": "Builds on Transformer intermediate representations and cache-style state sharing."
+    },
+    {
+      "from_title": "Swin Transformer: Hierarchical Vision Transformer using Shifted Windows",
+      "to_title": "An Image is Worth 16x16 Words: Transformers for Image Recognition at Scale",
+      "relationship_type": "builds_on",
+      "description": "Swin keeps the ViT tokenization idea while adding a hierarchical shifted-window backbone for dense vision tasks.",
+      "strength": 10
+    },
+    {
+      "from_title": "Swin Transformer: Hierarchical Vision Transformer using Shifted Windows",
+      "to_title": "Attention Is All You Need",
+      "relationship_type": "builds_on",
+      "description": "Swin adapts self-attention to high-resolution vision with window partitioning and shifted windows.",
+      "strength": 8
+    },
+    {
+      "from_title": "SLATE: SwinLSTM Autoencoder for Temporal-Spatial-Frequency CSI Compression",
+      "to_title": "Swin Transformer: Hierarchical Vision Transformer using Shifted Windows",
+      "relationship_type": "builds_on",
+      "description": "SLATE uses Swin-style shifted-window attention inside a temporal CSI compression architecture.",
+      "strength": 9
     }
   ]
 }

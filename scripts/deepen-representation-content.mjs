@@ -493,6 +493,48 @@ const F = {
     limitations:
       '초기엔 데이터 효율이 낮았다. DeiT/MAE/DINO가 이를 개선하며 실용성을 높였다.',
   },
+  swin: {
+    summary:
+      'shifted window attention과 계층형 patch merging으로 고해상도 비전 입력에서 효율적인 다중 스케일 Transformer 표현을 학습한다.',
+    contributions: [
+      'window 기반 self-attention으로 고해상도 계산량 절감',
+      'shifted window로 window 간 정보 교환 문제 해결',
+      'patch merging을 통한 CNN식 계층형 feature pyramid 구성',
+      'classification/detection/segmentation 공통 백본 성능 검증',
+      '상대 위치 bias와 cyclic shift 구현 패턴 정립',
+      'SwinLSTM, Swin-UNet 등 후속 응용 백본 제공',
+    ],
+    steps: [
+      '이미지를 patch partition으로 토큰화',
+      'linear embedding으로 초기 feature map 구성',
+      'W-MSA와 SW-MSA 블록을 교대로 적용',
+      'patch merging으로 해상도 감소 및 채널 증가',
+      'stage별 계층 표현을 task head로 전달',
+      'classification/detection/segmentation으로 전이 평가',
+    ],
+    equations: [
+      eq('Window Attention', 'Attention(Q,K,V)=SoftMax(QK^T/\\sqrt{d}+B)V', '상대 위치 bias B를 더해 window 내부 self-attention을 계산한다.'),
+      eq('W-MSA Complexity', '\\Omega(W\\text{-}MSA)=4hwC^2+2M^2hwC', 'window 크기 M을 고정하면 attention 항이 이미지 크기 hw에 선형으로 증가한다.'),
+      eq('Shifted Window Block', '\\hat z^l=W\\text{-}MSA(LN(z^{l-1}))+z^{l-1},\\quad \\hat z^{l+1}=SW\\text{-}MSA(LN(z^l))+z^l', '일반 window와 shifted window 블록을 번갈아 배치해 지역 효율과 cross-window 연결을 동시에 확보한다.'),
+    ],
+    problem:
+      '표준 ViT의 전역 attention은 토큰 수에 대해 제곱 비용을 가지며, 고해상도 dense prediction에서는 CNN처럼 계층적 feature map이 필요하다.',
+    core:
+      'attention을 고정 크기 window 안에서 계산하고 다음 블록에서 window를 이동시켜 낮은 비용으로 인접 window 간 문맥을 섞는다.',
+    equationPoints: [
+      'Window Attention 식은 전역 attention을 지역 window 단위로 제한하면서 상대 위치 정보를 보존한다.',
+      '복잡도 식은 표준 MSA의 quadratic image-size 비용을 window-size 고정 선형 비용으로 바꾼다.',
+      'shifted block 식은 두 연속 블록이 서로 다른 window partition을 보게 해 cross-window 연결을 만든다.',
+    ],
+    impl: [
+      'window size와 입력 해상도 호환성을 먼저 점검한다.',
+      'cyclic shift 이후 attention mask가 올바르게 적용되는지 확인한다.',
+      'patch merging 단계의 해상도/채널 변화가 downstream head와 맞아야 한다.',
+      '상대 위치 bias table은 window size 변경 시 보간 또는 재초기화 정책이 필요하다.',
+    ],
+    limitations:
+      'window 내부 attention은 전역 상호작용을 직접 계산하지 않으므로 장거리 문맥은 stage 깊이와 shifted window 연결에 의존한다. 이후 SwinV2, window-free/global-token 혼합 계열이 이 한계를 보완했다.',
+  },
 };
 
 const PAPER_TO_FAMILY = {
@@ -514,6 +556,7 @@ const PAPER_TO_FAMILY = {
   'BERT: Pre-training of Deep Bidirectional Transformers for Language Understanding': 'bert',
   'Masked Autoencoders Are Scalable Vision Learners': 'mae',
   'An Image is Worth 16x16 Words: Transformers for Image Recognition at Scale': 'vit',
+  'Swin Transformer: Hierarchical Vision Transformer using Shifted Windows': 'swin',
 };
 
 const data = JSON.parse(fs.readFileSync(dataPath, 'utf8'));
