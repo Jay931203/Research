@@ -697,11 +697,10 @@ export default function PaperStudyPage() {
   const [activeSection, setActiveSection] = useState<string>(TOC_SECTIONS[0].id);
   const [isTocCollapsed, setIsTocCollapsed] = useState(false);
   const [isCommandPaletteOpen, setIsCommandPaletteOpen] = useState(false);
-  const [isEvidenceReaderOpen, setIsEvidenceReaderOpen] = useState(false);
   const observerRef = useRef<IntersectionObserver | null>(null);
 
   useEffect(() => {
-    if (!paper) return;
+    if (!paper || evidencePdfUrl) return;
 
     const sectionsToWatch =
       (paper.arxiv_id && FULL_STUDY_TOC_REGISTRY[paper.arxiv_id])
@@ -742,7 +741,7 @@ export default function PaperStudyPage() {
     }
 
     return () => intersectionObs.disconnect();
-  }, [paper]);
+  }, [paper, evidencePdfUrl]);
 
   /* ---------- keyboard shortcuts ---------- */
 
@@ -858,7 +857,7 @@ export default function PaperStudyPage() {
     );
   }
 
-  if (isEvidenceReaderOpen && evidencePdfUrl) {
+  if (evidencePdfUrl) {
     return (
       <div className="min-h-screen bg-gray-50 dark:bg-gray-950">
         <Header onSearchClick={() => setIsCommandPaletteOpen(true)} />
@@ -873,16 +872,8 @@ export default function PaperStudyPage() {
               대시보드
             </Link>
             <ChevronRight className="h-3 w-3 flex-shrink-0 text-gray-400" />
-            <button
-              type="button"
-              onClick={() => setIsEvidenceReaderOpen(false)}
-              className="flex-shrink-0 text-gray-500 transition hover:text-blue-600 dark:text-gray-400 dark:hover:text-blue-400"
-            >
-              논문 상세
-            </button>
-            <ChevronRight className="h-3 w-3 flex-shrink-0 text-gray-400" />
             <span className="truncate font-medium text-gray-800 dark:text-gray-200">
-              PDF 근거 보기
+              {paper.title}
             </span>
           </div>
         </div>
@@ -891,7 +882,6 @@ export default function PaperStudyPage() {
           title={paper.title}
           pdfUrl={evidencePdfUrl}
           blocks={evidenceBlocks}
-          onClose={() => setIsEvidenceReaderOpen(false)}
         />
       </div>
     );
@@ -944,16 +934,6 @@ export default function PaperStudyPage() {
               </span>
             </div>
             <div className="flex flex-shrink-0 items-center gap-1">
-              {evidencePdfUrl && (
-                <button
-                  type="button"
-                  onClick={() => setIsEvidenceReaderOpen(true)}
-                  className="mr-2 inline-flex items-center gap-1.5 rounded-lg border border-emerald-300 px-3 py-1.5 text-xs font-semibold text-emerald-700 transition hover:bg-emerald-50 dark:border-emerald-700 dark:text-emerald-300 dark:hover:bg-emerald-900/30"
-                >
-                  <FileText className="h-3.5 w-3.5" />
-                  PDF 근거 보기
-                </button>
-              )}
               <button
                 onClick={() => prevPaper && router.push(`/paper/${prevPaper.id}`)}
                 disabled={!prevPaper}
@@ -1138,16 +1118,6 @@ export default function PaperStudyPage() {
             </span>
           </div>
           <div className="flex flex-shrink-0 items-center gap-1">
-            {evidencePdfUrl && (
-              <button
-                type="button"
-                onClick={() => setIsEvidenceReaderOpen(true)}
-                className="mr-2 inline-flex items-center gap-1.5 rounded-lg border border-emerald-300 px-3 py-1.5 text-xs font-semibold text-emerald-700 transition hover:bg-emerald-50 dark:border-emerald-700 dark:text-emerald-300 dark:hover:bg-emerald-900/30"
-              >
-                <FileText className="h-3.5 w-3.5" />
-                PDF 근거 보기
-              </button>
-            )}
             <button
               onClick={() => prevPaper && router.push(`/paper/${prevPaper.id}`)}
               disabled={!prevPaper}
@@ -1291,16 +1261,6 @@ export default function PaperStudyPage() {
                     {isInMap ? <Minus className="h-3.5 w-3.5" /> : <Plus className="h-3.5 w-3.5" />}
                     {isInMap ? '관계 맵에서 제거' : '관계 맵에 추가'}
                   </button>
-                  {evidencePdfUrl && (
-                    <button
-                      type="button"
-                      onClick={() => setIsEvidenceReaderOpen(true)}
-                      className="inline-flex items-center gap-1.5 rounded-lg bg-emerald-600 px-4 py-2 text-xs font-semibold text-white transition hover:bg-emerald-700"
-                    >
-                      <FileText className="h-3.5 w-3.5" />
-                      PDF 근거 보기
-                    </button>
-                  )}
                   {paper.pdf_url && (
                     <a
                       href={paper.pdf_url}

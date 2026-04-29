@@ -40,7 +40,6 @@ interface PdfEvidenceReaderProps {
   title: string;
   pdfUrl: string;
   blocks: PaperEvidenceBlock[];
-  onClose: () => void;
 }
 
 const KIND_LABELS: Record<PaperEvidenceBlock['kind'], string> = {
