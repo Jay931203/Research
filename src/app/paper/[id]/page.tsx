@@ -47,12 +47,14 @@ import {
   RELATIONSHIP_STYLES,
 } from '@/lib/visualization/graphUtils';
 import PaperEquations from '@/components/papers/PaperEquation';
+import PdfEvidenceReader from '@/components/papers/PdfEvidenceReader';
 import NoteEditor from '@/components/notes/NoteEditor';
 import MarkdownContent from '@/components/common/MarkdownContent';
 import { useGlossary, getTermsForPaper } from '@/hooks/useGlossary';
 import GlossaryHighlighter from '@/components/glossary/GlossaryHighlighter';
 import { GlossaryTermsContext } from '@/components/glossary/GlossaryContext';
 import { useAppStore } from '@/store/useAppStore';
+import { getEvidenceBlocksForPaper, resolvePaperPdfUrl } from '@/lib/papers/evidenceRefs';
 import katex from 'katex';
 
 /* ------------------------------------------------------------------ */
@@ -687,12 +689,15 @@ export default function PaperStudyPage() {
   );
   const architectureCards = splitArchitectureSections(paper?.architecture_detail ?? '');
   const mapPaperIdSet = useMemo(() => new Set(mapPaperIds ?? []), [mapPaperIds]);
+  const evidencePdfUrl = useMemo(() => (paper ? resolvePaperPdfUrl(paper) : null), [paper]);
+  const evidenceBlocks = useMemo(() => (paper ? getEvidenceBlocksForPaper(paper) : []), [paper]);
 
   /* ---------- IntersectionObserver for ToC highlight ---------- */
 
   const [activeSection, setActiveSection] = useState<string>(TOC_SECTIONS[0].id);
   const [isTocCollapsed, setIsTocCollapsed] = useState(false);
   const [isCommandPaletteOpen, setIsCommandPaletteOpen] = useState(false);
+  const [isEvidenceReaderOpen, setIsEvidenceReaderOpen] = useState(false);
   const observerRef = useRef<IntersectionObserver | null>(null);
 
   useEffect(() => {
@@ -853,6 +858,45 @@ export default function PaperStudyPage() {
     );
   }
 
+  if (isEvidenceReaderOpen && evidencePdfUrl) {
+    return (
+      <div className="min-h-screen bg-gray-50 dark:bg-gray-950">
+        <Header onSearchClick={() => setIsCommandPaletteOpen(true)} />
+        <CommandPalette isOpen={isCommandPaletteOpen} onClose={() => setIsCommandPaletteOpen(false)} />
+
+        <div className="border-b border-gray-200 bg-white px-4 py-2 dark:border-gray-800 dark:bg-gray-900">
+          <div className="mx-auto flex max-w-[1800px] items-center gap-2 text-sm">
+            <Link
+              href="/dashboard"
+              className="flex-shrink-0 text-gray-500 transition hover:text-blue-600 dark:text-gray-400 dark:hover:text-blue-400"
+            >
+              대시보드
+            </Link>
+            <ChevronRight className="h-3 w-3 flex-shrink-0 text-gray-400" />
+            <button
+              type="button"
+              onClick={() => setIsEvidenceReaderOpen(false)}
+              className="flex-shrink-0 text-gray-500 transition hover:text-blue-600 dark:text-gray-400 dark:hover:text-blue-400"
+            >
+              논문 상세
+            </button>
+            <ChevronRight className="h-3 w-3 flex-shrink-0 text-gray-400" />
+            <span className="truncate font-medium text-gray-800 dark:text-gray-200">
+              PDF 근거 보기
+            </span>
+          </div>
+        </div>
+
+        <PdfEvidenceReader
+          title={paper.title}
+          pdfUrl={evidencePdfUrl}
+          blocks={evidenceBlocks}
+          onClose={() => setIsEvidenceReaderOpen(false)}
+        />
+      </div>
+    );
+  }
+
   const familiarityLevel = paper.familiarity_level ?? 'not_started';
   const familiarityColor = FAMILIARITY_COLORS[familiarityLevel] ?? '#9ca3af';
   const isInMap = mapPaperIds === null || mapPaperIdSet.has(paper.id);
@@ -900,6 +944,16 @@ export default function PaperStudyPage() {
               </span>
             </div>
             <div className="flex flex-shrink-0 items-center gap-1">
+              {evidencePdfUrl && (
+                <button
+                  type="button"
+                  onClick={() => setIsEvidenceReaderOpen(true)}
+                  className="mr-2 inline-flex items-center gap-1.5 rounded-lg border border-emerald-300 px-3 py-1.5 text-xs font-semibold text-emerald-700 transition hover:bg-emerald-50 dark:border-emerald-700 dark:text-emerald-300 dark:hover:bg-emerald-900/30"
+                >
+                  <FileText className="h-3.5 w-3.5" />
+                  PDF 근거 보기
+                </button>
+              )}
               <button
                 onClick={() => prevPaper && router.push(`/paper/${prevPaper.id}`)}
                 disabled={!prevPaper}
@@ -1084,6 +1138,16 @@ export default function PaperStudyPage() {
             </span>
           </div>
           <div className="flex flex-shrink-0 items-center gap-1">
+            {evidencePdfUrl && (
+              <button
+                type="button"
+                onClick={() => setIsEvidenceReaderOpen(true)}
+                className="mr-2 inline-flex items-center gap-1.5 rounded-lg border border-emerald-300 px-3 py-1.5 text-xs font-semibold text-emerald-700 transition hover:bg-emerald-50 dark:border-emerald-700 dark:text-emerald-300 dark:hover:bg-emerald-900/30"
+              >
+                <FileText className="h-3.5 w-3.5" />
+                PDF 근거 보기
+              </button>
+            )}
             <button
               onClick={() => prevPaper && router.push(`/paper/${prevPaper.id}`)}
               disabled={!prevPaper}
@@ -1227,6 +1291,16 @@ export default function PaperStudyPage() {
                     {isInMap ? <Minus className="h-3.5 w-3.5" /> : <Plus className="h-3.5 w-3.5" />}
                     {isInMap ? '관계 맵에서 제거' : '관계 맵에 추가'}
                   </button>
+                  {evidencePdfUrl && (
+                    <button
+                      type="button"
+                      onClick={() => setIsEvidenceReaderOpen(true)}
+                      className="inline-flex items-center gap-1.5 rounded-lg bg-emerald-600 px-4 py-2 text-xs font-semibold text-white transition hover:bg-emerald-700"
+                    >
+                      <FileText className="h-3.5 w-3.5" />
+                      PDF 근거 보기
+                    </button>
+                  )}
                   {paper.pdf_url && (
                     <a
                       href={paper.pdf_url}
