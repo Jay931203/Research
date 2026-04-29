@@ -1,6 +1,6 @@
 'use client';
 
-import { useEffect, useMemo, useRef, useState } from 'react';
+import { useEffect, useMemo, useRef, useState, type CSSProperties } from 'react';
 import {
   AlertTriangle,
   BookOpen,
@@ -18,7 +18,6 @@ import {
   RotateCcw,
   Route,
   Sparkles,
-  X,
   Zap,
 } from 'lucide-react';
 import katex from 'katex';
@@ -241,8 +240,9 @@ function MoRStudyRoadmap() {
   );
 }
 
-export default function PdfEvidenceReader({ title, pdfUrl, blocks, onClose }: PdfEvidenceReaderProps) {
+export default function PdfEvidenceReader({ title, pdfUrl, blocks }: PdfEvidenceReaderProps) {
   const canvasRef = useRef<HTMLCanvasElement | null>(null);
+  const splitContainerRef = useRef<HTMLDivElement | null>(null);
   const renderTaskRef = useRef<{ cancel: () => void } | null>(null);
   const normalizedBlocks = useMemo(() => normalizeBlocks(blocks), [blocks]);
   const [pdfDoc, setPdfDoc] = useState<PdfDocumentProxyLike | null>(null);
@@ -253,12 +253,61 @@ export default function PdfEvidenceReader({ title, pdfUrl, blocks, onClose }: Pd
   const [activeBlockId, setActiveBlockId] = useState(normalizedBlocks[0]?.id ?? '');
   const [isLoading, setIsLoading] = useState(true);
   const [isRendering, setIsRendering] = useState(false);
+  const [splitPercent, setSplitPercent] = useState(56);
+  const [isPaneResizing, setIsPaneResizing] = useState(false);
   const [error, setError] = useState<string | null>(null);
 
   const activeBlock = useMemo(
     () => normalizedBlocks.find((block) => block.id === activeBlockId) ?? normalizedBlocks[0],
     [activeBlockId, normalizedBlocks],
   );
+
+  useEffect(() => {
+    const saved = window.localStorage.getItem('pdfEvidenceReader.splitPercent');
+    if (!saved) return;
+
+    const value = Number(saved);
+    if (Number.isFinite(value)) {
+      setSplitPercent(Math.min(72, Math.max(36, value)));
+    }
+  }, []);
+
+  useEffect(() => {
+    window.localStorage.setItem('pdfEvidenceReader.splitPercent', String(splitPercent));
+  }, [splitPercent]);
+
+  useEffect(() => {
+    if (!isPaneResizing) return;
+
+    const handlePointerMove = (event: PointerEvent) => {
+      const container = splitContainerRef.current;
+      if (!container) return;
+
+      const rect = container.getBoundingClientRect();
+      if (rect.width <= 0) return;
+
+      const nextPercent = ((event.clientX - rect.left) / rect.width) * 100;
+      setSplitPercent(Math.min(72, Math.max(36, Number(nextPercent.toFixed(1)))));
+    };
+
+    const stopResizing = () => setIsPaneResizing(false);
+    const previousCursor = document.body.style.cursor;
+    const previousUserSelect = document.body.style.userSelect;
+
+    document.body.style.cursor = 'col-resize';
+    document.body.style.userSelect = 'none';
+    window.addEventListener('pointermove', handlePointerMove);
+    window.addEventListener('pointerup', stopResizing);
+    window.addEventListener('pointercancel', stopResizing);
+
+    return () => {
+      document.body.style.cursor = previousCursor;
+      document.body.style.userSelect = previousUserSelect;
+      window.removeEventListener('pointermove', handlePointerMove);
+      window.removeEventListener('pointerup', stopResizing);
+      window.removeEventListener('pointercancel', stopResizing);
+    };
+  }, [isPaneResizing]);
 
   useEffect(() => {
     let cancelled = false;
@@ -394,19 +443,15 @@ export default function PdfEvidenceReader({ title, pdfUrl, blocks, onClose }: Pd
               <ExternalLink className="h-3.5 w-3.5" />
               원본 PDF
             </a>
-            <button
-              type="button"
-              onClick={onClose}
-              className="inline-flex items-center gap-1.5 rounded-xl bg-slate-950 px-3 py-2 text-xs font-bold text-white transition hover:bg-slate-800 dark:bg-white dark:text-slate-950"
-            >
-              <X className="h-3.5 w-3.5" />
-              일반 보기
-            </button>
           </div>
         </div>
       </div>
 
-      <div className="mx-auto grid min-h-0 w-full max-w-[1800px] flex-1 gap-4 overflow-hidden p-4 lg:grid-cols-[minmax(0,1.12fr)_minmax(430px,0.88fr)]">
+      <div
+        ref={splitContainerRef}
+        className="mx-auto grid min-h-0 w-full max-w-[1800px] flex-1 gap-4 overflow-hidden p-4 lg:grid-cols-[minmax(0,var(--reader-left))_14px_minmax(0,1fr)] lg:gap-2"
+        style={{ '--reader-left': `${splitPercent}%` } as CSSProperties}
+      >
         <section className="flex min-h-0 flex-col rounded-2xl border border-slate-200 bg-slate-900 p-3 shadow-sm dark:border-slate-800">
           <div className="mb-3 flex flex-wrap items-center justify-between gap-2 rounded-xl bg-slate-950/80 px-3 py-2 text-white">
             <div className="flex items-center gap-1">
@@ -498,6 +543,27 @@ export default function PdfEvidenceReader({ title, pdfUrl, blocks, onClose }: Pd
             )}
           </div>
         </section>
+
+        <div
+          role="separator"
+          aria-label="PDF와 설명 패널 폭 조절"
+          aria-orientation="vertical"
+          className="group hidden min-h-0 cursor-col-resize items-center justify-center rounded-full lg:flex"
+          onPointerDown={(event) => {
+            event.preventDefault();
+            setIsPaneResizing(true);
+          }}
+          onDoubleClick={() => setSplitPercent(56)}
+          title="드래그해서 좌우 폭을 조절합니다. 더블클릭하면 기본값으로 돌아갑니다."
+        >
+          <div
+            className={`h-24 w-1.5 rounded-full transition ${
+              isPaneResizing
+                ? 'bg-emerald-500'
+                : 'bg-slate-300 group-hover:bg-emerald-400 dark:bg-slate-700 dark:group-hover:bg-emerald-500'
+            }`}
+          />
+        </div>
 
         <aside className="min-h-0 space-y-4 overflow-y-auto pr-1">
           <div className="rounded-2xl border border-emerald-200 bg-emerald-50 p-4 dark:border-emerald-900 dark:bg-emerald-950/30">
