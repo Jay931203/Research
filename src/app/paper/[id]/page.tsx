@@ -859,7 +859,7 @@ export default function PaperStudyPage() {
 
   if (evidencePdfUrl) {
     return (
-      <div className="min-h-screen bg-gray-50 dark:bg-gray-950">
+      <div className="h-screen overflow-hidden bg-gray-50 dark:bg-gray-950">
         <Header onSearchClick={() => setIsCommandPaletteOpen(true)} />
         <CommandPalette isOpen={isCommandPaletteOpen} onClose={() => setIsCommandPaletteOpen(false)} />
 
@@ -882,6 +882,19 @@ export default function PaperStudyPage() {
           title={paper.title}
           pdfUrl={evidencePdfUrl}
           blocks={evidenceBlocks}
+          notePanel={
+            <NoteEditor
+              paperId={paper.id}
+              initialContent={paper.note_content || ''}
+              initialFamiliarity={paper.familiarity_level || 'not_started'}
+              initialFavorite={paper.is_favorite || false}
+              initialImportance={paper.importance_rating || 0}
+              initialTags={paper.personal_tags ?? EMPTY_TAGS}
+              onSave={async () => {
+                await refreshPapers();
+              }}
+            />
+          }
         />
       </div>
     );

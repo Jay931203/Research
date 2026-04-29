@@ -26,6 +26,22 @@ interface SeminarEntry {
 
 const labSeminars: SeminarEntry[] = [
   {
+    date: '260430',
+    displayDate: '2026. 04. 30',
+    slug: 'piml',
+    title: 'Physics-informed Machine Learning',
+    papers: 4,
+    demos: 1,
+    tags: ['PIML', 'PINN', 'DeepONet', 'PINO', 'PDE', 'Neural Operator'],
+    color: 'from-cyan-500 to-emerald-600',
+    references: [
+      { authors: 'Karniadakis et al.', title: 'Physics-informed machine learning', venue: 'Nature Reviews Physics', year: 2021 },
+      { authors: 'Raissi et al.', title: 'Physics-informed neural networks', venue: 'Journal of Computational Physics', year: 2019 },
+      { authors: 'Wang et al.', title: 'Learning the solution operator of parametric PDEs with physics-informed DeepONets', venue: 'Science Advances', year: 2021 },
+      { authors: 'Li et al.', title: 'Physics-informed neural operator for learning partial differential equations', venue: 'ACM/IMS Journal of Data Science', year: 2024 },
+    ],
+  },
+  {
     date: '260326',
     displayDate: '2026. 03. 26',
     slug: 'atomic-norm',

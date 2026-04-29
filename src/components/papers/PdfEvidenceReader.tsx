@@ -1,6 +1,6 @@
 'use client';
 
-import { useEffect, useMemo, useRef, useState, type CSSProperties } from 'react';
+import { useEffect, useMemo, useRef, useState, type CSSProperties, type ReactNode } from 'react';
 import {
   AlertTriangle,
   BookOpen,
@@ -40,6 +40,7 @@ interface PdfEvidenceReaderProps {
   title: string;
   pdfUrl: string;
   blocks: PaperEvidenceBlock[];
+  notePanel?: ReactNode;
 }
 
 const KIND_LABELS: Record<PaperEvidenceBlock['kind'], string> = {
@@ -239,7 +240,12 @@ function MoRStudyRoadmap() {
   );
 }
 
-export default function PdfEvidenceReader({ title, pdfUrl, blocks }: PdfEvidenceReaderProps) {
+export default function PdfEvidenceReader({
+  title,
+  pdfUrl,
+  blocks,
+  notePanel,
+}: PdfEvidenceReaderProps) {
   const canvasRef = useRef<HTMLCanvasElement | null>(null);
   const splitContainerRef = useRef<HTMLDivElement | null>(null);
   const renderTaskRef = useRef<{ cancel: () => void } | null>(null);
@@ -422,7 +428,7 @@ export default function PdfEvidenceReader({ title, pdfUrl, blocks }: PdfEvidence
   const isMoRStudy = normalizedBlocks.some((block) => block.id.startsWith('mor-'));
 
   return (
-    <div className="flex h-[calc(100vh-6.75rem)] flex-col overflow-hidden bg-slate-100 dark:bg-slate-950">
+    <div className="flex h-[calc(100vh-6.5rem)] flex-col overflow-hidden bg-slate-100 dark:bg-slate-950">
       <div className="shrink-0 border-b border-slate-200 bg-white/95 px-4 py-3 backdrop-blur dark:border-slate-800 dark:bg-slate-950/95">
         <div className="mx-auto flex max-w-[1800px] flex-wrap items-center justify-between gap-3">
           <div className="min-w-0">
@@ -431,13 +437,11 @@ export default function PdfEvidenceReader({ title, pdfUrl, blocks }: PdfEvidence
               PDF Evidence Reader
             </div>
             <h2 className="mt-1 truncate text-sm font-black text-slate-900 dark:text-white md:text-base">{title}</h2>
-          </div>
-          <div className="flex flex-wrap items-center gap-2">
             <a
               href={pdfUrl}
               target="_blank"
               rel="noopener noreferrer"
-              className="inline-flex items-center gap-1.5 rounded-xl border border-slate-200 bg-white px-3 py-2 text-xs font-bold text-slate-700 transition hover:bg-slate-50 dark:border-slate-800 dark:bg-slate-900 dark:text-slate-200"
+              className="mt-2 inline-flex w-fit items-center gap-1.5 rounded-xl border border-slate-200 bg-white px-3 py-2 text-xs font-bold text-slate-700 transition hover:bg-slate-50 dark:border-slate-800 dark:bg-slate-900 dark:text-slate-200"
             >
               <ExternalLink className="h-3.5 w-3.5" />
               원본 PDF
@@ -565,6 +569,13 @@ export default function PdfEvidenceReader({ title, pdfUrl, blocks }: PdfEvidence
         </div>
 
         <aside className="min-h-0 space-y-4 overflow-y-auto pr-1">
+          {notePanel && (
+            <section className="rounded-2xl border border-slate-200 bg-white p-4 shadow-sm dark:border-slate-800 dark:bg-slate-900">
+              <h3 className="mb-3 text-sm font-black text-slate-950 dark:text-white">학습 노트</h3>
+              {notePanel}
+            </section>
+          )}
+
           <div className="rounded-2xl border border-emerald-200 bg-emerald-50 p-4 dark:border-emerald-900 dark:bg-emerald-950/30">
             <div className="flex items-start gap-3">
               <div className="rounded-xl bg-emerald-600 p-2 text-white">
